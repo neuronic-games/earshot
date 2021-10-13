@@ -1,0 +1,6 @@
+export * from './utils'
+export * from './matrix'
+export * from './coordinates'
+export * from './promise'
+export * from './color'
+export * from './getMimeType'

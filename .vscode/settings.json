@@ -1,0 +1,10 @@
+{
+  "editor.tabSize": 2,
+  "editor.detectIndentation": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.tslint": true
+  },
+  "tslint.packageManager": "yarn",
+  "terminal.explorerKind": "external"
+}

@@ -1,0 +1,95 @@
+{
+  "name": "binaural-meet",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "^4.9.12",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/styles": "^4.11.3",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/jquery": "^3.5.5",
+    "@types/md5": "^2.3.0",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-color": "^3.0.4",
+    "@types/react-dom": "^17.0.0",
+    "@types/react-sidebar": "^3.0.0",
+    "@types/throttle-debounce": "^2.1.0",
+    "add": "^2.0.6",
+    "customize-cra": "^1.0.0",
+    "flatted": "^3.1.1",
+    "git": "^0.1.5",
+    "i18next": "^19.9.1",
+    "i18next-browser-languagedetector": "^6.0.1",
+    "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
+    "material-ui-dropzone": "^3.3.0",
+    "md5": "^2.3.0",
+    "mobx": "*",
+    "mobx-react-lite": "^3.2.0",
+    "pdfjs-dist": "^2.7.570",
+    "react": "^17.0.2",
+    "react-color": "^2.19.3",
+    "react-dom": "^17.0.2",
+    "react-draggable": "^4.4.3",
+    "react-i18next": "^11.8.8",
+    "react-resize-observer": "^1.1.1",
+    "react-rnd": "https://github.com/hasevr/react-rnd.git",
+    "react-scripts": "4.0.3",
+    "react-split-pane": "^0.1.92",
+    "react-use-gesture": "^7.0.15",
+    "sass": "^1.26.11",
+    "sass-loader": "^10.0.2",
+    "tern": "^0.24.3",
+    "throttle-debounce": "^2.1.0",
+    "typescript": "^4.1.2",
+    "web-vitals": "^1.0.1",
+    "yt-player": "https://github.com/BinauralMeet/yt-player.git"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "starthttps": "HTTPS=true react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "link-lib-jitsi-meet": "cd libs/lib-jitsi-meet; yarn link; cd ../../; yarn link lib-jitsi-meet",
+    "link-typing-lib-jitsi-meet": "cd libs/@types/lib-jitsi-meet; yarn link; cd ../../../; yarn link @types/lib-jitsi-meet",
+    "link-lib": "yarn run link-lib-jitsi-meet;yarn run link-typing-lib-jitsi-meet"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@iconify-icons/bx": "^1.1.0",
+    "@iconify-icons/clarity": "^1.1.1",
+    "@iconify-icons/fa": "^1.1.0",
+    "@iconify-icons/fa-solid": "^1.1.1",
+    "@iconify-icons/fluent": "^1.1.14",
+    "@iconify-icons/heroicons-outline": "^1.1.2",
+    "@iconify/icons-mdi": "^1.1.13",
+    "@iconify/icons-bi": "^1.1.6",
+    "@iconify/react": "^1.1.4",
+    "@types/lodash": "^4.14.168",
+    "@types/pdfjs-dist": "^2.7.2",
+    "react-app-rewired": "^2.1.8"
+  }
+}
