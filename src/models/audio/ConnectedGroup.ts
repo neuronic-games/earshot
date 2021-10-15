@@ -54,7 +54,7 @@ export class ConnectedGroup {
         if (remote && !remote.physics.located) {
           // not located yet -> mute sound
           group.updatePose(convertToAudioCoordinate({orientation:0, position:[MAP_SIZE, MAP_SIZE]}))
-        }else {
+        } else {
           const relativePose = getRelativePoseFromObject(base, remote, content)
           const pose = convertToAudioCoordinate(relativePose)
           group.updatePose(pose)

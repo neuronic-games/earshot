@@ -4,7 +4,10 @@ import {mulV3, normV} from '@models/utils/coordinates'
 import errorInfo from '@stores/ErrorInfo'
 import {ConfigurableParams, ConfigurableProp} from './StereoParameters'
 import contents from '@stores/sharedContents/SharedContents'
+//import { participants } from '@stores/'
 //import {useStore} from '@hooks/MapStore'
+import participants from '@stores/participants/Participants'
+
 
 export function setAudioOutputDevice(audio: HTMLAudioElement, deviceId: string) {
   const audioEx:any = audio
@@ -156,6 +159,8 @@ export class NodeGroup {
     const participant_pose = pose
     const dist = normV(pose.position)
 
+    
+
     const mul = ((dist * dist) / (this.pannerNode.refDistance * this.pannerNode.refDistance)
       + this.pannerNode.refDistance - 1) / (dist ? dist : 1)
     this.distance = mul * dist
@@ -218,6 +223,9 @@ export class NodeGroup {
     let xD = (_x - 100)
     let yD = (_y - 100)
     
+    participants.local.setPhysics({inProximity: true})
+
+    
 
     //console.log(contents.all)
     for (let i=0; i<cLength; i++) {
@@ -225,7 +233,7 @@ export class NodeGroup {
 
       
       
-      
+      //participants.local.savePhysicsToStorage(false)
       
 
       
@@ -241,6 +249,8 @@ export class NodeGroup {
         
         //if(xUpdated >= xDiff && xUpdated < wDiff && yUpdated >= yDiff && yUpdated <= hDiff) {
 
+        
+
           cWidth = ((contents.all[i].pose.position[0] + contents.all[i].size[0]) - 50)
           cHeight = ((contents.all[i].pose.position[1] + contents.all[i].size[1]) - 60)
 
@@ -248,7 +258,7 @@ export class NodeGroup {
       
           //console.log(_x, " DISTANCE Content ", cPose.position[0])
 
-          //console.log(" -- ", cPose, " -------- ", contents.all[i].pose)
+          //console.log(_x, " -- ", cPose, " -------- ", contents.all[i].pose)
 
 
           // , " -- y user", (yPos + 475), " -- y content ", cPose.position[2]
@@ -299,8 +309,6 @@ export class NodeGroup {
                 }
               }
             } */
-        
-        
 
           let wD = (cW + 100)
           let hD = (cH + 100)

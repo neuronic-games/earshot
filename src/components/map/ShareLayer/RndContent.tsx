@@ -19,7 +19,7 @@ import {t} from '@models/locales'
 import {Pose2DMap} from '@models/utils'
 import {addV2, extractScaleX, extractScaleY, mulV, rotateVector2DByDegree, subV2, mulV2, normV} from '@models/utils'
 import {copyContentToClipboard, moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator'
-import _ from 'lodash'
+import _, { stubFalse } from 'lodash'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {Rnd} from 'react-rnd'
@@ -33,6 +33,8 @@ import {useStore as useMapStore} from '@hooks/MapStore'
 
 
 const MOUSE_RIGHT = 2
+const TIMER_DELAY = 3 * 1000 // For 3 secs
+const BORDER_TIMER_DELAY = 1 * 1000 // For 1 secs
 
 export type MouseOrTouch = React.MouseEvent | React.TouchEvent
 export interface RndContentProps extends ISharedContentProps {
@@ -59,12 +61,16 @@ class RndContentMember{
   _down = false
   downTime = 0
   upTime = 0
+  _item = ''
+  _timer = 0
+  _borderTimer = 0
 }
 
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
 export const TITLE_HEIGHT = 24
+
 export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => {
   /*
   function rotateG2C(gv: [number, number]) {
@@ -121,10 +127,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     ()=> {
       member.dragCanceled = true
       if(props.content.shareType != "img") {
-        setTimeout( function() {
-          if(member._down === false) return
-          //setShowTitle(false)
-        }, 3000)
+        window.setTimeout( function() {
+          //console.log(showTitle, " Calling function everytime")
+          //if(showTitle === true) return
+           setShowTitle(false)
+        }, TIMER_DELAY)
       }
       if (!_.isEqual(size, props.content.size)) {
         setSize(_.cloneDeep(props.content.size))
@@ -317,25 +324,41 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         let diffTime = member.upTime - member.downTime
         //console.log(diffTime, " ft ", String(Object(arg.target).tagName))
         if(diffTime < 1 && String(Object(arg.target).tagName) === "DIV") {
-        if(member._down === false) return
-          const local = participants.local
-          const diff = subV2(mapStore.mouseOnMap, local.pose.position)
-          if (normV(diff) > 60 / 2) {
-            const dir = mulV2(normV(diff) / normV(diff), diff)
-            local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-            //if (move) {
-            local.pose.position = addV2(local.pose.position, dir)
-            //}
-            local.savePhysicsToStorage(false)
-          }
-        }
+          if(member._down === false) return
+            const local = participants.local
+            const diff = subV2(mapStore.mouseOnMap, local.pose.position)
+            if (normV(diff) > 60 / 2) {
+              const dir = mulV2(normV(diff) / normV(diff), diff)
+              local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+              //if (move) {
+              local.pose.position = addV2(local.pose.position, dir)
+              //}
+              local.savePhysicsToStorage(false)
 
-      }
-       member._down = false;
+              // Showing border around
+              setShowBorder(true)
+              // Start Timer to disable border
+              clearTimeout(member._borderTimer)
+              showHideBorder()
+            }
+          }
+         
+        }
+      member._down = false;
+      //member._down = true;
+      member._item = String(Object(arg.target).tagName)
+
+      clearTimeout(member._timer)
+      showHideTimer()
     },
     onMouseMove: (arg) => {member._down = false},
     onMouseOver: (arg) => {
-        //showHideTimer(showTitle, String(Object(arg.target).tagName))
+        member._down = true
+        member._item = String(Object(arg.target).tagName)
+        //showHideTimer(true, String(Object(arg.target).tagName))
+
+        clearTimeout(member._timer)
+        showHideTimer()
     },
     onMouseDown: (arg) => {
       if(editing) {
@@ -357,7 +380,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 //console.log(showTitle, " showTitle")
                 if(showTitle === false) {
                   setShowTitle(true)
-                  //showHideTimer(showTitle, String(Object(arg.target).tagName))
+                  
+                  //showHideTimer(true, String(Object(arg.target).tagName))
+                  
                 } else {
                   //setShowTitle(false) 
                 }
@@ -371,22 +396,36 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         }, 1500)
 
         // Showing border around
-        setShowBorder(true)
+        // setShowBorder(true)
       } 
     },
     onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
   }
 
-  /* function showHideTimer(vis:boolean, onItemType:string) {
-    if(props.content.shareType != "img" && onItemType === "DIV") {
-      setTimeout( function() {
+  function showHideBorder() {  
+    member._borderTimer = window.setTimeout( function() {
+      setShowBorder(false)
+     }, BORDER_TIMER_DELAY)
+  }
+
+  //function showHideTimer(vis:boolean, onItemType:string) {
+  function showHideTimer() {  
+    //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
+    //console.log(member._item, "onItem");
+    if(member._item != "DIV") return
+    member._timer = window.setTimeout( function() {
+      //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
+      setShowTitle(false)
+      /* if(props.content.shareType != "img" && onItemType === "DIV") {
         if(vis) {
           setShowTitle(false)
+        } else {
+          setShowTitle(true)
         }
-      }, 3000)
-    }
-  } */
+      } */
+     }, TIMER_DELAY)
+  }
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
@@ -536,6 +575,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       </div>
       <div className={classes.content} ref={contentRef}>
         <Content {...props}/>
+        <div className={showBorder ? classes.dashed : undefined}></div>
       </div>
     </div>
   //  console.log('Rnd rendered.')
@@ -604,12 +644,15 @@ const useStyles = makeStyles({
     borderRadius:1, */
   }),
   dashed:(props: StyleProps) => ({
-    width:'100%',
-    height:'100%',
-    borderWidth:3,
+    position: 'relative',
+    width:'102%',
+    height:'102%',
+    borderWidth:4,
     borderStyle: 'dashed',
     borderColor:'red',
-    borderRadius:1,
+    borderRadius:0,
+    top: ((-(props.size[1])) - 6) + "px",
+    left: '-6px',
   }),
 
   titlePosition: (props:StyleProps) => (

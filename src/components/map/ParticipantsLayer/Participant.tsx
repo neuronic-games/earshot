@@ -79,21 +79,25 @@ export interface ParticipantProps{
   size: number
   onContextMenu?:(ev:React.MouseEvent<HTMLDivElement, MouseEvent>) => void
   map: MapData
+  
 }
 export interface RawParticipantProps extends ParticipantProps{
   isLocal: boolean
+  
 }
 
 const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawParticipantProps> = (props, ref) => {
   const mapData = useMapStore()
 //  const participants = useStore()
   const participant = props.participant
+  
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
     orientation: participant.pose.orientation,
     mousePosition: participant.mouse.position,
     awayFromKeyboard: participant.awayFromKeyboard,
   }))
+  //const ky = useObserver(()=> participant!.physics.inProximity)
   const name = useObserver(() => participant!.information.name)
   const audioLevel = useObserver(() =>
     participant!.trackStates.micMuted ? 0 : Math.pow(participant!.tracks.audioLevel, 0.5))
@@ -102,6 +106,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const speakerMuted = useObserver(() => participant.trackStates.speakerMuted)
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
+  
 
   const classes = useStyles({
     ...participantProps,
@@ -111,6 +116,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const [color, textColor] = participant ? participant.getColor() : ['white', 'black']
   const outerRadius = props.size / 2 + 2
   const isLocal = props.isLocal
+  
+
   const AUDIOLEVELSCALE = props.size * SVG_RATIO * HALF
   const svgCenter = SVG_RATIO * props.size * HALF
 
@@ -142,6 +149,13 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     onPointerDown: onClickEye,
   }
  */
+ 
+ const inProxZone = participant.physics.inProximity
+
+//console.log(participant.physics.inProximity, " >inProximimty")
+//participant.setPhysics({inProximity: false})
+//console.log(participant.physics.inProximity, " >inProximimty")
+
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
   const audioMeter = audioMeterSteps.map(step => audioLevel > step ?
     <React.Fragment key={step}>
@@ -164,7 +178,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       
         <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
           <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={color} />
-          {audioMeter}
+          {inProxZone ? audioMeter : undefined}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
             <g transform={`translate(${svgCenter} ${svgCenter}) rotate(-135) `}>
               <rect style={{pointerEvents: 'fill'}}

@@ -31,6 +31,7 @@ export const sharedContentHandler = (props: Stores&{content:SharedContentInfo}) 
 export const SharedContent: React.FC<ISharedContentProps> = (props:ISharedContentProps) => {
   //  set whether use keyboard input or not
   const map = props.map
+  
   const editing = useObserver(() => props.contents.editing === props.content.id)
   if (doseContentEditingUseKeyinput(props.content)){
     if (editing) {

@@ -59,7 +59,7 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
       onClick = {(ev)=>switchYarnPhone(ev, props.participant.id)}
       onContextMenu={(ev) => {ev.preventDefault(); openForm()}}
     >
-      <Participant {...props} isLocal={false}/>
+      <Participant {...props} isLocal={false} />
       <MoreButton show={showMore} className={classes.more} htmlColor={color} {...moreControl}
       buttonRef={buttonRef}
       onClickMore = {(ev)=>{

@@ -72,11 +72,13 @@ export interface Physics {
   located: boolean
   onStage: boolean
   awayFromKeyboard: boolean
+  inProximity: boolean,
 }
 export const defaultPhysics: Physics = {
   located: true,
   onStage: false,
   awayFromKeyboard: false,
+  inProximity: false,
 }
 
 export function getColorOfParticipant(information: BaseInformation) {
