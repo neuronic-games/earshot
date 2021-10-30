@@ -106,6 +106,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const speakerMuted = useObserver(() => participant.trackStates.speakerMuted)
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
+
+  const inProximimty = useObserver(() => participant.physics.inProximity)
+
+  console.log(inProximimty, " inProxomity")
   
 
   const classes = useStyles({
@@ -150,7 +154,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   }
  */
  
- const inProxZone = participant.physics.inProximity
+const inProxZone = participant.physics.inProximity
 
 //console.log(participant.physics.inProximity, " >inProximimty")
 //participant.setPhysics({inProximity: false})

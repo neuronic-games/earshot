@@ -298,7 +298,38 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
             //if (move) {
             local.pose.position = addV2(local.pose.position, dir)
             //}
+            //local.setPhysics({inProximity: false})
+            local.physics.inProximity = false
             local.savePhysicsToStorage(false)
+
+            
+
+
+            //console.log(participants.yarnPhones.keys)
+
+            // Remove yarn phone
+            
+            /* Array.from(participants.yarnPhones.keys()).filter((id) => {
+              console.log(participants.yarnPhones)
+            }) */
+            //Array.from(participants.yarnPhones.keys()).filter((id) => {
+              //console.log(participants.yarnPhones.size)
+              //participants.yarnPhones.delete(local.id)
+            //})
+
+            // Remove yarn phone
+            setTimeout(function() {
+              local.loadPhysicsFromStorage()
+            Array.from(participants.remote.keys()).filter((id) => {
+              const remote = participants.find(id)!
+              console.log(local.id, " -- ", remote.id)
+              console.log(remote.pose.position[0], " physics ", local.pose.position[0])
+              if(participants.yarnPhones.has(remote.id)) {
+                participants.yarnPhones.delete(remote.id)
+                
+              }
+            })
+            }, 2000)
           }
         }
 

@@ -52,7 +52,9 @@ interface StyleProps{
   showTitle: boolean,
   pinned: boolean,
   dragging: boolean,
-  editing: boolean
+  editing: boolean,
+  downPos: number,
+  downXPos: number,
   //proximity: boolean
 }
 class RndContentMember{
@@ -64,12 +66,14 @@ class RndContentMember{
   _item = ''
   _timer = 0
   _borderTimer = 0
+  downPos = 0
+  downXPos = 0
 }
 
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
-export const TITLE_HEIGHT = 24
+export const TITLE_HEIGHT = 35 //24
 
 export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => {
   /*
@@ -100,15 +104,20 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [size, setSize] = useState(props.content.size)  //  size of content
   const [resizeBase, setResizeBase] = useState(size)    //  size when resize start
   const [resizeBasePos, setResizeBasePos] = useState(pose.position)    //  position when resize start
-  const [showTitle, setShowTitle] = useState(!props.autoHideTitle || !props.content.pinned)
+
+  //const [showTitle, setShowTitle] = useState(!props.autoHideTitle || !props.content.pinned)
+  const [showTitle, setShowTitle] = useState(false)
+
   const [showForm, setShowForm] = useState(false)
   const [preciseOrientation, setPreciseOrientation] = useState(pose.orientation)
   const [dragging, setDragging] = useState(false)
   const rnd = useRef<Rnd>(null)                         //  ref to rnd to update position and size
   const contents = props.contents
 
+  
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
+  //const [isHover, setIsHover] = useState(false);
 
 
 
@@ -116,7 +125,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const mapStore = useMapStore()
 
   //console.log(props.content)
-  
+
+  //console.log(props.content, " -- ", participants.local.id)
 
   const editing = useObserver(() => contents.editing === props.content.id)
   function setEditing(flag: boolean) { contents.setEditing(flag ? props.content.id : '') }
@@ -125,13 +135,21 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   useEffect(  //  update pose
     ()=> {
+
       member.dragCanceled = true
       if(props.content.shareType != "img") {
-        window.setTimeout( function() {
+        clearTimeout(member._timer)
+        //if(!props.content.pinned) {
+          //setShowTitle(false)
+        //} 
+        // Fo testing
+        //setShowTitle(true)
+        member._timer = window.setTimeout( function() {
           //console.log(showTitle, " Calling function everytime")
-          //if(showTitle === true) return
+          if(showTitle === true) return
            setShowTitle(false)
-        }, TIMER_DELAY)
+           // TIMER_DELAY
+        }, 2)
       }
       if (!_.isEqual(size, props.content.size)) {
         setSize(_.cloneDeep(props.content.size))
@@ -252,7 +270,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   
+  //const isFixed = (props.autoHideTitle && props.content.pinned)
   const isFixed = (props.autoHideTitle && props.content.pinned)
+  
+  //const isOwner = (props.content.ownerName === participants.local.information.name)
+
   const handlerForTitle:UserHandlersPartial = {
     
     //onMouseEnter:(evt)=>{
@@ -281,6 +303,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onDrag: ({down, delta, event, xy, buttons}) => {
       //  console.log('onDragTitle:', delta)
+
+      if(props.content.ownerName != participants.local.information.name) return
       
       if (isFixed) { return }
       event?.stopPropagation()
@@ -320,6 +344,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if(editing) {arg.stopPropagation()}
       else
       {
+        //member.downPos = 0
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
         //console.log(diffTime, " ft ", String(Object(arg.target).tagName))
@@ -333,7 +358,25 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               //if (move) {
               local.pose.position = addV2(local.pose.position, dir)
               //}
-              local.savePhysicsToStorage(false)
+              //local.setPhysics({inProximity: true})
+              //local.savePhysicsToStorage(false)
+              //local.physics.inProximity = true
+              //local.savePhysicsToStorage(false)
+
+              
+             
+              
+              setTimeout(function() {
+                //local.loadPhysicsFromStorage();
+                // Check values
+                Array.from(participants.remote.keys()).filter((id) => {
+                  const remote = participants.find(id)!
+                  //console.log(local.id, " -- ", remote.id)
+                  //console.log(remote.pose.position[0], " physics ", local.pose.position[0], " -- ", props.content)
+                  //participants.yarnPhones.add(remote.id)
+                  console.log((remote.pose.position >= props.content.pose.position) && (local.pose.position >= props.content.pose.position))
+                })
+              }, 1);
 
               // Showing border around
               setShowBorder(true)
@@ -342,12 +385,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               showHideBorder()
             }
           }
-         
         }
-      member._down = false;
+      member._down = false
+      
       //member._down = true;
       member._item = String(Object(arg.target).tagName)
-
       clearTimeout(member._timer)
       showHideTimer()
     },
@@ -356,7 +398,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member._down = true
         member._item = String(Object(arg.target).tagName)
         //showHideTimer(true, String(Object(arg.target).tagName))
-
         clearTimeout(member._timer)
         showHideTimer()
     },
@@ -369,24 +410,32 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
         
 
+        clearTimeout(member._timer)
+
 
         //console.log(member._down, " -- ", moving)
-        setTimeout(() => {
+        member._timer = window.setTimeout(() => {
           //function moveParticipant(move: boolean) {
             //console.log(props)    
             //if(dragging === false) {
-            if (props.autoHideTitle && props.content.noFrame && member._down === true) { 
-              //if (props.autoHideTitle && props.content.noFrame && props.content.pinned && member._down === true) { 
-                //console.log(showTitle, " showTitle")
-                if(showTitle === false) {
-                  setShowTitle(true)
+            if(props.content.ownerName === participants.local.information.name) {
+            
+              if (props.autoHideTitle && props.content.noFrame && member._down === true) { 
+                //if (props.autoHideTitle && props.content.noFrame && props.content.pinned && member._down === true) { 
+                  //console.log(showTitle, " showTitle")
+                  if(showTitle === false) {
+                    //console.log(Object(arg.nativeEvent).layerY)
+                    member.downPos = Number(Object(arg.nativeEvent).layerY)
+                    member.downXPos = Number(Object(arg.nativeEvent).layerX)
+                    setShowTitle(true)
                   
-                  //showHideTimer(true, String(Object(arg.target).tagName))
-                  
-                } else {
-                  //setShowTitle(false) 
-                }
-              } 
+                    //showHideTimer(true, String(Object(arg.target).tagName))
+                    
+                  } else {
+                    //setShowTitle(false) 
+                  }
+                } 
+              }
             //} else {
             //const TIMER_INTERVAL = move ? 33 : 800
             //setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
@@ -412,7 +461,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //function showHideTimer(vis:boolean, onItemType:string) {
   function showHideTimer() {  
     //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
-    //console.log(member._item, "onItem");
+    //console.log(member._item, "onItem ", TIMER_DELAY);
+    if(props.content.ownerName != participants.local.information.name) return
+    
     if(member._item != "DIV") return
     member._timer = window.setTimeout( function() {
       //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
@@ -429,22 +480,33 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
+    if(props.content.ownerName != participants.local.information.name) return
+
     //  console.log('onDragBody:', args.delta)
     if (isFixed || props.map.keyInputUsers.has(props.content.id)) { return }
     handlerForTitle.onDrag?.call(this, args)
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
+    if(props.content.ownerName != participants.local.information.name) return
+    
+
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
     setResizeBase(size)
     setResizeBasePos(pose.position)
   }
   function onResizeStop(){
+    if(props.content.ownerName != participants.local.information.name) return
+    
+    
     if (!member.dragCanceled){ updateHandler() }
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
+    if(props.content.ownerName != participants.local.information.name) return
+    
+
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)
     if (member.dragCanceled) {
@@ -487,16 +549,27 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
 
-  const classes = useStyles({props, pose, size, showTitle, pinned:props.content.pinned, dragging, editing})
+  const classes = useStyles({props, pose, size, showTitle, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
   const formRef = React.useRef<HTMLDivElement>(null)
+  const toolRef = React.useRef<HTMLDivElement>(null)
   const gestureForContent = useGesture(handlerForContent)
   const gestureForTitle = useGesture(handlerForTitle)
   const theContent =
-    <div className={classes.rndContainer} {...gestureForContent()}>
+    <div className={classes.rndContainer} { ...gestureForContent()}>
+      <div className={classes.content} ref={contentRef}>
+        <Content {...props}/>
+        <div className={showBorder ? classes.dashed : undefined}></div>
+      </div>
       <div className={classes.titlePosition} {...gestureForTitle() /* title can be placed out of Rnd */}>
         <div className={classes.titleContainer}
+          onMouseLeave = {() => {
+            //console.log("out from title")
+            member._item = "DIV"
+            clearTimeout(member._timer)
+            showHideTimer()
+          }}
             /* onMouseEnter = {() => { if (props.autoHideTitle) { setShowTitle(true) } }} */
             /* onMouseLeave = {() => {
               if (props.autoHideTitle && !editing && props.content.pinned) { setShowTitle(false) } }}
@@ -517,7 +590,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           <div className={classes.type}>
             {contentTypeIcons(props.content.type, TITLE_HEIGHT, TITLE_HEIGHT*1.1)}
           </div>
-          <Tooltip placement="top" title={props.content.pinned ? t('ctUnpin') : t('ctPin')} >
+          <Tooltip placement="left" title={props.content.pinned ? t('ctUnpin') : t('ctPin')} >
           <div className={classes.pin} onClick={onClickPin} onTouchStart={stop}>
             <Icon icon={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} />
           </div></Tooltip>
@@ -528,14 +601,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 : <EditIcon style={{fontSize:TITLE_HEIGHT}} />}
             </div>
           </Tooltip>
-          {props.content.pinned ? undefined :
+          {props.content.pinned ? undefined : 
             <Tooltip placement="top" title={t('ctMoveTop')} >
-              <div className={classes.titleButton} onClick={onClickMoveToTop}
-                onTouchStart={stop}><FlipToFrontIcon /></div></Tooltip>}
+              <div className={classes.moveTopButton} onClick={onClickMoveToTop}
+                onTouchStart={stop}><FlipToFrontIcon /></div></Tooltip>
+          }
           {props.content.pinned ? undefined :
             <Tooltip placement="top" title={t('ctMoveBottom')} >
-              <div className={classes.titleButton} onClick={onClickMoveToBottom}
-                onTouchStart={stop}><FlipToBackIcon /></div></Tooltip>}
+              <div className={classes.moveBottomButton} onClick={onClickMoveToBottom}
+                onTouchStart={stop}><FlipToBackIcon /></div></Tooltip>
+            }
 
           {/*(props.content.pinned || !canContentBeAWallpaper(props.content)) ? undefined :
             <div className={classes.titleButton} onClick={onClickWallpaper}
@@ -547,7 +622,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 </Tooltip>
                   </div> */}
           <Tooltip placement="top" title={t('ctCopyToClipboard')} >
-            <div className={classes.titleButton} onClick={onClickCopy}
+            <div className={classes.copyClipButton} onClick={onClickCopy}
               onTouchStart={stop}>
                 <Icon icon={clipboardCopy} height={TITLE_HEIGHT}/>
             </div>
@@ -555,8 +630,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           
           {props.content.shareType === "img" ? undefined :
           <Tooltip placement="top" title={props.content.proximity ? t('ctUnProximity') : t('ctProximity')} >
-          <div className={classes.pin} onClick={onClickProxomity} onTouchStart={stop}>
-            <img src={props.content.proximity ? proximityIcon : proximityOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} alt=""/>
+          <div className={classes.prox} onClick={onClickProxomity} onTouchStart={stop}>
+            <img src={props.content.proximity ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} alt=""/>
           </div>
           </Tooltip>
           }
@@ -570,13 +645,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           <div className={classes.note} onClick={onClickShare} onTouchStart={stop}>Share</div>
           {props.content.pinned ? undefined :
             <div className={classes.close} onClick={onClickClose} onTouchStart={stop}>
-              <CloseRoundedIcon /></div>}
+              <CloseRoundedIcon /></div>
+          }
         </div>
       </div>
-      <div className={classes.content} ref={contentRef}>
+      {/* <div className={classes.content} ref={contentRef}>
         <Content {...props}/>
         <div className={showBorder ? classes.dashed : undefined}></div>
-      </div>
+      </div> */}
     </div>
   //  console.log('Rnd rendered.')
 
@@ -601,11 +677,25 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 }
 
 const buttonStyle = {
+  '&': {
+    //backgroundColor: 'white',
+    //color: 'lightgrey',
+    margin: '5px',
+    borderRadius: '50%',
+    width: 35,
+    height: 35,
+    border: '2px solid blue',
+  },
+
   '&:hover': {
     backgroundColor: 'rosybrown',
+    margin: '5px',
+    borderRadius: '50%',
   },
   '&:active': {
     backgroundColor: 'firebrick',
+    margin: '5px',
+    borderRadius: '50%',
   },
 }
 
@@ -615,6 +705,8 @@ const useStyles = makeStyles({
   container: (props: StyleProps) => {
     const mat = new DOMMatrix()
     mat.rotateSelf(0, 0, props.pose.orientation)
+
+    //console.log(mat.toString(), " trnaform canvas")
 
     return ({
       display: props.props.hideAll ? 'none' : 'block',
@@ -668,17 +760,31 @@ const useStyles = makeStyles({
   ),
   titleContainer: (props:StyleProps) => {
     const rv:CreateCSSProperties = {
-      display:'flex',
-      width: props.size[0],
+      display: 'flex',
+      width: (props.pinned ? 350 : 350), //props.size[0],
+      height: (props.pinned ? 200 : 200), //props.size[0],
       overflow: 'hidden',
       userSelect: 'none',
       userDrag: 'none',
+      top: '200px',
+      //backgroundColor: 'red',
     }
     if (!props.showTitle) {
       rv['position'] = 'absolute'
       rv['bottom'] = 0
+    } else {
+      rv['position'] = 'absolute'
+      //console.log("shown click X", props.downPos, " --- image height ", props.size[1], " -- ", props.pose.position[1])
+      //let moveY = (props.pose.position[1]
+      //rv['top'] = ((props.downPos - (props.size[1])/2) - (TITLE_HEIGHT + (TITLE_HEIGHT/2)))
+      
+      //console.log(props.size[1], " --- ", props.downPos)
+      
+      //rv['top'] = (props.downPos - (props.size[1]/2)) - TITLE_HEIGHT/2
+      rv['top'] = (props.downPos - (100/2))
+      //rv['left'] = (props.size[0] - (props.pinned ? 350 : 350))/2
+      rv['left'] = (props.downXPos - (370/2))
     }
-
     return rv
   },
   content: (props: StyleProps) => ({
@@ -708,8 +814,30 @@ const useStyles = makeStyles({
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
       height: TITLE_HEIGHT,
+      position:'absolute',
+      //top: props.pinned ? 15 : 55,
+      //left: props.pinned ? 100 : 60,
+      top: 55,
+      left: 60,
       whiteSpace: 'pre',
       cursor: 'default',
+      transform: "rotate(-75deg)",
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+  prox: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      //top: props.pinned ? 15 : 13,
+      //left: props.pinned ? 220 : 227,
+      top: props.pinned ? 0 : 13,
+      left: props.pinned ? 135 : 227,
+
+      whiteSpace: 'pre',
+      cursor: 'default',
+      transform: "rotate(60deg)",
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -717,11 +845,61 @@ const useStyles = makeStyles({
     props.showTitle ? {
       display: 'block',
       height: TITLE_HEIGHT,
+      position:'absolute',
+      //top: props.pinned ? 65 : 55,
+      //left: props.pinned ? 240 : 255,
+      top: props.pinned ? 0 : 55,
+      left: props.pinned ? 185 : 255,
+      whiteSpace: 'pre',
+      transform: "rotate(90deg)",
+      cursor: 'default',
+      ...buttonStyle,
+      
+    } : {display:'none'}
+  ),
+
+  moveTopButton: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      top: 13,
+      left: 87,
       whiteSpace: 'pre',
       cursor: 'default',
+      transform: "rotate(-60deg)",
       ...buttonStyle,
     } : {display:'none'}
   ),
+
+  moveBottomButton: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      top: 0,
+      left: 135,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      transform: "rotate(45deg)",
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
+  copyClipButton: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      top: props.pinned ? 13 : 0,
+      left: props.pinned ? 87 : 185,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      transform: "rotate(45deg)",
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
   edit: (props:StyleProps) => (
     props.showTitle ? {
       display: (props.props.onShare || !isContentEditable(props.props.content)) ? 'none' : 'block',
@@ -734,16 +912,26 @@ const useStyles = makeStyles({
   type: (props: StyleProps) => ({
     display: props.showTitle ? 'block' : 'none',
     height: TITLE_HEIGHT,
+    position:'absolute',
+    /* top: props.pinned ? 65 : 105,
+    left: props.pinned ? 85 : 60, */
+    transform: "rotate(75deg)",
+    top: 105,
+    left: 60,
+    ...buttonStyle,
   }),
   close: (props: StyleProps) => ({
     visibility: props.showTitle ? 'visible' : 'hidden',
     position:'absolute',
-    right:0,
+    top: props.pinned ? 100 : 105,
+    left: 255,
+    //right:0,
     margin:0,
     padding:0,
     height: TITLE_HEIGHT,
     borderRadius: '0 0.5em 0 0',
     cursor: 'default',
+    transform: "rotate(90deg)",
     ...buttonStyle,
   }),
 })

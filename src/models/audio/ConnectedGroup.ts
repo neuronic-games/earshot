@@ -11,7 +11,6 @@ import _ from 'lodash'
 import {autorun, IObservableValue, IReactionDisposer} from 'mobx'
 import {NodeGroup} from './NodeGroup'
 
-
 function getRelativePoseFromObject(localPose: Pose2DMap, participant: RemoteParticipant|undefined,
                                    content: ISharedContent|undefined) {
   const remotePose = _.cloneDeep(participant ? participant.pose :
@@ -38,6 +37,7 @@ function getRelativePoseFromObject(localPose: Pose2DMap, participant: RemotePart
 }
 
 export class ConnectedGroup {
+  
   private readonly disposers: IReactionDisposer[] = []
 
   constructor(local: IObservableValue<LocalParticipant>, remote: RemoteParticipant|undefined,
@@ -48,7 +48,6 @@ export class ConnectedGroup {
         const cid = carrierId && contents.tracks.carrierMap.get(carrierId)
         const content = cid ? contents.find(cid) : undefined
         const base = _.clone(local.get().pose)
-        
 
         if (local.get().soundLocalizationBase === 'user') { base.orientation = 0 }
         if (remote && !remote.physics.located) {

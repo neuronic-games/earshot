@@ -23,11 +23,20 @@ export function decodeGetParams(url: string): Params {
     {} as Params,
   )
 
-  //let _pathname = urlObj.pathname.substr(1).toLowerCase().split("/");
-  //let _name = _pathname[_pathname.length-1]
- //urlObj.pathname = "/" + _name
+  /* let _pathname = urlObj.pathname.substr(1).toLowerCase().split("/");
+  let _name = _pathname[_pathname.length-1]
+  urlObj.pathname = "/" + _name */
+
+  /* 
+  console.log(urlObj.pathname.substr(1).toLowerCase(), " -- ", _name)
+
+  //let _href = urlObj.href.toLowerCase().split("/")[0];
+  urlObj.href = urlObj.origin */
 
   res.room = urlObj.pathname.substr(1).toLowerCase().replace(/[./@]/, '_') + (res.room ? res.room.toLowerCase() : '')
+
+  //console.log(urlObj)
+
   return res
 }
 

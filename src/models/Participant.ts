@@ -29,6 +29,7 @@ export interface BaseInformation {
   avatarSrc: string
   color: number[]
   textColor: number[]
+  roomOwner: string
 }
 export interface RemoteInformation extends BaseInformation{
 }
@@ -49,12 +50,14 @@ export const defaultInformation:LocalInformation = {
   notifyTouch: false,
   notifyNear: false,
   notifyYarn: false,
+  roomOwner: '',
 }
 export const defaultRemoteInformation:RemoteInformation = {
   name: '',
   avatarSrc: '',
   color: [],
   textColor: [],
+  roomOwner: 'default',
 }
 export interface Tracks {
   audio: JitsiTrack | undefined

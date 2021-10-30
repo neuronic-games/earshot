@@ -159,8 +159,6 @@ export class NodeGroup {
     const participant_pose = pose
     const dist = normV(pose.position)
 
-    
-
     const mul = ((dist * dist) / (this.pannerNode.refDistance * this.pannerNode.refDistance)
       + this.pannerNode.refDistance - 1) / (dist ? dist : 1)
     this.distance = mul * dist
@@ -176,8 +174,8 @@ export class NodeGroup {
       this.pannerNode.setPosition(...mulV3(mul, pose.position))
       this.pannerNode.setOrientation(...pose.orientation)
     }
-    //this.updateVolume()
-    this.updateVolumeWithAssets(participant_pose)
+    this.updateVolume()
+    //this.updateVolumeWithAssets(participant_pose)
   }
   private getContentsStatus(_x: number, _y:number) {
     
@@ -223,7 +221,7 @@ export class NodeGroup {
     let xD = (_x - 100)
     let yD = (_y - 100)
     
-    participants.local.setPhysics({inProximity: true})
+    //participants.local.setPhysics({inProximity: false})
 
     
 
@@ -255,8 +253,11 @@ export class NodeGroup {
           cHeight = ((contents.all[i].pose.position[1] + contents.all[i].size[1]) - 60)
 
           let cPose = convertToAudioCoordinate(contents.all[i].pose)
+          //let cPose = (contents.all[i].pose)
+
+          
       
-          //console.log(_x, " DISTANCE Content ", cPose.position[0])
+          //console.log(_y, " DISTANCE Content ", cPose.position[2])
 
           //console.log(_x, " -- ", cPose, " -------- ", contents.all[i].pose)
 
@@ -265,16 +266,46 @@ export class NodeGroup {
           //console.log((xPos + 30) * -1, " <- x user : x content -> ", cPose.position[0])
           //console.log((yPos - 30), " <- y user : y content -> ", (cPose.position[2] * -1))
 
-          let diffX = ((xPos + 30) * - 1)
+        console.log(participants.local.pose.orientation, "---" , contents.all[i].pose.orientation)
+
+        let _valueX = 0
+        let _valueY = 0
+        let _valueW = 0
+        if(participants.local.pose.orientation < 0) {
+          //_valueX = (xPos +  participants.local.pose.orientation) + 60
+          //_valueY = (yPos -  (participants.local.pose.orientation * -1) - 60)
+          //_valueW = (((contents.all[i].pose.position[0] + contents.all[i].size[0])) - 60)
+        } else {
+          //_valueX = (xPos -  participants.local.pose.orientation) + 60
+          //_valueY = (yPos +  (participants.local.pose.orientation * -1) - 60)
+          //_valueW = (((contents.all[i].pose.position[0] + contents.all[i].size[0])) - 60)
+        }
+        
+        //_valueX = (xPos - (participants.local.pose.orientation)) - 60
+
+        //console.log(xPos * -1 , " - X : CX -", contents.all[i].pose.position[0], " :: W -> ", _valueW)
+        //console.log(yPos, " - Y : CY -", contents.all[i].pose.position[1])
+
+        //console.log((((xPos +  ) + 60)), "--" , cPose.position[0], "::", yPos, " -- ", contents.all[i].pose.position[1])
+
+          /* let diffX = ((xPos + 30) * - 1)
           let diffY = (yPos - 30)
           let xContent = cPose.position[0]
           let yContent = (cPose.position[2] * -1)
 
+          let  cW1 = ((cPose.position[0] + contents.all[i].size[0])) - 60
+          let  cH1 = (((cPose.position[2] * -1) + contents.all[i].size[1])) - 60 */
+          let diffX = ((xPos + 30) * - 1)
+          let diffY = (yPos - 30)
+          let xContent = contents.all[i].pose.position[0]
+          let yContent = (contents.all[i].pose.position[1])
+
+          let  cW1 = ((contents.all[i].pose.position[0] + contents.all[i].size[0])) - 60
+          let  cH1 = (((contents.all[i].pose.position[1]) + contents.all[i].size[1])) - 60
+
+
           let xContentProx = cPose.position[0] - 100
           let yContentProx = ((cPose.position[2] * -1)) - 150
-
-          let  cW1 = ((cPose.position[0] + contents.all[i].size[0])) - 60
-          let  cH1 = (((cPose.position[2] * -1) + contents.all[i].size[1])) - 60
 
           let  cWProx = (((cPose.position[0] + contents.all[i].size[0])) - 60) + 100
           let  cHProx = ((((cPose.position[2] * -1) + contents.all[i].size[1])) - 60) + 100
@@ -285,17 +316,21 @@ export class NodeGroup {
           let  cW = ((cPose.position[0] + contents.all[i].size[0]) - 60)
           let  cH = (((cPose.position[2] * -1) + contents.all[i].size[1]) - 60)
 
+          
+
             //if((diffX >= xContent && diffX <= cW1) && (diffY >= yContent && diffY <= cH1)) {
             if((diffX >= (xContent-100) && diffX <= (cW1+100)) && (diffY >= (yContent-100) && diffY <= (cH1+100))) {
               if((diffX >= xContent && diffX <= cW1) && (diffY >= yContent && diffY <= cH1)) {
                 if(contents.all[i].proximity === true) {
-                  //console.log("inside image")
+                  console.log("inside image")
+                  //participants.local.savePhysicsToStorage(true)
                   _status = 1
                   break
                 }
               } else {
                 if(contents.all[i].proximity === true) {
-                  //console.log("inside image proxy area")
+                  console.log("inside image proxy area")
+                  //participants.local.savePhysicsToStorage(false)
                   _status = 2
                   break
                 }
@@ -455,13 +490,18 @@ export class NodeGroup {
       yParticipant = ((participant_pose.position[2]))
       touchStatus = this.getContentsStatus(xParticipant, yParticipant)
       
-      //console.log(touchStatus, " touch ")
+      console.log(touchStatus, " touch ")
       
       if(touchStatus === 1) {
+        participants.local.savePhysicsToStorage(true)
         this.distance = 90
       } else if(touchStatus === 2) {
+        participants.local.savePhysicsToStorage(false)
         this.distance = 150
+      } else {
+        participants.local.savePhysicsToStorage(false)
       }
+
         volume = Math.pow(Math.max(this.distance, this.pannerNode.refDistance) / this.pannerNode.refDistance,
                           - this.pannerNode.rolloffFactor)
     }
@@ -472,11 +512,38 @@ export class NodeGroup {
   }
   private updateVolume() {
     let volume = 0
+    let remoteProx = 0
+    /* if(participants.local.physics.inProximity) {
+      this.distance = 90
+    } else {
+      this.distance = 120
+    } */
+
+    // checking for remote user location proximity
+    /* const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+    for (const [i, id] of remotes.entries()) {
+        console.log(participants.remote.get(remotes[i])?.pose.position)
+    } */
+
+    //console.log(participants.local.physics.inProximity, " --- ", remoteProx)
+    /* if(participants.local.physics.inProximity === true) {
+      this.distance = 90
+    } else {
+      this.distance = 150
+    } */
+
     if (this.playMode === 'Element') {
-      volume = Math.pow(Math.max(this.distance, this.pannerNode.refDistance) / this.pannerNode.refDistance,
-                        - this.pannerNode.rolloffFactor)
-    }
+    //if (this.playMode === 'Element' && participants.local.physics.inProximity === true) {
+    //if (this.playMode === 'Element') {
+     // if(participants.local.physics.inProximity === true) {
+      //volume = 1
+     // } else {
+        volume = Math.pow(Math.max(this.distance, this.pannerNode.refDistance) / this.pannerNode.refDistance,
+                      - this.pannerNode.rolloffFactor)
+    //  }
+    } 
     if (this.audioElement) {
+      //console.log(volume, " > vol")
       this.audioElement.volume = volume
     }
   }

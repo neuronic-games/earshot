@@ -47,6 +47,8 @@ export const Footer: React.FC<Stores&{height?:number}> = (props) => {
   const [show, setShow] = React.useState<boolean>(true)
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
+
+
   function setShowShare(flag: boolean) {
     if (flag) {
       props.map.keyInputUsers.add('shareDialog')
@@ -76,6 +78,10 @@ export const Footer: React.FC<Stores&{height?:number}> = (props) => {
 
   const {t} = useTranslation()
   const classes = useStyles()
+
+  //const savedRoom = sessionStorage.getItem('room')
+
+  //console.log(participants.local.information.name + "_" + savedRoom, " room ", participants.local.information.roomOwner)
 
   //  Footer collapse conrtrol
   function checkMouseOnBottom() {

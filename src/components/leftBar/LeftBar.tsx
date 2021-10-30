@@ -32,6 +32,7 @@ function limitScale(currentScale: number, scale: number): number {
 const textLineStyle = Object.assign({}, defaultTextLineHeight)
 
 export const LeftBar: React.FC<Stores> = (stores) => {
+
   const classes = styleForSplit()
   const [scale, doSetScale] = useState<number>(1)
   

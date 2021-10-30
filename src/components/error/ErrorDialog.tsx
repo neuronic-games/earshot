@@ -15,9 +15,11 @@ export const dialogs = new Map<ErrorType, JSX.Element>()
 dialogs.set('entrance', <TheEntrance />)
 dialogs.set('afk', <AfkDialog />)
 
+// md
+
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {
   return <Dialog {...props} open={errorInfo.show()}
-    onClose={props.onClose} maxWidth="md" fullWidth={false} >
+    onClose={props.onClose} maxWidth="xl" fullWidth={false} fullScreen={true} >
   {errorInfo.title ?
     <DialogTitle id="simple-dialog-title">{errorInfo.title}</DialogTitle>
     : undefined }

@@ -32,11 +32,13 @@ const Line: React.FC<LineProps> = (props) => {
 
 export const ParticipantsLayer: React.FC<{map:MapData}> = (props) => {
   const store = useStore()
+
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
 
     return remote.physics.located
   }))
+  
   const localId = useObserver(() => store.localId)
   const remoteElements = ids.map(id => <RemoteParticipant map={props.map} key={id} participants={store}
     participant={store.remote.get(id)!} size={PARTICIPANT_SIZE} />)
