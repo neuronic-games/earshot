@@ -1,4 +1,3 @@
-import {useStore as useMapStore} from '@hooks/MapStore'
 import {useTranslation} from '@models/locales'
 import {createContentOfImage} from '@stores/sharedContents/SharedContentCreator'
 import sharedContents from '@stores/sharedContents/SharedContents'
@@ -14,15 +13,13 @@ interface ImageInputProps extends DialogPageProps{
 }
 
 export const ImageInput: React.FC<ImageInputProps> = (props) => {
-  
   const {
     setStep,
-    type,
   } = props
-
 
   const [files, setFiles] = useState<File[]>([])
 
+  console.log(props.type, " TYPE")
 
   const {t} = useTranslation()
   const field = (
@@ -33,17 +30,17 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
     />
   )
 
-  const map = useMapStore()
+  const map = props.stores.map
+  
 
   return (
-    <Input
+    <Input stores={props.stores}
       setStep={setStep}
       onFinishInput={(files) => {
         // TODO modify store
         files.forEach((file, i) => {
           const IMAGE_OFFSET_X = 30
           const IMAGE_OFFSET_Y = -20
-          
           createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type).then(
             imageContent => sharedContents.shareContent(imageContent))
         })

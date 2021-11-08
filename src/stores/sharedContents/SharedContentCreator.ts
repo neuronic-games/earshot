@@ -5,13 +5,13 @@ import {ContentType, isContentWallpaper, ISharedContent, SharedContentData,
 import {Pose2DMap} from '@models/utils'
 import {extract} from '@models/utils'
 import { getMimeType } from '@models/utils'
+import {isSelfUrl} from '@models/utils'
 import {MapData} from '@stores/Map'
 import {defaultValue as mapObjectDefaultValue} from '@stores/MapObject'
 import {JitsiLocalTrack} from 'lib-jitsi-meet'
 import _ from 'lodash'
 import participants from '../participants/Participants'
 import sharedContents, {contentLog} from './SharedContents'
-import { PastedContent } from '@components/map/ShareLayer/PastedContent'
 import { Step } from '@components/footer/share/Step'
 
 export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefaultValue, {
@@ -27,6 +27,7 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   zorder: 0,
   pinned: false,
   shareType: '',
+  
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -48,8 +49,9 @@ class SharedContentImp implements ISharedContent {
   originalSize!:[number, number]
   noFrame?: boolean
   opacity?: number
-  proximity?: boolean
   shareType!: string
+ 
+
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -103,15 +105,15 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
       pasted.url = `id=${fileId}`
       pasted.pose.position[0] = map.mouseOnMap[0]
       pasted.pose.position[1] = map.mouseOnMap[1]
-      pasted.size[0] = 600
-      pasted.size[1] = 800
+      pasted.size[0] = 900
+      pasted.size[1] = 700
     }else if (url.hostname === 'wbo.ophir.dev'){  //  whiteboard
       pasted.type = 'whiteboard'
       pasted.url = urlStr
       pasted.pose.position[0] = map.mouseOnMap[0]
       pasted.pose.position[1] = map.mouseOnMap[1]
-      pasted.size[0] = 600
-      pasted.size[1] = 700
+      pasted.size[0] = 700
+      pasted.size[1] = 740
     }else if (url.pathname.substring(url.pathname.length-4) === '.pdf' ||
       url.pathname.substring(url.pathname.length-4) === '.PDF' ){  //  pdf
       makeItPdf(pasted, urlStr, map)
@@ -176,25 +178,29 @@ export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[nu
 
 export function createContentOfImageUrl(url: string, map: MapData,
   offset?:[number, number], _type?:Step): Promise<SharedContentImp> {
-  const IMAGESIZE_LIMIT = 500
+  //const IMAGESIZE_LIMIT = 500
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
       console.log(" TYPE ", _type)
-      pasted.type = 'img'
       
+      pasted.type = 'img'
       if(_type === "image") {
         pasted.shareType = "img"
         pasted.noFrame = false
       } else if(_type === "zoneimage") {
         pasted.shareType = 'zoneimg'
         pasted.noFrame = true
+        //pasted.zone = "open"
       }
+
       pasted.url = url
-      const max = size[0] > size[1] ? size[0] : size[1]
-      const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
+      //const max = size[0] > size[1] ? size[0] : size[1]
+      
+      //const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
       //pasted.size = [size[0] * scale, size[1] * scale]
+
       pasted.size = [size[0], size[1]]
       pasted.originalSize = [size[0], size[1]]
       const CENTER = 0.5
@@ -273,9 +279,96 @@ export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, ty
   return pasted
 }
 
+export function createContentFromText(str: string, map:MapData){
+  return new Promise<ISharedContent>((resolve, reject)=>{
+    let content = undefined
+    if (str.indexOf('http://') === 0 || str.indexOf('https://') === 0) {
+      const url = new URL(str)
+      const ext = str.slice(-4)
+      if (isSelfUrl(url)) {
+        //  Openning of self url makes infinite loop. So, create text instead.
+        content = createContentOfText(str, map)
+        content.name = '! recursive reference'
+        resolve(content)
+      }else if (ext === '.jpg' || ext === '.JPG' || ext === 'jpeg' || ext === 'JPEG' ||
+        ext === '.png' || ext === '.PNG' || ext === '.gif' || ext === '.GIF' ||
+        ext === '.svg' || ext === '.SVG') {
+        createContentOfImageUrl(str, map).then((content) => {
+          content.name = url.pathname
+          resolve(content)
+        }).catch(reject)
+      }else {
+        createContentOfIframe(str, map).then((content) => {
+          if (content.type === 'iframe') {
+            //  iframe is not work well because of CORS problem.
+            content = createContentOfText(str, map)
+            content.name = `${url.host}${url.pathname}${url.search}`
+          }
+          if (content.type === 'youtube') {
+            content.name = `${url.search.substring(1)}`
+          }else {
+            content.name = `${url.host}${url.pathname}${url.search}`
+          }
+          resolve(content)
+        }).catch(reject)
+      }
+    }else {
+      content = createContentOfText(str, map)
+      content.name = str.substring(0, 20)
+      resolve(content)
+    }
+  })
+}
+//  set pasted or dragged content to pasted content (not shared) or create shared content directly
+export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: MapData) {
+  return new Promise<ISharedContent[]>((resolve, reject)=>{
+    if (dataTransfer?.types.includes('Files')) {   //  If file is pasted)
+      const items = Array.from(dataTransfer.items)
+      const contents:ISharedContent[] = []
+      const reasons:any[] = []
+      for(const item of items){
+        const file = item.getAsFile()
+        if (item.kind === 'file' && file) {
+          let creator: ((file:File, map:MapData, offset?:[number, number]) => Promise<ISharedContent>)
+            | undefined = undefined
+          if (item.type.indexOf('image') !== -1) {
+            creator = createContentOfImage
+          }else if (item.type === 'application/pdf') {
+            creator = createContentOfPdf
+          }
+          if (creator) {
+            creator(file, map).then((content) => {
+              content.name = file.name
+              contents.push(content)
+              if (contents.length + reasons.length === items.length){
+                contents.length ? resolve(contents) : reject(reasons)
+              }
+            }).catch((reason) => {
+              reasons.push(reason)
+              if (contents.length + reasons.length  === items.length){
+                contents.length ? resolve(contents) : reject(reasons)
+              }
+            })
+          }
+        }else{
+          reasons.push('Creator not found.')
+        }
+      }
+    }else if (dataTransfer?.types.includes('text/plain')) {
+      dataTransfer.items[0].getAsString((str:string) => {
+        createContentFromText(str, map).then(c => resolve([c])).catch(reject)
+      })
+    }else {
+      console.error('Unhandled content types:', dataTransfer?.types)
+      reject(`Unhandled content types:${dataTransfer?.types}`)
+    }
+  })
+}
+
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
-  type: true, url: true, pose: true, size: true, originalSize: true, pinned: true, noFrame: true, opacity: true, proximity: true, shareType:true
+  type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
+  noFrame: true, opacity: true, zone:true, shareType:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -286,7 +379,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, id: true, proximity: true, shareType:true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, shareType: true,
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)
@@ -342,13 +435,23 @@ export function isGDrivePreviewScrollable(mimeType?: string) {
   if (!mimeType){ return true }
 
   return !(
-    mimeType === 'application/vnd.google-apps.presentation'
+    mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    || mimeType === 'application/vnd.google-apps.presentation'
     || mimeType === 'application/vnd.google-apps.spreadsheet'
     || mimeType.slice(0, 5) === 'image'
     || mimeType.slice(0, 5) === 'video'
     || mimeType.slice(0, 5) === 'audio'
   )
 }
+export function isGDrivePreviewEditUrl(mimeType?: string){
+  if (!mimeType){ return false }
+
+  return mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  || mimeType === 'application/vnd.google-apps.spreadsheet'
+  || mimeType === 'application/vnd.google-apps.document'
+  || mimeType === 'application/vnd.google-apps.presentation'
+}
+
 export function getGDriveUrl(editing: boolean, params: Map<string, string>){
   const fileId = params.get('id')
   let mimeType = params.get('mimeType')
@@ -356,13 +459,16 @@ export function getGDriveUrl(editing: boolean, params: Map<string, string>){
   const comp = 'application/vnd.google-apps.'
 
   let url = `https://drive.google.com/file/d/${fileId}/preview`
-  if (editing){
+  if (editing || isGDrivePreviewEditUrl(mimeType)){
     if (mimeType.substr(0, comp.length) === comp){
       let app = mimeType.substr(comp.length)
       if (app !== 'failed'){
         if (app === 'spreadsheet'){ app = 'spreadsheets' }
         url = `https://docs.google.com/${app}/d/${fileId}/edit`
       }
+    } else if (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      const app = 'spreadsheets'
+      url = `https://docs.google.com/${app}/d/${fileId}/edit`
     }
   }
 

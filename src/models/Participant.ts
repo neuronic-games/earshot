@@ -1,3 +1,4 @@
+import { ISharedContent } from '@models/ISharedContent'
 import {JitsiTrack} from 'lib-jitsi-meet'
 import {MapObject} from './MapObject'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from './utils/color'
@@ -7,20 +8,28 @@ export const PARTICIPANT_SIZE = 60
 
 export interface ParticipantBase extends MapObject{
   physics: Physics
-  tracks: Tracks
   mouse: Mouse
   id: string
   information: RemoteInformation|LocalInformation
 }
 
-export interface RemoteParticipant extends ParticipantBase {
-  informationReceived: boolean
+export interface PlaybackParticipant extends ParticipantBase {
+  audioBlob?: Blob
+  videoBlob?: Blob
 }
 
-export type SoundLocalizationBase = 'avatar' | 'user'
+export interface RemoteParticipant extends ParticipantBase {
+  tracks: Tracks
+  informationReceived: boolean
+  closedZone?: ISharedContent
+  inLocalsZone: boolean
+}
+
 export interface LocalParticipant extends ParticipantBase {
   soundLocalizationBase: SoundLocalizationBase
   information: LocalInformation
+  zone?: ISharedContent
+  tracks: Tracks
 }
 export type Participant = LocalParticipant | RemoteParticipant
 
@@ -29,7 +38,6 @@ export interface BaseInformation {
   avatarSrc: string
   color: number[]
   textColor: number[]
-  roomOwner: string
 }
 export interface RemoteInformation extends BaseInformation{
 }
@@ -50,14 +58,12 @@ export const defaultInformation:LocalInformation = {
   notifyTouch: false,
   notifyNear: false,
   notifyYarn: false,
-  roomOwner: '',
 }
 export const defaultRemoteInformation:RemoteInformation = {
   name: '',
   avatarSrc: '',
   color: [],
   textColor: [],
-  roomOwner: 'default',
 }
 export interface Tracks {
   audio: JitsiTrack | undefined
@@ -75,14 +81,14 @@ export interface Physics {
   located: boolean
   onStage: boolean
   awayFromKeyboard: boolean
-  inProximity: boolean,
 }
 export const defaultPhysics: Physics = {
   located: true,
   onStage: false,
   awayFromKeyboard: false,
-  inProximity: false,
 }
+
+export type SoundLocalizationBase = 'avatar' | 'user'
 
 export function getColorOfParticipant(information: BaseInformation) {
   let color = information.color

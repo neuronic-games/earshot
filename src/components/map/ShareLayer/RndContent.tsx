@@ -1,4 +1,6 @@
 import clipboardCopy from '@iconify-icons/heroicons-outline/clipboard-copy'
+//import maximizeIcon from '@iconify-icons/tabler/arrows-maximize'
+//import minimizeIcon from '@iconify-icons/tabler/arrows-minimize'
 import pinIcon from '@iconify/icons-mdi/pin'
 import pinOffIcon from '@iconify/icons-mdi/pin-off'
 import {Icon} from '@iconify/react'
@@ -14,12 +16,14 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 import proximityIcon from '@images/earshot-on.png'
 import proximityOffIcon from '@images/earshot-off.png'
 import settings from '@models/api/Settings'
-import {isContentEditable, ISharedContent} from '@models/ISharedContent'
+// isContentMaximizable,
+import {doseContentEditingUseKeyinput, isContentEditable,  ISharedContent} from '@models/ISharedContent'
 import {t} from '@models/locales'
 import {Pose2DMap} from '@models/utils'
-import {addV2, extractScaleX, extractScaleY, mulV, rotateVector2DByDegree, subV2, mulV2, normV} from '@models/utils'
+import {addV2, extractScaleX, extractScaleY, mulV, rotateVector2DByDegree, subV2, normV, mulV2} from '@models/utils'
 import {copyContentToClipboard, moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator'
-import _, { stubFalse } from 'lodash'
+import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+import _ from 'lodash'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {Rnd} from 'react-rnd'
@@ -28,8 +32,6 @@ import { FullGestureState, UserHandlersPartial } from 'react-use-gesture/dist/ty
 import {Content, contentTypeIcons, editButtonTip} from './Content'
 import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
-import {useStore} from '@hooks/ParticipantsStore'
-import {useStore as useMapStore} from '@hooks/MapStore'
 
 
 const MOUSE_RIGHT = 2
@@ -55,26 +57,25 @@ interface StyleProps{
   editing: boolean,
   downPos: number,
   downXPos: number,
-  //proximity: boolean
 }
 class RndContentMember{
   buttons = 0
   dragCanceled = false
+  _borderTimer = 0
   _down = false
-  downTime = 0
-  upTime = 0
   _item = ''
   _timer = 0
-  _borderTimer = 0
+  downTime = 0
+  upTime = 0
   downPos = 0
   downXPos = 0
+  movePos = 0
+  moveXPos = 0
 }
 
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
-export const TITLE_HEIGHT = 35 //24
-
 export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => {
   /*
   function rotateG2C(gv: [number, number]) {
@@ -97,58 +98,40 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     return gv
   }*/
 
-  
-
   // states
   const [pose, setPose] = useState(props.content.pose)  //  pose of content
   const [size, setSize] = useState(props.content.size)  //  size of content
   const [resizeBase, setResizeBase] = useState(size)    //  size when resize start
   const [resizeBasePos, setResizeBasePos] = useState(pose.position)    //  position when resize start
-
   //const [showTitle, setShowTitle] = useState(!props.autoHideTitle || !props.content.pinned)
   const [showTitle, setShowTitle] = useState(false)
-
   const [showForm, setShowForm] = useState(false)
   const [preciseOrientation, setPreciseOrientation] = useState(pose.orientation)
   const [dragging, setDragging] = useState(false)
   const rnd = useRef<Rnd>(null)                         //  ref to rnd to update position and size
-  const contents = props.contents
-
-  
-  // For dotted border
-  const [showBorder, setShowBorder] = useState(false)
-  //const [isHover, setIsHover] = useState(false);
-
-
-
-  const participants = useStore()
-  const mapStore = useMapStore()
-
-  //console.log(props.content)
-
-  //console.log(props.content, " -- ", participants.local.id)
-
+  const {contents, map, participants} = props.stores
   const editing = useObserver(() => contents.editing === props.content.id)
+  //const zoomed = useObserver(() => map.zoomed)
   function setEditing(flag: boolean) { contents.setEditing(flag ? props.content.id : '') }
   const memberRef = useRef<RndContentMember>(new RndContentMember())
   const member = memberRef.current
 
+  // For dotted border
+  const [showBorder, setShowBorder] = useState(false)
+
+  //console.log(props.content.zone, " zone")
+  if(props.content.zone === undefined) {
+    props.content.zone = "close"
+  }
+
   useEffect(  //  update pose
     ()=> {
-
       member.dragCanceled = true
-      if(props.content.shareType != "img") {
+      if(props.content.shareType !== "img") {
         clearTimeout(member._timer)
-        //if(!props.content.pinned) {
-          //setShowTitle(false)
-        //} 
-        // Fo testing
-        //setShowTitle(true)
         member._timer = window.setTimeout( function() {
-          //console.log(showTitle, " Calling function everytime")
           if(showTitle === true) return
            setShowTitle(false)
-           // TIMER_DELAY
         }, 2)
       }
       if (!_.isEqual(size, props.content.size)) {
@@ -163,7 +146,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   )
 
   function setPoseAndSizeToRnd(){
-    if (rnd.current) { rnd.current.resizable.orientation = pose.orientation + props.map.rotation }
+    if (rnd.current) { rnd.current.resizable.orientation = pose.orientation + map.rotation }
     const titleHeight = showTitle ? TITLE_HEIGHT : 0
     rnd.current?.updatePosition({x:pose.position[0], y:pose.position[1] - titleHeight})
     rnd.current?.updateSize({width:size[0], height:size[1] + titleHeight})
@@ -173,7 +156,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       setPoseAndSizeToRnd()
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pose, size, showTitle, props.map.rotation],
+    [pose, size, showTitle, map.rotation],
   )
 
   //  handlers
@@ -209,19 +192,32 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     props.updateAndSend(props.content)
   }
 
-  function onClickProxomity(evt: MouseOrTouch) {
+  function onClickZone(evt: MouseOrTouch) {
     stop(evt)
-    props.content.proximity = !props.content.proximity
+    //props.content.zone = !props.content.zone
+    if(props.content.zone === "open"){
+      props.content.zone = "close"
+    } else {
+      props.content.zone = "open"
+    }
     props.updateAndSend(props.content)
   }
-
+  
   function onClickCopy(evt: MouseOrTouch){
     stop(evt)
     copyContentToClipboard(props.content)
   }
+  /* function onClickMaximize(evt: MouseOrTouch){
+    stop(evt)
+    if (map.zoomed){
+      map.restoreZoom()
+    }else{
+      map.zoomTo(props.content)
+    }
+  } */
   function onClickMore(evt: MouseOrTouch){
     stop(evt)
-    props.map.keyInputUsers.add('contentForm')
+    map.keyInputUsers.add('contentForm')
     setShowForm(true)
   }
   function onCloseForm(){
@@ -229,7 +225,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     if (props.content.pinned){
       setShowTitle(false)
     }
-    props.map.keyInputUsers.delete('contentForm')
+    map.keyInputUsers.delete('contentForm')
     props.updateAndSend(props.content)
   }
   function updateHandler() {
@@ -262,39 +258,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       pose.orientation = newOri
       setPose(Object.assign({}, pose))
     }else {
-      const lv = props.map.rotateFromWindow(delta)
+      const lv = map.rotateFromWindow(delta)
       const cv = rotateVector2DByDegree(-pose.orientation, lv)
       pose.position = addV2(pose.position, cv)
       setPose(Object.assign({}, pose))
     }
   }
 
-  
-  //const isFixed = (props.autoHideTitle && props.content.pinned)
   const isFixed = (props.autoHideTitle && props.content.pinned)
-  
-  //const isOwner = (props.content.ownerName === participants.local.information.name)
-
   const handlerForTitle:UserHandlersPartial = {
-    
-    //onMouseEnter:(evt)=>{
-      //if (props.autoHideTitle) { setShowTitle(true) } 
-    //},
-
-    //onMouseLeave: (evt) => {
-      //if (props.autoHideTitle && !editing && props.content.pinned) { setShowTitle(false) }
-    //},
-
-    /* onTouchStart: (evt) => {
-      if (props.autoHideTitle) {
-        if (!showTitle) {
-          setShowTitle(true)
-        } else if (props.content.pinned) {
-          setShowTitle(false)
-        }
-      }
-    }, */
-
     onDoubleClick: (evt)=>{
       if (isContentEditable(props.content)){
         stop(evt)
@@ -304,26 +276,33 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDrag: ({down, delta, event, xy, buttons}) => {
       //  console.log('onDragTitle:', delta)
 
-      if(props.content.ownerName != participants.local.information.name) return
+      // checking the drag item
+      if(props.content.ownerName !== participants.local.information.name) return
+
       
-      if (isFixed) { return }
+      //if (isFixed && showTitle) { return }
+      if (showTitle) { return }
       event?.stopPropagation()
       if (down) {
         //  event?.preventDefault()
         dragHandler(delta, buttons, event)
       }
+
     },
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
+
       setDragging(true)
       member.buttons = buttons
       member.dragCanceled = false
       if (currentTarget instanceof Element && event instanceof PointerEvent){
         currentTarget.setPointerCapture(event?.pointerId)
       }
+      
     },
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
+
       setDragging(false)
       if (!member.dragCanceled){ updateHandler() }
       member.dragCanceled = false
@@ -331,126 +310,97 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if (currentTarget instanceof Element && event instanceof PointerEvent){
         currentTarget.releasePointerCapture(event?.pointerId)
       }
-      if (!props.map.keyInputUsers.size && member.buttons === MOUSE_RIGHT){ //  right click
+      if (!map.keyInputUsers.size && member.buttons === MOUSE_RIGHT){ //  right click
         setShowForm(true)
-        props.map.keyInputUsers.add('contentForm')
+        map.keyInputUsers.add('contentForm')
       }
       member.buttons = 0
+
     },
-    
-    onPointerUp: (arg) => { if(editing) {arg.stopPropagation()}},
+    onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
-    onMouseUp: (arg) => { 
-      if(editing) {arg.stopPropagation()}
-      else
-      {
-        //member.downPos = 0
+    onMouseUp: (arg) => {
+      if(editing) {
+        arg.stopPropagation()
+      } else {
+        console.log("UPUP")
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
-        //console.log(diffTime, " ft ", String(Object(arg.target).tagName))
         if(diffTime < 1 && String(Object(arg.target).tagName) === "DIV") {
           if(member._down === false) return
-            const local = participants.local
-            const diff = subV2(mapStore.mouseOnMap, local.pose.position)
-            if (normV(diff) > 60 / 2) {
-              const dir = mulV2(normV(diff) / normV(diff), diff)
-              local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-              //if (move) {
-              local.pose.position = addV2(local.pose.position, dir)
-              //}
-              //local.setPhysics({inProximity: true})
-              //local.savePhysicsToStorage(false)
-              //local.physics.inProximity = true
-              //local.savePhysicsToStorage(false)
-
-              
-             
-              
-              setTimeout(function() {
-                //local.loadPhysicsFromStorage();
-                // Check values
-                Array.from(participants.remote.keys()).filter((id) => {
-                  const remote = participants.find(id)!
-                  //console.log(local.id, " -- ", remote.id)
-                  //console.log(remote.pose.position[0], " physics ", local.pose.position[0], " -- ", props.content)
-                  //participants.yarnPhones.add(remote.id)
-                  console.log((remote.pose.position >= props.content.pose.position) && (local.pose.position >= props.content.pose.position))
-                })
-              }, 1);
-
-              // Showing border around
-              setShowBorder(true)
-              // Start Timer to disable border
-              clearTimeout(member._borderTimer)
-              showHideBorder()
-            }
+          const local = participants.local
+          const diff = subV2(map.mouseOnMap, local.pose.position)
+          if (normV(diff) > 60 / 2) {
+            const dir = mulV2(normV(diff) / normV(diff), diff)
+            local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+            //if (move) {
+            local.pose.position = addV2(local.pose.position, dir)
+            
+            setShowBorder(true)
+            // Start Timer to disable border
+            clearTimeout(member._borderTimer)
+            showHideBorder()
           }
         }
+      }
       member._down = false
-      
-      //member._down = true;
       member._item = String(Object(arg.target).tagName)
       clearTimeout(member._timer)
       showHideTimer()
     },
-    onMouseMove: (arg) => {member._down = false},
-    onMouseOver: (arg) => {
+    onMouseMove: (arg) => {
+      member.movePos = Number(Object(arg.nativeEvent).layerY)
+      member.moveXPos = Number(Object(arg.nativeEvent).layerX)
+      //console.log(member.downXPos, " --- ", member.moveXPos)
+      if((member.moveXPos >= (member.downXPos-40) && member.moveXPos <= (member.downXPos+40) && (member.movePos >= (member.downPos-40) && member.movePos <= (member.downPos+40)))) {
         member._down = true
-        member._item = String(Object(arg.target).tagName)
-        //showHideTimer(true, String(Object(arg.target).tagName))
-        clearTimeout(member._timer)
-        showHideTimer()
+      } else {
+        member._down = false
+      }
     },
-    onMouseDown: (arg) => {
+    onMouseOver: (arg) => {
+      member._down = true
+      member._item = String(Object(arg.target).tagName)
+      clearTimeout(member._timer)
+      showHideTimer()
+    },
+    onMouseDown: (arg) => { 
       if(editing) {
         arg.stopPropagation()
       } else {
         member._down = true
         member.downTime = new Date().getSeconds()
-
-        
-
         clearTimeout(member._timer)
-
-
-        //console.log(member._down, " -- ", moving)
-        member._timer = window.setTimeout(() => {
-          //function moveParticipant(move: boolean) {
-            //console.log(props)    
-            //if(dragging === false) {
-            if(props.content.ownerName === participants.local.information.name) {
-            
-              if (props.autoHideTitle && props.content.noFrame && member._down === true) { 
-                //if (props.autoHideTitle && props.content.noFrame && props.content.pinned && member._down === true) { 
-                  //console.log(showTitle, " showTitle")
-                  if(showTitle === false) {
-                    //console.log(Object(arg.nativeEvent).layerY)
-                    member.downPos = Number(Object(arg.nativeEvent).layerY)
-                    member.downXPos = Number(Object(arg.nativeEvent).layerX)
-                    setShowTitle(true)
-                  
-                    //showHideTimer(true, String(Object(arg.target).tagName))
-                    
-                  } else {
-                    //setShowTitle(false) 
-                  }
-                } 
-              }
-            //} else {
-            //const TIMER_INTERVAL = move ? 33 : 800
-            //setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
-            //}
-          //}
-          //moveParticipant(false)
-        }, 1500)
-
-        // Showing border around
-        // setShowBorder(true)
-      } 
+        window.setTimeout(function() {
+          if(props.content.ownerName === participants.local.information.name) {
+            if(member._down && showTitle === false) {
+              member.downPos = Number(Object(arg.nativeEvent).layerY)
+              member.downXPos = Number(Object(arg.nativeEvent).layerX)
+              setShowTitle(true)
+            }
+          }
+        },1500)
+        //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
+      }
     },
     onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
   }
+
+  /* function showTimer(y:number, x:number) {
+    member._timer = window.setTimeout( function() {
+      console.log("show Title")
+      if(props.content.ownerName === participants.local.information.name) {
+        if (props.autoHideTitle && props.content.noFrame && member._down === true) { 
+          if(showTitle === false) {
+            member.downPos = y
+            member.downXPos = x
+            setShowTitle(true)
+          } 
+        } 
+      }
+    }, 1500)
+  } */
 
   function showHideBorder() {  
     member._borderTimer = window.setTimeout( function() {
@@ -458,55 +408,39 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
      }, BORDER_TIMER_DELAY)
   }
 
-  //function showHideTimer(vis:boolean, onItemType:string) {
   function showHideTimer() {  
-    //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
-    //console.log(member._item, "onItem ", TIMER_DELAY);
-    if(props.content.ownerName != participants.local.information.name) return
-    
-    if(member._item != "DIV") return
+    if(props.content.ownerName !== participants.local.information.name) return
+    if(member._item !== "DIV") return
     member._timer = window.setTimeout( function() {
-      //console.log(onItemType, " >onItemType ", vis, " --- ", member._down)
       setShowTitle(false)
-      /* if(props.content.shareType != "img" && onItemType === "DIV") {
-        if(vis) {
-          setShowTitle(false)
-        } else {
-          setShowTitle(true)
-        }
-      } */
-     }, TIMER_DELAY)
+    }, TIMER_DELAY)
   }
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
-    if(props.content.ownerName != participants.local.information.name) return
-
     //  console.log('onDragBody:', args.delta)
-    if (isFixed || props.map.keyInputUsers.has(props.content.id)) { return }
+    if(props.content.ownerName !== participants.local.information.name) return
+
+    //if (isFixed || map.keyInputUsers.has(props.content.id) || showTitle) { return }
+    //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
+    if (showTitle) { return }
     handlerForTitle.onDrag?.call(this, args)
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
-    if(props.content.ownerName != participants.local.information.name) return
-    
-
+    if(props.content.ownerName !== participants.local.information.name) return
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
     setResizeBase(size)
     setResizeBasePos(pose.position)
   }
   function onResizeStop(){
-    if(props.content.ownerName != participants.local.information.name) return
-    
-    
+    if(props.content.ownerName !== participants.local.information.name) return
     if (!member.dragCanceled){ updateHandler() }
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
-    if(props.content.ownerName != participants.local.information.name) return
-    
-
+    if(props.content.ownerName !== participants.local.information.name) return
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)
     if (member.dragCanceled) {
@@ -515,7 +449,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       return
     }
 
-    const scale = (extractScaleX(props.map.matrix) + extractScaleY(props.map.matrix)) / 2
+    const scale = (extractScaleX(map.matrix) + extractScaleY(map.matrix)) / 2
     const cd:[number, number] = [delta.width / scale, delta.height / scale]
     // console.log('resize dir:', dir, ' delta:', delta, ' d:', d, ' pos:', pos)
     if (dir === 'left' || dir === 'right') {
@@ -553,25 +487,35 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
   const formRef = React.useRef<HTMLDivElement>(null)
-  const toolRef = React.useRef<HTMLDivElement>(null)
   const gestureForContent = useGesture(handlerForContent)
   const gestureForTitle = useGesture(handlerForTitle)
   const theContent =
-    <div className={classes.rndContainer} { ...gestureForContent()}>
-      <div className={classes.content} ref={contentRef}>
+    <div className={classes.rndContainer} {...gestureForContent()}>
+      <div className={classes.content} ref={contentRef}
+        onFocus={()=>{
+          if (doseContentEditingUseKeyinput(props.content) && editing){
+            map.keyInputUsers.add(props.content.id)
+          }
+        }}
+        onBlur={()=>{
+          if (doseContentEditingUseKeyinput(props.content) && editing){
+            map.keyInputUsers.delete(props.content.id)
+          }
+        }}
+      >
         <Content {...props}/>
         <div className={showBorder ? classes.dashed : undefined}></div>
       </div>
       <div className={classes.titlePosition} {...gestureForTitle() /* title can be placed out of Rnd */}>
         <div className={classes.titleContainer}
-          onMouseLeave = {() => {
+           onMouseLeave = {() => {
             //console.log("out from title")
             member._item = "DIV"
             clearTimeout(member._timer)
             showHideTimer()
           }}
-            /* onMouseEnter = {() => { if (props.autoHideTitle) { setShowTitle(true) } }} */
-            /* onMouseLeave = {() => {
+            /* onMouseEnter = {() => { if (props.autoHideTitle) { setShowTitle(true) } }}
+            onMouseLeave = {() => {
               if (props.autoHideTitle && !editing && props.content.pinned) { setShowTitle(false) } }}
             onTouchStart = {() => {
               if (props.autoHideTitle) {
@@ -584,33 +528,31 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             }} */
             onContextMenu = {() => {
               setShowForm(true)
-              props.map.keyInputUsers.add('contentForm')
+              map.keyInputUsers.add('contentForm')
             }}
             >
           <div className={classes.type}>
             {contentTypeIcons(props.content.type, TITLE_HEIGHT, TITLE_HEIGHT*1.1)}
           </div>
-          <Tooltip placement="left" title={props.content.pinned ? t('ctUnpin') : t('ctPin')} >
-          <div className={classes.pin} onClick={onClickPin} onTouchStart={stop}>
+          <Tooltip placement="top" title={props.content.pinned ? t('ctUnpin') : t('ctPin')} >
+          <div className={classes.pin} onMouseUp={onClickPin} onTouchStart={stop}>
             <Icon icon={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} />
           </div></Tooltip>
           <Tooltip placement="top" title={editButtonTip(editing, props.content)} >
-            <div className={classes.edit} onClick={onClickEdit} onTouchStart={stop}>
+            <div className={classes.edit} onMouseUp={onClickEdit} onTouchStart={stop}>
              {
               editing ? <DoneIcon style={{fontSize:TITLE_HEIGHT}} />
                 : <EditIcon style={{fontSize:TITLE_HEIGHT}} />}
             </div>
           </Tooltip>
-          {props.content.pinned ? undefined : 
+          {/* {props.content.pinned ? undefined : */}
             <Tooltip placement="top" title={t('ctMoveTop')} >
-              <div className={classes.moveTopButton} onClick={onClickMoveToTop}
-                onTouchStart={stop}><FlipToFrontIcon /></div></Tooltip>
-          }
-          {props.content.pinned ? undefined :
+              <div className={classes.moveTopButton} onMouseUp={onClickMoveToTop}
+                onTouchStart={stop}><FlipToFrontIcon /></div></Tooltip>{/* } */}
+         {/*  {props.content.pinned ? undefined : */}
             <Tooltip placement="top" title={t('ctMoveBottom')} >
-              <div className={classes.moveBottomButton} onClick={onClickMoveToBottom}
-                onTouchStart={stop}><FlipToBackIcon /></div></Tooltip>
-            }
+              <div className={classes.moveBottomButton} onMouseUp={onClickMoveToBottom}
+                onTouchStart={stop}><FlipToBackIcon /></div></Tooltip>{/* } */}
 
           {/*(props.content.pinned || !canContentBeAWallpaper(props.content)) ? undefined :
             <div className={classes.titleButton} onClick={onClickWallpaper}
@@ -622,34 +564,50 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 </Tooltip>
                   </div> */}
           <Tooltip placement="top" title={t('ctCopyToClipboard')} >
-            <div className={classes.copyClipButton} onClick={onClickCopy}
+            <div className={classes.copyClipButton} onMouseUp={onClickCopy}
               onTouchStart={stop}>
                 <Icon icon={clipboardCopy} height={TITLE_HEIGHT}/>
             </div>
           </Tooltip>
-          
-          {props.content.shareType === "img" ? undefined :
-          <Tooltip placement="top" title={props.content.proximity ? t('ctUnProximity') : t('ctProximity')} >
-          <div className={classes.prox} onClick={onClickProxomity} onTouchStart={stop}>
-            <img src={props.content.proximity ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} alt=""/>
-          </div>
-          </Tooltip>
-          }
+          {/* {isContentMaximizable(props.content) ?
+            <Tooltip placement="top" title={zoomed ? t('ctUnMaximize') : t('ctMaximize')} >
+              <div className={classes.titleButton} onClick={onClickMaximize}
+                onTouchStart={stop}>
+                  <Icon icon={zoomed ? minimizeIcon: maximizeIcon} height={TITLE_HEIGHT}/>
+              </div>
+            </Tooltip> : undefined} */}
 
-          <div className={classes.titleButton} onClick={onClickMore} onTouchStart={stop} ref={formRef}>
+            {props.content.shareType === "img" ? undefined :
+          <Tooltip placement="top" title={props.content.zone ? t('ctUnProximity') : t('ctProximity')} >
+          <div className={classes.prox} onMouseUp={onClickZone} onTouchStart={stop}>
+            <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} alt=""/>
+          </div>
+          </Tooltip>}
+
+          <div className={classes.titleButton} onMouseUp={onClickMore} onTouchStart={stop} ref={formRef}>
               <MoreHorizIcon />
           </div>
           <SharedContentForm open={showForm} {...props} close={onCloseForm}
             anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
           />
-          <div className={classes.note} onClick={onClickShare} onTouchStart={stop}>Share</div>
-          {props.content.pinned ? undefined :
-            <div className={classes.close} onClick={onClickClose} onTouchStart={stop}>
-              <CloseRoundedIcon /></div>
-          }
+          <div className={classes.note} onMouseUp={onClickShare} onTouchStart={stop}>Share</div>
+         {/*  {props.content.pinned ? undefined : */}
+            <div className={classes.close} onMouseUp={onClickClose} onTouchStart={stop}>
+              <CloseRoundedIcon /></div>{/* } */}
         </div>
       </div>
-      {/* <div className={classes.content} ref={contentRef}>
+      {/* <div className={classes.content} ref={contentRef}
+        onFocus={()=>{
+          if (doseContentEditingUseKeyinput(props.content) && editing){
+            map.keyInputUsers.add(props.content.id)
+          }
+        }}
+        onBlur={()=>{
+          if (doseContentEditingUseKeyinput(props.content) && editing){
+            map.keyInputUsers.delete(props.content.id)
+          }
+        }}
+      >
         <Content {...props}/>
         <div className={showBorder ? classes.dashed : undefined}></div>
       </div> */}
@@ -678,22 +636,21 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
 const buttonStyle = {
   '&': {
-    //backgroundColor: 'white',
-    //color: 'lightgrey',
     margin: '5px',
     borderRadius: '50%',
-    width: 35,
-    height: 35,
-    border: '2px solid blue',
+    width: '35px',
+    height: '35px',
+    border: '2px solid #9e886c',
+    //backgroundColor: 'white',
   },
 
   '&:hover': {
-    backgroundColor: 'rosybrown',
+    backgroundColor: 'white', //'rosybrown',
     margin: '5px',
     borderRadius: '50%',
   },
   '&:active': {
-    backgroundColor: 'firebrick',
+    //backgroundColor: 'firebrick',
     margin: '5px',
     borderRadius: '50%',
   },
@@ -706,15 +663,12 @@ const useStyles = makeStyles({
     const mat = new DOMMatrix()
     mat.rotateSelf(0, 0, props.pose.orientation)
 
-    //console.log(mat.toString(), " trnaform canvas")
-
     return ({
       display: props.props.hideAll ? 'none' : 'block',
       width:0,
       height:0,
       transform: mat.toString(),
       position: 'absolute',
-      
     })
   },
   rndCls: (props: StyleProps) => ({
@@ -724,22 +678,17 @@ const useStyles = makeStyles({
     boxShadow: props.props.content.noFrame ? undefined :
       settings.useTransparent ? '0.2em 0.2em 0.2em 0.2em rgba(0,0,0,0.4)' :
         '0.2em 0.2em 0.2em 0.2em rgba(100,100,100,1)',
-
-        
   }),
   rndContainer: (props: StyleProps) => ({
     width:'100%',
     height:'100%',
-   /*  borderWidth:2,
-    borderStyle: 'dashed',
-    borderColor:'red',
-    borderRadius:1, */
   }),
+
   dashed:(props: StyleProps) => ({
     position: 'relative',
-    width:'102%',
-    height:'102%',
-    borderWidth:4,
+    width:(props.size[0] + 8),
+    height:(props.size[1] + 8),
+    borderWidth:2,
     borderStyle: 'dashed',
     borderColor:'red',
     borderRadius:0,
@@ -758,35 +707,52 @@ const useStyles = makeStyles({
       top:0,
     }
   ),
+  /* titleContainer: (props:StyleProps) => {
+    const rv:CreateCSSProperties = {
+      display:'flex',
+      width: props.size[0],
+      overflow: 'hidden',
+      userSelect: 'none',
+      userDrag: 'none',
+    }
+    if (!props.showTitle) {
+      rv['position'] = 'absolute'
+      rv['bottom'] = 0
+    }
+
+    return rv
+  }, */
+
   titleContainer: (props:StyleProps) => {
     const rv:CreateCSSProperties = {
       display: 'flex',
+      position: 'absolute',
       width: (props.pinned ? 350 : 350), //props.size[0],
       height: (props.pinned ? 200 : 200), //props.size[0],
       overflow: 'hidden',
       userSelect: 'none',
       userDrag: 'none',
-      top: '200px',
+      //top: '200px',
       //backgroundColor: 'red',
+      transition: '0.3s ease-out',
+      
     }
     if (!props.showTitle) {
+      rv['display'] = 'flex'
       rv['position'] = 'absolute'
-      rv['bottom'] = 0
+      rv['bottom'] = '0px'
+      rv['transform'] = 'scale(0)'
     } else {
+      rv['display'] = 'flex'
       rv['position'] = 'absolute'
-      //console.log("shown click X", props.downPos, " --- image height ", props.size[1], " -- ", props.pose.position[1])
-      //let moveY = (props.pose.position[1]
-      //rv['top'] = ((props.downPos - (props.size[1])/2) - (TITLE_HEIGHT + (TITLE_HEIGHT/2)))
-      
-      //console.log(props.size[1], " --- ", props.downPos)
-      
-      //rv['top'] = (props.downPos - (props.size[1]/2)) - TITLE_HEIGHT/2
-      rv['top'] = (props.downPos - (100/2))
-      //rv['left'] = (props.size[0] - (props.pinned ? 350 : 350))/2
-      rv['left'] = (props.downXPos - (370/2))
+      rv['top'] = (props.downPos - (130/2)) + "px" // 100
+      rv['left'] = (props.downXPos - (380/2)) + "px" // 270
+      rv['transform'] = 'scale(1)'
     }
     return rv
   },
+
+
   content: (props: StyleProps) => ({
     position: 'absolute',
     top: (props.showTitle ? TITLE_HEIGHT : 0) - (props.editing ? BORDER_WIDTH : 0),
@@ -794,11 +760,11 @@ const useStyles = makeStyles({
     width: props.size[0],
     height: props.size[1],
     userDrag: 'none',
-    pointerEvents: props.dragging ? 'auto' : 'auto',
+    pointerEvents: props.dragging ? 'none' : 'auto',
     borderWidth: BORDER_WIDTH,
     borderColor: 'yellow',
     borderStyle: props.editing ? 'solid' : 'none',
-    cursor: props.editing ? 'default' : 'default',
+    cursor: props.editing ? 'default' : undefined,
     opacity: props.props.content.opacity,
   }),
   note: (props:StyleProps) => (
@@ -815,13 +781,12 @@ const useStyles = makeStyles({
       display: props.props.onShare ? 'none' : 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
-      //top: props.pinned ? 15 : 55,
-      //left: props.pinned ? 100 : 60,
       top: 55,
       left: 60,
       whiteSpace: 'pre',
       cursor: 'default',
-      transform: "rotate(-75deg)",
+      //transform: "rotate(-75deg)",
+      background: props.pinned ? '#ef4623' : '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -830,14 +795,12 @@ const useStyles = makeStyles({
       display: props.props.onShare ? 'none' : 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
-      //top: props.pinned ? 15 : 13,
-      //left: props.pinned ? 220 : 227,
-      top: props.pinned ? 0 : 13,
-      left: props.pinned ? 135 : 227,
-
+      top: 16,
+      left: 230,
       whiteSpace: 'pre',
       cursor: 'default',
-      transform: "rotate(60deg)",
+      //transform: "rotate(60deg)",
+      background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -845,43 +808,44 @@ const useStyles = makeStyles({
     props.showTitle ? {
       display: 'block',
       height: TITLE_HEIGHT,
-      position:'absolute',
-      //top: props.pinned ? 65 : 55,
-      //left: props.pinned ? 240 : 255,
-      top: props.pinned ? 0 : 55,
-      left: props.pinned ? 185 : 255,
+      textAlign: 'center',
       whiteSpace: 'pre',
-      transform: "rotate(90deg)",
+      position:'absolute',
       cursor: 'default',
+      top: '57px',
+      left: '255px',
+      //transform: "rotate(90deg)",
+      background: '#9e886c',
       ...buttonStyle,
-      
     } : {display:'none'}
   ),
-
   moveTopButton: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
+      textAlign: 'center',
       top: 13,
       left: 87,
       whiteSpace: 'pre',
       cursor: 'default',
-      transform: "rotate(-60deg)",
+      //transform: "rotate(-60deg)",
+      background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
-
   moveBottomButton: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
+      textAlign: 'center',
       top: 0,
       left: 135,
       whiteSpace: 'pre',
       cursor: 'default',
-      transform: "rotate(45deg)",
+      //transform: "rotate(45deg)",
+      background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -891,11 +855,12 @@ const useStyles = makeStyles({
       display: 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
-      top: props.pinned ? 13 : 0,
-      left: props.pinned ? 87 : 185,
+      top: 0,
+      left: 185,
       whiteSpace: 'pre',
       cursor: 'default',
-      transform: "rotate(45deg)",
+      //transform: "rotate(45deg)",
+      background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -906,6 +871,7 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       whiteSpace: 'pre',
       cursor: 'default',
+      background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
   ),
@@ -913,25 +879,26 @@ const useStyles = makeStyles({
     display: props.showTitle ? 'block' : 'none',
     height: TITLE_HEIGHT,
     position:'absolute',
-    /* top: props.pinned ? 65 : 105,
-    left: props.pinned ? 85 : 60, */
-    transform: "rotate(75deg)",
     top: 105,
-    left: 60,
+    left: 50,
+    //transform: "rotate(75deg)",
+    background: '#9e886c',
     ...buttonStyle,
   }),
   close: (props: StyleProps) => ({
     visibility: props.showTitle ? 'visible' : 'hidden',
     position:'absolute',
-    top: props.pinned ? 100 : 105,
-    left: 255,
-    //right:0,
+    textAlign: 'center',
+    top: 105,
+    left: 265,
+    right:0,
     margin:0,
     padding:0,
     height: TITLE_HEIGHT,
     borderRadius: '0 0.5em 0 0',
+    //transform: "rotate(90deg)",
     cursor: 'default',
-    transform: "rotate(90deg)",
+    background: '#9e886c',
     ...buttonStyle,
   }),
 })

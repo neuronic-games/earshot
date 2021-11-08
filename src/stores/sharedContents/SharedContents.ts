@@ -1,8 +1,10 @@
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
-import {isContentWallpaper, ISharedContent, SharedContentInfo, WallpaperStore} from '@models/ISharedContent'
+import {extractSharedContentInfo, isContentWallpaper, ISharedContent, SharedContentInfo, WallpaperStore} from '@models/ISharedContent'
+import {PARTICIPANT_SIZE} from '@models/Participant'
 import {diffMap, intersectionMap} from '@models/utils'
 import {assert} from '@models/utils'
+import {getRect, isCircleInRect} from '@models/utils'
 import {default as participantsStore} from '@stores/participants/Participants'
 import participants from '@stores/participants/Participants'
 import {EventEmitter} from 'events'
@@ -14,6 +16,8 @@ import {SharedContentTracks} from './SharedContentTracks'
 export const CONTENTLOG = false      // show manipulations and sharing of content
 export const contentLog = CONTENTLOG ? console.log : (a:any) => {}
 export const contentDebug = CONTENTLOG ? console.debug : (a:any) => {}
+
+export const TITLE_HEIGHT = 35 //24
 
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
@@ -38,8 +42,7 @@ export class SharedContents extends EventEmitter {
   constructor() {
     super()
     makeObservable(this)
-    autorun(() => {
-      //  sync localId to participantsStore
+    autorun(() => { //  sync localId to participantsStore
       const newLocalId = participantsStore.localId
       Array.from(this.owner.keys()).forEach((key) => {
         if (this.owner.get(key) === this.localId) {
@@ -57,8 +60,24 @@ export class SharedContents extends EventEmitter {
     })
     const fps = localStorage.getItem('screenFps')
     if (fps){ this.screenFps = JSON.parse(fps) }
-    autorun(() => {
+    autorun(() => { //  save screen Fps
       localStorage.setItem('screenFps', JSON.stringify(this.screenFps))
+    })
+    autorun(() => { //  update audio zone of the local participant
+      const pos = participants.local.pose.position
+      participants.local.zone = this.zones.find(c => isCircleInRect(pos, 0.5*PARTICIPANT_SIZE, getRect(c.pose, c.size)))
+      //  console.log(`sc autorun local zone:${participants.local.zone?.id}`)
+    })
+    autorun(() => { //  update closed audio zones of remote participants
+      const closeds = this.closedZones.map(c => ({content:c, rect:getRect(c.pose, c.size)}))
+      participants.remote.forEach(r => {
+        if (!r.muteAudio && r.physics.located){
+          const found = closeds.find(c => isCircleInRect(r.pose.position, 0.5*PARTICIPANT_SIZE, c.rect))
+          r.closedZone = found?.content
+        }else{
+          r.closedZone = undefined
+        }
+      })
     })
   }
   @action setEditing(id: string){
@@ -79,9 +98,11 @@ export class SharedContents extends EventEmitter {
   //  All shared contents in Z order. Observed by component.
   tracks = new SharedContentTracks(this)
   @observable pasteEnabled = true
-  @observable editing = ''    //  the user editing content
-  @observable.shallow all: ISharedContent[] = []
-  @observable.shallow sorted: ISharedContent[] = []
+  @observable editing = ''                        //  the user editing content
+  @observable.shallow all: ISharedContent[] = []  //  all contents to display
+  sorted: ISharedContent[] = []                   //  all contents sorted by zorder (bottom to top)
+  @observable.shallow zones: ISharedContent[] = []        //  audio zones sorted by zorder (top to bottom)
+  @observable.shallow closedZones: ISharedContent[] = []  //  closed audio zones sorted by zorder (top to bottom)
   //  Contents by owner  used only when no relay server exists.
   participants: Map < string, ParticipantContents > = new Map<string, ParticipantContents>()
   pendToRemoves: Map < string, ParticipantContents > = new Map<string, ParticipantContents>()
@@ -213,6 +234,8 @@ export class SharedContents extends EventEmitter {
     //  update observed values
     this.all = newAll
     this.sorted = newSorted
+    this.zones = this.sorted.filter(c => c.zone !== undefined).reverse()
+    this.closedZones = this.zones.filter(c => c.zone === 'close')
 
     if (!config.bmRelayServer){
       this.saveWallpaper()
@@ -329,7 +352,7 @@ export class SharedContents extends EventEmitter {
         }else{
           //  The participant own the contents is already left but not notified.
           this.takeContentsFromDead(pc)
-          connection.conference.sendMessage(MessageType.PARTICIPANT_LEFT, pid)
+          connection.conference.sendMessage(MessageType.PARTICIPANT_LEFT, [pid])
 
           return {pid: this.localId, pc: this.participants.get(this.localId), take:true}
         }
@@ -429,7 +452,6 @@ export class SharedContents extends EventEmitter {
       } else if (pid && connection.conference.bmRelaySocket?.readyState === WebSocket.OPEN) {
         //  remove participant remaining in relay server
         if (!participants.remote.has(pid)){
-          //connection.conference.sendMessageViaRelay(MessageType.PARTICIPANT_LEFT, pid)
           connection.conference.pushOrUpdateMessageViaRelay(MessageType.PARTICIPANT_LEFT, [pid])
         }
       }
@@ -438,7 +460,6 @@ export class SharedContents extends EventEmitter {
   //  request content by id which is not sent yet.
   requestContent(cids: string[]){
     if (config.bmRelayServer){
-      //connection.conference.sendMessageViaRelay(MessageType.CONTENT_UPDATE_REQUEST_BY_ID, cids)
       connection.conference.pushOrUpdateMessageViaRelay(MessageType.CONTENT_UPDATE_REQUEST_BY_ID, cids)
     }
   }
@@ -473,6 +494,10 @@ export class SharedContents extends EventEmitter {
         if (toRemove){
           this.disposeContent(toRemove)
           this.roomContents.delete(cid)
+        }else{
+          if (contents.editing === cid){
+            contents.editing = ''
+          }
         }
         contents.roomContentsInfo.delete(cid)
       }
@@ -572,6 +597,7 @@ export class SharedContents extends EventEmitter {
       }
       //  set content
       remote.myContents.set(c.id, c)
+      contents.roomContentsInfo.set(c.id, extractSharedContentInfo(c))
       //  update track in cases of track based contents.
       if (c.type === 'screen' || c.type === 'camera') {
         this.tracks.onUpdateContent(c)
@@ -596,6 +622,7 @@ export class SharedContents extends EventEmitter {
         this.disposeContent(c)
         pc.myContents.delete(cid)
         this.owner.delete(cid)
+        this.roomContentsInfo.delete(cid)
       }else {
         console.error(`removeByRemote: failed to find content cid=${cid}`)
       }
@@ -650,18 +677,26 @@ export class SharedContents extends EventEmitter {
   clearAllRemotes(){
     if (config.bmRelayServer){
       this.roomContents.clear()
+      this.roomContentsInfo.clear()
     }else{
       const remotes = Array.from(this.participants.keys()).filter(key => key !== this.localId)
-      remotes.forEach(pid=>this.participants.delete(pid))
+      remotes.forEach(pid=>{
+        const p = this.participants.get(pid)
+        if (p){
+          p.myContents.forEach(c => this.roomContentsInfo.delete(c.id))
+        }
+        this.participants.delete(pid)
+      })
       this.tracks.clearConnection()
     }
   }
 
   removeAllContents(){
     if (config.bmRelayServer){
-      const cids = Array.from(this.roomContents.keys())
+      const cids = Array.from(this.roomContentsInfo.keys())
       connection.conference.sync.sendContentRemoveRequest('', cids)
       this.roomContents.clear()
+      this.roomContentsInfo.clear()
     }else{
       this.participants.forEach((pc, pid) => {
         if (pid !== this.localId){
@@ -677,6 +712,7 @@ export class SharedContents extends EventEmitter {
       this.participants.clear()
       this.pendToRemoves.clear()
       connection.conference.sync.sendMyContents()
+      this.roomContentsInfo.clear()
     }
     this.updateAll()
   }

@@ -43,13 +43,14 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
     }else {
       participants.yarnPhones.add(id)
     }
+    participants.yarnPhoneUpdated = true
   }
   function onClose() {
-    props.map.keyInputUsers.delete('remoteForm')
+    props.stores.map.keyInputUsers.delete('remoteForm')
     setShowForm(false)
   }
   function openForm() {
-    props.map.keyInputUsers.add('remoteForm')
+    props.stores.map.keyInputUsers.add('remoteForm')
     setShowForm(true)
   }
   const buttonRef=React.useRef<HTMLButtonElement>(null)
@@ -59,14 +60,14 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
       onClick = {(ev)=>switchYarnPhone(ev, props.participant.id)}
       onContextMenu={(ev) => {ev.preventDefault(); openForm()}}
     >
-      <Participant {...props} isLocal={false} />
+      <Participant {...props} isLocal={false}/>
       <MoreButton show={showMore} className={classes.more} htmlColor={color} {...moreControl}
       buttonRef={buttonRef}
       onClickMore = {(ev)=>{
         ev.stopPropagation()
         openForm()
       }} />
-      <RemoteParticipantForm open={showForm} close={onClose} map={props.map}
+      <RemoteParticipantForm open={showForm} close={onClose} stores={props.stores}
         participant={props.participant as RemoteParticipantStore}
         anchorEl={buttonRef.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
         anchorReference = "anchorEl"

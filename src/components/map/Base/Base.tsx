@@ -1,6 +1,4 @@
-import {BaseProps as BP} from '@components/utils'
-import {useStore as useMapStore} from '@hooks/MapStore'
-import {useStore} from '@hooks/ParticipantsStore'
+import {MapProps as BP} from '@components/utils'
 import {makeStyles} from '@material-ui/core/styles'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {
@@ -8,26 +6,22 @@ import {
   radian2Degree, rotate90ClockWise, rotateVector2D, transformPoint2D, transfromAt, vectorLength,
 } from '@models/utils'
 import {addV2, mulV2, normV, subV2} from '@models/utils/coordinates'
+import {SCALE_LIMIT} from '@stores/Map'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
-//import { keys, parseInt } from 'lodash'
-//import { RemoteParticipant } from '@stores/participants/RemoteParticipant'
-
-
-
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
   const targetScale = currentScale * scale
 
-  if (targetScale > options.maxScale) {
-    return options.maxScale / currentScale
+  if (targetScale > SCALE_LIMIT.maxScale) {
+    return SCALE_LIMIT.maxScale / currentScale
   }
 
-  if (targetScale < options.minScale) {
-    return options.minScale / currentScale
+  if (targetScale < SCALE_LIMIT.minScale) {
+    return SCALE_LIMIT.minScale / currentScale
   }
 
   return scale
@@ -61,43 +55,32 @@ const useStyles = makeStyles({
   }),
 })
 
-type BaseProps = React.PropsWithChildren<BP>
-
-const options = {
-  minScale: 0.2,
-  maxScale: 5,
-}
+type MapProps = React.PropsWithChildren<BP>
 
 class BaseMember{
   prebThirdPersonView = false
   mouseDown = false
   dragging = false
+
   upTime = 0
   downTime = 0
-
   downXpos = 0
   downYpos = 0
-
   upXpos = 0
   upYpos = 0
 }
 
-export const Base: React.FC<BaseProps> = (props: BaseProps) => {
-  const mapStore = useMapStore()
-  const matrix = useObserver(() => mapStore.matrix)
+export const Base: React.FC<MapProps> = (props: MapProps) => {
+  const {map, participants} = props.stores
+  const matrix = useObserver(() => map.matrix)
   const container = useRef<HTMLDivElement>(null)
   const outer = useRef<HTMLDivElement>(null)
   function offset():[number, number] {
-    return mapStore.offset
+    return map.offset
   }
-  const participants = useStore()
   const thirdPersonView = useObserver(() => participants.local.thirdPersonView)
   const memRef = useRef<BaseMember>(new BaseMember())
   const mem = memRef.current
-
-  
-
- 
 
   const center = transformPoint2D(matrix, participants.local.pose.position)
   if (thirdPersonView !== mem.prebThirdPersonView) {
@@ -106,14 +89,14 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
       const mapRot = radian2Degree(extractRotation(matrix))
       if (mapRot) {
         const newMatrix = rotateMap(-mapRot, center)
-        mapStore.setCommittedMatrix(newMatrix)
+        map.setCommittedMatrix(newMatrix)
       }
     }else {
       const avatarRot = participants.local.pose.orientation
       const mapRot = radian2Degree(extractRotation(matrix))
       if (avatarRot + mapRot) {
         const newMatrix = rotateMap(-(avatarRot + mapRot), center)
-        mapStore.setCommittedMatrix(newMatrix)
+        map.setCommittedMatrix(newMatrix)
       }
     }
   }
@@ -122,115 +105,77 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
   function rotateMap(degree:number, center:[number, number]) {
     const changeMatrix = (new DOMMatrix()).rotateSelf(0, 0, degree)
     const newMatrix = transfromAt(center, changeMatrix, matrix)
-    mapStore.setMatrix(newMatrix)
+    map.setMatrix(newMatrix)
 
     return newMatrix
   }
 
-/* 
-  function hasParticipantOverlapped() {
-    let found = false
-    const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
-    //remotes.forEach(pid=>(mapStore.mouseOnMap[0] === participants.remote.get(pid)?.pose.position[0] && mapStore.mouseOnMap[1] === participants.remote.get(pid)?.pose.position[1]) ? found=true : "")
-
-     for (const [i, pid] of remotes.entries()) {
-      if((mapStore.mouseOnMap[0] >= (participants.remote.get(pid)?.pose.position[0]-30)) && (mapStore.mouseOnMap[0] <= (participants.remote.get(pid)?.pose.position[0]+30)) && (mapStore.mouseOnMap[1] >= (participants.remote.get(pid)?.pose.position[1]-30)) && (mapStore.mouseOnMap[1] <= (participants.remote.get(pid)?.pose.position[1]+30))) {
-        found = true
-      }
-    }
-    return found
-  }
- */
   //  Mouse and touch operations ----------------------------------------------
   const MOUSE_LEFT = 1
   const MOUSE_RIGHT = 2
-  
-  
-  
+
+  //  zoom by scrollwheel
+  function wheelHandler(event:React.WheelEvent) {
+    if (!event.ctrlKey) {
+      /*  //  translate map
+      const diff = mulV2(0.2, rotateVector2D(matrix.inverse(), [event.deltaX, event.deltaY]))
+      const newMatrix = matrix.translate(-diff[0], -diff[1])
+      map.setMatrix(newMatrix)*/
+
+      //  zoom map
+      let scale = Math.pow(1.2, event.deltaY / 100)
+      scale = limitScale(extractScaleX(map.matrix), scale)
+      //  console.log(`zoom scale:${scale}`)
+      if (scale === 1){
+        return
+      }
+
+      //  console.log(`Wheel: ${movement}  scale=${scale}`)
+      const newMatrix = map.matrix.scale(scale, scale, 1,
+        ...transformPoint2D(map.matrix.inverse(), map.mouse))
+      map.setMatrix(newMatrix)
+      map.setCommittedMatrix(newMatrix)
+    }
+  }
+
   const bind = useGesture(
     {
-      
       onDragStart: ({buttons, xy}) => {
         document.body.focus()
         mem.dragging = true
         mem.mouseDown = true
-        
-  
         //  console.log('Base StartDrag:')
         if (buttons === MOUSE_LEFT) {
-          //  move participant to mouse position
-          mem.downTime = new Date().getSeconds()
 
+          mem.downTime = new Date().getSeconds()
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
-          
-         //console.log(xy, " down xy")
-        
+
+          //  move participant to mouse position
           /* setTimeout(() => {
             function moveParticipant(move: boolean) {
-             
               if (mem.mouseDown) {
                 const local = participants.local
-
-                //console.log(mapStore.mouseOnMap, " click")
-
-                // Working Block
-                //const remote = ((participants.remote as Object))
-                const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
-                //remotes.forEach(pid=>console.log(participants.remote.get(pid)?.pose.position[0]))
-                //remotes.forEach(pid=>console.log(participants.remote.get(pid)?.pose.position[1], "--", mapStore.mouseOnMap[1]))
-
-                //remotes.forEach(pid=>(mapStore.mouseOnMap[0] === participants.remote.get(pid)?.pose.position[0] && mapStore.mouseOnMap[1] === participants.remote.get(pid)?.pose.position[1] ? console.log(participants.remote.get(pid)?.pose.position[1], "--", mapStore.mouseOnMap[1]) : console.log("no")))
-
-
-                //let overlapped = hasParticipantOverlapped(participants)
-
-                //console.log(overlapped, " overlapped")
-
-                for (const [i, id] of remotes.entries()) {
-                  let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
-                  let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
-                  let mouseX = Number(mapStore.mouseOnMap[0])
-                  let mouseY = Number(mapStore.mouseOnMap[1])
-                  
-                  if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
-                    //console.log("found")
-                    return
-                  }
-                } */
-
-                //remotes.forEach(pid=>(mapStore.mouseOnMap[0] >= participants.remote.get(pid)?.pose.position[0]-30 && mapStore.mouseOnMap[0] <= )console.log(participants.remote.get(pid)?.pose.position[0], "--", mapStore.mouseOnMap[0]))
-                //remotes.forEach(pid=>mapStore.mouseOnMap[0] >= participants.remote.get(pid)?.pose.position[0]-30 && mapStore.mouseOnMap[0] <= participants.remote.get(pid)?.pose.position[0]+30) && (mapStore.mouseOnMap[1] >= participants.remote.get(pid)?.pose.position[1]-30 && mapStore.mouseOnMap[1] <= participants.remote.get(pid)?.pose.position[1]+30 ? console.log(participants.remote.get(pid)?.pose.position[0]) : console.log("move"))
-                //remotes.forEach(pid=>console.log(participants.remote.get(pid)?.pose.position[0])
-
-/* 
-                if (participants.remote.has(participants.)) {
-                  console.log("remote")
-                } else {
-                  console.log("local : ", participants.localId, " -- ", participants.remote.entries)
-                }
- */
-                /* const diff = subV2(mapStore.mouseOnMap, local.pose.position)
+                const diff = subV2(map.mouseOnMap, local.pose.position)
                 if (normV(diff) > PARTICIPANT_SIZE / 2) {
-                  const dir = mulV2(normV(diff) / normV(diff), diff)
+                  const dir = mulV2(10 / normV(diff), diff)
                   local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
                   if (move) {
                     local.pose.position = addV2(local.pose.position, dir)
                   }
                   local.savePhysicsToStorage(false)
                 }
-                const TIMER_INTERVAL = move ? 33 : 200
-                
+                const TIMER_INTERVAL = move ? 33 : 300
                 setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
               }
             }
             moveParticipant(false)
-          }, 200) */
+          },         300) */
         }
       },
       onDrag: ({down, delta, xy, buttons}) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
-        //  if (mapStore.keyInputUsers.size) { return }
+        //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
           if (!thirdPersonView && buttons === MOUSE_RIGHT) {  // right mouse drag - rotate map
             const center = transformPoint2D(matrix, participants.local.pose.position)
@@ -251,127 +196,45 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
             // left mouse drag or touch screen drag - translate map
             const diff = rotateVector2D(matrix.inverse(), delta)
             const newMatrix = matrix.translate(...diff)
-            mapStore.setMatrix(newMatrix)
+            map.setMatrix(newMatrix)
             //  console.log('Base onDrag:', delta)
           }
         }
       },
-      onDragEnd: ({event, currentTarget, delta,xy, buttons}) => {
-        if (mem.mouseDown) {
-          props.contents.setEditing('')
-        } 
-        //console.log(Object(event?.target).tagName)
-        //console.log('Base onDragEnd:')
-
-        //console.log(mem.dragging, " && ", outer.current, "&&", delta[0], "&&", delta[1])
-
+      onDragEnd: ({event, xy}) => {
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
-
-        //console.log(mem.downXpos, " -- ", mem.downYpos, " ==== ", mem.upXpos, " --- ", mem.upYpos, " LLL ", mem.mouseDown)
-
-        //console.log((mem.upXpos >= (mem.downXpos - 10) && mem.upXpos <= (mem.downXpos+10) && (mem.upYpos >= (mem.downYpos - 10) && mem.upYpos <= (mem.downYpos+10))))
-
-        //console.log(xy, " up xy")
-
         mem.upTime = new Date().getSeconds()
-        //console.log(mem.downTime, " -- ", mem.upTime)
         let timeDiff = mem.upTime - mem.downTime;
-        //if(timeDiff === 1 && mem.mouseDown && String(Object(event?.target).tagName) === "DIV") {
-        //if((mem.upXpos >= (mem.downXpos - 10) && mem.upXpos <= (mem.downXpos+10) && (mem.upYpos >= (mem.downYpos - 10) && mem.upYpos <= (mem.downYpos+10))) && mem.mouseDown && String(Object(event?.target).tagName) === "DIV") {
+
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 2) {
           const local = participants.local
           const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
-          for (const [i, id] of remotes.entries()) {
+          for (const [i] of remotes.entries()) {
             let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
             let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
-            let mouseX = Number(mapStore.mouseOnMap[0])
-            let mouseY = Number(mapStore.mouseOnMap[1])
+            let mouseX = Number(map.mouseOnMap[0])
+            let mouseY = Number(map.mouseOnMap[1])
             if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
               return
             }
           }
-          const diff = subV2(mapStore.mouseOnMap, local.pose.position)
+          const diff = subV2(map.mouseOnMap, local.pose.position)
           if (normV(diff) > PARTICIPANT_SIZE / 2) {
             const dir = mulV2(normV(diff) / normV(diff), diff)
             local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-            //if (move) {
             local.pose.position = addV2(local.pose.position, dir)
-            //}
-            //local.setPhysics({inProximity: false})
-            local.physics.inProximity = false
-            local.savePhysicsToStorage(false)
-
-            
-
-
-            //console.log(participants.yarnPhones.keys)
-
-            // Remove yarn phone
-            
-            /* Array.from(participants.yarnPhones.keys()).filter((id) => {
-              console.log(participants.yarnPhones)
-            }) */
-            //Array.from(participants.yarnPhones.keys()).filter((id) => {
-              //console.log(participants.yarnPhones.size)
-              //participants.yarnPhones.delete(local.id)
-            //})
-
-            // Remove yarn phone
-            setTimeout(function() {
-              local.loadPhysicsFromStorage()
-            Array.from(participants.remote.keys()).filter((id) => {
-              const remote = participants.find(id)!
-              console.log(local.id, " -- ", remote.id)
-              console.log(remote.pose.position[0], " physics ", local.pose.position[0])
-              if(participants.yarnPhones.has(remote.id)) {
-                participants.yarnPhones.delete(remote.id)
-                
-              }
-            })
-            }, 2000)
           }
         }
 
-
-        /* 
-        // Position Avatar
-        setTimeout(() => {
-          function moveParticipant(move: boolean) {
-           
-            if (!mem.mouseDown) {
-              const local = participants.local
-              const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
-              for (const [i, id] of remotes.entries()) {
-                let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
-                let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
-                let mouseX = Number(mapStore.mouseOnMap[0])
-                let mouseY = Number(mapStore.mouseOnMap[1])
-                if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
-                  return
-                }
-              }
-              const diff = subV2(mapStore.mouseOnMap, local.pose.position)
-              if (normV(diff) > PARTICIPANT_SIZE / 2) {
-                const dir = mulV2(normV(diff) / normV(diff), diff)
-                local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-                if (move) {
-                  local.pose.position = addV2(local.pose.position, dir)
-                }
-                local.savePhysicsToStorage(false)
-              }
-              const TIMER_INTERVAL = move ? 33 : 200
-              setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
-            }
-          }
-          moveParticipant(false)
-        }, 200) */
-
-        mapStore.setCommittedMatrix(matrix)
+        if (matrix.toString() !== map.committedMatrix.toString()) {
+          map.setCommittedMatrix(matrix)
+        }
         mem.dragging = false
         mem.mouseDown = false
-
+        //  console.log('Base onDragEnd:')
       },
+      
       onPinch: ({da: [d, a], origin, event, memo}) => {
         if (memo === undefined) {
           return [d, a]
@@ -392,7 +255,7 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
           (new DOMMatrix()).scaleSelf(scale, scale, 1).rotateSelf(0, 0, a - ma)
 
         const newMatrix = transfromAt(center, changeMatrix, matrix)
-        mapStore.setMatrix(newMatrix)
+        map.setMatrix(newMatrix)
 
         if (!thirdPersonView) {
           participants.local.pose.orientation = -radian2Degree(extractRotation(newMatrix))
@@ -400,34 +263,14 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
 
         return [d, a]
       },
-      onPinchEnd: () => mapStore.setCommittedMatrix(matrix),
-      onWheel: ({movement, ctrlKey, event}) => {
-        //  event?.preventDefault()
-
-        if (false) {  // false:alwas zoom (or ctrlKey: scroll and zoom)
-          // scroll wheel - translate map
-          const diff = mulV2(0.2, rotateVector2D(matrix.inverse(), movement))
-          const newMatrix = matrix.translate(-diff[0], -diff[1])
-          mapStore.setMatrix(newMatrix)
-        }else {
-          //  CTRL+weel - zoom map
-          let scale = Math.pow(1.2, movement[1] / 1000)
-          scale = limitScale(extractScaleX(matrix), scale)
-          if (scale === 1){ return }
-
-          //  console.log(`Wheel: ${movement}  scale=${scale}`)
-          const newMatrix = matrix.scale(scale, scale, 1, ...transformPoint2D(matrix.inverse(), mapStore.mouse))
-          mapStore.setMatrix(newMatrix)
-        }
-      },
-      onWheelEnd: () => mapStore.setCommittedMatrix(matrix),
+      onPinchEnd: () => map.setCommittedMatrix(matrix),
       onMove:({xy}) => {
-        mapStore.setMouse(xy)
-        participants.local.mouse.position = Object.assign({}, mapStore.mouseOnMap)
+        map.setMouse(xy)
+        participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
       onTouchStart:(ev) => {
-        mapStore.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
-        participants.local.mouse.position = Object.assign({}, mapStore.mouseOnMap)
+        map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
+        participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
     },
     {
@@ -447,8 +290,8 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
   // Prevent browser's zoom
   useEffect(
     () => {
-      function handler(event:WheelEvent) {
-        //  console.log(event)
+      function topWindowHandler(event:WheelEvent) {
+        //console.log(event)
         if (event.ctrlKey) {
           if (window.visualViewport && window.visualViewport.scale > 1){
             if (event.deltaY < 0){
@@ -463,9 +306,13 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
           //  console.log('CTRL + mouse wheel = zoom prevented.', event)
         }
       }
-      window.document.body.addEventListener('wheel', handler, {passive: false})
 
-      return () => window.document.body.removeEventListener('wheel', handler)
+
+      window.document.body.addEventListener('wheel', topWindowHandler, {passive: false})
+
+      return () => {
+        window.document.body.removeEventListener('wheel', topWindowHandler)
+      }
     },
     [],
   )
@@ -474,7 +321,7 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
   useEffect(
     () => {
       function handler(ev:MouseEvent) {
-        mapStore.setMouse([ev.clientX, ev.clientY])
+        map.setMouse([ev.clientX, ev.clientY])
       }
       if (outer.current) {
         outer.current.addEventListener('mousemove', handler, {capture:true})
@@ -528,9 +375,9 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
           cur = cur.offsetParent as HTMLElement
         }
         //  console.log(`sc:[${outer.current.clientWidth}, ${outer.current.clientHeight}] left:${offsetLeft}`)
-        mapStore.setScreenSize([outer.current.clientWidth, outer.current.clientHeight])
-        mapStore.setLeft(offsetLeft)
-        // mapStore.setOffset([outer.current.scrollLeft, outer.current.scrollTop])  //  when use scroll
+        map.setScreenSize([outer.current.clientWidth, outer.current.clientHeight])
+        map.setLeft(offsetLeft)
+        // map.setOffset([outer.current.scrollLeft, outer.current.scrollTop])  //  when use scroll
       }
     }
   ).current
@@ -541,9 +388,9 @@ export const Base: React.FC<BaseProps> = (props: BaseProps) => {
   const classes = useStyles(styleProps)
 
   return (
-    <div className={classes.root} ref={outer} {...bind()} >
+    <div className={classes.root} ref={outer} {...bind()}>
       <ResizeObserver onResize = { onResizeOuter } />
-      <div className={classes.center}>
+      <div className={classes.center} onWheel={wheelHandler}>
         <div id="map-transform" className={classes.transform} ref={container}>
             {props.children}
         </div>

@@ -1,4 +1,5 @@
 import {contentTrackCarrierName, roomInfoPeeperName} from '@models/api/Constants'
+import {recorder} from '@models/api/Recorder'
 import {ISharedContent} from '@models/ISharedContent'
 import {CONTENT_OUT_OF_RANGE_VALUE} from '@models/ISharedContent'
 import { KickTime } from '@models/KickTime'
@@ -24,6 +25,7 @@ import {Conference} from './Conference'
 import {ConferenceEvents} from './Conference'
 import {MessageType} from './MessageType'
 import {notification} from './Notification'
+
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
 
@@ -60,9 +62,9 @@ export class ConferenceSync{
     this.conference = c
     //  setInterval(()=>{ this.checkRemoteAlive() }, 1000)
   }
-  sendAllAboutMe(){
+  sendAllAboutMe(bSendRandP: boolean){
     syncLog('sendAllAboutMe called.')
-    this.sendPoseMessageNow()
+    this.sendPoseMessageNow(bSendRandP)
     this.sendMouseMessageNow()
     participants.local.sendInformation()
     this.sendOnStage()
@@ -72,17 +74,17 @@ export class ConferenceSync{
     this.sendAfkChanged()
   }
   //
-  sendPoseMessageNow(){
-    if (this.conference.channelOpened){
-      const poseStr = pose2Str(participants.local.pose)
-      this.conference.sendMessage(MessageType.PARTICIPANT_POSE, poseStr)
+  sendPoseMessageNow(bSendRandP: boolean){
+    const poseStr = pose2Str(participants.local.pose)
+    if (config.bmRelayServer){
+      this.conference.pushOrUpdateMessageViaRelay(MessageType.PARTICIPANT_POSE, poseStr, undefined, bSendRandP)
+    }else{
+      this.conference.sendMessageViaJitsi(MessageType.PARTICIPANT_POSE, poseStr)
     }
   }
   sendMouseMessageNow(){
-    if (this.conference.channelOpened){
-      const mouseStr = mouse2Str(participants.local.mouse)
-      this.conference.sendMessage(MessageType.PARTICIPANT_MOUSE, mouseStr)
-    }
+    const mouseStr = mouse2Str(participants.local.mouse)
+    this.conference.sendMessage(MessageType.PARTICIPANT_MOUSE, mouseStr)
   }
   sendParticipantInfo(){
     if (!participants.local.informationToSend){ return }
@@ -178,7 +180,7 @@ export class ConferenceSync{
     chat.participantLeft(id)
     participants.leave(id)
     if (this.conference.bmRelaySocket?.readyState === WebSocket.OPEN){
-      this.conference.sendMessage(MessageType.PARTICIPANT_LEFT, id)
+      this.conference.sendMessage(MessageType.PARTICIPANT_LEFT, [id])
     }
   }
   private onChatMessage(pid: string|undefined, msg: ChatMessageToSend){
@@ -490,7 +492,7 @@ export class ConferenceSync{
     this.disposers.push(autorun(this.sendTrackStates.bind(this)))
     if (config.bmRelayServer){
       this.disposers.push(autorun(() => {
-        this.sendPoseMessageNow()
+        this.sendPoseMessageNow(false)
         this.sendMouseMessageNow()
       }))
     }else{
@@ -583,9 +585,10 @@ export class ConferenceSync{
   onBmMessage(msgs: BMMessage[]){
     syncLog(`Receive ${msgs.length} relayed messages.`)
     for(const msg of msgs){
+      recorder.recordMessage(msg)
       switch(msg.t){
         case MessageType.ROOM_PROP: this.onRoomProp(...(JSON.parse(msg.v) as [string, string])); break
-        case MessageType.REQUEST_TO: this.sendAllAboutMe(); break
+        case MessageType.REQUEST_TO: this.sendAllAboutMe(false); break
         case MessageType.PARTICIPANT_AFK: this.onAfkChanged(msg.p, JSON.parse(msg.v)); break
         case MessageType.CALL_REMOTE: this.onCallRemote(msg.p); break
         case MessageType.CHAT_MESSAGE: this.onChatMessage(msg.p, JSON.parse(msg.v)); break

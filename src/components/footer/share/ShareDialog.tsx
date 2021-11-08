@@ -1,5 +1,4 @@
-import {Stores} from '@components/utils'
-import {useStore as useMapStore} from '@hooks/MapStore'
+import {BMProps} from '@components/utils'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -15,20 +14,17 @@ import {ShareMenu} from './Menu'
 import {Step} from './Step'
 import {TextInput} from './TextInput'
 
-interface ShareDialogProps extends Stores{
+interface ShareDialogProps extends BMProps{
   open: boolean
   onClose: () => void
 }
 
 export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
-  const {
-    open,
-    onClose,
-  } = props
+  const {open, onClose} = props
+  const {map} = props.stores
 
   const cameras = useRef(new CameraSelectorMember())
 
-  const map = useMapStore()
   const [step, setStep] = useState<Step>('menu')
 
   const wrappedSetStep = (step: Step) => {
@@ -39,11 +35,12 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
     }
   }
   function getPage(step: Step, setStep: (step: Step) => void): JSX.Element | undefined {
+    
     switch (step) {
       case 'menu':
         return <ShareMenu {...props} setStep={setStep} cameras={cameras.current} />
       case 'text':
-        return <TextInput
+        return <TextInput stores={props.stores}
             setStep={setStep}
             onFinishInput={(value) => {
               sharedContents.shareContent(createContentOfText(value, map))
@@ -53,7 +50,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             multiline = {true}
           />
       case 'iframe':
-        return <TextInput
+        return <TextInput stores={props.stores}
             setStep={setStep}
             onFinishInput={(value) => {
               createContentOfIframe(value, map).then((c) => {
@@ -64,11 +61,11 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             multiline = {false}
           />
       case 'image':
-        return <ImageInput setStep={setStep} type={step} />
+        return <ImageInput setStep={setStep} stores={props.stores} type={step} />
       case 'zoneimage':
-        return <ImageInput setStep={setStep} type={step} />
+        return <ImageInput setStep={setStep} stores={props.stores} type={step} />
       case 'camera':
-        return <CameraSelector setStep={setStep} cameras={cameras.current} />
+        return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} />
       default:
         throw new Error(`Unknown step: ${step}`)
     }
@@ -92,7 +89,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   const title = stepTitle[step]
   const page: JSX.Element | undefined = getPage(step, wrappedSetStep)
 
-  return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm" fullWidth={true}
+  return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm"
       onPointerMove = {(ev) => {
         map.setMouse([ev.clientX, ev.clientY])
       }}

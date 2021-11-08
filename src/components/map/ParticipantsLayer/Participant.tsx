@@ -1,5 +1,5 @@
 import {Avatar} from '@components/avatar'
-import {useStore as useMapStore} from '@hooks/MapStore'
+import {Stores} from '@components/utils'
 import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 import {Icon} from '@iconify/react'
 import {Tooltip} from '@material-ui/core'
@@ -9,9 +9,8 @@ import MicOffIcon from '@material-ui/icons/MicOff'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
-import {MapData} from '@stores/Map'
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
-import {Participants} from '@stores/participants/Participants'
+import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
@@ -74,43 +73,38 @@ const useStyles = makeStyles({
 })
 
 export interface ParticipantProps{
-  participant: LocalParticipant | RemoteParticipant
-  participants: Participants
+  participant: LocalParticipant | RemoteParticipant | PlaybackParticipant
   size: number
   onContextMenu?:(ev:React.MouseEvent<HTMLDivElement, MouseEvent>) => void
-  map: MapData
-  
+  stores: Stores
 }
 export interface RawParticipantProps extends ParticipantProps{
   isLocal: boolean
-  
 }
 
 const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawParticipantProps> = (props, ref) => {
-  const mapData = useMapStore()
+  const mapData = props.stores.map
+
 //  const participants = useStore()
   const participant = props.participant
-  
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
     orientation: participant.pose.orientation,
     mousePosition: participant.mouse.position,
     awayFromKeyboard: participant.awayFromKeyboard,
   }))
-  //const ky = useObserver(()=> participant!.physics.inProximity)
   const name = useObserver(() => participant!.information.name)
   const audioLevel = useObserver(() =>
-    participant!.trackStates.micMuted ? 0 : Math.pow(participant!.tracks.audioLevel, 0.5))
+    participant!.trackStates.micMuted ? 0 : Math.pow(participant!.audioLevel, 0.5))
   // console.log(`audioLevel ${audioLevel}`)
   const micMuted = useObserver(() => participant.trackStates.micMuted)
   const speakerMuted = useObserver(() => participant.trackStates.speakerMuted)
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
 
-  const inProximimty = useObserver(() => participant.physics.inProximity)
+  const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
 
-  console.log(inProximimty, " inProxomity")
-  
+  //console.log(inZone, " zone ")
 
   const classes = useStyles({
     ...participantProps,
@@ -120,13 +114,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const [color, textColor] = participant ? participant.getColor() : ['white', 'black']
   const outerRadius = props.size / 2 + 2
   const isLocal = props.isLocal
-  
-
   const AUDIOLEVELSCALE = props.size * SVG_RATIO * HALF
   const svgCenter = SVG_RATIO * props.size * HALF
 
-  /* 
-  const dir = subV2(participantProps.mousePosition, participantProps.position)
+  /* const dir = subV2(participantProps.mousePosition, participantProps.position)
   const eyeOffsets:[[number, number], [number, number]]
     = [[0.4 * outerRadius, -outerRadius], [-0.4 * outerRadius, -outerRadius]]
   const dirs = eyeOffsets.map(offset => subV2(dir, rotateVector2DByDegree(participantProps.orientation, offset)))
@@ -141,24 +132,17 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const eyeballs = eyeballsGlobal.map(g => addV2([0, -0.04 * outerRadius],
                                                  rotateVector2DByDegree(-participantProps.orientation, g)))
   function onClickEye(ev: React.MouseEvent | React.TouchEvent | React.PointerEvent){
-    if (props.participant.id === props.participants.localId){
+    if (props.participant.id === props.stores.participants.localId){
       ev.stopPropagation()
       ev.preventDefault()
-      props.participants.local.awayFromKeyboard = true
+      props.stores.participants.local.awayFromKeyboard = true
     }
-  }
-  const eyeClick = {
+  } */
+  /* const eyeClick = {
     onMouseDown: onClickEye,
     onTouchStart: onClickEye,
     onPointerDown: onClickEye,
-  }
- */
- 
-const inProxZone = participant.physics.inProximity
-
-//console.log(participant.physics.inProximity, " >inProximimty")
-//participant.setPhysics({inProximity: false})
-//console.log(participant.physics.inProximity, " >inProximimty")
+  } */
 
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
   const audioMeter = audioMeterSteps.map(step => audioLevel > step ?
@@ -170,19 +154,19 @@ const inProxZone = participant.physics.inProximity
     </React.Fragment>
     : undefined)
 
-  const iconMeter = audioMeterSteps.map(step => audioLevel > step ?
-    <React.Fragment key={step}>
-      <img src={proximityVolumeIcon} className={classes.iconProximity} alt=""/>
-    </React.Fragment>
-    : undefined)
+    const iconMeter = audioMeterSteps.map(step => audioLevel > step ?
+      <React.Fragment key={step}>
+        <img src={proximityVolumeIcon} className={classes.iconProximity} alt=""/>
+      </React.Fragment>
+      : undefined)
 
   return (
     <div className={classes.root + ' dragHandle'} onContextMenu={props.onContextMenu}>
       <div className={classes.pointerRotate}>
-      
         <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
           <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={color} />
-          {inProxZone ? audioMeter : undefined}
+         {/*  {audioMeter} */}
+         {inZone === undefined ? audioMeter : undefined}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
             <g transform={`translate(${svgCenter} ${svgCenter}) rotate(-135) `}>
               <rect style={{pointerEvents: 'fill'}}
@@ -195,9 +179,7 @@ const inProxZone = participant.physics.inProximity
             </g>
             : // Frog type (two eyes) avatar
             <g style={{pointerEvents: 'fill'}} >
-
-            {/* 
-              {isLocal ?
+              {/* {isLocal ?
                 <circle r={outerRadius} cy={svgCenter} cx={svgCenter} fill="none" stroke={textColor} />
                 : undefined}
               <circle {...eyeClick} r={0.35 * outerRadius} cy={svgCenter + eyeOffsets[0][1]}
@@ -215,10 +197,7 @@ const inProxZone = participant.physics.inProximity
                   cx={svgCenter + eyeOffsets[0][0] +  eyeballs[0][0]} fill="black" />
                 <circle {...eyeClick} r={0.14 * outerRadius} cy={svgCenter + eyeOffsets[1][1] + eyeballs[1][1]}
                   cx={svgCenter + eyeOffsets[1][0] +  eyeballs[1][0]} fill="black" />
-              </>}
-
-                 */}
-
+              </>} */}
             </g>
           }
         </svg>

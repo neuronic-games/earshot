@@ -1,9 +1,7 @@
-import {Stores} from '@components/utils'
-import {useStore as useMapStore} from '@hooks/MapStore'
-import {useStore as useParticipantsStore} from '@hooks/ParticipantsStore'
-import {useStore as useContentsStore} from '@hooks/SharedContentsStore'
+import {BMProps} from '@components/utils'
 import bxWindowClose from '@iconify-icons/bx/bx-window-close'
-import whiteboard24Regular from '@iconify-icons/fluent/whiteboard-24-regular'
+import clipboardPaste from '@iconify/icons-fluent/clipboard-arrow-right-24-regular'
+import whiteboard24Regular from '@iconify/icons-fluent/whiteboard-24-regular'
 import cursorDefaultOutline from '@iconify/icons-mdi/cursor-default-outline'
 import {Icon} from '@iconify/react'
 import Collapse from '@material-ui/core/Collapse'
@@ -29,7 +27,7 @@ import {connection} from '@models/api/ConnectionDefs'
 import {ISharedContent} from '@models/ISharedContent'
 import {useTranslation} from '@models/locales'
 import {assert} from '@models/utils'
-import {createContent, createContentOfIframe, createContentOfText,
+import {createContent, createContentFromText, createContentOfIframe, createContentOfText,
   createContentOfVideo, extractContentData, extractContentDatas} from '@stores/sharedContents/SharedContentCreator'
 import {SharedContents} from '@stores/sharedContents/SharedContents'
 import JitsiMeetJS, {JitsiLocalTrack} from 'lib-jitsi-meet'
@@ -41,9 +39,10 @@ import {DialogPageProps} from './DialogPage'
 import {ShareDialogItem} from './SharedDialogItem'
 import {Step} from './Step'
 
-function startCapture(props:Stores) {
+
+function startCapture(props:BMProps) {
   return new Promise<JitsiLocalTrack[]>((resolve, reject) => {
-    initOptions.desktopSharingFrameRate.max = props.contents.screenFps
+    initOptions.desktopSharingFrameRate.max = props.stores.contents.screenFps
     JitsiMeetJS.createLocalTracks({devices:['desktop']}).then(capturedTracks => {
       resolve(capturedTracks)
     }).catch(reason => {
@@ -67,7 +66,7 @@ function downloadItems(contents:SharedContents) {
     window.URL.revokeObjectURL(url)
   },         0)
 }
-function importItems(ev: React.ChangeEvent<HTMLInputElement>, sharedContents: SharedContents) {
+function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents) {
   const files = ev.currentTarget?.files
   if (files && files.length) {
     files[0].text().then((text) => {
@@ -78,25 +77,23 @@ function importItems(ev: React.ChangeEvent<HTMLInputElement>, sharedContents: Sh
           if (content.type === 'screen' || content.type === 'camera') { return }
           const newContent = createContent()
           Object.assign(newContent, content)
-          sharedContents.addLocalContent(newContent)
+          contents.addLocalContent(newContent)
         })
       }
     })
   }
 }
 
-interface ShareMenuProps extends DialogPageProps, Stores {
+interface ShareMenuProps extends DialogPageProps, BMProps {
   cameras: CameraSelectorMember
 }
 
 
 export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   const {t} = useTranslation()
-  const sharedContents = useContentsStore()
-  const participants = useParticipantsStore()
-  const map = useMapStore()
+  const {contents, participants, map} = props.stores
   const sharing = useObserver(() => (
-    {main: sharedContents.tracks.localMains.size, contents: sharedContents.tracks.localContents.size}))
+    {main: contents.tracks.localMains.size, contents: contents.tracks.localContents.size}))
   const showMouse = useObserver(() => participants.local.mouse.show)
   const fileInput = useRef<HTMLInputElement>(null)
   const [openMore, setOpenMore] = React.useState(false)
@@ -121,14 +118,22 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   }
   const downloadFile = () => {
     setStep('none')
-    downloadItems(sharedContents)
+    downloadItems(contents)
   }
   const createText = () => {
     //  setStep('text')
     setStep('none')
     const tc = createContentOfText('', map)
-    sharedContents.shareContent(tc)
-    sharedContents.setEditing(tc.id)
+    contents.shareContent(tc)
+    contents.setEditing(tc.id)
+  }
+  const createFromClipboard = () => {
+    setStep('none')
+    navigator.clipboard.readText().then(str => {
+      createContentFromText(str, map).then(c => {
+        contents.shareContent(c)
+      })
+    })
   }
   const createWhiteboard = () => {
     setStep('none')
@@ -138,17 +143,17 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
     rand.forEach(i => randStr += i.toString(16))
     createContentOfIframe(
       `https://wbo.ophir.dev/boards/BinauralMeet_${connection.conference.name}_${randStr}`, map).then((c) => {
-      sharedContents.shareContent(c)
-       sharedContents.setEditing(c.id)
+      contents.shareContent(c)
+       contents.setEditing(c.id)
     })
   }
   const createScreen = () => {
     startCapture(props).then((tracks) => {
       if (tracks.length) {
         const content = createContentOfVideo(tracks, map, 'screen')
-        sharedContents.shareContent(content)
+        contents.shareContent(content)
         assert(content.id)
-        sharedContents.tracks.addLocalContent(content.id, tracks)
+        contents.tracks.addLocalContent(content.id, tracks)
       }
     })
     setStep('none')
@@ -158,17 +163,17 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
     setStep('none')
   }
   const closeAllScreens = () => {
-    const cids = Array.from(sharedContents.tracks.localContents.keys())
-    cids.forEach(cid => sharedContents.removeByLocal(cid))
+    const cids = Array.from(contents.tracks.localContents.keys())
+    cids.forEach(cid => contents.removeByLocal(cid))
     setStep('none')
   }
   const screenAsBackgrouond = () => {
     if (sharing.main) {
-      sharedContents.tracks.clearLocalMains()
+      contents.tracks.clearLocalMains()
     } else {
       startCapture(props).then((tracks) => {
         if (tracks.length) {
-          sharedContents.tracks.addLocalMains(tracks)
+          contents.tracks.addLocalMains(tracks)
         }
       })
     }
@@ -179,27 +184,29 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   useEffect(() => {
     const onKeyPress = (e: KeyboardEvent) => {
       if (map.keyInputUsers.has('shareDialog')) {
-        if (e.code === 'KeyI') {  //  import
+        if (e.code === 'KeyI') {
           importFile()
-        }else if (e.code === 'KeyD') {  //  download
+        }else if (e.code === 'KeyD') {
           downloadFile()
-        }else if (e.code === 'KeyF') {  //  download
+        }else if (e.code === 'KeyV') {
+          createFromClipboard()
+        }else if (e.code === 'KeyF') {
           e.preventDefault()
           setStep('iframe')
-        }else if (e.code === 'KeyT') {  //  download
+        }else if (e.code === 'KeyT') {
           e.preventDefault()
           createText()
-        }else if (e.code === 'KeyG') {  //  download
+        }else if (e.code === 'KeyG') {
           e.preventDefault()
           setStep('image')
-        }else if (e.code === 'KeyW') {  //  download
+        }else if (e.code === 'KeyW') {
           e.preventDefault()
           createWhiteboard()
-        }else if (e.code === 'KeyB') {  //  download
+        }else if (e.code === 'KeyB') {
           screenAsBackgrouond()
-        }else if (e.code === 'KeyS') {  //  download
+        }else if (e.code === 'KeyS') {
           createScreen()
-        }else if (e.code === 'KeyM') {  //  download
+        }else if (e.code === 'KeyM') {
           startMouse()
         }else if (e.code === 'KeyC') {
           setStep('camera')
@@ -220,22 +227,32 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   return (
     <List>
       <ShareDialogItem
+        tip = {t('sharePasteTip')}
+        key="paste" text={t('sharePaste')} icon={<Icon icon={clipboardPaste} style={{fontSize:'1.5rem'}} />}
+         onClick={createFromClipboard}
+      />
+      <ShareDialogItem
+        tip = {t('shareImageTip')}
         key="shareImage" text={t('shareImage')} icon={<ImageIcon />} onClick={() => setStep('image')}
       />
       <ShareDialogItem
         key="shareText" text={t('shareText')} icon={<SubjectIcon />} onClick={createText}
       />
       <ShareDialogItem
+        tip = {t('shareWhiteboardTip')}
         key="shareWhiteboard" text={t('shareWhiteboard')} icon={<Icon icon={whiteboard24Regular} style={{fontSize:'1.5rem'}} />}
          onClick={createWhiteboard}
       />
+
       <Divider />
       <Divider />
       <ShareDialogItem
+        tip = {t('shareImageTip')}
         key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon />} onClick={() => setStep('zoneimage')}
       />
-      <Divider />
+       <Divider />
       <ShareDialogItem
+        tip = {t('shareMouseTip')}
         key="shareMouse"
         icon={<Icon icon={cursorDefaultOutline} style={{fontSize:'1.5rem'}}/>}
         text={showMouse ?  t('stopMouse') : t('shareMouse')}
@@ -248,14 +265,15 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
         onClick={() => setStep('camera')}
       />
       <ShareDialogItem
+        tip = {t('shareScreenContentTip')}
         key="shareScreenContent"
         icon={<ScreenShareIcon />}
         text={t('shareScreenContent')}
         onClick={createScreen}
         secondEl = {<FormControl component="fieldset">
           <Observer>{
-            ()=> <RadioGroup row aria-label="screen-fps" name="FPS" value={props.contents.screenFps}
-              onChange={(ev)=>{ props.contents.setScreenFps(Number(ev.target.value)) }}
+            ()=> <RadioGroup row aria-label="screen-fps" name="FPS" value={props.stores.contents.screenFps}
+              onChange={(ev)=>{ props.stores.contents.setScreenFps(Number(ev.target.value)) }}
               onClick={(ev)=>{
                 ev.stopPropagation()
                 setTimeout(createScreen, 100)
@@ -271,7 +289,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
           }</Observer>
         </FormControl>}
       />
-      {sharedContents.tracks.localContents.size ?
+      {contents.tracks.localContents.size ?
         <div style={{paddingLeft:'1em'}}><ShareDialogItem dense key = "stopScreen"
           icon={<Icon icon={bxWindowClose} style={{fontSize:'1.5rem'}}/>}
           text={t('stopScreen')}
@@ -281,9 +299,18 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
       <ListItem button dense onClick={()=>{ setOpenMore(!openMore) }}>
         {openMore ? <ExpandLess /> : <ExpandMore />}
       </ListItem>
+      <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
+        onChange={
+          (ev) => {
+            setStep('none')
+            importItems(ev, contents)
+          }
+        }
+      />
       <Collapse in={openMore} timeout="auto" unmountOnExit>
         <div style={{paddingLeft:'1em'}}>
           <ShareDialogItem
+            tip = {t('shareIframeTip')}
             key="shareIframe" text={t('shareIframe')} icon={<HttpIcon />} onClick={() => setStep('iframe')}
           />
           <ShareDialogItem
@@ -293,16 +320,9 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
             onClick={screenAsBackgrouond}
           />
           <Divider />
-          <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
-            onChange={
-              (ev) => {
-                setStep('none')
-                importItems(ev, sharedContents)
-              }
-            }
-          />
           <ShareDialogItem
             key="shareImport" text={t('shareImport')} icon={<UploadIcon />} onClick={importFile}
+            tip = {t('shareImportTip')}
           />
           <ShareDialogItem
             key="shareDownload" text={t('shareDownload')} icon={<DownloadIcon />} onClick={downloadFile}

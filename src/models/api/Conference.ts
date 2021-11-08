@@ -1,3 +1,4 @@
+import {recorder} from '@models/api/Recorder'
 import {KickTime} from '@models/KickTime'
 import {assert} from '@models/utils'
 import map from '@stores/Map'
@@ -110,7 +111,8 @@ export class Conference extends EventEmitter {
 
   public uninit(){
     if (config.bmRelayServer && participants.localId){
-      this.sendMessage(MessageType.PARTICIPANT_LEFT, participants.localId)
+      this.pushOrUpdateMessageViaRelay(MessageType.PARTICIPANT_LEFT, [participants.localId])
+      this.sendMessageViaRelay()
     }
     if (participants.local.tracks.audio) {
       this.removeTrack(participants.local.tracks.audio as JitsiLocalTrack)?.then(()=>{
@@ -165,7 +167,7 @@ export class Conference extends EventEmitter {
           this.pushOrUpdateMessageViaRelay(MessageType.REQUEST_RANGE, [map.visibleArea(), participants.audibleArea()])
           this.sendMessageViaRelay()
       }
-      //console.log(`step RTT:${this.relayRttAverage} remain:${deadline - Date.now()}/${timeToProcess}`)
+      //  console.log(`step RTT:${this.relayRttAverage} remain:${deadline - Date.now()}/${timeToProcess}`)
     }
     if (!this.stopStep){
       setTimeout(()=>{this.step()}, period)
@@ -354,8 +356,8 @@ export class Conference extends EventEmitter {
     if (this.bmRelaySocket){ return }
     const onOpen = () => {
       this.messagesToSendToRelay = []
-      this.pushOrUpdateMessageViaRelay(MessageType.REQUEST_ALL, {}, undefined, true)
-      this.sync.sendAllAboutMe()
+      this.sync.sendAllAboutMe(true)
+      this.pushOrUpdateMessageViaRelay(MessageType.REQUEST_ALL, {})
       this.sendMessageViaRelay()
     }
     const onMessage = (ev: MessageEvent<any>)=> {
@@ -462,6 +464,11 @@ export class Conference extends EventEmitter {
       this.messagesToSendToRelay.push(msg)
       //console.log(`msg:${JSON.stringify(msg)} messages: ${JSON.stringify(this.messagesToSendToRelay)}`)
     }
+
+    if (recorder.recording){
+      msg.p = participants.localId
+      recorder.recordMessage(msg)
+    }
   }
   private sendMessageViaRelay() {
     if (this.messagesToSendToRelay.length === 0){ return }
@@ -497,8 +504,10 @@ export class Conference extends EventEmitter {
       eventLog(`ENDPOINT_MESSAGE_RECEIVED from ${participant.getId()}`, msg)
       if (msg.values) {
         this.emit(msg.type, participant.getId(), msg.values)
+        recorder.recordMessage({t:msg.type, p:participant.getId(), v:JSON.stringify(msg.values)})
       }else {
         this.emit(msg.type, participant.getId(), msg.value)
+        recorder.recordMessage({t:msg.type, p:participant.getId(), v:JSON.stringify(msg.value)})
       }
     })
     this._jitsiConference.on(CONF.PARTICIPANT_PROPERTY_CHANGED, (participant:JitsiParticipant, name: string,
@@ -506,6 +515,7 @@ export class Conference extends EventEmitter {
       eventLog(`PARTICIPANT_PROPERTY_CHANGED from ${participant.getId()} prop:${name} old,new:`, oldValue, value)
       if (name !== 'codecType'){
         this.emit(name, participant.getId(), JSON.parse(value), oldValue)
+        recorder.recordMessage({t:name, p:participant.getId(), v:value})
       }
     })
     this._jitsiConference.on(CONF.CONFERENCE_JOINED, () => {
@@ -559,10 +569,10 @@ export class Conference extends EventEmitter {
       const participant = participantsStore.find(id)
       if (participant) {
         if (! (participant === participantsStore.local && participant.muteAudio)) {
-          participant?.tracks.setAudioLevel(level)
+          participant?.setAudioLevel(level)
           //	console.log(`pid:${participant.id} audio:${level}`)
         }else {
-          participant?.tracks.setAudioLevel(0)
+          participant?.setAudioLevel(0)
         }
       }
     })
