@@ -188,7 +188,7 @@ export function createContentOfImageUrl(url: string, map: MapData,
       pasted.type = 'img'
       if(_type === "image") {
         pasted.shareType = "img"
-        pasted.noFrame = false
+        pasted.noFrame = true
       } else if(_type === "zoneimage") {
         pasted.shareType = 'zoneimg'
         pasted.noFrame = true
