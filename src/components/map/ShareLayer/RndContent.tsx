@@ -204,6 +204,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     member._down = false
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
+    
+    onLeaveIcon()
+    
   }
 
   function onClickZone(evt: MouseOrTouch) {
@@ -382,8 +385,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onMouseMove: (arg) => {
       if(showTitle) {return}
+      
       member.movePos = Number(Object(arg.nativeEvent).layerY)
       member.moveXPos = Number(Object(arg.nativeEvent).layerX)
+      
       //console.log(member.downXPos, " --- ", member.moveXPos)
       if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
         member._down = true
@@ -418,8 +423,23 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         window.setTimeout(function() {
           if(props.content.ownerName === participants.local.information.name) {
             if(member._down && showTitle === false) {
-              member.downPos = Number(Object(arg.nativeEvent).layerY)
-              member.downXPos = Number(Object(arg.nativeEvent).layerX)
+              
+              //member.downPos = Number(Object(arg.nativeEvent).layerY)
+              //member.downXPos = Number(Object(arg.nativeEvent).layerX)
+
+              //console.log(pose.position[1], " -- ", map.mouseOnMap[1])
+
+              //member.downPos = Number(pose.position[1]) //Number(map.mouseOnMap[1])
+              //member.downXPos = Number(pose.position[0]) //Number(map.mouseOnMap[0])
+
+
+              const diff = subV2(map.mouseOnMap, pose.position)
+              
+              member.downPos = Number(diff[1])
+              member.downXPos = Number(diff[0])
+
+
+
               setShowTitle(true)
             }
           }
@@ -584,7 +604,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           {/* <div className={classes.type}>
             {contentTypeIcons(props.content.type, TITLE_HEIGHT, TITLE_HEIGHT*1.1)}
           </div> */}
-          <Tooltip placement="top" title={props.content.pinned ? t('ctUnpin') : t('ctPin')} >
+          <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
           <div className={classes.pin} onMouseUp={onClickPin} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
             {/* <Icon icon={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} /> */}
             <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
@@ -597,14 +617,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </div>
           </Tooltip>
           {/* {props.content.pinned ? undefined : */}
-            <Tooltip placement="top" title={t('ctMoveTop')} >
+            <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
               <div className={classes.moveTopButton} onMouseUp={onClickMoveToTop}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
                   {/* <FlipToFrontIcon /> */}
                   <img src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
                   </div></Tooltip>{/* } */}
          {/*  {props.content.pinned ? undefined : */}
-            <Tooltip placement="top" title={t('ctMoveBottom')} >
+            <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
               <div className={classes.moveBottomButton} onMouseUp={onClickMoveToBottom}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
                   {/* <FlipToBackIcon /> */}
@@ -635,7 +655,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </Tooltip> : undefined} */}
 
             {props.content.shareType === "img" ? undefined :
-          <Tooltip placement="top" title={props.content.zone ? t('ctUnProximity') : t('ctProximity')} >
+          <Tooltip placement="top" title={member._down ? (props.content.zone ? t('ctUnProximity') : t('ctProximity')) : ''} >
           <div className={classes.prox} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
             <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>
@@ -721,6 +741,32 @@ const buttonStyle = {
   },
 }
 
+const buttonStyleActive = {
+  '&': {
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
+    
+    //border: '2px solid #9e886c',
+    //backgroundColor: 'white',
+  },
+
+  '&:hover': {
+    backgroundColor: '#B34700', //'rosybrown',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+  '&:active': {
+    //backgroundColor: 'firebrick',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+}
+
 const BORDER_WIDTH = 3
 
 const useStyles = makeStyles({
@@ -791,7 +837,7 @@ const useStyles = makeStyles({
   titleContainer: (props:StyleProps) => {
     const rv:CreateCSSProperties = {
       display: 'flex',
-      position: 'absolute',
+      position: 'relative',
       width: (props.pinned ? 350 : 350), //props.size[0],
       height: (props.pinned ? 200 : 200), //props.size[0],
       overflow: 'hidden',
@@ -807,22 +853,26 @@ const useStyles = makeStyles({
     }
     if (!props.showTitle) {
       rv['display'] = 'flex'
-      rv['position'] = 'absolute'
+      rv['position'] = 'relative'
       rv['bottom'] = 'auto'
       rv['top'] = 'auto'
       rv['left'] = 'auto'
       rv['transform'] = 'scale(0)'
     } else {
       rv['display'] = 'flex'
-      rv['position'] = 'absolute'
+      rv['position'] = 'relative'
       rv['bottom'] = 'auto'
+      //rv['top'] = (props.downPos - (130/2)) // 100
+      //rv['left'] = (props.downXPos - (380/2)) // 270
+      //rv['top'] = (props.downPos - (130/2)) // 100
+      //rv['left'] = (props.downXPos - (380/2)) // 270
+      //rv['top'] = (props.downPos + 5) // 100
+      //rv['left'] = (props.downXPos + 10) // 270
       rv['top'] = (props.downPos - (130/2)) // 100
       rv['left'] = (props.downXPos - (380/2)) // 270
       rv['transform'] = 'scale(1)'
     }
     return rv
-
-    
   },
 
   /* titleContainer: (props:StyleProps) => (
@@ -891,23 +941,27 @@ const useStyles = makeStyles({
       cursor: 'default',
       //transform: "rotate(-75deg)",
       background: props.pinned ? '#ef4623' : '#9e886c',
-      ...buttonStyle,
+      ...props.pinned ?  buttonStyleActive : buttonStyle,
     } : {display:'none'}
   ),
   prox: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
       height: TITLE_HEIGHT,
-      position:'absolute',
+      position:'relative',
       /* top: 13,
       left: 233, */
-      top: '0px',
-      left: '185px',
+      //top: '0px',
+      //left: '185px',
+      top: 13,
+      left: props.props.content.shareType === 'img' ? 117 : 87,
+
       whiteSpace: 'pre',
       cursor: 'default',
       //transform: "rotate(60deg)",
       background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
-      ...buttonStyle,
+      //...buttonStyle,
+      ...props.props.content.zone === "close" ? buttonStyleActive : buttonStyle,
     } : {display:'none'}
   ),
   titleButton: (props:StyleProps) => (
@@ -920,8 +974,12 @@ const useStyles = makeStyles({
       cursor: 'default',
       /* top: '57px',
       left: '258px', */
-      top: props.props.content.shareType === 'img' ? 13 : 13,
-      left: props.props.content.shareType === 'img' ? 213 : 233,
+      /* top: props.props.content.shareType === 'img' ? 13 : 13,
+      left: props.props.content.shareType === 'img' ? 213 : 233, */
+
+      top: props.props.content.shareType === 'img' ? 45 : 57,
+      left: props.props.content.shareType === 'img' ? 253 : 260,
+
       //transform: "rotate(90deg)",
       background: '#9e886c',
       ...buttonStyle,
@@ -933,8 +991,12 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 13,
-      left: props.props.content.shareType === 'img' ? 117 : 87,
+      //top: 13,
+      //left: props.props.content.shareType === 'img' ? 117 : 87,
+      top: props.props.content.shareType === 'img' ? 5 : 0,
+      left: props.props.content.shareType === 'img' ? 165 : 135,
+      
+
       whiteSpace: 'pre',
       cursor: 'default',
       //transform: "rotate(-60deg)",
@@ -948,8 +1010,13 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: props.props.content.shareType === 'img' ? 5 : 0,
-      left: props.props.content.shareType === 'img' ? 165 : 135,
+      
+      //top: props.props.content.shareType === 'img' ? 5 : 0,
+      //left: props.props.content.shareType === 'img' ? 165 : 135,
+
+      top: '0px',
+      left: '185px',
+
       whiteSpace: 'pre',
       cursor: 'default',
       //transform: "rotate(45deg)",
@@ -999,8 +1066,10 @@ const useStyles = makeStyles({
     textAlign: 'left',
    /*  top: '105px',
     left: '268px', */
-    top: props.props.content.shareType === 'img' ? 45 : 57,
-    left: props.props.content.shareType === 'img' ? 253 : 260,
+    //top: props.props.content.shareType === 'img' ? 45 : 57,
+    //left: props.props.content.shareType === 'img' ? 253 : 260,
+    top: props.props.content.shareType === 'img' ? 13 : 13,
+    left: props.props.content.shareType === 'img' ? 213 : 233,
     right:0,
     margin:0,
     padding:0,
