@@ -22,6 +22,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
   const savedRoom = sessionStorage.getItem('room')
+  const [active, setActive] = useState(false)
+
   const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
 
   const onClose = (save: boolean) => {
@@ -36,6 +38,15 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     }
     errorInfo.clear()
   }
+
+  const onErrorClose = () => {
+    //console.log("close click - ")
+    setActive(true)
+    window.setTimeout(function() {
+      onClose(true)
+    },300)
+  }
+
   const onKeyPress = (ev:React.KeyboardEvent) => {
     if (ev.key === 'Enter') {
       onClose(true)
@@ -55,7 +66,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px'}
   const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em', color: 'white'}
   const tfDivStyle = {height: isSmartphone() ? '4em' : '3em', padding: '3px 0 0 0', width: '15em'}
-
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     {/* <DialogContent style={{fontSize: isSmartphone() ? '2em' : '1em'}}>
@@ -90,8 +100,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         </Button>
       </Box>
     </DialogContent> */}
-    <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}>
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.2</p>
+    <DialogContent style={active ? {overflowY: 'hidden', backgroundColor: '#ffffff', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
+    {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.3</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -105,19 +116,19 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         {/* {t('enAbout')}&nbsp; */}
       {/* <a href={t('enTopPageUrl')}>{t('enMoreInfo')}</a> */}
       </p>
-      <div style={{position: 'relative', width:'100em', display:'block'}}/>
+      <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={{position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '3em', width: '100%', textAlign:'center', transform: "scale(0)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em'}} src={bgCircle}
         alt="" />
       </div>
-      <div style={{position: 'relative', top: '-23em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-23em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-23em', width: '100%', textAlign:'center'}}>
         <img style={{width:'10em'}} src={peopleLogin} alt="" />
       </div>
       <br />
       <Box mt={1}>
-      <div style={{position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <TextField label={t('YourName')} multiline={false} value={name} style={tfDivStyle}
           inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
           onChange={event => setName(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
@@ -126,7 +137,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </Box>
       <Box mt={2}>
       {/* readOnly: true */}
-      <div style={{position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <TextField label={t('Venue')} multiline={false} value={room} style={tfDivStyle}
         inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
         onChange={event => setRoom(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
@@ -134,16 +145,17 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={2}>
-      <div style={{position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         {/* <Button variant="contained" color="primary" onClick={() => onClose(true)}
           style={{fontSize:isSmartphone() ? '1.25em' : '1em'}}>
           {t('EnterTheVenue')}
         </Button> */}
-        <img style={{width:'4em'}} src={btnGo} onClick={() => onClose(true)} alt="" />
+        {/* <img style={{width:'4em'}} src={btnGo} onClick={() => onClose(true)} alt="" /> */}
+        <img style={{width:'4em'}} src={btnGo} onClick={() => onErrorClose()} alt="" />
       </div>
       </Box>
       <Box mt={7}>
-      <div style={{position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <img style={{width:'8em'}} src={logo_es} alt="" />
       </div>
       </Box>

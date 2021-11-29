@@ -25,7 +25,6 @@ export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void
 </Dialog>
 }
 
-
 export const ErrorDialog: React.FC<BMProps> = (props) => {
   function close(){
     if (errorInfo.type !== 'retry'){
