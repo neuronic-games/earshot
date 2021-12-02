@@ -31,6 +31,14 @@ const useStyles = makeStyles({
     position: 'absolute',
     left: props.position[0],
     top: props.position[1],
+    opacity: 0,
+  }),
+  rootActive: (props: StyleProps) => ({
+    position: 'absolute',
+    left: props.position[0],
+    top: props.position[1],
+    opacity: 1,
+    transition: '0.3s ease-out',
   }),
   pointerRotate: (props: StyleProps) => ({
     transform: `rotate(${props.orientation}deg)`,
@@ -87,6 +95,12 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
 //  const participants = useStore()
   const participant = props.participant
+
+  if(props.stores.participants.localId === '') {
+    mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+    participant.pose.position = Object.assign({}, mapData.mouseOnMap)
+  }
+
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
     orientation: participant.pose.orientation,
@@ -105,6 +119,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
 
   //console.log(inZone, " zone ")
+
+  //console.log(props.stores.participants.localId, " stores")
 
   const classes = useStyles({
     ...participantProps,
@@ -161,7 +177,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       : undefined)
 
   return (
-    <div className={classes.root + ' dragHandle'} onContextMenu={props.onContextMenu}>
+    <div className={props.stores.participants.localId === '' ? (classes.root + ' dragHandle') : (classes.rootActive + ' dragHandle')} onContextMenu={props.onContextMenu}>
       <div className={classes.pointerRotate}>
         <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
           <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={color} />

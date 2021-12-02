@@ -19,7 +19,7 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
 
   const [files, setFiles] = useState<File[]>([])
 
-  console.log(props.type, " TYPE")
+  //console.log(props.type, " TYPE")
 
   const {t} = useTranslation()
   const field = (

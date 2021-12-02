@@ -130,6 +130,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const memberRef = useRef<RndContentMember>(new RndContentMember())
   const member = memberRef.current
 
+  //console.log(props, " props")
+
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
 
@@ -484,8 +486,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
+
+        //props.content.zorder = 0x7FFF
+        //console.log(participants)
+        //participants.local.updateIndex()
+        
         window.clearTimeout(member._timer)
-        member._timer = window.setTimeout(function() {
+        //clearTimeout(menuTimer);
+        //console.log("Click")
+        window.setTimeout(function() {
+          //console.log("Enter timer")
           if(props.content.ownerName === participants.local.information.name) {
             if(member._down && showTitle === false) {
               
@@ -503,12 +513,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               member.downPos = Number(diff[1])
               member.downXPos = Number(diff[0])
 
-
-
               setShowTitle(true)
             }
           }
-        },1500)
+        },500)
         //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
       }
     },
@@ -541,6 +549,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     // TIMER_DELAY
     if(props.content.ownerName !== participants.local.information.name) return
     //console.log(member._down, "in timer")
+
+    //console.log(map.matrix.a, " map")
+
     if(member._item !== "DIV" && member._down) return
     window.setTimeout( function() {
       //window.clearTimeout(member._timer)
@@ -1005,11 +1016,43 @@ const useStyles = makeStyles({
       /* rv['top'] = (props.downPos - (140/2)) // 100
       rv['left'] = (props.downXPos - (380/2)) // 270 */
 
-      rv['top'] = (props.downPos - (165/2)) // 100
-      rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - (372/2)) // 270
+      //console.log(props.props.stores.map.matrix)
+
+      //var zoomRatio = 0 //(1/props.props.stores.map.matrix.a);
 
 
-      rv['transform'] = 'scale(1)'
+      // Working
+      //rv['top'] = (props.downPos - (165/2)) // 100
+
+      //rv['top'] = (props.downPos - ((165/2))) // 100
+      /* rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - (372/2)) // 270 */
+     // rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - (380/2)) // 270
+
+      // New Changes [Making menu normal]
+      var zoomValue = Number(props.props.stores.map.matrix.a)
+      var zoomRatio = 1.2/zoomValue;
+
+     var tPos =  165 + (2.7 * zoomValue)
+     var lPos = 0
+
+    if(zoomValue >= 1 && zoomValue < 5) {
+      lPos = 380 - (6 * zoomValue)
+    } else if(zoomValue === 5) {
+      lPos = 382 - (5 * zoomValue)
+    } else if(zoomValue < 0.34) {
+      lPos = 500 - (1 * zoomValue)
+    } else if(zoomValue > 0.34 && zoomValue < 0.4) {
+      lPos = 465 - (1 * zoomValue)
+    } else {
+      lPos = 400 - (1 * zoomValue)
+    }
+      
+    rv['top'] = (props.downPos - ((tPos/2))) // 165
+    rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - ((lPos/2))) // 380
+
+    // Scale Accordingly
+    rv['transform'] = 'scale('+zoomRatio+')'
+
     }
     return rv
   },

@@ -183,7 +183,7 @@ export function createContentOfImageUrl(url: string, map: MapData,
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
-      console.log(" TYPE ", _type)
+      //console.log(" TYPE ", _type)
       
       pasted.type = 'img'
       if(_type === "image") {

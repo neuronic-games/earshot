@@ -9,12 +9,15 @@ import {KeyHandlerPlain} from '../../utils/KeyHandler'
 import {LocalParticipantForm} from './LocalParticipantForm'
 import {Participant, ParticipantProps} from './Participant'
 
+
 const AVATAR_SPEED_LIMIT = 50
 const MAP_SPEED_LIMIT = 600
 const MAP_SPEED_MIN = 100
 const HALF_DEGREE = 180
 const WHOLE_DEGREE = 360
 const HALF = 0.5
+
+const AVATARS = ["avatar/whoo_whoo-01.png", "avatar/whoo_whoo-02.png", "avatar/whoo_whoo-03.png", "avatar/whoo_whoo-04.png", "avatar/whoo_whoo-05.png", "avatar/whoo_whoo-06.png", "avatar/whoo_whoo-07.png"]
 
 
 type LocalParticipantProps = ParticipantProps
@@ -42,6 +45,19 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const map = props.stores.map
   const participants = props.stores.participants
   const participant = participants.local
+
+  //console.log(participant.information.avatarSrc, " src")
+  //participant.information.avatarSrc = ''
+
+  // Showing default Avatar
+  if(participant.information.avatarSrc === '') {
+    var _rnd = Math.ceil(Math.random() * (AVATARS.length-1))
+    participant.information.avatarSrc = AVATARS[_rnd]
+    participant.saveInformationToStorage(true)
+  }
+
+  
+
   assert(props.participant.id === participant.id)
   const member = useRef<LocalParticipantMember>({} as LocalParticipantMember).current
 

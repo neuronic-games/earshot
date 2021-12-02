@@ -256,7 +256,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         const newMatrix = transfromAt(center, changeMatrix, matrix)
         map.setMatrix(newMatrix)
-
+        
         if (!thirdPersonView) {
           participants.local.pose.orientation = -radian2Degree(extractRotation(newMatrix))
         }
