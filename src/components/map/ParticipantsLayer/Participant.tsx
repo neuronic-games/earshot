@@ -97,6 +97,12 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const participant = props.participant
 
   if(props.stores.participants.localId === '') {
+    // set Matrix [Reset ZoomLevel]
+    const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
+    mapData.setMatrix(changeMatrix)
+    mapData.setCommittedMatrix(changeMatrix)
+
+    // Position Avatar at center of stage
     mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
     participant.pose.position = Object.assign({}, mapData.mouseOnMap)
   }

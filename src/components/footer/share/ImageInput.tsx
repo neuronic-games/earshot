@@ -6,7 +6,14 @@ import React, {useState} from 'react'
 import {DialogPageProps} from './DialogPage'
 import {Input} from './Input'
 import {Step} from './Step'
+import {makeStyles} from '@material-ui/styles'
+import classes from '*.module.css'
 
+const useStyles = makeStyles({
+  preview: {
+    height: '100%',
+  },
+})
 
 interface ImageInputProps extends DialogPageProps{
   type:Step
@@ -17,6 +24,7 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
     setStep,
   } = props
 
+  const classes = useStyles()
   const [files, setFiles] = useState<File[]>([])
 
   //console.log(props.type, " TYPE")

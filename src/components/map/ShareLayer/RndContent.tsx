@@ -134,6 +134,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
+  
 
   //console.log(props.content.zone, " zone")
   if(props.content.zone === undefined) {
@@ -311,6 +312,19 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
 
   const handlerForTitle:UserHandlersPartial = {
+
+    onWheel:(evt)=>{
+      if(member._down) {
+        if(showTitle) {
+          member._down = false
+          member._item = "DIV"
+          window.clearTimeout(member._timer)
+            showHideTimer(0)
+        }
+      }
+    },
+    
+
     onDoubleClick: (evt)=>{
       if (isContentEditable(props.content)){
         stop(evt)
@@ -340,8 +354,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
 
-      
-
       setDragging(true)
       member.buttons = buttons
       member.dragCanceled = false
@@ -356,7 +368,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
       //console.log(Object(event?.target).nodeName)
 
-      if(showTitle) {
+      //if(showTitle) {
         member._down = false
         member._item = "DIV"
         window.clearTimeout(member._timer)
@@ -365,7 +377,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         } else {
           showHideTimer(1)
         }
-      }
+      //}
      
       setDragging(false)
       if (!member.dragCanceled){ updateHandler() }
@@ -389,9 +401,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         arg.stopPropagation()
       } else {
         //console.log("UPUP")
-
-        
-
         member.onContent = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
@@ -587,6 +596,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
+
     if(props.content.ownerName !== participants.local.information.name) return
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)
@@ -1030,6 +1040,9 @@ const useStyles = makeStyles({
 
       // New Changes [Making menu normal]
       var zoomValue = Number(props.props.stores.map.matrix.a)
+
+      console.log(zoomValue, " zoomValue")
+
       var zoomRatio = 1.2/zoomValue;
 
      var tPos =  165 + (2.7 * zoomValue)
