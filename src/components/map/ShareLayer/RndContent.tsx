@@ -353,6 +353,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
+      
+      if(showTitle) {return}
 
       setDragging(true)
       member.buttons = buttons
@@ -379,6 +381,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         }
       //}
      
+      if(showTitle) {return}
+
       setDragging(false)
       if (!member.dragCanceled){ updateHandler() }
       member.dragCanceled = false
@@ -585,6 +589,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
     if(props.content.ownerName !== participants.local.information.name) return
+    if(showTitle) {return}
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
     setResizeBase(size)
@@ -592,17 +597,18 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
   function onResizeStop(){
     if(props.content.ownerName !== participants.local.information.name) return
+    if(showTitle) {return}
     if (!member.dragCanceled){ updateHandler() }
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
 
     if(props.content.ownerName !== participants.local.information.name) return
+    if(showTitle) {return}
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)
     if (member.dragCanceled) {
       setPoseAndSizeToRnd()
-
       return
     }
 

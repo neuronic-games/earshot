@@ -15,17 +15,50 @@ import {i18nSupportedLngs, useTranslation} from '@models/locales'
 import {urlParameters} from '@models/url'
 import {isSmartphone} from '@models/utils'
 import errorInfo from '@stores/ErrorInfo'
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import {ErrorDialogFrame} from './ErrorDialog'
+
 
 export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
-
   const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
   
+  //console.log(Object(props).room)
+
+  const nameArr = [String(Object(props).room)]
+  const [index, setIndex] = useState(0);
+  const passedPlaceholder = nameArr[index]
+  const [placeholder, setPlaceholder] = useState(passedPlaceholder.slice(0, 0));
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+ 
+
+  useEffect(() => {
+    if(room !== "") {return}
+    const intr = setTimeout(() => {
+        setPlaceholder(passedPlaceholder.slice(0, placeholderIndex));
+        if (placeholderIndex + 1 > passedPlaceholder.length) {
+            const inner = setTimeout(() => {
+              if(index < (nameArr.length-1)) {
+                let cnt = index
+                setIndex(cnt+1)
+              } else {
+                setIndex(0)
+              }
+              setPlaceholderIndex(0)
+              clearTimeout(inner)
+            },1500)
+            clearTimeout(intr)
+        } else {
+            setPlaceholderIndex(placeholderIndex + 1)
+        }
+    }, 30);
+    return () => {
+        clearTimeout(intr)
+    }
+  },); 
 
   const onClose = (save: boolean) => {
     if (save) {
@@ -57,6 +90,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   }
 
   const {t, i18n} = useTranslation()
+
+  
 
   /* const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
     height: isSmartphone() ? '2em' : '1.5em'}
@@ -103,7 +138,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent style={active ? {overflowY: 'hidden', backgroundColor: '#ffffff', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.5</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.6</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -139,9 +174,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <Box mt={2}>
       {/* readOnly: true */}
       <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
-        <TextField label={t('Venue')} multiline={false} value={room} style={tfDivStyle}
-        inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
-        onChange={event => setRoom(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
+        <TextField label={t('Venue')} multiline={false} value={room} placeholder={placeholder} style={tfDivStyle}
+        inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
+        onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
         />
       </div>
       </Box>

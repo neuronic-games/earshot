@@ -10,9 +10,16 @@ import {Observer} from 'mobx-react-lite'
 import React from 'react'
 import {AfkDialog} from './AfkDialog'
 import {TheEntrance} from './TheEntrance'
+import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 
 export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
-dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props}/>)
+
+// Setting default room animated names
+const defaultRoom = {
+  room: generateRoomWithoutSeparator()
+}
+
+dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom}/>)
 dialogs.set('afk', (props: BMProps) => <AfkDialog />)
 
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {
