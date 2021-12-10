@@ -20,6 +20,7 @@ const defaultRoom = {
 }
 
 dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom}/>)
+/* dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props}/>) */
 dialogs.set('afk', (props: BMProps) => <AfkDialog />)
 
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {

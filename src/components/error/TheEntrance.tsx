@@ -17,40 +17,54 @@ import {isSmartphone} from '@models/utils'
 import errorInfo from '@stores/ErrorInfo'
 import React, {useState, useEffect} from 'react'
 import {ErrorDialogFrame} from './ErrorDialog'
+import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 
+let nameStr:string = ''
+
+export function userName(): string {
+  return nameStr
+}
 
 export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
-  const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
+  //const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
+  const [room, setRoom] = useState(savedRoom ? savedRoom : '')
   
   //console.log(Object(props).room)
 
-  const nameArr = [String(Object(props).room)]
-  const [index, setIndex] = useState(0);
-  const passedPlaceholder = nameArr[index]
+  const [nameArr, setNameArr] = useState([String(Object(props).room)])
+  //const [index, setIndex] = useState(0);
+  const passedPlaceholder = nameArr[0]
   const [placeholder, setPlaceholder] = useState(passedPlaceholder.slice(0, 0));
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
- 
 
   useEffect(() => {
-    if(room !== "") {return}
+    if(room !== "") {
+      return
+    }
     const intr = setTimeout(() => {
         setPlaceholder(passedPlaceholder.slice(0, placeholderIndex));
         if (placeholderIndex + 1 > passedPlaceholder.length) {
+          clearTimeout(intr)
             const inner = setTimeout(() => {
+              clearTimeout(inner)
+
+              /* 
               if(index < (nameArr.length-1)) {
                 let cnt = index
                 setIndex(cnt+1)
               } else {
                 setIndex(0)
-              }
+              } */
+
+
+              //console.log("called")
               setPlaceholderIndex(0)
-              clearTimeout(inner)
-            },1500)
-            clearTimeout(intr)
+              setNameArr([generateRoomWithoutSeparator()])
+            },4000)
         } else {
             setPlaceholderIndex(placeholderIndex + 1)
         }
@@ -61,24 +75,42 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   },); 
 
   const onClose = (save: boolean) => {
+    
     if (save) {
-      if (participants.local.information.name !== name){
-        participants.local.information.name = name
-        participants.local.sendInformation()
-        participants.local.saveInformationToStorage(true)
+        if (participants.local.information.name !== name) {
+          nameStr = name
+          /*participants.local.information.name = name
+          participants.local.sendInformation()
+          participants.local.saveInformationToStorage(true) */
+        }
+        urlParameters.room = room
+        sessionStorage.setItem('room', room)
       }
-      urlParameters.room = room
-      sessionStorage.setItem('room', room)
-    }
-    errorInfo.clear()
+
+    // setTimer to clear
+    //errorInfo.clear()
+    const endScreen = setTimeout(() => {
+    //window.setTimeout(() => {
+      clearTimeout(endScreen)
+      errorInfo.clear()
+    },5000)
   }
 
   const onErrorClose = () => {
     //console.log("close click - ")
+    //onClose(true)
+    //if(active) {return}
+    
     setActive(true)
-    window.setTimeout(function() {
+
+    //console.log("called- Error")
+    
+    const cTimer = setTimeout(function() {
+    //window.setTimeout(function() {
+      clearTimeout(cTimer)
       onClose(true)
     },500)
+    
   }
 
   const onKeyPress = (ev:React.KeyboardEvent) => {
@@ -136,9 +168,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         </Button>
       </Box>
     </DialogContent> */}
-    <DialogContent style={active ? {overflowY: 'hidden', backgroundColor: '#ffffff', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
+    <DialogContent style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.6</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.7</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -155,10 +187,11 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '3em', width: '100%', textAlign:'center', transform: "scale(0)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em'}} src={bgCircle}
         alt="" />
       </div>
+
       <div style={active ? {position: 'relative', top: '-23em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-23em', width: '100%', textAlign:'center'}}>
         <img style={{width:'10em'}} src={peopleLogin} alt="" />
       </div>
@@ -191,11 +224,29 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={7}>
-      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '0.5em', width: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <img style={{width:'8em'}} src={logo_es} alt="" />
       </div>
       </Box>
+
+      {/*
+      Display Screen
+      */}
+      
+      <div style={active ? {position: 'relative', top: '-34.7em', width: '100%', textAlign:'center', transform: "scale(0.15)", transition: '0.3s ease-out', opacity:'1'} : {display:'none', position: 'relative', top: '-59em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0)"}}>
+        <img style={{width:'30em'}} src={participants.local.information.avatarSrc}
+        alt="" />
+      </div>
+      <div style={active ? {position: 'relative', top: '-47em', width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
+        <p style={{textAlign:'center', color: 'black', marginTop:'0.5em', fontSize:'1.5em', fontWeight:'bold'}}>{name}</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.5em',fontSize:'1.4em'}}>Welcome To</p>
+        <p style={{textAlign:'center', color: '#D7C45F', marginTop:'-1em', fontSize:'1.5em', fontWeight:'bold'}}>{room}</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.5em',fontSize:'1.4em'}}>Give your web browsers permissions</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-1em',fontSize:'1.4em'}}>to access the mic and camera if necessary.</p>
+      </div>
+
     </DialogContent>
   </ErrorDialogFrame>
+  
 }
 TheEntrance.displayName = 'TheEntrance'

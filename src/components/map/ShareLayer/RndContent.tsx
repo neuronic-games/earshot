@@ -146,7 +146,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       member.dragCanceled = true
       if(props.content.shareType !== "img") {
         window.clearTimeout(member._timer)
-        member._timer = window.setTimeout( function() {
+        //member._timer = window.setTimeout( function() {
+        const _mTimer = setTimeout( function() {
+          clearTimeout(_mTimer)
           if(showTitle === true) return
            setShowTitle(false)
         }, 2)
@@ -189,7 +191,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     stop(evt)
     props.onClose?.call(null, evt)
 
-    //onLeaveIcon()
+    onLeaveIcon()
 
   }
   function onClickEdit(evt: MouseOrTouch) {
@@ -202,7 +204,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     moveContentToTop(props.content)
     props.updateAndSend(props.content)
 
-    //onLeaveIcon()
+    onLeaveIcon()
   }
   function onClickMoveToBottom(evt: MouseOrTouch) {
     stop(evt)
@@ -210,7 +212,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     moveContentToBottom(props.content)
     props.updateAndSend(props.content)
 
-    //onLeaveIcon()
+    onLeaveIcon()
   }
   function onClickPin(evt: MouseOrTouch) {
     stop(evt)
@@ -218,7 +220,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
     
-    //onLeaveIcon()
+    onLeaveIcon()
     
   }
 
@@ -233,7 +235,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }
     props.updateAndSend(props.content)
 
-    //onLeaveIcon()
+    onLeaveIcon()
   }
   
   /* function onClickCopy(evt: MouseOrTouch){
@@ -254,7 +256,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     map.keyInputUsers.add('contentForm')
     setShowForm(true)
 
-    //onLeaveIcon()
+    onLeaveIcon()
   }
   function onCloseForm(){
     setShowForm(false)
@@ -265,12 +267,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     props.updateAndSend(props.content)
   }
   function onLeaveIcon() {
-    /* if(member._down) return
+    if(member._down) return
     member._down = false
     member._item = "DIV"
     window.clearTimeout(member._timer)
 
-    showHideTimer(1) */
+    showHideTimer(1)
   }
   function updateHandler() {
     if (JSON.stringify(pose) !== JSON.stringify(props.content.pose) ||
@@ -284,8 +286,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //  drag for title area
   function dragHandler(delta:[number, number], buttons:number, event:any) {
     if (member.dragCanceled){ return }
+
     const ROTATION_IN_DEGREE = 360
     const ROTATION_STEP = 15
+    //if(isFixed && showTitle){ event?.stopPropagation(); return}
     if (buttons === MOUSE_RIGHT) {
       setPreciseOrientation((preciseOrientation + delta[0] + delta[1]) % ROTATION_IN_DEGREE)
       let newOri
@@ -310,6 +314,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
+  //console.log(showTitle, " -- ", member._down)
+  const isFixed = (props.content.pinned)
+  //console.log(isFixed, " isFixed")
 
   const handlerForTitle:UserHandlersPartial = {
 
@@ -332,27 +339,48 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
     },
     onDrag: ({down, delta, event, xy, buttons}) => {
-      //  console.log('onDragTitle:', delta)
+      //console.log('onDragTitle:', delta)
 
       // checking the drag item
       if(props.content.ownerName !== participants.local.information.name) return
-      
-      //if (isFixed && showTitle) { return }
-      if (showTitle) { return }
-      //if (isFixed) { return }
 
+      //console.log(showTitle, " onDrag")
       
+     if(isFixed) {
+       //console.log("ENTER")
+        
+        //if (down) {
+          //if(showTitle) {
+            //event?.stopPropagation()
+            //dragHandler(delta, buttons, event)
+            event?.stopPropagation()
+          //}
+        //}
+        return
+      } 
+
+      //if(showTitle === false) {
+      if(showTitle) {return}
+      //}
+      //if (isFixed && showTitle === false) { return }
+      /* if(!showTitle) {
+        if (isFixed) { return }
+      } */
+
       //if(props.content.pinned) {return}
+      /* if (isFixed) { return } */
+      
 
       event?.stopPropagation()
       if (down) {
         //  event?.preventDefault()
         dragHandler(delta, buttons, event)
       }
+    //}
 
     },
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
-      //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
+      //console.log(`dragStart delta=${delta}  buttons=${buttons}`)
       
       if(showTitle) {return}
 
@@ -366,7 +394,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
-      //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
+      //console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
 
       //console.log(Object(event?.target).nodeName)
 
@@ -450,8 +478,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
       if(showTitle) {return}
       
-      member.movePos = Number(Object(arg.nativeEvent).layerY)
-      member.moveXPos = Number(Object(arg.nativeEvent).layerX)
+      /* member.movePos = Number(Object(arg.nativeEvent).layerY)
+      member.moveXPos = Number(Object(arg.nativeEvent).layerX) */
+
+      member.movePos = Number(map.mouseOnMap[1])
+      member.moveXPos = Number(map.mouseOnMap[0])
       
       //console.log(member.downXPos, " --- ", member.moveXPos)
       if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
@@ -507,7 +538,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         window.clearTimeout(member._timer)
         //clearTimeout(menuTimer);
         //console.log("Click")
-        window.setTimeout(function() {
+        const _mTimer = setTimeout(function() {
+          clearTimeout(_mTimer)
           //console.log("Enter timer")
           if(props.content.ownerName === participants.local.information.name) {
             if(member._down && showTitle === false) {
@@ -553,38 +585,49 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   } */
 
   function showHideBorder() {  
-    member._borderTimer = window.setTimeout( function() {
+    //member._borderTimer = window.setTimeout( function() {
+    const _bTimer = setTimeout( function() {
+      clearTimeout(_bTimer)
       setShowBorder(false)
      }, BORDER_TIMER_DELAY)
   }
 
   function showHideTimer(_delay:number) {  
     // TIMER_DELAY
-    if(props.content.ownerName !== participants.local.information.name) return
+    //if(props.content.ownerName !== participants.local.information.name) return
     //console.log(member._down, "in timer")
 
     //console.log(map.matrix.a, " map")
 
-    if(member._item !== "DIV" && member._down) return
-    window.setTimeout( function() {
+    //if(member._item !== "DIV" && member._down) return
+    //window.setTimeout( function() {
+    const _mTimer = setTimeout( function() {
       //window.clearTimeout(member._timer)
+      clearTimeout(_mTimer)
       setShowTitle(false)
     }, (_delay * 1000))
   }
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
-    //  console.log('onDragBody:', args.delta)
+    //console.log('onDragBody:', args.delta)
     if(props.content.ownerName !== participants.local.information.name) return
 
-    //if (isFixed || map.keyInputUsers.has(props.content.id) || showTitle) { return }
+    //if (isFixed || map.keyInputUsers.has(props.content.id)) { return }
     //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
 
     //console.log("moving")
+    //if(showTitle === false) {return}
 
-    if (showTitle) { return }
+    //if (showTitle) { return }
+    //if(isFixed && showTitle) {return}
+
+    //}
+    //console.log("after pin")
     //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
+    //if(isFixed && showTitle){
     handlerForTitle.onDrag?.call(this, args)
+    //}
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
@@ -1047,7 +1090,7 @@ const useStyles = makeStyles({
       // New Changes [Making menu normal]
       var zoomValue = Number(props.props.stores.map.matrix.a)
 
-      console.log(zoomValue, " zoomValue")
+      //console.log(zoomValue, " zoomValue")
 
       var zoomRatio = 1.2/zoomValue;
 

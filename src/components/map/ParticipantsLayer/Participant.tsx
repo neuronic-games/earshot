@@ -14,6 +14,9 @@ import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
+
+import {userName} from '@components/error/TheEntrance'
+
 declare const config:any             //  from ../../config.js included from index.html
 
 interface StyleProps {
@@ -31,14 +34,14 @@ const useStyles = makeStyles({
     position: 'absolute',
     left: props.position[0],
     top: props.position[1],
-    opacity: 0,
+    opacity: 1,
   }),
   rootActive: (props: StyleProps) => ({
     position: 'absolute',
     left: props.position[0],
     top: props.position[1],
     opacity: 1,
-    transition: '0.3s ease-out',
+    transition: '0s ease-out',
   }),
   pointerRotate: (props: StyleProps) => ({
     transform: `rotate(${props.orientation}deg)`,
@@ -96,6 +99,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 //  const participants = useStore()
   const participant = props.participant
 
+
+  let _name = userName()
+
   if(props.stores.participants.localId === '') {
     // set Matrix [Reset ZoomLevel]
     const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
@@ -106,6 +112,15 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
     participant.pose.position = Object.assign({}, mapData.mouseOnMap)
   }
+
+  // Setting logged-in Username
+  if(_name !== '') {
+    // set Name
+    props.stores.participants.local.information.name = _name
+    props.stores.participants.local.sendInformation()
+    props.stores.participants.local.saveInformationToStorage(true)
+  }
+
 
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
