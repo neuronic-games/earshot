@@ -9,7 +9,9 @@ import logo_es from '@images/logo.png'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import DialogContent from '@material-ui/core/DialogContent'
-import TextField from '@material-ui/core/TextField'
+//import TextField from '@material-ui/core/TextField'
+import Input from '@material-ui/core/Input'
+import InputLabel from '@material-ui/core/InputLabel'
 import TranslateIcon from '@material-ui/icons/Translate'
 import {i18nSupportedLngs, useTranslation} from '@models/locales'
 import {urlParameters} from '@models/url'
@@ -75,7 +77,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   },); 
 
   const onClose = (save: boolean) => {
-    
     if (save) {
         if (participants.local.information.name !== name) {
           nameStr = name
@@ -109,7 +110,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //window.setTimeout(function() {
       clearTimeout(cTimer)
       onClose(true)
-    },500)
+    },10)
     
   }
 
@@ -129,11 +130,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     height: isSmartphone() ? '2em' : '1.5em'}
   const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em'}
   const tfDivStyle = {height: isSmartphone() ? '4em' : '3em'} */
-
+  
   const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
-    height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px'}
-  const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em', color: 'white'}
-  const tfDivStyle = {height: isSmartphone() ? '4em' : '3em', padding: '3px 0 0 0', width: '15em'}
+    height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px', width:'15em'}
+  const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.5em 0 0.2em 0', marginLeft:'-5.5em'}
+  const tfLNStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.2em 0 0.2em 0', marginLeft:'-10.5em'}
+  //const tfDivStyle = {height: isSmartphone() ? '4em' : '3em', padding: '3px 0 0 0', width: '15em'}
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     {/* <DialogContent style={{fontSize: isSmartphone() ? '2em' : '1em'}}>
@@ -168,9 +170,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         </Button>
       </Box>
     </DialogContent> */}
-    <DialogContent style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
+    <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.7</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.8</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -198,19 +200,23 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <br />
       <Box mt={1}>
       <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
-        <TextField label={t('YourName')} multiline={false} value={name} style={tfDivStyle}
+        {/* <TextField label={t('YourName')} multiline={false} value={name} style={tfDivStyle}
           inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
           onChange={event => setName(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
-        />
+        /> */}
+        <InputLabel style={tfLNStyle}> {t('YourName')} </InputLabel>
+        <Input value={name} autoFocus={true} disableUnderline={true} inputProps={{style: tfIStyle}} onChange={event => (setName(event.target.value))} onKeyPress={onKeyPress} />
       </div>
       </Box>
       <Box mt={2}>
       {/* readOnly: true */}
       <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
-        <TextField label={t('Venue')} multiline={false} value={room} placeholder={placeholder} style={tfDivStyle}
-        inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
+        {/* <TextField label={t('Venue')} multiline={false}  value={room} placeholder={placeholder} style={tfDivStyle}
+        inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
-        />
+        /> */}
+        <InputLabel style={tfLStyle}> {t('Venue')} </InputLabel>
+        <Input value={room} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
       </div>
       </Box>
       <Box mt={2}>
@@ -237,12 +243,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         <img style={{width:'30em'}} src={participants.local.information.avatarSrc}
         alt="" />
       </div>
-      <div style={active ? {position: 'relative', top: '-47em', width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
-        <p style={{textAlign:'center', color: 'black', marginTop:'0.5em', fontSize:'1.5em', fontWeight:'bold'}}>{name}</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-0.5em',fontSize:'1.4em'}}>Welcome To</p>
-        <p style={{textAlign:'center', color: '#D7C45F', marginTop:'-1em', fontSize:'1.5em', fontWeight:'bold'}}>{room}</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-0.5em',fontSize:'1.4em'}}>Give your web browsers permissions</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-1em',fontSize:'1.4em'}}>to access the mic and camera if necessary.</p>
+      <div style={active ? {position: 'relative', top: '-47.5em', width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
+        <p style={{textAlign:'center', color: 'black', marginTop:'0.2em', fontSize:'1.2em'}}>{name}</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'2.5em',fontSize:'1.2em'}}>Welcome To</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold'}}>{room}</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p>
       </div>
 
     </DialogContent>
