@@ -32,9 +32,26 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const [name, setName] = useState(participants.local.information.name)
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
-  //const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
-  const [room, setRoom] = useState(savedRoom ? savedRoom : '')
+
   
+  
+  let roomURL = String(urlParameters.room).split("_");
+  let num = (Number(roomURL?.length) - 1)
+
+  let concatURL = ''
+
+  if(Number(roomURL?.length) > 1) {
+    concatURL = String(urlParameters.room).split("_")[0]
+  }
+
+  //console.log(concatURL, " iper")
+  //console.log("Room -", roomURL[num])
+  //const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
+  //const [room, setRoom] = useState(savedRoom ? savedRoom : '')
+
+  const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : savedRoom ? savedRoom : '')
+  
+  //console.log(urlParameters, " --- ")
   //console.log(Object(props).room)
 
   const [nameArr, setNameArr] = useState([String(Object(props).room)])
@@ -44,6 +61,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   // setting default room
+  const urlRoom = urlParameters.room
   
 
   useEffect(() => {
@@ -78,10 +96,31 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         }
         if(room === "") {
           setRoom(nameArr[0])
-        } 
-        urlParameters.room = room
-        sessionStorage.setItem('room', room)
+          //console.log(room, " ---- ")
+          urlParameters.room = nameArr[0]
+          sessionStorage.setItem('room', nameArr[0])
+        } else {
+          urlParameters.room = room
+          sessionStorage.setItem('room', room)
+        }
       }
+
+      
+    //console.log(room, " --- ", nameArr[0])
+
+    if(room !== "") {
+      if(concatURL === '') {
+        window.history.replaceState({}, "null", ("/" + room))
+      } else {
+        window.history.replaceState({}, "null", ("/" + concatURL + "/" + room))
+      }
+     } else {
+      if(concatURL === '') {
+        window.history.replaceState({}, "null", ("/" + nameArr[0]))
+      } else {
+        window.history.replaceState({}, "null", ("/" + concatURL + "/" + nameArr[0]))
+      }
+     }
 
     // setTimer to clear
     //errorInfo.clear()
@@ -89,6 +128,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //window.setTimeout(() => {
       clearTimeout(endScreen)
       errorInfo.clear()
+     // updating room url
+     /* if(room !== "") {
+      window.history.replaceState({}, "null", ("/" + room))
+     } else {
+      window.history.replaceState({}, "null", ("/" + nameArr[0]))
+     } */
     },5000)
   }
 
@@ -167,7 +212,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.0.9</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.1.0</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -211,7 +256,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
         /> */}
         <InputLabel style={tfLStyle}> {t('Venue')} </InputLabel>
-        <Input value={room} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
+        <Input value={room} readOnly={urlRoom !== '' ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
       </div>
       </Box>
       <Box mt={2}>

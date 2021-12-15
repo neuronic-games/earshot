@@ -16,6 +16,13 @@ import {MainScreen} from './map/MainScreen'
 import {Map} from './map/map'
 import {Stores} from './utils'
 import {styleCommon, styleForSplit} from './utils/styles'
+/* import Box from '@material-ui/core/Box'
+import Typography from '@material-ui/core/Typography'
+import Dialog from '@material-ui/core/Dialog'
+import logo_es from '@images/logo.png'
+import DialogContent from '@material-ui/core/DialogContent'
+import IdleTimer from 'react-idle-timer' */
+
 
 export const App: React.FC<{}> = () => {
   const clsSplit = styleForSplit()
@@ -33,6 +40,59 @@ export const App: React.FC<{}> = () => {
   const refPane = useRef<SplitPane>(null)
   const [able, setAble] = useState<Boolean>(false)
 
+  /////////////////////////////////////////////////////////
+  // for Idle
+  //const [showDialog, setShowDialog] = useState(false);
+  //const [active, setActive] = useState(false);
+
+  //const _idleTimer = useRef(0)
+
+  /* let idleTimeout = 1000 * 5 * 1;  //1 minute
+  let idleLogout = 1000 * 10 * 2; //2 Minutes
+  
+
+  useEffect(() => {
+    if(showDialog) {
+      const logoutTimer = setTimeout(() => {
+        console.log("logout timer End")
+        clearTimeout(logoutTimer)
+        if(!active) {
+          window.location.href="./"
+        } else {
+          setActive(false)
+        }
+    }, idleLogout);  
+      return
+    }
+    const idleTimer = setTimeout(() => {
+        console.log("timer End")
+        clearTimeout(idleTimer)
+        if(!active) {
+          setShowDialog(true)
+        } else {
+          setActive(false)
+        }
+    }, idleTimeout);
+    return () => {
+        clearTimeout(idleTimer)
+    }
+  },);  */
+  
+  //////////////////////////////////////////////////////////
+  // Idle Events
+  /* const handleOnAction = () => {
+    console.log('user did something')
+  }
+
+  const handleOnActive = () => {
+    console.log('user is active')
+    console.log('time remaining-',)
+  }
+
+  const handleOnIdle = () => {
+    console.log('user is idle-')
+  } */
+  //////////////////////////////////////////////////////////
   let press = false
   // For toggle right panel that has users/contents/chat
   window.addEventListener('keydown', (ev) => {
@@ -49,14 +109,48 @@ export const App: React.FC<{}> = () => {
     }
   }, {})
 
+  /* // click
+  window.addEventListener('click', (ev) => {
+    setActive(true)
+    if(showDialog) {
+      setShowDialog(false)
+    }
+    ev.preventDefault()
+  },                      {passive: false, capture: false})
+
+  // onmousemove 
+  window.addEventListener('onmousemove', (ev) => {
+    setActive(true)
+    if(showDialog) {
+      setShowDialog(false)
+    }
+    ev.preventDefault()
+  },                      {passive: false, capture: false})
+  // onmousemove 
+  window.addEventListener('onkeypress', (ev) => {
+    setActive(true)
+    if(showDialog) {
+      setShowDialog(false)
+    }
+    ev.preventDefault()
+  },                    {passive: false, capture: false}) */  
+
   //  toucmove: prevent browser zoom by pinch
   window.addEventListener('touchmove', (ev) => {
     //  if (ev.touches.length > 1) {
+    /* setActive(true)
+    if(showDialog) {
+      setShowDialog(false)
+    } */
     ev.preventDefault()
     //  }
   },                      {passive: false, capture: false})
   //  contextmenu: prevent to show context menu with right mouse click
   window.addEventListener('contextmenu', (ev) => {
+    /* setActive(true)
+    if(showDialog) {
+      setShowDialog(false)
+    } */
     ev.preventDefault()
   },                      {passive: false, capture: false})
 
@@ -93,6 +187,35 @@ export const App: React.FC<{}> = () => {
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
+{/* 
+        <IdleTimer
+          timeout={1000 * 10}
+          onActive={handleOnActive}
+          onIdle={handleOnIdle}
+          onAction={handleOnAction}
+          debounce={250}
+        />
+
+
+        <Dialog
+        open={showDialog}
+        maxWidth="xl" fullWidth={false} fullScreen={true}
+        onClose={handleClose}
+      >
+      <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}>
+        <Box style={{position: 'absolute' as 'absolute',top: '20%',left: '50%',transform: 'translate(-50%, -50%)',width: '25em', boxShadow: '5em'}}>
+          <Typography variant="h4" component="h2" style={{textAlign:'center'}}>
+           Are you still there?
+          </Typography>
+        </Box>
+        <Box mt={2}>
+      <div style={{position: 'relative', top: '37em', width: '100%', textAlign:'center'}}>
+        <img style={{width:'8em'}} src={logo_es} alt="" />
+      </div>
+      </Box>
+      </DialogContent>
+      </Dialog>
+ */}
       </div>
   }}</Observer>
 }
