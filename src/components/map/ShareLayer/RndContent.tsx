@@ -87,6 +87,11 @@ class RndContentMember{
   onContext = false
 }
 
+// getting the status of context menu visibility
+let contextMenuStatus:boolean = false
+export function getContextMenuStatus(): boolean {
+  return contextMenuStatus;
+}
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
@@ -119,6 +124,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [resizeBasePos, setResizeBasePos] = useState(pose.position)    //  position when resize start
   //const [showTitle, setShowTitle] = useState(!props.autoHideTitle || !props.content.pinned)
   const [showTitle, setShowTitle] = useState(false)
+  
+
   const [showForm, setShowForm] = useState(false)
   const [preciseOrientation, setPreciseOrientation] = useState(pose.orientation)
   const [dragging, setDragging] = useState(false)
@@ -314,7 +321,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
-  //console.log(showTitle, " -- ", member._down)
   const isFixed = (props.content.pinned)
   //console.log(isFixed, " isFixed")
 
@@ -339,37 +345,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
     },
     onDrag: ({down, delta, event, xy, buttons}) => {
-      //console.log('onDragTitle:', delta)
+      //console.log('onDragTitle:', delta, buttons)
 
       // checking the drag item
       if(props.content.ownerName !== participants.local.information.name) return
-
-      //console.log(showTitle, " onDrag")
       
-     if(isFixed) {
-       //console.log("ENTER")
-        
-        //if (down) {
-          //if(showTitle) {
-            //event?.stopPropagation()
-            //dragHandler(delta, buttons, event)
-            event?.stopPropagation()
-          //}
-        //}
-        return
-      } 
-
-      //if(showTitle === false) {
+      if(isFixed) {return}
       if(showTitle) {return}
-      //}
-      //if (isFixed && showTitle === false) { return }
-      /* if(!showTitle) {
-        if (isFixed) { return }
-      } */
-
-      //if(props.content.pinned) {return}
-      /* if (isFixed) { return } */
-      
 
       event?.stopPropagation()
       if (down) {
@@ -377,8 +359,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         dragHandler(delta, buttons, event)
       }
     //}
-
     },
+
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //console.log(`dragStart delta=${delta}  buttons=${buttons}`)
       
@@ -395,7 +377,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
       //console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
-
       //console.log(Object(event?.target).nodeName)
 
       //if(showTitle) {
@@ -493,6 +474,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onMouseOver: (arg) => {
       //member._down = true
+
       //console.log(Object(arg.target).id , " target")
       member._item = String(Object(arg.target).tagName)
       window.clearTimeout(member._timer)
@@ -531,6 +513,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member._down = true
         member.downTime = new Date().getSeconds()
 
+        //console.log(member._down, " onDown")
+
         //props.content.zorder = 0x7FFF
         //console.log(participants)
         //participants.local.updateIndex()
@@ -558,6 +542,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               member.downPos = Number(diff[1])
               member.downXPos = Number(diff[0])
 
+              contextMenuStatus = true
               setShowTitle(true)
             }
           }
@@ -604,7 +589,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     const _mTimer = setTimeout( function() {
       //window.clearTimeout(member._timer)
       clearTimeout(_mTimer)
+      contextMenuStatus = false
       setShowTitle(false)
+     
     }, (_delay * 1000))
   }
 
@@ -625,13 +612,20 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     //}
     //console.log("after pin")
     //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
-    //if(isFixed && showTitle){
+    //if(isFixed && showTitle) {
+    
+   
     handlerForTitle.onDrag?.call(this, args)
+   
+
     //}
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
     if(props.content.ownerName !== participants.local.information.name) return
+
+    console.log(showTitle, " checking edit section")
+
     if(showTitle) {return}
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
@@ -863,8 +857,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }>
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
       <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : resizeEnable}
-        /* disableDragging={isFixed} ref={rnd} */
-        disableDragging={showTitle} ref={rnd}
+        disableDragging={isFixed} ref={rnd}
+        /* disableDragging={showTitle} ref={rnd} */
+        /* disableDragging={false} ref={rnd} */
         onResizeStart = {onResizeStart}
         onResize = {onResize}
         onResizeStop = {onResizeStop}
@@ -1052,6 +1047,7 @@ const useStyles = makeStyles({
       //backgroundColor: 'red',
       backgroundColor: 'transparent',
       transition: '0.3s ease-out',
+      cursor: 'default',
     }
     if (!props.showTitle) {
       rv['display'] = 'flex'

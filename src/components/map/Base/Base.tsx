@@ -11,6 +11,7 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
+import {getContextMenuStatus} from '../ShareLayer/RndContent'
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -175,6 +176,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
       onDrag: ({down, delta, xy, buttons}) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
+        let _menuStatus:boolean = getContextMenuStatus()
+        if(_menuStatus) {return}
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
           if (!thirdPersonView && buttons === MOUSE_RIGHT) {  // right mouse drag - rotate map
