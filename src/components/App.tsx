@@ -11,6 +11,7 @@ import {Observer} from 'mobx-react-lite'
 import React, {Fragment, useRef, useState} from 'react'
 import SplitPane from 'react-split-pane'
 import {Footer} from './footer/Footer'
+import {Emoticons} from './footer/Emoticons'
 import {LeftBar} from './leftBar/LeftBar'
 import {MainScreen} from './map/MainScreen'
 import {Map} from './map/map'
@@ -181,6 +182,7 @@ export const App: React.FC<{}> = () => {
             <Observer>{() => <Map transparent={sharedContentsStore.tracks.mainStream !== undefined
              || DEBUG_VIDEO} stores={stores} />
             }</Observer>
+            <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
           </Fragment>
           <div style={{display: (able === true ? "block" : "none")}}>

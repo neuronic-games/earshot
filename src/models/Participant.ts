@@ -76,6 +76,7 @@ export interface TrackStates{
   micMuted: boolean,
   speakerMuted: boolean,
   headphone: boolean,
+  emoticon: string,
 }
 export interface Physics {
   located: boolean

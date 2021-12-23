@@ -7,7 +7,15 @@ import {makeStyles} from '@material-ui/core/styles'
 import HeadsetIcon from '@material-ui/icons/HeadsetMic'
 import MicOffIcon from '@material-ui/icons/MicOff'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
+
+// Image
 import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
+// Animated Emoticons
+import symSmileIcon from '@images/whoo-screen_sym-smile.png'
+import symClapIcon from '@images/whoo-screen_sym-clap.png'
+import symHandIcon from '@images/whoo-screen_sym-hand.png'
+
+
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
 import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
@@ -74,6 +82,26 @@ const useStyles = makeStyles({
     top: props.size * 0.4,
     pointerEvents: 'none',
   }),
+  iconEmoticon: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.8,
+    height: props.size * 0.8,
+    left: props.size * -0.4,
+    top: props.size * -0.3,
+    pointerEvents: 'none',
+    transform: 'scale(1)',
+    transition: '0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  }),
+  iconEmoticonNone: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.8,
+    height: props.size * 0.8,
+    left: props.size * 0.1,
+    top: props.size * 0,
+    pointerEvents: 'none',
+    transform: 'scale(0)',
+    transition: '0s ease-out',
+  }),
   more: (props: StyleProps) => ({
     position: 'absolute',
     width: props.size * 0.4 ,
@@ -98,10 +126,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
 //  const participants = useStore()
   const participant = props.participant
-
-
   let _name = userName()
-
   if(props.stores.participants.localId === '') {
     // set Matrix [Reset ZoomLevel]
     const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
@@ -139,9 +164,13 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
 
-  //console.log(inZone, " zone ")
+  const _icons = useObserver(() => participant.trackStates.emoticon)
 
+  //console.log(participant.trackStates.emoticon, " icons selected")
+  //console.log(inZone, " zone ")
   //console.log(props.stores.participants.localId, " stores")
+
+  
 
   const classes = useStyles({
     ...participantProps,
@@ -245,6 +274,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
           <div>
             <Avatar {...props} />
             {iconMeter}
+            <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
             {headphone ? <HeadsetIcon className={classes.icon} htmlColor="rgba(0, 0, 0, 0.3)" /> : undefined}
             {speakerMuted ? <SpeakerOffIcon className={classes.icon} color="secondary" /> :
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}

@@ -15,6 +15,16 @@ import VideoIcon from '@material-ui/icons/Videocam'
 import VideoOffIcon from '@material-ui/icons/VideocamOff'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 import SpeakerOnIcon from '@material-ui/icons/VolumeUp'
+
+/* import smileIcon from '@images/whoo-screen_btn-smile.png'
+import symSmileIcon from '@images/whoo-screen_sym-smile.png'
+import clapIcon from '@images/whoo-screen_btn-clap.png'
+import symClapIcon from '@images/whoo-screen_sym-clap.png'
+import handIcon from '@images/whoo-screen_btn-hand.png'
+import symHandIcon from '@images/whoo-screen_sym-hand.png' */
+
+
+
 import {useTranslation} from '@models/locales'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
@@ -42,12 +52,31 @@ class Member{
   touched = false
 }
 
+/* let _emoticon:string = ''
+export function getEmoticon() : string {
+  return _emoticon
+} */
+
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  showor not
   const [show, setShow] = React.useState<boolean>(true)
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
+
+  // For toggle emoticons
+ /*  const [toggleSmile, setToggleSmile] = React.useState<boolean>(false)
+  const [toggleClap, setToggleClap] = React.useState<boolean>(false)
+  const [toggleHand, setToggleHand] = React.useState<boolean>(false) */
+
+  /* if(toggleSmile) {
+    _emoticon = 'smile'
+  } else {
+    _emoticon = ''
+  } */
+  
+  
+
   function setShowShare(flag: boolean) {
     if (flag) {
       map.keyInputUsers.add('shareDialog')
@@ -209,6 +238,49 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       setShowAdmin(false)
     }
 
+    /* function toggleSmileButton() {
+      participants.local.emoticon = ''
+      setToggleHand(false)
+      setToggleClap(false)
+      setTimeout(()=>{
+        if(toggleSmile) {
+          participants.local.emoticon = ''
+          setToggleSmile(false)
+        } else {
+          participants.local.emoticon = 'smile'
+          setToggleSmile(true)
+        }
+      },100)
+    }
+    function toggleClapButton() {
+      participants.local.emoticon = ''
+      setToggleSmile(false)
+      setToggleHand(false)
+      setTimeout(()=>{
+        if(toggleClap) {
+          participants.local.emoticon = ''
+          setToggleClap(false)
+        } else {
+          participants.local.emoticon = 'clap'
+          setToggleClap(true)
+        }
+      },100)
+    }
+    function toggleHandButton() {
+      participants.local.emoticon = ''
+      setToggleSmile(false)
+      setToggleClap(false)
+      setTimeout(()=>{
+        if(toggleHand) {
+          participants.local.emoticon = ''
+          setToggleHand(false)
+        } else {
+          participants.local.emoticon = 'hand'
+          setToggleHand(true)
+        }
+      },100)
+    } */
+
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={show} classes={classes}>
         <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
@@ -280,6 +352,24 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
         <ErrorDialog {...props}/>
 
+
+        {/* ADD ANIMATED ICONS*/}
+        {/* <FabMain size={45} onClick={toggleSmileButton}
+          style={{marginLeft:'35em', opacity:1}}>
+          <img src={toggleSmile ? symSmileIcon : smileIcon} style={{width:iconSize, height:iconSize}} alt='' />
+        </FabMain>
+        <FabMain size={45} onClick={toggleClapButton} 
+          style={{marginLeft:'0em', opacity:1}}>
+          <img src={toggleClap ? symClapIcon : clapIcon} style={{width:iconSize, height:iconSize}} alt='' />
+        </FabMain>
+        <FabMain size={45} onClick={toggleHandButton} 
+          style={{marginLeft:'0em', opacity:1}}>
+          <img src={toggleHand ? symHandIcon : handIcon} style={{width:iconSize, height:iconSize}} alt='' />
+        </FabMain>
+        */}
+
+        
+
         <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton}
           style={{marginLeft:'auto', marginRight:10, opacity:0.1}}>
           <SettingsIcon style={{width:iconSize, height:iconSize}} />
@@ -289,6 +379,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
           anchorReference = "anchorEl" >
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
+
       </Collapse>
     </div >
   },
