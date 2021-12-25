@@ -787,7 +787,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </Tooltip> : undefined} */}
 
             {props.content.shareType === "img" ? undefined :
-          <Tooltip placement="top" title={member._down ? (props.content.zone ? t('ctUnProximity') : t('ctProximity')) : ''} >
+          <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
           <div className={classes.prox} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
             <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>

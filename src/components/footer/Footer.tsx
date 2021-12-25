@@ -23,6 +23,8 @@ import symClapIcon from '@images/whoo-screen_sym-clap.png'
 import handIcon from '@images/whoo-screen_btn-hand.png'
 import symHandIcon from '@images/whoo-screen_sym-hand.png' */
 
+import MoreIcon from '@images/whoo-screen_btn-more.png'
+
 
 
 import {useTranslation} from '@models/locales'
@@ -34,12 +36,55 @@ import {FabMain, FabWithTooltip} from './FabEx'
 import {ShareButton} from './share/ShareButton'
 import {StereoAudioSwitch} from './StereoAudioSwitch'
 
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
+
+
+const buttonStyle = {
+  '&': {
+    margin: '5px',
+    borderRadius: '50%',
+    width: '57px',
+    height: '57px',
+    textAlign: 'center',
+  },
+}
+
 const useStyles = makeStyles({
+  more:{
+    display: 'inline-block',
+    height: 50,
+    position:'relative',
+    cursor: 'pointer',
+    backgroundColor: '#bcbec0', //  '#ef4623' : '#9e886c',
+    right: 0,
+    bottom:0,
+    left: 0,
+    ...buttonStyle,
+  },
+  moreActive:{
+    display: 'inline-block',
+    height: 50,
+    position:'relative',
+    cursor: 'pointer',
+    backgroundColor: '#ef4623', //  '#ef4623' : '#9e886c',
+    right: 0,
+    bottom: 0,
+    left: 0,
+    ...buttonStyle,
+  },
   container:{
     position: 'absolute',
     width: '100%',
     bottom: 0,
     padding: 0,
+    left: 60,
     outline: 'none',
     pointerEvents: 'none',
   },
@@ -60,7 +105,7 @@ export function getEmoticon() : string {
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  showor not
-  const [show, setShow] = React.useState<boolean>(true)
+  const [show, setShow] = React.useState<boolean>(false)
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
 
@@ -113,7 +158,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const mouseOnBottom = useObserver(checkMouseOnBottom)
   useEffect(() => {
     if (checkMouseOnBottom()) { member.touched = true }
-    setShowFooter(mouseOnBottom || !member.touched)
+   // setShowFooter(mouseOnBottom || !member.touched)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },        [mouseOnBottom, member.touched])
   function setShowFooter(show: boolean) {
@@ -220,6 +265,14 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       setVideoMenuEl(null)
     }
 
+    function showMainMenu() {
+      if(show) {
+        setShow(false)
+      } else {
+        setShow(true)
+      }
+    }
+
     //  Device list update when the user clicks to show the menu
     const fabSize = props.height
     const iconSize = props.height ? props.height * 0.7 : 36
@@ -282,7 +335,23 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     } */
 
     return <div ref={containerRef} className={classes.container}>
+        {/* <div className={show ? classes.moreActive : classes.more} onClick={showMainMenu}>
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px',left:'-0.5px'}} alt=""/>
+        </div> */}
+        <div style={{position:'relative', left:'-50px'}}>
+        <FabMain size={fabSize}
+          onClick = { () => {
+            showMainMenu()
+          }}
+        >
+          {show ? <div className={show ? classes.moreActive : classes.more}>
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/></div>
+            : <div className={show ? classes.moreActive : classes.more}>
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/></div> }
+        </FabMain>
+        </div>
       <Collapse in={show} classes={classes}>
+      <MuiThemeProvider theme={theme}>
         <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
         <FabMain size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
           aria-label="speaker" onClick={() => {
@@ -297,8 +366,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             setSpeakerMenuEl(ev.currentTarget)
           }}
           >
-          {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize}} />
-            : <SpeakerOnIcon style={{width:iconSize, height:iconSize}} /> }
+          {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
+            : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabMain>
         <Menu anchorEl={speakerMenuEl} keepMounted={true}
           open={Boolean(speakerMenuEl)} onClose={() => { closeSpeakerMenu('') }}>
@@ -319,10 +388,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             setMicMenuEl(ev.currentTarget)
           } }
           >
-          {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize}} /> :
+          {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> :
             mute.onStage ?
               <Icon icon={megaphoneIcon} style={{width:iconSize, height:iconSize}} color="gold" />
-              : <MicIcon style={{width:iconSize, height:iconSize}} /> }
+              : <MicIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
         <Menu anchorEl={micMenuEl} keepMounted={true}
           open={Boolean(micMenuEl)} onClose={() => { closeMicMenu('') }}>
@@ -339,8 +408,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             setVideoMenuEl(ev.currentTarget)
           } }
         >
-          {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize}} />
-            : <VideoIcon style={{width:iconSize, height:iconSize}} /> }
+          {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
+            : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabMain>
         <Menu anchorEl={videoMenuEl} keepMounted={true}
           open={Boolean(videoMenuEl)} onClose={() => { closeVideoMenu('') }}>
@@ -371,7 +440,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         
 
         <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton}
-          style={{marginLeft:'auto', marginRight:10, opacity:0.1}}>
+          style={{marginLeft:'auto', marginRight:140, opacity:0.1}}>
           <SettingsIcon style={{width:iconSize, height:iconSize}} />
         </FabMain>
         <Popover open={showAdmin} onClose={closeAdmin}
@@ -379,7 +448,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
           anchorReference = "anchorEl" >
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
-
+        </MuiThemeProvider>
       </Collapse>
     </div >
   },

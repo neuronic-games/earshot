@@ -33,7 +33,7 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
       <FabWithTooltip size={props.size} color={sharing ? 'secondary' : 'primary'}
         title = {acceleratorText2El(t('ttCreateAndshare'))}
         aria-label="share" onClick={() => props.setShowDialog(true)}>
-        <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize}} />
+        <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize, color:'white'}} />
       </FabWithTooltip>
       <ShareDialog {...props} open={props.showDialog} onClose={() => props.setShowDialog(false)} />
     </div>

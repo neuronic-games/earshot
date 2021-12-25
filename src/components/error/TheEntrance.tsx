@@ -212,7 +212,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.1.3</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.1.4</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -220,26 +220,26 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         <TranslateIcon />
       </Button>
      {/*  <h2>EarShot Chat</h2> */}
-      <p>
+      {/* <p> */}
         {/* <img style={{float: 'right', width:'28em', display:'none'}} src={i18n.language === 'ja' ? usageJa : usageEn}
           alt="usage" /> */}
         {/* {t('enAbout')}&nbsp; */}
       {/* <a href={t('enTopPageUrl')}>{t('enMoreInfo')}</a> */}
-      </p>
-      <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
+     {/*  </p> */}
+     {/*  <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/> */}
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '2em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em'}} src={bgCircle}
         alt="" />
       </div>
 
-      <div style={active ? {position: 'relative', top: '-23em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-23em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-25.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25.5em', width: '100%', textAlign:'center'}}>
         <img style={{width:'10em'}} src={peopleLogin} alt="" />
       </div>
       <br />
       <Box mt={1}>
-      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center'}}>
         {/* <TextField label={t('YourName')} multiline={false} value={name} style={tfDivStyle}
           inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
           onChange={event => setName(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
@@ -250,7 +250,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </Box>
       <Box mt={2}>
       {/* readOnly: true */}
-      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center'}}>
         {/* <TextField label={t('Venue')} multiline={false}  value={room} placeholder={placeholder} style={tfDivStyle}
         inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
@@ -260,7 +260,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={2}>
-      <div style={active ? {position: 'relative', top: '-24em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-26em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26em', width: '100%', textAlign:'center'}}>
         {/* <Button variant="contained" color="primary" onClick={() => onClose(true)}
           style={{fontSize:isSmartphone() ? '1.25em' : '1em'}}>
           {t('EnterTheVenue')}

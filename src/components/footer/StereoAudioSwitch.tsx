@@ -52,8 +52,8 @@ export const StereoAudioSwitch: React.FC<BMProps&{size?: number, iconSize:number
         </>}
       onClick={switchStereo} color = {stereo ? 'secondary' : 'primary'}
       onClickMore = {stereo ? (ev) => { setButton(ev.currentTarget) } : undefined} >
-      {stereo ? <HeadsetIcon style={{width:props.iconSize, height:props.iconSize}} />  :
-      <SpeakerIcon style={{width:props.iconSize, height:props.iconSize}} /> }
+      {stereo ? <HeadsetIcon style={{width:props.iconSize, height:props.iconSize, color:'white'}} />  :
+      <SpeakerIcon style={{width:props.iconSize, height:props.iconSize, color:'white'}} /> }
     </FabWithTooltip>
     <Popover open={Boolean(button)} onClose={() => setButton(null)}
       anchorEl={button} anchorOrigin={{vertical:'top', horizontal:'left'}}

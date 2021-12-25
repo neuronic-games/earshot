@@ -2,24 +2,55 @@ import {BMProps} from '@components/utils'
 import {Collapse} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import smileIcon from '@images/whoo-screen_btn-smile.png'
-import symSmileIcon from '@images/whoo-screen_sym-smile.png'
+/* import symSmileIcon from '@images/whoo-screen_sym-smile.png' */
 import clapIcon from '@images/whoo-screen_btn-clap.png'
-import symClapIcon from '@images/whoo-screen_sym-clap.png'
+/* import symClapIcon from '@images/whoo-screen_sym-clap.png' */
 import handIcon from '@images/whoo-screen_btn-hand.png'
-import symHandIcon from '@images/whoo-screen_sym-hand.png'
+/* import symHandIcon from '@images/whoo-screen_sym-hand.png' */
 
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
-import {FabMain} from './FabEx'
+/* import {FabMain} from './FabEx' */
+
+
+const buttonStyle = {
+  '&': {
+    margin: '5px',
+    borderRadius: '50%',
+    width: '45px',
+    height: '45px',
+    textAlign: 'center',
+  },
+}
 
 const useStyles = makeStyles({
+  emoticon:{
+    display: 'block',
+    height: 50,
+    position:'relative',
+    cursor: 'pointer',
+    backgroundColor: '#9e886c', //  '#ef4623' : '#9e886c',
+    right: 20,
+    ...buttonStyle,
+  },
+  emoticonActive:{
+    display: 'block',
+    height: 50,
+    position:'relative',
+    cursor: 'pointer',
+    backgroundColor: '#ef4623', //  '#ef4623' : '#9e886c',
+    right: 20,
+    ...buttonStyle,
+  },
+
   container:{
     position: 'absolute',
     width: '100%',
     top: '63%',
     padding: 0,
+    right: 0,
     outline: 'none',
-    pointerEvents: 'none',
+    //pointerEvents: 'none',
   },
   wrapper:{width:'100%'},
   wrapperInner:{width:'100%', display:'flex', flexDirection:'column', alignItems:'flex-end'},
@@ -90,8 +121,8 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
   return React.useMemo(() => {
     //  Create menu list for device selection
     //  Device list update when the user clicks to show the menu
-    const fabSize = 45 //props.height
-    const iconSize = props.height ? props.height * 0.7 : 42
+    //const fabSize = 45 //props.height
+    const iconSize = 55 //props.height ? props.height * 0.7 : 42
     function toggleSmileButton() {
       participants.local.emoticon = ''
       setToggleHand(false)
@@ -138,8 +169,20 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
 
+      <div className={toggleSmile ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleSmileButton}>
+          <img src={smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt='' />
+        </div>
+
+        <div className={toggleClap ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleClapButton}>
+          <img src={clapIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt='' />
+        </div>
+
+        <div className={toggleHand ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleHandButton}>
+          <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-4px'}} alt='' />
+        </div>
+
         {/* ADD ANIMATED ICONS*/}
-        <FabMain size={fabSize} onClick={toggleSmileButton}
+        {/* <FabMain size={fabSize} onClick={toggleSmileButton}
           style={{marginLeft:'35em', opacity:1}}>
           <img src={toggleSmile ? symSmileIcon : smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'2px'}} alt='' />
         </FabMain>
@@ -150,7 +193,7 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
         <FabMain size={fabSize} onClick={toggleHandButton} 
           style={{marginLeft:'0em', opacity:1}}>
           <img src={toggleHand ? symHandIcon : handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'2px'}} alt='' />
-        </FabMain>
+        </FabMain> */}
       </Collapse>
     </div >
   },
