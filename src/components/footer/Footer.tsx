@@ -57,6 +57,20 @@ const buttonStyle = {
 }
 
 const useStyles = makeStyles({
+  menu:{
+    position: 'absolute',
+    width: '100%',
+    left: '-100%',
+    opacity: 0,
+    transition: '0.5s ease-out',
+  },
+  menuActive:{
+    position: 'absolute',
+    width: '100%',
+    opacity: 1,
+    left: 0,
+    transition: '0.5s ease-out',
+  },
   more:{
     display: 'inline-block',
     height: 50,
@@ -82,7 +96,7 @@ const useStyles = makeStyles({
   container:{
     position: 'absolute',
     width: '100%',
-    bottom: 0,
+    bottom: 5,
     padding: 0,
     left: 60,
     outline: 'none',
@@ -338,7 +352,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         {/* <div className={show ? classes.moreActive : classes.more} onClick={showMainMenu}>
             <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px',left:'-0.5px'}} alt=""/>
         </div> */}
-        <div style={{position:'relative', left:'-50px'}}>
+        <div style={{position:'relative', left:'-50px', top:'0px'}}>
         <FabMain size={fabSize}
           onClick = { () => {
             showMainMenu()
@@ -351,6 +365,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         </FabMain>
         </div>
       <Collapse in={show} classes={classes}>
+      <div className={show ? classes.menuActive : classes.menu}>
       <MuiThemeProvider theme={theme}>
         <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
         <FabMain size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
@@ -439,9 +454,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
         
 
-        <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton}
-          style={{marginLeft:'auto', marginRight:140, opacity:0.1}}>
-          <SettingsIcon style={{width:iconSize, height:iconSize}} />
+        <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton} color='primary'
+         style={{marginLeft:'auto', marginRight:0, opacity:1, position:'relative', left:15 }}>
+          <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
         </FabMain>
         <Popover open={showAdmin} onClose={closeAdmin}
           anchorEl={adminButton.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
@@ -449,6 +464,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
         </MuiThemeProvider>
+        </div>
       </Collapse>
     </div >
   },

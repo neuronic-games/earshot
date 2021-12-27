@@ -10,7 +10,7 @@ import handIcon from '@images/whoo-screen_btn-hand.png'
 
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
-/* import {FabMain} from './FabEx' */
+import {FabMain} from './FabEx'
 
 
 const buttonStyle = {
@@ -30,7 +30,7 @@ const useStyles = makeStyles({
     position:'relative',
     cursor: 'pointer',
     backgroundColor: '#9e886c', //  '#ef4623' : '#9e886c',
-    right: 20,
+    right: 0,
     ...buttonStyle,
   },
   emoticonActive:{
@@ -39,18 +39,18 @@ const useStyles = makeStyles({
     position:'relative',
     cursor: 'pointer',
     backgroundColor: '#ef4623', //  '#ef4623' : '#9e886c',
-    right: 20,
+    right: 0,
     ...buttonStyle,
   },
 
   container:{
     position: 'absolute',
-    width: '100%',
-    top: '63%',
+    width: '30%',
+    top: '70%',
     padding: 0,
     right: 0,
     outline: 'none',
-    //pointerEvents: 'none',
+    pointerEvents: 'none',
   },
   wrapper:{width:'100%'},
   wrapperInner:{width:'100%', display:'flex', flexDirection:'column', alignItems:'flex-end'},
@@ -169,7 +169,39 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
 
-      <div className={toggleSmile ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleSmileButton}>
+
+      <FabMain size={45}
+          onClick = { () => {
+            toggleSmileButton()
+          }}
+        >
+          {toggleSmile ? <div className={classes.emoticonActive}>
+            <img src={smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            : <div className={classes.emoticon}>
+            <img src={smileIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+        </FabMain>
+        <FabMain size={45}
+          onClick = { () => {
+            toggleClapButton()
+          }}
+        >
+          {toggleClap ? <div className={classes.emoticonActive}>
+            <img src={clapIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            : <div className={classes.emoticon}>
+            <img src={clapIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+        </FabMain>
+        <FabMain size={45}
+          onClick = { () => {
+            toggleHandButton()
+          }}
+        >
+          {toggleHand ? <div className={classes.emoticonActive}>
+            <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            : <div className={classes.emoticon}>
+            <img src={handIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+        </FabMain>
+
+     {/*  <div className={toggleSmile ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleSmileButton}>
           <img src={smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt='' />
         </div>
 
@@ -179,7 +211,7 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
 
         <div className={toggleHand ? classes.emoticonActive : classes.emoticon} onMouseDown={toggleHandButton}>
           <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-4px'}} alt='' />
-        </div>
+        </div> */}
 
         {/* ADD ANIMATED ICONS*/}
         {/* <FabMain size={fabSize} onClick={toggleSmileButton}
