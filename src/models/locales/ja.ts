@@ -82,6 +82,8 @@ export const jaTranslate = {
   rsChatTo: '{{name}}だけにチャットを送る',
   ctPin: '位置/サイズを固定する',
   ctUnpin: '位置/サイズを可変にする',
+  ctTitle: '位置/サイズを固定する',
+  ctUnTitle: '位置/サイズを可変にする',
   ctProximity: '位置/サイズを固定する',
   ctUnProximity: '位置/サイズを可変にする',
   ctEditIframe: 'ページをブラウズ (非同期)',

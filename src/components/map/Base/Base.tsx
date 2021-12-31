@@ -71,6 +71,7 @@ class BaseMember{
   upYpos = 0
 }
 
+
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
   const matrix = useObserver(() => map.matrix)
@@ -115,6 +116,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
   const MOUSE_LEFT = 1
   const MOUSE_RIGHT = 2
 
+
+
   //  zoom by scrollwheel
   function wheelHandler(event:React.WheelEvent) {
     if (!event.ctrlKey) {
@@ -145,6 +148,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         document.body.focus()
         mem.dragging = true
         mem.mouseDown = true
+
         //  console.log('Base StartDrag:')
         if (buttons === MOUSE_LEFT) {
 
@@ -237,7 +241,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.mouseDown = false
         //  console.log('Base onDragEnd:')
       },
-      
+
       onPinch: ({da: [d, a], origin, event, memo}) => {
         if (memo === undefined) {
           return [d, a]
@@ -259,7 +263,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         const newMatrix = transfromAt(center, changeMatrix, matrix)
         map.setMatrix(newMatrix)
-        
+
         if (!thirdPersonView) {
           participants.local.pose.orientation = -radian2Degree(extractRotation(newMatrix))
         }

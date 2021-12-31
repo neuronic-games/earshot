@@ -70,6 +70,7 @@ function Row(left1: ContentType, left2: ContentType, center: ContentType,
 class SharedContentFormMember{
   zorder!: number
   pinned!: boolean
+  showTitle!: boolean
   editing!: string
   name!: string
   pose!: Pose2DMap
@@ -83,11 +84,13 @@ class SharedContentFormMember{
     this.name = props.content.name
     this.pose = props.content.pose
     this.editing = props.stores.contents.editing
+    this.showTitle = props.content.showTitle
   }
   restore(props: SharedContentFormProps){
     if (!props.content) { return }
     props.content.zorder = this.zorder
     props.content.pinned = this.pinned
+    props.content.showTitle = this.showTitle
     props.content.name = this.name
     props.content.pose = this.pose
     props.stores.contents.setEditing(this.editing)
@@ -163,6 +166,14 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
             }}>{t('ctFocus')}</Button>
         </Box>
         <Table size="small" ><TableBody>{[
+
+          Row(t('ctUnTitle'),<Icon icon={biImage} height={TITLE_HEIGHT} />,
+          <Switch color="primary" checked={props.content?.showTitle} onChange={(ev, checked)=>{
+            if (!props.content) { return }
+            props.content.showTitle = checked
+            props.updateOnly(props.content)
+          }}/>, <Icon icon={biImage} height={TITLE_HEIGHT} />, t('ctTitle'), 'title'),
+
           Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
             <Switch color="primary" checked={props.content?.pinned} onChange={(ev, checked)=>{
               if (!props.content) { return }
@@ -190,7 +201,7 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
               props.updateOnly(props.content)
             }}/>, <Icon icon={biImageNoFrame} height={TITLE_HEIGHT}/>, t('ctFrameInvisible')) }</Fragment>,
           <Fragment key="zone">{
-            props.content?.shareType === 'zoneimg' ?
+            (props.content?.shareType === 'zoneimg' || props.content?.shareType === 'img') ?
             Row(t('ctNotAudioZone'), <Icon icon={imageLine} height={TITLE_HEIGHT}/>,
               <Switch color="primary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
                 if (!props.content) { return }

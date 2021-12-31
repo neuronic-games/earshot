@@ -27,7 +27,8 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   zorder: 0,
   pinned: false,
   shareType: '',
-  
+  showTitle: false,
+
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -50,7 +51,8 @@ class SharedContentImp implements ISharedContent {
   noFrame?: boolean
   opacity?: number
   shareType!: string
- 
+  showTitle!: boolean
+
 
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
@@ -184,7 +186,7 @@ export function createContentOfImageUrl(url: string, map: MapData,
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
       //console.log(" TYPE ", _type)
-      
+
       pasted.type = 'img'
       if(_type === "image") {
         pasted.shareType = "img"
@@ -197,7 +199,7 @@ export function createContentOfImageUrl(url: string, map: MapData,
 
       pasted.url = url
       //const max = size[0] > size[1] ? size[0] : size[1]
-      
+
       //const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
       //pasted.size = [size[0] * scale, size[1] * scale]
 
@@ -368,7 +370,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, shareType:true,
+  noFrame: true, opacity: true, zone:true, shareType:true, showTitle:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -379,7 +381,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, shareType: true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, shareType: true, showTitle:true,
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)

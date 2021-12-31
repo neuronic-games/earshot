@@ -25,6 +25,8 @@ import React from 'react'
 
 import {userName} from '@components/error/TheEntrance'
 
+
+
 declare const config:any             //  from ../../config.js included from index.html
 
 interface StyleProps {
@@ -84,18 +86,18 @@ const useStyles = makeStyles({
   }),
   iconEmoticon: (props: StyleProps) => ({
     position: 'absolute',
-    width: props.size * 0.8,
-    height: props.size * 0.8,
-    left: props.size * -0.4,
-    top: props.size * -0.3,
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
+    left: props.size * -0.2,
+    top: props.size * -0.2,
     pointerEvents: 'none',
     transform: 'scale(1)',
     transition: '0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
   }),
   iconEmoticonNone: (props: StyleProps) => ({
     position: 'absolute',
-    width: props.size * 0.8,
-    height: props.size * 0.8,
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
     left: props.size * 0.1,
     top: props.size * 0,
     pointerEvents: 'none',
@@ -126,7 +128,11 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
 //  const participants = useStore()
   const participant = props.participant
+
+  //console.log(props.stores.roomInfo.roomProps.size)
+
   let _name = userName()
+
   if(props.stores.participants.localId === '') {
     // set Matrix [Reset ZoomLevel]
     const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
@@ -163,14 +169,13 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const onStage = useObserver(() => participant.physics.onStage)
 
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
-
   const _icons = useObserver(() => participant.trackStates.emoticon)
 
-  //console.log(participant.trackStates.emoticon, " icons selected")
-  //console.log(inZone, " zone ")
-  //console.log(props.stores.participants.localId, " stores")
+  //const pcount = useObserver(() => props.stores.participants.count)
 
-  
+  //console.log(inZone, " zone ")
+
+  //console.log(props.stores.participants.localId, " stores")
 
   const classes = useStyles({
     ...participantProps,

@@ -41,6 +41,7 @@ export interface SharedContentData extends SharedContentInfoData {
   noFrame?: boolean               //  no (invisible) frame
   opacity?: number                //  opacity
   zone?: ZoneType                 //  is this a audio zone is the zone closed or open?
+  showTitle:boolean               // for showing the title
 }
 
 export interface ISharedContent extends MapObject, SharedContentData, SharedContentId {

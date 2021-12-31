@@ -33,8 +33,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
 
-  
-  
+
+
   let roomURL = String(urlParameters.room).split("_");
   let num = (Number(roomURL?.length) - 1)
 
@@ -50,7 +50,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   //const [room, setRoom] = useState(savedRoom ? savedRoom : '')
 
   const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : savedRoom ? savedRoom : '')
-  
+
   //console.log(urlParameters, " --- ")
   //console.log(Object(props).room)
 
@@ -62,7 +62,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   // setting default room
   const urlRoom = urlParameters.room
-  
+
 
   useEffect(() => {
     if(room !== "") {
@@ -84,7 +84,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     return () => {
         clearTimeout(intr)
     }
-  },); 
+  },);
 
   const onClose = (save: boolean) => {
     if (save) {
@@ -105,7 +105,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         }
       }
 
-      
+
     //console.log(room, " --- ", nameArr[0])
 
     if(room !== "") {
@@ -141,17 +141,17 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //console.log("close click - ")
     //onClose(true)
     //if(active) {return}
-    
+
     setActive(true)
 
     //console.log("called- Error")
-    
+
     const cTimer = setTimeout(function() {
     //window.setTimeout(function() {
       clearTimeout(cTimer)
       onClose(true)
     },10)
-    
+
   }
 
   const onKeyPress = (ev:React.KeyboardEvent) => {
@@ -164,16 +164,16 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   const {t, i18n} = useTranslation()
 
-  
+
 
   /* const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
     height: isSmartphone() ? '2em' : '1.5em'}
   const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em'}
   const tfDivStyle = {height: isSmartphone() ? '4em' : '3em'} */
-  
+
   const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
     height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px', width:'15em'}
-  const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.5em 0 0.2em 0', marginLeft:'-5.5em'}
+  const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.5em 0 0.2em 0', marginLeft:'-7em'}
   const tfLNStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.2em 0 0.2em 0', marginLeft:'-10.5em'}
   //const tfDivStyle = {height: isSmartphone() ? '4em' : '3em', padding: '3px 0 0 0', width: '15em'}
 
@@ -212,7 +212,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.1.5</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.1.7</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -220,26 +220,26 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         <TranslateIcon />
       </Button>
      {/*  <h2>EarShot Chat</h2> */}
-      {/* <p> */}
+      <p>
         {/* <img style={{float: 'right', width:'28em', display:'none'}} src={i18n.language === 'ja' ? usageJa : usageEn}
           alt="usage" /> */}
         {/* {t('enAbout')}&nbsp; */}
       {/* <a href={t('enTopPageUrl')}>{t('enMoreInfo')}</a> */}
-     {/*  </p> */}
-     {/*  <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/> */}
+      </p>
+      <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '2em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em'}} src={bgCircle}
         alt="" />
       </div>
 
-      <div style={active ? {position: 'relative', top: '-25.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25.5em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-25em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25em', width: '100%', textAlign:'center'}}>
         <img style={{width:'10em'}} src={peopleLogin} alt="" />
       </div>
       <br />
       <Box mt={1}>
-      <div style={active ? {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-26em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26em', width: '100%', textAlign:'center'}}>
         {/* <TextField label={t('YourName')} multiline={false} value={name} style={tfDivStyle}
           inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
           onChange={event => setName(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
@@ -250,7 +250,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </Box>
       <Box mt={2}>
       {/* readOnly: true */}
-      <div style={active ? {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26.5em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-26em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26em', width: '100%', textAlign:'center'}}>
         {/* <TextField label={t('Venue')} multiline={false}  value={room} placeholder={placeholder} style={tfDivStyle}
         inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
@@ -260,7 +260,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={2}>
-      <div style={active ? {position: 'relative', top: '-26em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-26em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '-25em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25em', width: '100%', textAlign:'center'}}>
         {/* <Button variant="contained" color="primary" onClick={() => onClose(true)}
           style={{fontSize:isSmartphone() ? '1.25em' : '1em'}}>
           {t('EnterTheVenue')}
@@ -270,7 +270,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={7}>
-      <div style={active ? {position: 'relative', top: '0.5em', width: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '0.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <img style={{width:'8em'}} src={logo_es} alt="" />
       </div>
       </Box>
@@ -278,7 +278,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       {/*
       Display Screen
       */}
-      
+
       <div style={active ? {position: 'relative', top: '-34.7em', width: '100%', textAlign:'center', transform: "scale(0.15)", transition: '0.3s ease-out', opacity:'1'} : {display:'none', position: 'relative', top: '-59em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0)"}}>
         <img style={{width:'30em'}} src={participants.local.information.avatarSrc}
         alt="" />
@@ -293,6 +293,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
     </DialogContent>
   </ErrorDialogFrame>
-  
+
 }
 TheEntrance.displayName = 'TheEntrance'

@@ -28,7 +28,8 @@ import {ISharedContent} from '@models/ISharedContent'
 import {useTranslation} from '@models/locales'
 import {assert} from '@models/utils'
 import {createContent, createContentFromText, createContentOfIframe, createContentOfText,
-  createContentOfVideo, extractContentData, extractContentDatas} from '@stores/sharedContents/SharedContentCreator'
+  createContentOfVideo, extractContentData} from '@stores/sharedContents/SharedContentCreator'
+  // extractContentDatas
 import {SharedContents} from '@stores/sharedContents/SharedContents'
 import JitsiMeetJS, {JitsiLocalTrack} from 'lib-jitsi-meet'
 import {isArray} from 'lodash'
@@ -52,13 +53,25 @@ function startCapture(props:BMProps) {
 }
 
 function downloadItems(contents:SharedContents) {
-  const content = JSON.stringify(extractContentDatas(contents.all))
+
+  let contentAll = contents.all
+  for(var i:number=0; i < contentAll.length; i++) {
+    contentAll[i].ownerName = ""
+  }
+
+ /*  const content = JSON.stringify(extractContentDatas(contents.all))
+  const blob = new Blob([content], {type: 'text/plain'}) */
+
+  const content = JSON.stringify(contentAll)
   const blob = new Blob([content], {type: 'text/plain'})
+
 
   const a = document.createElement('a')
   const url = URL.createObjectURL(blob)
   a.href = url
-  a.download = 'BinauralMeetSharedItems.json'
+  //a.download = 'BinauralMeetSharedItems.json'
+  let roomName = sessionStorage.getItem('room')
+  a.download = String(roomName) + ".json"
   document.body.appendChild(a)
   a.click()
   setTimeout(() => {
@@ -66,13 +79,14 @@ function downloadItems(contents:SharedContents) {
     window.URL.revokeObjectURL(url)
   },         0)
 }
-function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents) {
+function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
   const files = ev.currentTarget?.files
   if (files && files.length) {
     files[0].text().then((text) => {
       const items = JSON.parse(text)
       if (isArray(items)) {
         items.forEach((item) => {
+          item.ownerName = name
           const content = extractContentData(item as ISharedContent)
           if (content.type === 'screen' || content.type === 'camera') { return }
           const newContent = createContent()
@@ -303,7 +317,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
         onChange={
           (ev) => {
             setStep('none')
-            importItems(ev, contents)
+            importItems(ev, contents, participants.local.information.name)
           }
         }
       />

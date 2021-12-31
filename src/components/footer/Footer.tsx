@@ -3,7 +3,7 @@ import {BMProps} from '@components/utils'
 import {acceleratorText2El} from '@components/utils/formatter'
 import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 import {Icon} from '@iconify/react'
-import {Collapse} from '@material-ui/core'
+import Collapse from '@material-ui/core/Collapse'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Popover from '@material-ui/core/Popover'
@@ -32,6 +32,7 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import {AdminConfigForm} from './adminConfig/AdminConfigForm'
 import {BroadcastControl} from './BroadcastControl'
+//import {BroadcastVideoControl} from './BroadcastVideoControl'
 import {FabMain, FabWithTooltip} from './FabEx'
 import {ShareButton} from './share/ShareButton'
 import {StereoAudioSwitch} from './StereoAudioSwitch'
@@ -45,7 +46,6 @@ const theme = createMuiTheme({
   }
 });
 
-
 const buttonStyle = {
   '&': {
     margin: '5px',
@@ -55,7 +55,6 @@ const buttonStyle = {
     textAlign: 'center',
   },
 }
-
 const useStyles = makeStyles({
   menu:{
     position: 'absolute',
@@ -76,10 +75,10 @@ const useStyles = makeStyles({
     height: 50,
     position:'relative',
     cursor: 'pointer',
-    backgroundColor: '#bcbec0', //  '#ef4623' : '#9e886c',
+    backgroundColor: '#bcbec0', //  '#ef4623' : '#9e886c', bcbec0
     right: 0,
-    bottom:0,
     left: 0,
+    bottom:0,
     ...buttonStyle,
   },
   moreActive:{
@@ -89,10 +88,11 @@ const useStyles = makeStyles({
     cursor: 'pointer',
     backgroundColor: '#ef4623', //  '#ef4623' : '#9e886c',
     right: 0,
-    bottom: 0,
-    left: 0,
+    left:0,
+    bottom:0,
     ...buttonStyle,
   },
+
   container:{
     position: 'absolute',
     width: '100%',
@@ -109,12 +109,11 @@ const useStyles = makeStyles({
 class Member{
   timeoutOut:NodeJS.Timeout|undefined = undefined
   touched = false
-}
 
-/* let _emoticon:string = ''
-export function getEmoticon() : string {
-  return _emoticon
-} */
+  // For sub menu
+  downTime = 0
+  upTime = 0
+}
 
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
@@ -124,17 +123,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
 
   // For toggle emoticons
- /*  const [toggleSmile, setToggleSmile] = React.useState<boolean>(false)
+  /* const [toggleSmile, setToggleSmile] = React.useState<boolean>(false)
   const [toggleClap, setToggleClap] = React.useState<boolean>(false)
   const [toggleHand, setToggleHand] = React.useState<boolean>(false) */
 
-  /* if(toggleSmile) {
-    _emoticon = 'smile'
-  } else {
-    _emoticon = ''
-  } */
-  
-  
 
   function setShowShare(flag: boolean) {
     if (flag) {
@@ -162,6 +154,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [speakerMenuEl, setSpeakerMenuEl] = React.useState<Element|null>(null)
   const [videoMenuEl, setVideoMenuEl] = React.useState<Element|null>(null)
 
+  const inzone = useObserver(() => participants.local.zone?.zone)
+  //if(inzone !== undefined) {
+  //console.log(inzone, " >>footer zone")
+
   const {t} = useTranslation()
   const classes = useStyles()
 
@@ -172,7 +168,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const mouseOnBottom = useObserver(checkMouseOnBottom)
   useEffect(() => {
     if (checkMouseOnBottom()) { member.touched = true }
-   // setShowFooter(mouseOnBottom || !member.touched)
+    //setShowFooter(mouseOnBottom || !member.touched)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },        [mouseOnBottom, member.touched])
   function setShowFooter(show: boolean) {
@@ -215,13 +211,26 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         }
       }
     }
+
     window.addEventListener('keydown', onKeyDown)
 
     return () => {
       window.removeEventListener('keydown', onKeyDown)
+
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   },        [])
+
+  /* if(show) {
+  window.addEventListener('click', (ev) => {
+
+      setShow(false)
+
+
+    ev.preventDefault()
+    ev.stopPropagation()
+  },                      {passive: false, capture: false})
+} */
 
   //  render footer
   return React.useMemo(() => {
@@ -243,7 +252,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
     const micMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
     const speakerMenuItems:JSX.Element[] = []
-    const videoMenuItems:JSX.Element[] = []
+    const videoMenuItems:JSX.Element[] = [] //[<MenuItem  key = {'broadcast'} ><BroadcastVideoControl {...props} /></MenuItem>]
     deviceInfos.forEach((info) => {
       if (info.kind === 'audioinput') {
         const broadcastControl = micMenuItems.pop() as JSX.Element
@@ -254,7 +263,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         speakerMenuItems.push(makeMenuItem(info, closeSpeakerMenu))
       }
       if (info.kind === 'videoinput') {
+        //const broadcastVidControl = videoMenuItems.pop() as JSX.Element
         videoMenuItems.push(makeMenuItem(info, closeVideoMenu))
+        //videoMenuItems.push(broadcastVidControl)
       }
     })
     function closeMicMenu(did:string) {
@@ -309,7 +320,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       participants.local.emoticon = ''
       setToggleHand(false)
       setToggleClap(false)
-      setTimeout(()=>{
+      const _timer = setTimeout(()=> {
+        clearTimeout(_timer)
         if(toggleSmile) {
           participants.local.emoticon = ''
           setToggleSmile(false)
@@ -321,9 +333,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     }
     function toggleClapButton() {
       participants.local.emoticon = ''
-      setToggleSmile(false)
       setToggleHand(false)
-      setTimeout(()=>{
+      setToggleSmile(false)
+      const _timer = setTimeout(()=> {
+        clearTimeout(_timer)
         if(toggleClap) {
           participants.local.emoticon = ''
           setToggleClap(false)
@@ -335,9 +348,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     }
     function toggleHandButton() {
       participants.local.emoticon = ''
-      setToggleSmile(false)
       setToggleClap(false)
-      setTimeout(()=>{
+      setToggleSmile(false)
+      const _timer = setTimeout(()=> {
+        clearTimeout(_timer)
         if(toggleHand) {
           participants.local.emoticon = ''
           setToggleHand(false)
@@ -350,7 +364,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
     return <div ref={containerRef} className={classes.container}>
         {/* <div className={show ? classes.moreActive : classes.more} onClick={showMainMenu}>
-            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px',left:'-0.5px'}} alt=""/>
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/>
         </div> */}
         <div style={{position:'relative', left:'-50px', top:'0px'}}>
         <FabMain size={fabSize}
@@ -364,17 +378,35 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/></div> }
         </FabMain>
         </div>
-      <Collapse in={show} classes={classes}>
-      <div className={show ? classes.menuActive : classes.menu}>
-      <MuiThemeProvider theme={theme}>
-        <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
+
+      <Collapse in={true} classes={classes}>
+        <div className={show ? classes.menuActive : classes.menu}>
+        <MuiThemeProvider theme={theme}>
+          <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
         <FabMain size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
-          aria-label="speaker" onClick={() => {
-            participants.local.muteSpeaker = !mute.muteS
-            if (participants.local.muteSpeaker) {
-              participants.local.muteAudio = true
+          aria-label="speaker" onClick={(ev) => {
+            member.upTime = new Date().getSeconds()
+            let timeDiff = member.upTime - member.downTime;
+            if(timeDiff > 1) {
+            } else {
+              participants.local.muteSpeaker = !mute.muteS
+              if (participants.local.muteSpeaker) {
+                participants.local.muteAudio = true
+              }
+              participants.local.saveMediaSettingsToStorage()
             }
-            participants.local.saveMediaSettingsToStorage()
+          }}
+          onDown={(ev) => {
+            member.downTime = new Date().getSeconds()
+            let _ev = ev
+            let _target = ev.currentTarget
+            const _timer = setTimeout(()=> {
+              clearTimeout(_timer)
+              let timeDiff = member.upTime - member.downTime;
+              if(timeDiff >= 0) return
+              updateDevices(_ev)
+              setSpeakerMenuEl(_target)
+            }, 500)
           }}
           onClickMore = { (ev) => {
             updateDevices(ev)
@@ -384,7 +416,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
           {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
             : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabMain>
-        <Menu anchorEl={speakerMenuEl} keepMounted={true}
+        <Menu anchorEl={speakerMenuEl} keepMounted={true} style={{marginTop:-70}}
           open={Boolean(speakerMenuEl)} onClose={() => { closeSpeakerMenu('') }}>
           {speakerMenuItems}
         </Menu>
@@ -392,11 +424,28 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         <FabWithTooltip size={fabSize} color={mute.muteA ? 'primary' : 'secondary' } aria-label="mic"
           title = {acceleratorText2El(t('ttMicMute'))}
           onClick = { () => {
-            participants.local.muteAudio = !mute.muteA
-            if (!participants.local.muteAudio) {
-              participants.local.muteSpeaker = false
+            member.upTime = new Date().getSeconds()
+            let timeDiff = member.upTime - member.downTime;
+            if(timeDiff > 1) {
+            } else {
+              participants.local.muteAudio = !mute.muteA
+              if (!participants.local.muteAudio) {
+                participants.local.muteSpeaker = false
+              }
+              participants.local.saveMediaSettingsToStorage()
             }
-            participants.local.saveMediaSettingsToStorage()
+          }}
+          onDown={(ev) => {
+            member.downTime = new Date().getSeconds()
+            let _ev = ev
+            let _target = ev.currentTarget
+            const _timer = setTimeout(()=> {
+              clearTimeout(_timer)
+              let timeDiff = member.upTime - member.downTime;
+              if(timeDiff >= 0) return
+              updateDevices(_ev)
+              setMicMenuEl(_target)
+            }, 500)
           }}
           onClickMore = { (ev) => {
             updateDevices(ev)
@@ -408,15 +457,36 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
               <Icon icon={megaphoneIcon} style={{width:iconSize, height:iconSize}} color="gold" />
               : <MicIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
-        <Menu anchorEl={micMenuEl} keepMounted={true}
+        <Menu anchorEl={micMenuEl} keepMounted={true}  style={{marginTop:-70}}
           open={Boolean(micMenuEl)} onClose={() => { closeMicMenu('') }}>
           {micMenuItems}
         </Menu>
 
-        <FabMain size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
+        <FabWithTooltip size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
           onClick = { () => {
-            participants.local.muteVideo = !mute.muteV
-            participants.local.saveMediaSettingsToStorage()
+            if(inzone !== undefined) {
+              /* member.upTime = new Date().getSeconds()
+              let timeDiff = member.upTime - member.downTime;
+              if(timeDiff > 1) {
+              } else {
+                participants.local.muteVideo = !mute.muteV
+                participants.local.saveMediaSettingsToStorage()
+              } */
+            }
+          }}
+          onDown={(ev) => {
+            if(inzone !== undefined) {
+              /* member.downTime = new Date().getSeconds()
+              let _ev = ev
+              let _target = ev.currentTarget
+              const _timer = setTimeout(()=> {
+                clearTimeout(_timer)
+                let timeDiff = member.upTime - member.downTime;
+                if(timeDiff >= 0) return
+                updateDevices(_ev)
+                setVideoMenuEl(_target)
+              }, 500) */
+            }
           }}
           onClickMore = { (ev) => {
             updateDevices(ev)
@@ -425,8 +495,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         >
           {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
             : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
-        </FabMain>
-        <Menu anchorEl={videoMenuEl} keepMounted={true}
+        </FabWithTooltip>
+        <Menu anchorEl={videoMenuEl} keepMounted={true}  style={{marginTop:-70}}
           open={Boolean(videoMenuEl)} onClose={() => { closeVideoMenu('') }}>
           {videoMenuItems}
         </Menu>
@@ -436,36 +506,37 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
         <ErrorDialog {...props}/>
 
-
         {/* ADD ANIMATED ICONS*/}
+
         {/* <FabMain size={45} onClick={toggleSmileButton}
-          style={{marginLeft:'35em', opacity:1}}>
+          style={{marginLeft:'57%', opacity:1}}>
           <img src={toggleSmile ? symSmileIcon : smileIcon} style={{width:iconSize, height:iconSize}} alt='' />
         </FabMain>
-        <FabMain size={45} onClick={toggleClapButton} 
+        <FabMain size={45} onClick={toggleClapButton}
           style={{marginLeft:'0em', opacity:1}}>
           <img src={toggleClap ? symClapIcon : clapIcon} style={{width:iconSize, height:iconSize}} alt='' />
         </FabMain>
-        <FabMain size={45} onClick={toggleHandButton} 
+        <FabMain size={45} onClick={toggleHandButton}
           style={{marginLeft:'0em', opacity:1}}>
           <img src={toggleHand ? symHandIcon : handIcon} style={{width:iconSize, height:iconSize}} alt='' />
-        </FabMain>
-        */}
+        </FabMain> */}
 
-        
+
+        {/* position:'inherit', right:120, top:'15px' */}
 
         <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton} color='primary'
-         style={{marginLeft:'auto', marginRight:0, opacity:1, position:'relative', left:15 }}>
+          style={{marginLeft:'auto', marginRight:0, opacity:1, position:'relative', left:10 }}>
           <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
         </FabMain>
+        </MuiThemeProvider>
         <Popover open={showAdmin} onClose={closeAdmin}
           anchorEl={adminButton.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
           anchorReference = "anchorEl" >
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
-        </MuiThemeProvider>
         </div>
       </Collapse>
+
     </div >
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps

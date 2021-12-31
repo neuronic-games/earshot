@@ -32,7 +32,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   devicePreference = new DevicePreference()
   @observable.shallow tracks = new TracksStore()
   @observable useStereoAudio = false  //  will be override by url switch
-  @observable emoticon = ''  //  will be override by url switch
+  @observable emoticon = ''  //  for emoticon
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
   @observable.ref zone:ISharedContent|undefined = undefined    //  The zone on which the local participant located.
@@ -67,8 +67,8 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     this.muteAudio = urlParameters.muteMic !== null ? true : false
     //  console.debug('URL muteMic', urlParameters.muteMic)
     this.muteVideo = urlParameters.cameraOn !== null ? false : true
-    this.emoticon = ''
     //  console.debug('URL cameraOn', urlParameters.cameraOn)
+    this.emoticon = '' // for emoticon
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()
     autorun(() => { //  image avatar

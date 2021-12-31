@@ -12,6 +12,7 @@ import React, {Fragment, useRef, useState} from 'react'
 import SplitPane from 'react-split-pane'
 import {Footer} from './footer/Footer'
 import {Emoticons} from './footer/Emoticons'
+//import {ZoneAvatar} from './footer/ZoneAvatar'
 import {LeftBar} from './leftBar/LeftBar'
 import {MainScreen} from './map/MainScreen'
 import {Map} from './map/map'
@@ -36,7 +37,7 @@ export const App: React.FC<{}> = () => {
     chat: chatStore,
     roomInfo: roomInfo,
   }
-  
+
   const refDiv = useRef<HTMLDivElement>(null)
   const refPane = useRef<SplitPane>(null)
   const [able, setAble] = useState<Boolean>(false)
@@ -50,7 +51,7 @@ export const App: React.FC<{}> = () => {
 
   /* let idleTimeout = 1000 * 5 * 1;  //1 minute
   let idleLogout = 1000 * 10 * 2; //2 Minutes
-  
+
 
   useEffect(() => {
     if(showDialog) {
@@ -62,7 +63,7 @@ export const App: React.FC<{}> = () => {
         } else {
           setActive(false)
         }
-    }, idleLogout);  
+    }, idleLogout);
       return
     }
     const idleTimer = setTimeout(() => {
@@ -78,7 +79,7 @@ export const App: React.FC<{}> = () => {
         clearTimeout(idleTimer)
     }
   },);  */
-  
+
   //////////////////////////////////////////////////////////
   // Idle Events
   /* const handleOnAction = () => {
@@ -106,7 +107,7 @@ export const App: React.FC<{}> = () => {
       } else
       if(able === false) {
         setAble(true)
-      } 
+      }
     }
   }, {})
 
@@ -119,7 +120,7 @@ export const App: React.FC<{}> = () => {
     ev.preventDefault()
   },                      {passive: false, capture: false})
 
-  // onmousemove 
+  // onmousemove
   window.addEventListener('onmousemove', (ev) => {
     setActive(true)
     if(showDialog) {
@@ -127,14 +128,14 @@ export const App: React.FC<{}> = () => {
     }
     ev.preventDefault()
   },                      {passive: false, capture: false})
-  // onmousemove 
+  // onmousemove
   window.addEventListener('onkeypress', (ev) => {
     setActive(true)
     if(showDialog) {
       setShowDialog(false)
     }
     ev.preventDefault()
-  },                    {passive: false, capture: false}) */  
+  },                    {passive: false, capture: false}) */
 
   //  toucmove: prevent browser zoom by pinch
   window.addEventListener('touchmove', (ev) => {
@@ -177,19 +178,27 @@ export const App: React.FC<{}> = () => {
           <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: '#FF00FF40'} : {display: 'none', backgroundColor: '#FFF'}} ref={refPane} className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize={able === true ? "85%" : "100%"}>
          {/*  <LeftBar stores={stores}/> */}
+
           <Fragment>
+
             <MainScreen showAllTracks = {DEBUG_VIDEO} stores={stores} />
+
             <Observer>{() => <Map transparent={sharedContentsStore.tracks.mainStream !== undefined
              || DEBUG_VIDEO} stores={stores} />
             }</Observer>
-            <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
+
+
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
+            {/* <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} /> */}
+            <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
+
           </Fragment>
           <div style={{display: (able === true ? "block" : "none")}}>
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
-{/* 
+
+{/*
         <IdleTimer
           timeout={1000 * 10}
           onActive={handleOnActive}
