@@ -1,8 +1,8 @@
 import {ErrorDialog} from '@components/error/ErrorDialog'
 import {BMProps} from '@components/utils'
 import {acceleratorText2El} from '@components/utils/formatter'
-import megaphoneIcon from '@iconify/icons-mdi/megaphone'
-import {Icon} from '@iconify/react'
+//import megaphoneIcon from '@iconify/icons-mdi/megaphone'
+//import {Icon} from '@iconify/react'
 import Collapse from '@material-ui/core/Collapse'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
@@ -15,6 +15,9 @@ import VideoIcon from '@material-ui/icons/Videocam'
 import VideoOffIcon from '@material-ui/icons/VideocamOff'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 import SpeakerOnIcon from '@material-ui/icons/VolumeUp'
+//import HeadsetIcon from '@material-ui/icons/HeadsetMic'
+
+import CheckBoxIcon from '@material-ui/icons/Done';
 
 /* import smileIcon from '@images/whoo-screen_btn-smile.png'
 import symSmileIcon from '@images/whoo-screen_sym-smile.png'
@@ -32,12 +35,23 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import {AdminConfigForm} from './adminConfig/AdminConfigForm'
 import {BroadcastControl} from './BroadcastControl'
+import {StereoSwitchControl} from './StereoSwitchControl'
+//import {SettingsControl} from './SettingsControl'
 //import {BroadcastVideoControl} from './BroadcastVideoControl'
 import {FabMain, FabWithTooltip} from './FabEx'
 import {ShareButton} from './share/ShareButton'
-import {StereoAudioSwitch} from './StereoAudioSwitch'
+//import {StereoAudioSwitch} from './StereoAudioSwitch'
+//import UploadIcon from '@material-ui/icons/Publish'
+//import DownloadIcon from '@material-ui/icons/GetApp'
+//import RoomPreferencesIcon from '@material-ui/icons/Settings'
+
+import {ShareDialogItem} from './share/SharedDialogItem'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { SettingsControl } from './SettingsControl'
+import Container from '@material-ui/core/Container'
+
+
 
 const theme = createMuiTheme({
   palette: {
@@ -146,15 +160,30 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     muteA: participants.local.muteAudio,  //  mic
     muteS: participants.local.muteSpeaker,  //  speaker
     muteV: participants.local.muteVideo,  //  camera
-    onStage: participants.local.physics.onStage
+    onStage: participants.local.physics.onStage,
+    //onHeadPhone: participants.local.physics.onHeadPhone
+    //onHeadPhone: participants.local.trackStates.headphone
   }))
   //  Fab state and menu
   const [deviceInfos, setDeviceInfos] = React.useState<MediaDeviceInfo[]>([])
   const [micMenuEl, setMicMenuEl] = React.useState<Element|null>(null)
   const [speakerMenuEl, setSpeakerMenuEl] = React.useState<Element|null>(null)
   const [videoMenuEl, setVideoMenuEl] = React.useState<Element|null>(null)
+  const [settingsMenuEl, setSettingsMenuEl] = React.useState<Element|null>(null)
+
+
+  //console.log(settingsMenuEl, " onLoaded")
+
+
 
   const inzone = useObserver(() => participants.local.zone?.zone)
+  //const headphone = useObserver(() => participants.local.trackStates.headphone)
+  //const soundLocalizationBase = useObserver(() => participants.local.soundLocalizationBase)
+  //const stereo = useObserver(() => participants.local.useStereoAudio)
+
+  //console.log(mute.onHeadPhone)
+
+
   //if(inzone !== undefined) {
   //console.log(inzone, " >>footer zone")
 
@@ -166,6 +195,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
   const mouseOnBottom = useObserver(checkMouseOnBottom)
+
   useEffect(() => {
     if (checkMouseOnBottom()) { member.touched = true }
     //setShowFooter(mouseOnBottom || !member.touched)
@@ -245,28 +275,54 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         selected = info.deviceId === participants.local.devicePreference.videoInputDevice
       }
 
-      return <MenuItem key={info.deviceId}
+      // > { (selected ? '✔\u00A0' : '\u2003') + info.label }</MenuItem>  //  \u00A0: NBSP, u2003: EM space.
+
+      return <div style={{position:'relative', display:'flex', alignItems:'center', marginLeft:'15px'}}> {selected ? <CheckBoxIcon style={{opacity:'1', position:'absolute', marginLeft:'-10px'}} /> : <CheckBoxIcon style={{opacity:'0', position:'absolute', marginLeft:'-10px'}} />}
+      <MenuItem key={info.deviceId}
         onClick={() => { close(info.deviceId) }}
-        > { (selected ? '✔\u00A0' : '\u2003') + info.label }</MenuItem>  //  \u00A0: NBSP, u2003: EM space.
+        > {info.label }
+        </MenuItem></div>  //  \u00A0: NBSP, u2003: EM space.
     }
 
-    const micMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
-    const speakerMenuItems:JSX.Element[] = []
+    const micMenuItems:JSX.Element[] = [<MenuItem key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
+    const speakerMenuItems:JSX.Element[] = [<MenuItem key = {'soundLoc'} ><StereoSwitchControl {...props} /></MenuItem>]
     const videoMenuItems:JSX.Element[] = [] //[<MenuItem  key = {'broadcast'} ><BroadcastVideoControl {...props} /></MenuItem>]
+
+    /* const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column'}}><ShareDialogItem
+      key="shareImport" onClick={()=>console.log('Import')} text={t('shareImport')} icon={<UploadIcon/>}
+    /><ShareDialogItem
+    key="shareDownload" text={t('shareDownload')} icon={<DownloadIcon />}
+  /><ShareDialogItem
+  key="settingPreference" text={t('settingPreference')} icon={<RoomPreferencesIcon />}
+/>
+  </MenuItem>] */
+
+  /* icon={<RoomPreferencesIcon />} */
+
+  const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column', textAlign:'center', marginLeft:'-35px'}} key = {'settingLoc'} ><SettingsControl {...props} /><Container style={{height:'35px'}}><ShareDialogItem
+  key="settingPreference" text={t('settingPreference')} onClick={openAdmin}
+/></Container></MenuItem>]
+
     deviceInfos.forEach((info) => {
+
       if (info.kind === 'audioinput') {
         const broadcastControl = micMenuItems.pop() as JSX.Element
         micMenuItems.push(makeMenuItem(info, closeMicMenu))
         micMenuItems.push(broadcastControl)
       }
       if (info.kind === 'audiooutput') {
+        const stereoSwitchControl = speakerMenuItems.pop() as JSX.Element
         speakerMenuItems.push(makeMenuItem(info, closeSpeakerMenu))
+        speakerMenuItems.push(stereoSwitchControl)
       }
       if (info.kind === 'videoinput') {
         //const broadcastVidControl = videoMenuItems.pop() as JSX.Element
         videoMenuItems.push(makeMenuItem(info, closeVideoMenu))
         //videoMenuItems.push(broadcastVidControl)
       }
+
+      const settingControl = settingsMenuItems.pop() as JSX.Element
+      settingsMenuItems.push(settingControl)
     })
     function closeMicMenu(did:string) {
       if (did) {
@@ -290,6 +346,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       setVideoMenuEl(null)
     }
 
+    function closeSettingsMenu(did:string) {
+        setSettingsMenuEl(null)
+    }
+
     function showMainMenu() {
       if(show) {
         setShow(false)
@@ -309,6 +369,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
     function openAdmin(){
       map.keyInputUsers.add('adminForm')
+      closeSettingsMenu('')
       setShowAdmin(true)
     }
     function closeAdmin(){
@@ -365,7 +426,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     return <div ref={containerRef} className={classes.container}>
         {/* <div className={show ? classes.moreActive : classes.more} onClick={showMainMenu}>
             <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/>
-        </div> */}
+        </div> */ }
         <div style={{position:'relative', left:'-50px', top:'0px'}}>
         <FabMain size={fabSize}
           onClick = { () => {
@@ -382,7 +443,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       <Collapse in={true} classes={classes}>
         <div className={show ? classes.menuActive : classes.menu}>
         <MuiThemeProvider theme={theme}>
-          <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/>
+        {/* <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/> */ }
         <FabMain size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
           aria-label="speaker" onClick={(ev) => {
             member.upTime = new Date().getSeconds()
@@ -413,11 +474,14 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             setSpeakerMenuEl(ev.currentTarget)
           }}
           >
-          {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
+
+          {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> /* :
+          stereo ?
+            <HeadsetIcon style={{width:iconSize, height:iconSize, color:'gold'}} /> */
             : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabMain>
-        <Menu anchorEl={speakerMenuEl} keepMounted={true} style={{marginTop:-70}}
-          open={Boolean(speakerMenuEl)} onClose={() => { closeSpeakerMenu('') }}>
+        <Menu anchorEl={speakerMenuEl} keepMounted={false} style={{marginTop:-70}}
+          open={Boolean(speakerMenuEl)} /* onChange={() => { closeSpeakerMenu('') }} */ onClose={() => { closeSpeakerMenu('') }}>
           {speakerMenuItems}
         </Menu>
 
@@ -452,13 +516,13 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             setMicMenuEl(ev.currentTarget)
           } }
           >
-          {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> :
+          {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> /* :
             mute.onStage ?
-              <Icon icon={megaphoneIcon} style={{width:iconSize, height:iconSize}} color="gold" />
+              <Icon icon={megaphoneIcon} style={{width:iconSize, height:iconSize}} color="gold" /> */
               : <MicIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
         <Menu anchorEl={micMenuEl} keepMounted={true}  style={{marginTop:-70}}
-          open={Boolean(micMenuEl)} onClose={() => { closeMicMenu('') }}>
+          open={Boolean(micMenuEl)} /* onChange={() => { closeMicMenu('') }} */ onClose={() => { closeMicMenu('') }}>
           {micMenuItems}
         </Menu>
 
@@ -524,16 +588,56 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
         {/* position:'inherit', right:120, top:'15px' */}
 
-        <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton} color='primary'
+
+        <FabMain size={fabSize} color={'primary'}
+          aria-label="settings" onClick={(ev) => {
+            member.upTime = new Date().getSeconds()
+            let timeDiff = member.upTime - member.downTime;
+
+            if(timeDiff > 1) {
+            } else {
+            }
+          }}
+          onDown={(ev) => {
+            member.downTime = new Date().getSeconds()
+            //let _ev = ev
+            let _target = ev.currentTarget
+            const _timer = setTimeout(()=> {
+              clearTimeout(_timer)
+              let timeDiff = member.upTime - member.downTime;
+              if(timeDiff >= 0) return
+                setSettingsMenuEl(_target)
+            }, 500)
+          }}
+          >
+            <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
+        </FabMain>
+
+        <Menu anchorEl={settingsMenuEl} keepMounted={false} style={{marginTop:-70}}
+          open={Boolean(settingsMenuEl)} /* onChange={() => { closeSettingsMenu('') }} */ onClose={() => { closeSettingsMenu('') }}>
+          {settingsMenuItems}
+        </Menu>
+
+
+       {/*  <FabMain size={fabSize} onClick={openAdmin} divRef={adminButton} color='primary'
           style={{marginLeft:'auto', marginRight:0, opacity:1, position:'relative', left:10 }}>
           <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
-        </FabMain>
+        </FabMain> */}
         </MuiThemeProvider>
-        <Popover open={showAdmin} onClose={closeAdmin}
+        {/* <Popover open={showAdmin} onClose={closeAdmin}
           anchorEl={adminButton.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
           anchorReference = "anchorEl" >
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
+        </Popover> */}
+
+        <Popover open={showAdmin} onClose={closeAdmin}
+          anchorEl={adminButton.current} anchorOrigin={{vertical:330, horizontal:350}}
+          anchorReference = "anchorEl" >
+          <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
+
+
+
         </div>
       </Collapse>
 
@@ -541,7 +645,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mute.muteA, mute.muteS, mute.muteV, mute.onStage,
-    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, deviceInfos]
+    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, deviceInfos]
 
     )
 }

@@ -15,10 +15,10 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import CameraAltIcon from '@material-ui/icons/CameraAlt'
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
-import DownloadIcon from '@material-ui/icons/GetApp'
+//import DownloadIcon from '@material-ui/icons/GetApp'
 import HttpIcon from '@material-ui/icons/Http'
 import ImageIcon from '@material-ui/icons/Image'
-import UploadIcon from '@material-ui/icons/Publish'
+//import UploadIcon from '@material-ui/icons/Publish'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopScreenShareIcon from '@material-ui/icons/StopScreenShare'
 import SubjectIcon from '@material-ui/icons/Subject'
@@ -333,7 +333,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
             text={sharing.main ? t('stopScreenBackground') : t('shareScreenBackground')}
             onClick={screenAsBackgrouond}
           />
-          <Divider />
+          {/*<Divider />
           <ShareDialogItem
             key="shareImport" text={t('shareImport')} icon={<UploadIcon />} onClick={importFile}
             tip = {t('shareImportTip')}
@@ -341,6 +341,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
           <ShareDialogItem
             key="shareDownload" text={t('shareDownload')} icon={<DownloadIcon />} onClick={downloadFile}
           />
+           */}
         </div>
       </Collapse>
     </List>

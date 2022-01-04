@@ -214,7 +214,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.upTime = new Date().getSeconds()
         let timeDiff = mem.upTime - mem.downTime;
 
-        if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 2) {
+        if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
           const local = participants.local
           const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
           for (const [i] of remotes.entries()) {

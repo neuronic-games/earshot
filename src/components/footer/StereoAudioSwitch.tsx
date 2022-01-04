@@ -40,6 +40,7 @@ export const StereoAudioSwitch: React.FC<BMProps&{size?: number, iconSize:number
   const switchStereo = () => {
     participants.local.useStereoAudio = !stereo
     participants.local.saveMediaSettingsToStorage()
+
   }
 
   const {t} = useTranslation()
