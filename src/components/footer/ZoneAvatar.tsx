@@ -37,6 +37,8 @@ import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 
 /* import {ShareButton} from './share/ShareButton'
 import {StereoAudioSwitch} from './StereoAudioSwitch' */
+import {Observer} from 'mobx-react-lite'
+
 
 /* import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 const theme = createMuiTheme({
@@ -55,6 +57,7 @@ const buttonStyle = {
     textAlign: 'center',
     overflow: 'hidden',
     top: '1px',
+    PointerEvent: 'none',
   },
 }
 
@@ -70,7 +73,7 @@ const useStyles = makeStyles({
     height: 50,
     position:'relative',
     cursor: 'pointer',
-    backgroundColor: '#9e886c', //  '#ef4623' : '#9e886c',
+    backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
     right: 0,
     ...buttonStyle,
   },
@@ -79,7 +82,7 @@ const useStyles = makeStyles({
     height: 50,
     position:'relative',
     cursor: 'pointer',
-    backgroundColor: '#9e886c', //  '#ef4623' : '#9e886c',
+    backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
     right: 0,
     ...buttonStyle,
   },
@@ -108,26 +111,59 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
 
 
-  const inzone = useObserver(() => participants.local.zone?.zone)
+  //const inzone = useObserver(() => participants.local.zone?.zone)
   //if(inzone !== undefined) {
-  console.log(inzone, " >>zone")
+  //console.log(inzone, " >>zone")
   //}
 
 
-  const startStream = useObserver(() => participants.local.showVideo)
-  const avStream = useObserver(() => participants.local.tracks.avatarStream)
+  //const startStream = useObserver(() => participants.local.showVideo)
+
+
+
+  // check for remote status
+  //const local = participants.local
+  const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+  //console.log(remotes[0])
+//let pp:RemoteParticipant | undefined
+
+let userIndex:number = 0;
+  for (const [i] of remotes.entries()) {
+    //console.log(participants.remote.get(remotes[i])?.showVideo, " Video Status")
+   //pp = participants.remote.get(remotes[i])?.showVideo
+   //const startStream = useObserver(() => _status)
+   if(participants.remote.get(remotes[i])?.showVideo) {
+    userIndex = i
+    break
+   }
+  }
+
+  const localStream = useObserver(() => Boolean(participants.local.showVideo))
+  const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
+
+
+  //const avStream = useObserver(() => participants.local.tracks.avatarStream)
+  const avLocalStream = useObserver(() =>  participants.local.tracks.avatarStream)
+  const avStream = useObserver(() =>  participants.remote.get(remotes[userIndex])?.tracks.avatarStream)
   //console.log(startStream, " video on")
 
   //if(startStresm)
-    let stream=startStream && !(participants instanceof PlaybackParticipant) ?
-    avStream : undefined
-    let blob=stream && (participants instanceof PlaybackParticipant) ?
+
+    let stream = (localStream && !(participants instanceof PlaybackParticipant) ?
+    avLocalStream : (startStream && !(participants instanceof PlaybackParticipant) ?
+    avStream : undefined))
+    let blob = stream && (participants instanceof PlaybackParticipant) ?
       participants.videoBlob: undefined
  // }
 
+ console.log(stream, " ------------")
+
+
+
   // For toggle emoticons
-  const [toggleStream, setToggleStream] = React.useState<boolean>(startStream)
-  const [zone, setZone] = React.useState<boolean>(false)
+  //const [toggleStream, setToggleStream] = React.useState<boolean>(startStream ? startStream : (localStream ? localStream : false))
+  const [toggleStream, setToggleStream] = React.useState<boolean>((stream !== undefined) ? true : false)
+  //const [zone, setZone] = React.useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   //const memberRef = useRef<Member>(new Member())
@@ -135,7 +171,9 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null)
   //  observers
 
-  console.log("CALLED")
+  //console.log("CALLED")
+
+  console.log(toggleStream, " ====================", localStream, "--", startStream)
 
   const classes = useStyles()
   //  Footer collapse conrtrol
@@ -146,11 +184,10 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //const mouseOnBottom = useObserver(checkMouseOnBottom)
 
   useEffect(() => {
-
     if (videoRef?.current !== null) {
+      //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
-        '200px', '200px')
-
+        '20px', '20px')
         //console.log("AAA")
         checkToggle()
     }
@@ -163,16 +200,17 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     },)
 
     function checkToggle() {
-      setToggleStream(startStream)
+      //setToggleStream(startStream ? startStream : (localStream ? localStream : false))
+      setToggleStream((stream !== undefined) ? true : false)
     }
 
-    function checkZone() {
+    /* function checkZone() {
       if(zone) {
         setZone(false)
       } else {
         setZone(true)
       }
-    }
+    } */
   /* function setShowFooter(show: boolean) {
     if (show) {
       //setShow(true)
@@ -219,10 +257,10 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //  keyboard shortcut
   useEffect(() => {
-    console.log(videoRef?.current, "mask")
+    //console.log(videoRef?.current, "mask")
 
     window.addEventListener('click', (ev) => {
-      checkZone()
+      //checkZone()
       ev.preventDefault()
     },                      {passive: false, capture: false})
 
@@ -244,20 +282,27 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     //const fabSize = props.height
     //const iconSize = 55
 
-    //console.log(toggleStream, " sS")
+    console.log(toggleStream, " sS")
+    //Please check firewall setting. Binaural Meet connect to https (port 443/TCP) and port 8801-8810/UDP or 80/TCP.
+
+    return <Observer>{() => {
 
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
-        <FabMain size={250} className={toggleStream ? classes.fabActive : classes.fab}>
-          <div className={toggleStream ? classes.vidiconActive : classes.vidicon}>
+        <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
+          <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
             <video ref={videoRef}/>
           </div>
+
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
-          verticalAlign:'middle', display:'table-cell', whiteSpace:'nowrap', marginTop: '-35px', color:'white'}}>
-        {participants.local.information.name}</div>
+          verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-35px', color:'white'}}>
+            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'-10px', marginLeft: '35px'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
+            <p style={{position:'relative', marginTop:'-6px', marginLeft:'4px'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
+        </div>
       </Collapse>
     </div >
+    }}</Observer>
   //},
     // eslint-disable-next-line react-hooks/exhaustive-deps
   //  []

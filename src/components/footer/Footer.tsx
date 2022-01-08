@@ -37,7 +37,7 @@ import {AdminConfigForm} from './adminConfig/AdminConfigForm'
 import {BroadcastControl} from './BroadcastControl'
 import {StereoSwitchControl} from './StereoSwitchControl'
 //import {SettingsControl} from './SettingsControl'
-//import {BroadcastVideoControl} from './BroadcastVideoControl'
+import {BroadcastVideoControl} from './BroadcastVideoControl'
 import {FabMain, FabWithTooltip} from './FabEx'
 import {ShareButton} from './share/ShareButton'
 //import {StereoAudioSwitch} from './StereoAudioSwitch'
@@ -136,6 +136,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
 
+  const [vidStream, setVidStream] = React.useState<boolean>(false)
+
   // For toggle emoticons
   /* const [toggleSmile, setToggleSmile] = React.useState<boolean>(false)
   const [toggleClap, setToggleClap] = React.useState<boolean>(false)
@@ -155,12 +157,29 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const member = memberRef.current
   const containerRef = useRef<HTMLDivElement>(null)
   const adminButton = useRef<HTMLDivElement>(null)
+
+  let userIndex:number = 0
+
+  const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+
+  for (const [i] of remotes.entries()) {
+    //console.log(participants.remote.get(remotes[i])?.showVideo, " Video Status")
+   //pp = participants.remote.get(remotes[i])?.showVideo
+   //const startStream = useObserver(() => _status)
+    if(participants.remote.get(remotes[i])?.showVideo) {
+      userIndex = i;
+      break;
+    }
+  }
+
   //  observers
   const mute = useObserver(() => ({
     muteA: participants.local.muteAudio,  //  mic
     muteS: participants.local.muteSpeaker,  //  speaker
     muteV: participants.local.muteVideo,  //  camera
     onStage: participants.local.physics.onStage,
+    lStream: participants.local.tracks.avatarStream,
+    remoteStream: participants.remote.get(remotes[userIndex])?.tracks.avatarStream,
     //onHeadPhone: participants.local.physics.onHeadPhone
     //onHeadPhone: participants.local.trackStates.headphone
   }))
@@ -172,11 +191,72 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [settingsMenuEl, setSettingsMenuEl] = React.useState<Element|null>(null)
 
 
+
+  //console.log(mute.muteV, " on change")
+
+  // check for remote video playing or not
+
+  //for (const [i] of remotes.entries()) {
+    //console.log(participants.remote.get(remotes[i])?.showVideo, " Video Status")
+   //pp = participants.remote.get(remotes[i])?.showVideo
+   //const startStream = useObserver(() => _status)
+  //}
+  /* const startStream = useObserver(() => Boolean(participants.remote.get(remotes[0])?.showVideo))
+  // Check video status
+  if(startStream && !mute.muteV) {
+    participants.local.muteVideo = true
+    participants.local.saveMediaSettingsToStorage()
+  } */
+
+  //mute.muteV = !mute.muteV
+
+  //console.log(participants.local.showVideo, " status")
+
+  //const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+
+// Checing events
+const localStream = useObserver(() => Boolean(participants.local.showVideo))
+const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
+//const avStream = useObserver(() =>  participants.remote.get(remotes[0])?.tracks.avatarStream)
+
+/* const [toggleStream, setToggleStream] = React.useState<boolean>(startStream ? startStream : (localStream ? localStream : false)) */
+
+
+//console.log("-----------", mute.remoteStream, "---", participants.remote.get(remotes[userIndex])?.muteVideo)
+
+
+if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
+  //mute.muteV = !mute.muteV
+  //console.log("enter 1st")
+  //participants.local.muteVideo = !mute.muteV
+  //participants.local.saveMediaSettingsToStorage()
+  //setVidStream(true)
+  setTimeout(function(){
+    //console.log("enter 2nd")
+    //participants.local.muteVideo = !mute.muteV
+    //participants.local.saveMediaSettingsToStorage()
+    //setVidStream(true)
+  }, 500)
+}
+
   //console.log(settingsMenuEl, " onLoaded")
+  // const local = participants.local
+  //const statusBroadcastVideo = useObserver(() => !mute.muteV)
+  //console.log(mute.muteV, " statusBroadcastVideo")
+  //const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+  //if(!mute.muteV) {
+    //console.log(mute.muteV)
+    //participants.local.muteVideo = !mute.muteV
+    //participants.local.saveMediaSettingsToStorage()
+    /* for (const [i] of remotes.entries()) {
+      let users = Object(participants.remote.get(remotes[i]))
+      users.muteVideo = false
+    } */
+  //}
 
 
 
-  const inzone = useObserver(() => participants.local.zone?.zone)
+  //const inzone = useObserver(() => participants.local.zone?.zone)
   //const headphone = useObserver(() => participants.local.trackStates.headphone)
   //const soundLocalizationBase = useObserver(() => participants.local.soundLocalizationBase)
   //const stereo = useObserver(() => participants.local.useStereoAudio)
@@ -191,16 +271,34 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const classes = useStyles()
 
   //  Footer collapse conrtrol
-  function checkMouseOnBottom() {
+  /* function checkMouseOnBottom() {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
-  const mouseOnBottom = useObserver(checkMouseOnBottom)
+  const mouseOnBottom = useObserver(checkMouseOnBottom) */
 
   useEffect(() => {
-    if (checkMouseOnBottom()) { member.touched = true }
+    //participants.local.muteVideo = !mute.muteV
+    //participants.local.saveMediaSettingsToStorage()
+
+    console.log(mute.remoteStream, " .. in footer")
+    if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
+      if(!mute.muteV) {
+        participants.local.muteVideo = !mute.muteV
+        participants.local.saveMediaSettingsToStorage()
+        if(vidStream) {
+          setVidStream(false)
+        } else {
+          setVidStream(true)
+        }
+      }
+    }
+
+    //if (checkMouseOnBottom()) { member.touched = true }
     //setShowFooter(mouseOnBottom || !member.touched)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },        [mouseOnBottom, member.touched])
+//  [mouseOnBottom, member.touched]
+  }, [mute.remoteStream, mute.lStream, mute.muteV, participants.local, vidStream])
+
   function setShowFooter(show: boolean) {
     if (show) {
       setShow(true)
@@ -226,7 +324,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       if (map.keyInputUsers.size === 0) {
         if (!e.ctrlKey && !e.metaKey && !e.altKey){
           if (e.code === 'KeyM') {  //  mute/unmute audio
-            participants.local.muteAudio = !participants.local.muteAudio
+            //participants.local.muteAudio = !participants.local.muteAudio
             setShowFooter(true)
           }
           if (e.code === 'KeyC') {  //  Create share dialog
@@ -262,8 +360,37 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   },                      {passive: false, capture: false})
 } */
 
+/* function checkToggle() {
+  setToggleStream(startStream ? startStream : (localStream ? localStream : false))
+} */
+
+/* useEffect(() => {
+  //if (videoRef?.current !== null) {
+    console.log("AAABBBB - ", localStream, " ---- ", startStream)
+    checkToggle()
+  //}
+
+  },) */
+  useEffect(() => {
+    //console.log(avStream, " onLoad-", mute.muteRV)
+    /* if((avStream !== undefined) && (vidStream === false)) {
+      participants.local.muteVideo = !mute.muteV
+      participants.local.saveMediaSettingsToStorage()
+      //setShowFooter(true)
+      setVidStream(true)
+    } */
+  })
+
   //  render footer
   return React.useMemo(() => {
+
+    //if(startStream && localStream) {
+      //console.log("Check")
+      //participants.local.muteVideo = !mute.muteV
+      //participants.local.saveMediaSettingsToStorage()
+      //closeVideoMenu('')
+    //}
+
     //  Create menu list for device selection
     function makeMenuItem(info: MediaDeviceInfo, close:(did:string) => void):JSX.Element {
       let selected = false
@@ -286,7 +413,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
     const micMenuItems:JSX.Element[] = [<MenuItem key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
     const speakerMenuItems:JSX.Element[] = [<MenuItem key = {'soundLoc'} ><StereoSwitchControl {...props} /></MenuItem>]
-    const videoMenuItems:JSX.Element[] = [] //[<MenuItem  key = {'broadcast'} ><BroadcastVideoControl {...props} /></MenuItem>]
+    const videoMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcastVideo'} ><BroadcastVideoControl {...props} /></MenuItem>]
 
     /* const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column'}}><ShareDialogItem
       key="shareImport" onClick={()=>console.log('Import')} text={t('shareImport')} icon={<UploadIcon/>}
@@ -316,9 +443,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         speakerMenuItems.push(stereoSwitchControl)
       }
       if (info.kind === 'videoinput') {
-        //const broadcastVidControl = videoMenuItems.pop() as JSX.Element
+        const broadcastVidControl = videoMenuItems.pop() as JSX.Element
         videoMenuItems.push(makeMenuItem(info, closeVideoMenu))
-        //videoMenuItems.push(broadcastVidControl)
+        videoMenuItems.push(broadcastVidControl)
       }
 
       const settingControl = settingsMenuItems.pop() as JSX.Element
@@ -481,7 +608,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabMain>
         <Menu anchorEl={speakerMenuEl} keepMounted={false} style={{marginTop:-70}}
-          open={Boolean(speakerMenuEl)} /* onChange={() => { closeSpeakerMenu('') }} */ onClose={() => { closeSpeakerMenu('') }}>
+          open={Boolean(speakerMenuEl)} onChange={() => { closeSpeakerMenu('') }} onClose={() => { closeSpeakerMenu('') }}>
           {speakerMenuItems}
         </Menu>
 
@@ -522,25 +649,26 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
               : <MicIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
         <Menu anchorEl={micMenuEl} keepMounted={true}  style={{marginTop:-70}}
-          open={Boolean(micMenuEl)} /* onChange={() => { closeMicMenu('') }} */ onClose={() => { closeMicMenu('') }}>
+          open={Boolean(micMenuEl)} onChange={() => { closeMicMenu('') }} onClose={() => { closeMicMenu('') }}>
           {micMenuItems}
         </Menu>
 
         <FabWithTooltip size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
           onClick = { () => {
-            if(inzone !== undefined) {
-              /* member.upTime = new Date().getSeconds()
+            //if(inzone !== undefined) {
+              member.upTime = new Date().getSeconds()
               let timeDiff = member.upTime - member.downTime;
               if(timeDiff > 1) {
               } else {
                 participants.local.muteVideo = !mute.muteV
                 participants.local.saveMediaSettingsToStorage()
-              } */
-            }
+                //setVidStream(false)
+              }
+           //}
           }}
           onDown={(ev) => {
-            if(inzone !== undefined) {
-              /* member.downTime = new Date().getSeconds()
+            //if(inzone !== undefined) {
+              member.downTime = new Date().getSeconds()
               let _ev = ev
               let _target = ev.currentTarget
               const _timer = setTimeout(()=> {
@@ -549,8 +677,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
                 if(timeDiff >= 0) return
                 updateDevices(_ev)
                 setVideoMenuEl(_target)
-              }, 500) */
-            }
+              }, 500)
+            //}
           }}
           onClickMore = { (ev) => {
             updateDevices(ev)
@@ -561,7 +689,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
         <Menu anchorEl={videoMenuEl} keepMounted={true}  style={{marginTop:-70}}
-          open={Boolean(videoMenuEl)} onClose={() => { closeVideoMenu('') }}>
+          open={Boolean(videoMenuEl)} onChange={() => { closeVideoMenu('') }} onClose={() => { closeVideoMenu('') }}>
           {videoMenuItems}
         </Menu>
 
@@ -645,8 +773,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mute.muteA, mute.muteS, mute.muteV, mute.onStage,
-    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, deviceInfos]
-
+    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, deviceInfos, startStream, localStream]
     )
 }
 Footer.displayName = 'Footer'

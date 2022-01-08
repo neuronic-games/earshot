@@ -20,6 +20,6 @@ export const ComposedAvatar: React.FC<ComposedAvatarProps> = (props: ComposedAva
     avatarSrc={avatarSrc} {...remainProps} />
   //}
 
-  //return <StreamAvatar stream={stream} blob={blob} {...remainProps} />
+ // return <StreamAvatar stream={stream} blob={blob} {...remainProps} />
 }
 ComposedAvatar.displayName = 'ComposedAvatar'

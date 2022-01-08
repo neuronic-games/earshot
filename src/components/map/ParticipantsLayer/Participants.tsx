@@ -38,7 +38,6 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
-
     return remote.physics.located
   }))
   const localId = useObserver(() => store.localId)
@@ -69,7 +68,7 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
     ? <MouseCursor key={'M_local'} participantId={localId}  stores={props.stores} /> : undefined
 
   if (urlParameters.testBot !== null) { return <div /> }
-  
+
   //  zIndex is needed to show the participants over the share layer.
   // zIndex:0x7FFF
   return(

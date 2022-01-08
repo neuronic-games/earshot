@@ -23,6 +23,8 @@ import pinOffIcon from '@images/whoo-screen_btn-lock.png'
 import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 
+//import ImageIcon from '@material-ui/icons/Image'
+
 
 import settings from '@models/api/Settings'
 // isContentMaximizable,
@@ -43,6 +45,13 @@ import { FullGestureState, UserHandlersPartial } from 'react-use-gesture/dist/ty
 import {Content, editButtonTip} from './Content'
 import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
+
+
+//import {ShareDialogItem} from '../../footer/share/SharedDialogItem'
+//import {ImageInput} from '@components/footer/share/ImageInput'
+//import { Step } from '@components/footer/share/Step'
+//import {ShareMenu} from '../../footer/share/Menu'
+//import {Step} from '../../footer/share/Step'
 
 
 const MOUSE_RIGHT = 2
@@ -144,7 +153,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
-
+  //const [step, setStep] = useState<Step>("menu")
 
   //console.log(props.content.zone, " zone")
   if(props.content.zone === undefined) {
@@ -197,6 +206,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     ev.stopPropagation()
     ev.preventDefault()
   }
+
   function onClickShare(evt: MouseOrTouch) {
     stop(evt)
     props.onShare?.call(null, evt)
@@ -233,10 +243,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     member._down = false
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
-
     onLeaveIcon()
-
   }
+
+ /*  function onClickUploadZone(evt: MouseOrTouch) {
+    onLeaveIcon()
+  }
+  function onClickUploadImage(evt: MouseOrTouch) {
+    onLeaveIcon()
+  } */
 
   function onClickZone(evt: MouseOrTouch) {
     stop(evt)
@@ -347,7 +362,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         }
       }
     },
-
 
     onDoubleClick: (evt)=>{
       if (isContentEditable(props.content)){
@@ -824,6 +838,21 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               {/* <CloseRoundedIcon /> */}
               <img src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>{/* } */}
+
+
+         {/*  <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
+            <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
+              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                <ImageIcon style={{color:'white'}} />
+            </div>
+          </Tooltip>
+          <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
+            <div className={classes.uploadImage} onMouseUp={onClickUploadImage}
+              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                <ImageIcon style={{color:'white'}} />
+            </div>
+          </Tooltip> */}
+
           <div className={showTitle ? classes.dashedCircle : undefined}
             /* onMouseEnter = {() => {
               member.onContext = true
@@ -867,6 +896,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
 
   return (
+
     <div className={classes.container} style={{zIndex:props.content.zIndex}} onContextMenu={
       (evt) => {
         evt.stopPropagation()
@@ -1268,6 +1298,37 @@ const useStyles = makeStyles({
       ...buttonStyle,
     } : {display:'none'}
   ),
+
+
+  uploadZone: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 190,
+      left: 134,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+  uploadImage: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 190,
+      left: 186,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
   moveTopButton: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',

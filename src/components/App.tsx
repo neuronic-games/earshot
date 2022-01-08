@@ -12,7 +12,7 @@ import React, {Fragment, useRef, useState} from 'react'
 import SplitPane from 'react-split-pane'
 import {Footer} from './footer/Footer'
 import {Emoticons} from './footer/Emoticons'
-//import {ZoneAvatar} from './footer/ZoneAvatar'
+import {ZoneAvatar} from './footer/ZoneAvatar'
 import {LeftBar} from './leftBar/LeftBar'
 import {MainScreen} from './map/MainScreen'
 import {Map} from './map/map'
@@ -189,7 +189,7 @@ export const App: React.FC<{}> = () => {
 
 
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
-            {/* <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} /> */}
+            <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
 
           </Fragment>
