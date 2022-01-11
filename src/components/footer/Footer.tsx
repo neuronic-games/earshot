@@ -224,6 +224,10 @@ const startStream = useObserver(() => Boolean(participants.remote.get(remotes[us
 
 //console.log("-----------", mute.remoteStream, "---", participants.remote.get(remotes[userIndex])?.muteVideo)
 
+//const em = useObserver(() => Boolean(participants.local.emoticon))
+
+
+
 
 if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
   //mute.muteV = !mute.muteV
@@ -271,10 +275,10 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
   const classes = useStyles()
 
   //  Footer collapse conrtrol
-  /* function checkMouseOnBottom() {
+  function checkMouseOnBottom() {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
-  const mouseOnBottom = useObserver(checkMouseOnBottom) */
+  const mouseOnBottom = useObserver(checkMouseOnBottom)
 
   useEffect(() => {
     //participants.local.muteVideo = !mute.muteV
@@ -293,11 +297,12 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
       }
     }
 
-    //if (checkMouseOnBottom()) { member.touched = true }
+   //if (checkMouseOnBottom()) { member.touched = true }
     //setShowFooter(mouseOnBottom || !member.touched)
     // eslint-disable-next-line react-hooks/exhaustive-deps
 //  [mouseOnBottom, member.touched]
-  }, [mute.remoteStream, mute.lStream, mute.muteV, participants.local, vidStream])
+  }, [mute.remoteStream, mute.lStream, mute.muteV, participants.local, vidStream, mouseOnBottom, member.touched])
+//}, [mouseOnBottom, member.touched])
 
   function setShowFooter(show: boolean) {
     if (show) {
@@ -371,7 +376,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
   //}
 
   },) */
-  useEffect(() => {
+  //useEffect(() => {
     //console.log(avStream, " onLoad-", mute.muteRV)
     /* if((avStream !== undefined) && (vidStream === false)) {
       participants.local.muteVideo = !mute.muteV
@@ -379,7 +384,8 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
       //setShowFooter(true)
       setVidStream(true)
     } */
-  })
+    //console.log("AAAAA")
+  //})
 
   //  render footer
   return React.useMemo(() => {
@@ -721,7 +727,6 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
           aria-label="settings" onClick={(ev) => {
             member.upTime = new Date().getSeconds()
             let timeDiff = member.upTime - member.downTime;
-
             if(timeDiff > 1) {
             } else {
             }
@@ -763,8 +768,6 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
           anchorReference = "anchorEl" >
           <AdminConfigForm close={closeAdmin} stores={props.stores}/>
         </Popover>
-
-
 
         </div>
       </Collapse>

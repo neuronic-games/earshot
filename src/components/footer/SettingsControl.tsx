@@ -20,6 +20,7 @@ import {createContent, extractContentData} from '@stores/sharedContents/SharedCo
 import {isArray} from 'lodash'
 
 
+
 export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
   //const local = props.stores.participants.local
   // , map
@@ -27,9 +28,10 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
   const fileInput = useRef<HTMLInputElement>(null)
 
   function openImport() {
-    console.log("open Import")
+    console.log("open Import ", fileInput.current?.clientHeight)
     fileInput.current?.click()
   }
+
   function openDownload() {
     console.log("open download")
     downloadItems(contents)
@@ -57,6 +59,8 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
   function downloadItems(contents:SharedContents) {
 
+    console.log("download")
+
     let contentAll = contents.all
     for(var i:number=0; i < contentAll.length; i++) {
       contentAll[i].ownerName = ""
@@ -67,8 +71,6 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
     const content = JSON.stringify(contentAll)
     const blob = new Blob([content], {type: 'text/plain'})
-
-
     const a = document.createElement('a')
     const url = URL.createObjectURL(blob)
     a.href = url
@@ -88,25 +90,32 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
  /*  icon={<UploadIcon/>}
   icon={<DownloadIcon />} */
 
+
+
   return <Container>
 
-    <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
-        onChange={
-          (ev) => {
-            importItems(ev, contents, participants.local.information.name)
-          }
-        }
-      />
     <ShareDialogItem
     key="shareDownload" onClick={()=>openDownload()} text={t('shareDownload')}
   />
+
+
+
   <ShareDialogItem
       key="shareImport" onClick={()=>openImport()} text={t('shareImport')}
     />
+    <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
+      onChange={
+        (ev) => {
+          importItems(ev, contents, participants.local.information.name)
+        }
+      }
+    />
+
   <div style={{width:'130%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
   {/* <ShareDialogItem
   key="settingPreference" onClick={()=>showAdmin()} text={t('settingPreference')} icon={<RoomPreferencesIcon />}
 />*/}
+
   </Container>
 }
 SettingsControl.displayName = 'SettingsControl'

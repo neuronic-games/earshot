@@ -259,10 +259,10 @@ let userIndex:number = 0;
   useEffect(() => {
     //console.log(videoRef?.current, "mask")
 
-    window.addEventListener('click', (ev) => {
+    /* window.addEventListener('click', (ev) => {
       //checkZone()
       ev.preventDefault()
-    },                      {passive: false, capture: false})
+    },                      {passive: false, capture: false}) */
 
 
     /* const onKeyDown = (e: KeyboardEvent) => {
@@ -293,7 +293,6 @@ let userIndex:number = 0;
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
             <video ref={videoRef}/>
           </div>
-
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
           verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-35px', color:'white'}}>

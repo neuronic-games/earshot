@@ -3,6 +3,7 @@
 //import minimizeIcon from '@iconify-icons/tabler/arrows-minimize'
 /* import pinIcon from '@iconify/icons-mdi/pin'
 import pinOffIcon from '@iconify/icons-mdi/pin-off' */
+
 //import {Icon} from '@iconify/react'
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
@@ -24,6 +25,7 @@ import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 
 //import ImageIcon from '@material-ui/icons/Image'
+//import windowArrowUp from '@iconify/icons-fluent/window-arrow-up-24-regular'
 
 
 import settings from '@models/api/Settings'
@@ -47,7 +49,7 @@ import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 
 
-//import {ShareDialogItem} from '../../footer/share/SharedDialogItem'
+//import {ShareDialog} from '@components/footer/share/ShareDialog'
 //import {ImageInput} from '@components/footer/share/ImageInput'
 //import { Step } from '@components/footer/share/Step'
 //import {ShareMenu} from '../../footer/share/Menu'
@@ -149,7 +151,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   const titleDisplay = useObserver(() => props.content.showTitle)
 
+  //const [showUploadOption, setShowUploadOption] = useState(true)
+
   //console.log(props, " props ", titleDisplay)
+
+  //const [step, setStep] = useState<Step>('menu')
+
+
 
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
@@ -246,7 +254,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onLeaveIcon()
   }
 
- /*  function onClickUploadZone(evt: MouseOrTouch) {
+  /* function onClickUploadZone(evt: MouseOrTouch) {
+    //setShowUploadOption(true)
     onLeaveIcon()
   }
   function onClickUploadImage(evt: MouseOrTouch) {
@@ -442,8 +451,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.onContent = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
-
-
 
         if(diffTime < 1 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
           //if(member._down === false || showTitle) returncd
@@ -840,13 +847,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </div>{/* } */}
 
 
-         {/*  <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
+          {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
             <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                <ImageIcon style={{color:'white'}} />
+                <Icon icon={windowArrowUp} style={{width:32, height:32, color:'white'}} />
             </div>
-          </Tooltip>
-          <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
+          </Tooltip> */}
+          {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
             <div className={classes.uploadImage} onMouseUp={onClickUploadImage}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
                 <ImageIcon style={{color:'white'}} />
@@ -914,6 +921,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         {theContent}
       </Rnd>
+
+      {/* <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} /> */}
     </div >
   )
 }
@@ -1299,15 +1308,14 @@ const useStyles = makeStyles({
     } : {display:'none'}
   ),
 
-
   uploadZone: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 190,
-      left: 134,
+      top: 195,
+      left: 160,
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',

@@ -52,7 +52,7 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
             let timeDiff = upTime - downTime;
             if(timeDiff >= 0) return
             props.setShowDialog(true)
-          }, 500)
+          }, 700)
         }}
         >
         <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize, color:'white'}} />

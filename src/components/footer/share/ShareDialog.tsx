@@ -35,7 +35,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
     }
   }
   function getPage(step: Step, setStep: (step: Step) => void): JSX.Element | undefined {
-    
+
     switch (step) {
       case 'menu':
         return <ShareMenu {...props} setStep={setStep} cameras={cameras.current} />
