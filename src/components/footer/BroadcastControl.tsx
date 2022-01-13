@@ -9,6 +9,10 @@ import React from 'react'
 import CheckBoxIcon from '@material-ui/icons/Done';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import { makeStyles } from '@material-ui/core/styles'
+//import {isSmartphone} from '@models/utils'
+//import { Typography } from '@material-ui/core'
+
+//const _fontSize = isSmartphone() ? '2em' : '1em'
 
 const useStyles = makeStyles({
   root: {
@@ -22,7 +26,7 @@ export const BroadcastControl: React.FC<BMProps> = (props: BMProps) => {
 
   const audioBroadcastSwitch = <Observer>{ () =>
     <Checkbox
-      icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent" />}
+      icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent"/>}
       checkedIcon={<CheckBoxIcon htmlColor="black" />}
       className={classes.root}
       checked={local.physics.onStage} name="broadcast"
@@ -34,6 +38,7 @@ export const BroadcastControl: React.FC<BMProps> = (props: BMProps) => {
     <div style={{width:'130%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
     <FormControlLabel style={{position:'relative', top:'5px', left: '-25px'}}
       control={audioBroadcastSwitch}
+      //label={<Typography style={{fontSize:_fontSize}}>{t('broadcastMyVoice')}</Typography>}
       label={t('broadcastMyVoice')}
     />
   </Container>

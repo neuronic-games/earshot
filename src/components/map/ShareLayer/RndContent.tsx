@@ -361,7 +361,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   const handlerForTitle:UserHandlersPartial = {
 
-    onWheel:(evt)=>{
+    onWheel:(evt)=> {
       if(member._down) {
         if(showTitle) {
           member._down = false
@@ -378,6 +378,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         setEditing(!editing)
       }
     },
+
     onDrag: ({down, delta, event, xy, buttons}) => {
       //console.log('onDragTitle:', delta, buttons)
 
@@ -412,8 +413,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
       //console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
       //console.log(Object(event?.target).nodeName)
-
       //if(showTitle) {
+
         member._down = false
         member._item = "DIV"
         window.clearTimeout(member._timer)
@@ -438,8 +439,27 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         map.keyInputUsers.add('contentForm')
       }
       member.buttons = 0
-
     },
+
+    /* onTouchStart: (arg) => {
+      member._down = true
+      member.downTime = new Date().getSeconds()
+      window.clearTimeout(member._timer)
+      const _mTimer = setTimeout(function() {
+        clearTimeout(_mTimer)
+        //console.log("Enter timer")
+        if(props.content.ownerName === participants.local.information.name) {
+          if(member._down && showTitle === false) {
+            const diff = subV2(map.mouseOnMap, pose.position)
+            member.downPos = Number(diff[1])
+            member.downXPos = Number(diff[0])
+            contextMenuStatus = true
+            setShowTitle(true)
+          }
+        }
+      },500)
+    }, */
+
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {
@@ -582,7 +602,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
       }
     },
-    onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
+    onTouchStart: (arg) => { if(editing) {arg.stopPropagation()}},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
   }
 
@@ -1077,10 +1097,10 @@ const useStyles = makeStyles({
     width:200,
     height:200,
     borderWidth:2,
-    borderStyle: 'dashed',
-    borderColor:'red',
+    borderStyle: 'solid',
+    borderColor:'#9e886c',
     borderRadius:'50%',
-    opacity: 0.5,
+    opacity: 0.4,
 
     /* top: props.props.content.shareType === 'img' ? 22 : 20,
     left: props.props.content.shareType === 'img' ? 22 : -20, */
@@ -1088,7 +1108,8 @@ const useStyles = makeStyles({
     top: 20,
     left: -20,
 
-    backgroundColor: 'transparent',
+    //backgroundColor: 'transparent',
+    background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
     zIndex: -9999,
   }),
 
@@ -1242,8 +1263,8 @@ const useStyles = makeStyles({
 
       /* top: props.props.content.shareType === 'img' ? 50 : 77,
       left: props.props.content.shareType === 'img' ? 60 : 60, */
-      top: 77,
-      left: 60,
+      top: 99, //77,
+      left: 79, //60,
 
 
       whiteSpace: 'pre',
@@ -1269,8 +1290,8 @@ const useStyles = makeStyles({
 
       /* top: 27,
       left: props.props.content.shareType === 'img' ? 117 : 82, */
-      top: 27,
-      left: 82,
+      top: 52, //27,
+      left: 94, //82,
 
       whiteSpace: 'pre',
       cursor: 'default',
@@ -1299,8 +1320,8 @@ const useStyles = makeStyles({
 
       /* top: props.props.content.shareType === 'img' ? 50 : 77,
       left: props.props.content.shareType === 'img' ? 240 : 258, */
-      top: 77,
-      left: 258,
+      top: 102, //77,
+      left: 237, //258,
 
       //transform: "rotate(90deg)",
       background: '#9e886c',
@@ -1355,7 +1376,7 @@ const useStyles = makeStyles({
 
      /*  top: props.props.content.shareType === 'img' ? 11 : 0,
       left: props.props.content.shareType === 'img' ? 97 : 134, */
-      top: 0,
+      top: 22, //0,
       left: 134,
 
 
@@ -1380,7 +1401,7 @@ const useStyles = makeStyles({
       //left: '185px',
       /* top: 0,
       left: props.props.content.shareType === 'img' ? 150 : 186, */
-      top: 0,
+      top: 22, //0,
       left: 186,
 
       whiteSpace: 'pre',
@@ -1442,8 +1463,8 @@ const useStyles = makeStyles({
     //left: props.props.content.shareType === 'img' ? 213 : 233,
     /* top: props.props.content.shareType === 'img' ? 11 : 27,
     left: props.props.content.shareType === 'img' ? 203 : 233, */
-    top: 27,
-    left: 233,
+    top: 53, //27,
+    left: 225, //233,
 
 
     right:0,

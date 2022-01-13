@@ -72,8 +72,8 @@ const useStyles = makeStyles({
     display: 'none',
     height: 50,
     position:'relative',
-    cursor: 'pointer',
     backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
+    transform: 'rotateY(180deg)',
     right: 0,
     ...buttonStyle,
   },
@@ -81,8 +81,9 @@ const useStyles = makeStyles({
     display: 'block',
     height: 50,
     position:'relative',
-    cursor: 'pointer',
+    alignItems:'center',
     backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
+    transform: 'rotateY(180deg)',
     right: 0,
     ...buttonStyle,
   },
@@ -187,7 +188,7 @@ let userIndex:number = 0;
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
-        '20px', '20px')
+        '250px', '250px')
         //console.log("AAA")
         checkToggle()
     }
@@ -238,14 +239,12 @@ let userIndex:number = 0;
       video.src = url
     }
     video.autoplay = true
-
     video.onloadedmetadata = () => {
-
       const settings = {
+
         width: video.width,
         height: video.height,
       }
-
       if (settings.width !== undefined && settings.height !== undefined) {
         video.className = settings.width >= settings.height ? videoLargerWidthClass : videoLargerHeightClass
       } else {
@@ -282,7 +281,7 @@ let userIndex:number = 0;
     //const fabSize = props.height
     //const iconSize = 55
 
-    console.log(toggleStream, " sS")
+    //console.log(toggleStream, " sS")
     //Please check firewall setting. Binaural Meet connect to https (port 443/TCP) and port 8801-8810/UDP or 80/TCP.
 
     return <Observer>{() => {
@@ -291,7 +290,7 @@ let userIndex:number = 0;
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef}/>
+            <video ref={videoRef} style={{position: 'relative', marginLeft:'-50px', marginTop:'-25px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',

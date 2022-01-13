@@ -276,6 +276,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
       onTouchStart:(ev) => {
+
         map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },

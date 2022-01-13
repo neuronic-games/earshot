@@ -50,6 +50,7 @@ import {ShareDialogItem} from './share/SharedDialogItem'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { SettingsControl } from './SettingsControl'
 import Container from '@material-ui/core/Container'
+//import {isSmartphone} from '@models/utils'
 
 
 
@@ -409,6 +410,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
       }
 
       // > { (selected ? '✔\u00A0' : '\u2003') + info.label }</MenuItem>  //  \u00A0: NBSP, u2003: EM space.
+      //const _fontSize = isSmartphone() ? '2em' : '1em'
 
       return <div style={{position:'relative', display:'flex', alignItems:'center', marginLeft:'15px'}}> {selected ? <CheckBoxIcon style={{opacity:'1', position:'absolute', marginLeft:'-10px'}} /> : <CheckBoxIcon style={{opacity:'0', position:'absolute', marginLeft:'-10px'}} />}
       <MenuItem key={info.deviceId}
@@ -416,6 +418,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
         > {info.label }
         </MenuItem></div>  //  \u00A0: NBSP, u2003: EM space.
     }
+
 
     const micMenuItems:JSX.Element[] = [<MenuItem key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
     const speakerMenuItems:JSX.Element[] = [<MenuItem key = {'soundLoc'} ><StereoSwitchControl {...props} /></MenuItem>]
@@ -432,7 +435,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
 
   /* icon={<RoomPreferencesIcon />} */
 
-  const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column', textAlign:'center', marginLeft:'-35px'}} key = {'settingLoc'} ><SettingsControl {...props} /><Container style={{height:'35px'}}><ShareDialogItem
+  const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column', textAlign:'center', marginLeft:'-35px'}} key = {'settingLoc'} ><SettingsControl {...props} /><Container><ShareDialogItem
   key="settingPreference" text={t('settingPreference')} onClick={openAdmin}
 /></Container></MenuItem>]
 

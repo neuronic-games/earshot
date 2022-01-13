@@ -48,6 +48,7 @@ export const FabMain: React.FC<MyFabProps> = (props) => {
     <Fab style={{height:props.size, width:props.size}}
       onClick = {(ev) => { if (props.onClick) { props.onClick(ev) } } }
       onMouseDown = {(ev) => { if (props.onDown) { props.onDown(ev) } } }
+      onTouchStart = {(ev) => { if (props.onDown) { props.onDown(ev) } } }
       onContextMenu={(ev) => {
         ev.preventDefault()
         if (props.onClickMore) { props.onClickMore(ev) }
