@@ -226,12 +226,31 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
               return
             }
           }
-          const diff = subV2(map.mouseOnMap, local.pose.position)
+          /* const diff = subV2(map.mouseOnMap, local.pose.position)
           if (normV(diff) > PARTICIPANT_SIZE / 2) {
             const dir = mulV2(normV(diff) / normV(diff), diff)
             local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
             local.pose.position = addV2(local.pose.position, dir)
-          }
+          } */
+
+          setTimeout(() => {
+            function moveParticipant(move: boolean) {
+                //const local = participants.local
+                const diff = subV2(map.mouseOnMap, local.pose.position)
+                if (normV(diff) > PARTICIPANT_SIZE / 10) {
+                  const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+                  local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+                  if (move) {
+                    local.pose.position = addV2(local.pose.position, dir)
+                  }
+                  local.savePhysicsToStorage(false)
+                  const TIMER_INTERVAL = move ? 0 : 0
+                  setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+                }
+            }
+            moveParticipant(false)
+          },  0)
+
         }
 
         if (matrix.toString() !== map.committedMatrix.toString()) {

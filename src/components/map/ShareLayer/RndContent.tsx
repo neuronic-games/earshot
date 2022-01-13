@@ -47,6 +47,7 @@ import { FullGestureState, UserHandlersPartial } from 'react-use-gesture/dist/ty
 import {Content, editButtonTip} from './Content'
 import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
+import {PARTICIPANT_SIZE} from '@models/Participant'
 
 
 //import {ShareDialog} from '@components/footer/share/ShareDialog'
@@ -474,7 +475,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
         if(diffTime < 1 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
           //if(member._down === false || showTitle) returncd
-          if(member._down) {
+          /* if(member._down) {
             const local = participants.local
             const diff = subV2(map.mouseOnMap, local.pose.position)
             if (normV(diff) > 60 / 2) {
@@ -488,7 +489,61 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               window.clearTimeout(member._borderTimer)
               showHideBorder()
             }
-          }
+          } */
+
+          setTimeout(() =>{
+            function moveParticipant(move:boolean) {
+              const local = participants.local
+              const diff = subV2(map.mouseOnMap, local.pose.position)
+              if (normV(diff) > PARTICIPANT_SIZE / 10) {
+                const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+                local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+                if (move) {
+                  local.pose.position = addV2(local.pose.position, dir)
+                } else {
+                  setShowBorder(true)
+                // Start Timer to disable border
+                window.clearTimeout(member._borderTimer)
+                showHideBorder()
+                }
+                local.savePhysicsToStorage(false)
+                const TIMER_INTERVAL = move ? 0 : 0
+                setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+              }
+            }
+            moveParticipant(false)
+          }, 0)
+
+
+          /* setTimeout(() => {
+            function moveParticipant(move: boolean) {
+              if(member._down) {
+                console.log("ENTER")
+                const local = participants.local
+                const diff = subV2(map.mouseOnMap, local.pose.position)
+                if (normV(diff) > PARTICIPANT_SIZE / 10) {
+                  const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+                  local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+                  if (move) {
+                    local.pose.position = addV2(local.pose.position, dir)
+                  } else {
+                    setShowBorder(true)
+                  // Start Timer to disable border
+                  window.clearTimeout(member._borderTimer)
+                  showHideBorder()
+                  }
+                  local.savePhysicsToStorage(false)
+                  const TIMER_INTERVAL = move ? 0 : 0
+                  setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+                }
+              }
+
+            }
+            moveParticipant(false)
+          },  0) */
+
+
+
         } else {
           /* if(member._down) {
             member._down = false

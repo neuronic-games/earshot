@@ -126,6 +126,7 @@ export const enTranslate = {
   Cancel: 'Cancel',
   broadcastMyVoice: 'Broadcast my voice',
   broadcastMyVideo: 'Broadcast my video',
+  broadcastMySpeakVideo: 'Speak & Show',
   stereoswitch: 'Stereo sound (via headset)',
   soundLocalizationBasedOn: 'Sound localization based on',
   slAvatar: 'Avatar (avatar\'s direction)',

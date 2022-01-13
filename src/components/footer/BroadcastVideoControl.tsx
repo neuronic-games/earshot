@@ -34,6 +34,18 @@ export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
         local.saveMediaSettingsToStorage()
       }} />
   }</Observer>
+  const videoBroadcastSpeakSwitch = <Observer>{ () =>
+    <Checkbox
+      icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent" />}
+      checkedIcon={<CheckBoxIcon htmlColor="black" />}
+      className={classes.root}
+      checked={false} name="broadcastSpeakVideo"
+      onChange={() => {
+        //local.muteVideo = muteVideo === true ? false : true
+        //local.muteVideo = muteVideo
+        //local.saveMediaSettingsToStorage()
+      }} />
+  }</Observer>
   const {t} = useTranslation()
 
   return <Container>
@@ -42,6 +54,12 @@ export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
       control={videoBroadcastSwitch}
       label={t('broadcastMyVideo')}
     />
+    <div style={{width:'130%', height:'1.5px', backgroundColor:'#ffffff', marginLeft:'-40px'}}></div>
+    <FormControlLabel style={{position:'relative', top:'5px', left: '-25px'}}
+      control={videoBroadcastSpeakSwitch}
+      label={t('broadcastMySpeakVideo')}
+    />
+
   </Container>
 }
 BroadcastVideoControl.displayName = 'BroadcastVideoControl'
