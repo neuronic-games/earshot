@@ -18,6 +18,9 @@ const useStyles = makeStyles({
 
 interface ImageInputProps extends DialogPageProps{
   type:Step
+  xCord:number
+  yCord:number
+  from:string
 }
 
 export const ImageInput: React.FC<ImageInputProps> = (props) => {
@@ -28,7 +31,8 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
   const classes = useStyles()
   const [files, setFiles] = useState<File[]>([])
 
-  //console.log(props.setStep, " TYPE")
+  //console.log(props.yCord, " TYPE")
+
 
   const {t} = useTranslation()
   const field = (
@@ -43,6 +47,8 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
 
   const map = props.stores.map
 
+  //console.log(props)
+
   return (
     <Input stores={props.stores}
       setStep={setStep}
@@ -51,7 +57,7 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
         files.forEach((file, i) => {
           const IMAGE_OFFSET_X = 30
           const IMAGE_OFFSET_Y = -20
-          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type).then(
+          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from).then(
             imageContent => sharedContents.shareContent(imageContent))
         })
       }}

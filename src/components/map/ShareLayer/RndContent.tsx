@@ -26,6 +26,7 @@ import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 
 //import ImageIcon from '@material-ui/icons/Image'
 //import windowArrowUp from '@iconify/icons-fluent/window-arrow-up-24-regular'
+import UploadShare from '@images/whoo-screen_btn-add-63.png'
 
 
 import settings from '@models/api/Settings'
@@ -50,7 +51,7 @@ import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 
 
-//import {ShareDialog} from '@components/footer/share/ShareDialog'
+import {ShareDialog} from '@components/footer/share/ShareDialog'
 //import {ImageInput} from '@components/footer/share/ImageInput'
 //import { Step } from '@components/footer/share/Step'
 //import {ShareMenu} from '../../footer/share/Menu'
@@ -103,7 +104,7 @@ class RndContentMember{
 // getting the status of context menu visibility
 let contextMenuStatus:boolean = false
 export function getContextMenuStatus(): boolean {
-  return contextMenuStatus;
+  return contextMenuStatus
 }
 
 //  -----------------------------------------------------------------------------------
@@ -152,7 +153,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   const titleDisplay = useObserver(() => props.content.showTitle)
 
-  //const [showUploadOption, setShowUploadOption] = useState(true)
+  const [showUploadOption, setShowUploadOption] = useState(false)
 
   //console.log(props, " props ", titleDisplay)
 
@@ -255,11 +256,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onLeaveIcon()
   }
 
-  /* function onClickUploadZone(evt: MouseOrTouch) {
-    //setShowUploadOption(true)
+  function onClickUploadZone(evt: MouseOrTouch) {
     onLeaveIcon()
+    setShowUploadOption(true)
   }
-  function onClickUploadImage(evt: MouseOrTouch) {
+ /*  function onClickUploadImage(evt: MouseOrTouch) {
     onLeaveIcon()
   } */
 
@@ -644,10 +645,17 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               //member.downXPos = Number(pose.position[0]) //Number(map.mouseOnMap[0])
 
 
+
+
               const diff = subV2(map.mouseOnMap, pose.position)
 
               member.downPos = Number(diff[1])
               member.downXPos = Number(diff[0])
+
+              /* const dir = mulV2(normV(diff) / normV(diff), diff)
+              console.log(pose.position[0], " --- X -- ", member.downXPos)
+              console.log(pose.position[1], " --- X -- ", member.downPos)
+              console.log(addV2(pose.position, dir)) */
 
               contextMenuStatus = true
               setShowTitle(true)
@@ -922,12 +930,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </div>{/* } */}
 
 
-          {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
+          <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
             <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                <Icon icon={windowArrowUp} style={{width:32, height:32, color:'white'}} />
+                {/* <Icon icon={windowArrowUp} style={{width:32, height:32, color:'white'}} /> */}
+                <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
-          </Tooltip> */}
+          </Tooltip>
           {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
             <div className={classes.uploadImage} onMouseUp={onClickUploadImage}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
@@ -985,6 +994,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         evt.preventDefault()
       }
     }>
+
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
       <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : resizeEnable}
         disableDragging={isFixed} ref={rnd}
@@ -996,8 +1006,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         {theContent}
       </Rnd>
+      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} />
 
-      {/* <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} /> */}
     </div >
   )
 }
@@ -1390,7 +1400,7 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 195,
+      top: 175,
       left: 160,
       whiteSpace: 'pre',
       cursor: 'default',

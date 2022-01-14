@@ -12,6 +12,7 @@ import React, {useEffect, useRef} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 import {getContextMenuStatus} from '../ShareLayer/RndContent'
+import {isDialogOpen} from "@components/footer/share/ShareDialog"
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -181,6 +182,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onDrag: ({down, delta, xy, buttons}) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
+
         if(_menuStatus) {return}
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
@@ -213,6 +215,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.upYpos = xy[1]
         mem.upTime = new Date().getSeconds()
         let timeDiff = mem.upTime - mem.downTime;
+
+        let _dialogStatus:boolean = isDialogOpen()
+        //console.log(_dialogStatus, " >> _dialogStatus")
+        if(_dialogStatus) {return}
 
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
           const local = participants.local

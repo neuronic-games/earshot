@@ -14,6 +14,7 @@ import participants from '../participants/Participants'
 import sharedContents, {contentLog} from './SharedContents'
 import { Step } from '@components/footer/share/Step'
 
+
 export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefaultValue, {
   name: '',
   ownerName: '',
@@ -167,11 +168,11 @@ export function createContentOfText(message: string, map: MapData) {
 
   return pasted
 }
-export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[number, number], _type?:Step)
+export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string)
   : Promise<SharedContentImp> {
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     uploadToGyazo(imageFile).then((url) => {
-      createContentOfImageUrl(url, map, offset, _type).then(resolutionFunc)
+      createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc)
     }).catch(rejectionFunc)
   })
 
@@ -179,13 +180,14 @@ export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[nu
 }
 
 export function createContentOfImageUrl(url: string, map: MapData,
-  offset?:[number, number], _type?:Step): Promise<SharedContentImp> {
+  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string): Promise<SharedContentImp> {
   //const IMAGESIZE_LIMIT = 500
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
-      //console.log(" TYPE ", _type)
+
+      //console.log(" TYPE X ", xCord)
 
       pasted.type = 'img'
       if(_type === "image") {
@@ -199,17 +201,24 @@ export function createContentOfImageUrl(url: string, map: MapData,
 
       pasted.url = url
       //const max = size[0] > size[1] ? size[0] : size[1]
-
       //const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
       //pasted.size = [size[0] * scale, size[1] * scale]
 
       pasted.size = [size[0], size[1]]
       pasted.originalSize = [size[0], size[1]]
       const CENTER = 0.5
+
       for (let i = 0; i < pasted.pose.position.length; i += 1) {
         if (offset) {
-          pasted.pose.position[i] = map.mouseOnMap[i] + offset[i]
-        }else {
+          if(from === 'contextmenu') {
+            //console.log('contextmenu')
+            pasted.pose.position[0] = Number(xCord)
+            pasted.pose.position[1] = Number(yCord)
+          } else {
+            //console.log('mainmenu')
+            pasted.pose.position[i] = map.mouseOnMap[i] + offset[i]
+          }
+        } else {
           pasted.pose.position[i] = map.mouseOnMap[i] - CENTER * pasted.size[i]
         }
       }

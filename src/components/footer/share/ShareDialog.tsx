@@ -16,12 +16,22 @@ import {TextInput} from './TextInput'
 
 interface ShareDialogProps extends BMProps{
   open: boolean
+  cordX: number
+  cordY:number
+  origin:string
   onClose: () => void
 }
 
+let isOpen:boolean = false
+export function isDialogOpen():boolean {
+  return isOpen
+}
+
 export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
-  const {open, onClose} = props
+  const {open, onClose, cordX, cordY, origin} = props
   const {map} = props.stores
+
+  //console.log(cordX, " >cordX")
 
   const cameras = useRef(new CameraSelectorMember())
 
@@ -61,9 +71,9 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             multiline = {false}
           />
       case 'image':
-        return <ImageInput setStep={setStep} stores={props.stores} type={step} />
+        return <ImageInput setStep={setStep} stores={props.stores} type={step}  xCord={cordX} yCord={cordY} from={origin} />
       case 'zoneimage':
-        return <ImageInput setStep={setStep} stores={props.stores} type={step} />
+        return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin} />
       case 'camera':
         return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} />
       default:
@@ -88,6 +98,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   }
   const title = stepTitle[step]
   const page: JSX.Element | undefined = getPage(step, wrappedSetStep)
+
+  isOpen = open
 
   return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm"
       onPointerMove = {(ev) => {

@@ -149,7 +149,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     if (flag) {
       map.keyInputUsers.add('shareDialog')
     }else {
-      map.keyInputUsers.delete('shareDialog')
+     map.keyInputUsers.delete('shareDialog')
     }
     setShowShareRaw(flag)
   }
