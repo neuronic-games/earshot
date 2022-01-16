@@ -4,7 +4,8 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import {useTranslation} from '@models/locales'
 import {isSmartphone} from '@models/utils'
-import {createContentOfIframe, createContentOfText} from '@stores/sharedContents/SharedContentCreator'
+// createContentOfText
+import {createContentOfIframe, createContentOfTextOnly} from '@stores/sharedContents/SharedContentCreator'
 import sharedContents from '@stores/sharedContents/SharedContents'
 import React, {useRef, useState} from 'react'
 import {CameraSelector} from './CameraSelector'
@@ -53,7 +54,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         return <TextInput stores={props.stores}
             setStep={setStep}
             onFinishInput={(value) => {
-              sharedContents.shareContent(createContentOfText(value, map))
+              sharedContents.shareContent(createContentOfTextOnly(value, map, cordX, cordY, origin))
               //  console.debug(`share text: ${value}`)
             }}
             textLabel = "Text"
@@ -63,7 +64,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         return <TextInput stores={props.stores}
             setStep={setStep}
             onFinishInput={(value) => {
-              createContentOfIframe(value, map).then((c) => {
+              createContentOfIframe(value, map, cordX, cordY, origin).then((c) => {
                 sharedContents.shareContent(c)
               })
             }}
@@ -75,7 +76,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
       case 'zoneimage':
         return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin} />
       case 'camera':
-        return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} />
+        return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} xCord={cordX} yCord={cordY} from={origin} />
       default:
         throw new Error(`Unknown step: ${step}`)
     }

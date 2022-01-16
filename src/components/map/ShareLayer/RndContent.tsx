@@ -8,9 +8,9 @@ import pinOffIcon from '@iconify/icons-mdi/pin-off' */
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {CreateCSSProperties} from '@material-ui/core/styles/withStyles'
-import DoneIcon from '@material-ui/icons/CheckCircle'
+//import DoneIcon from '@material-ui/icons/CheckCircle'
 //import CloseRoundedIcon from '@material-ui/icons/CloseRounded'
-import EditIcon from '@material-ui/icons/Edit'
+//import EditIcon from '@material-ui/icons/Edit'
 //import FlipToBackIcon from '@material-ui/icons/FlipToBack'
 //import FlipToFrontIcon from '@material-ui/icons/FlipToFront'
 //import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
@@ -45,7 +45,8 @@ import {Rnd} from 'react-rnd'
 import {useGesture} from 'react-use-gesture'
 import { FullGestureState, UserHandlersPartial } from 'react-use-gesture/dist/types'
 // contentTypeIcons,
-import {Content, editButtonTip} from './Content'
+// , editButtonTip
+import {Content} from './Content'
 import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
@@ -161,6 +162,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
 
 
+
+
   // For dotted border
   const [showBorder, setShowBorder] = useState(false)
   //const [step, setStep] = useState<Step>("menu")
@@ -228,10 +231,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onLeaveIcon()
 
   }
-  function onClickEdit(evt: MouseOrTouch) {
+  /* function onClickEdit(evt: MouseOrTouch) {
     stop(evt)
     setEditing(!editing)
-  }
+  } */
   function onClickMoveToTop(evt: MouseOrTouch) {
     stop(evt)
     member._down = false
@@ -465,7 +468,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {
-      //console.log("Mouse up ", editing, "-", member._down)
+      console.log("Mouse up ", editing, "-", member._down)
+      //member._down = false
       if(editing) {
         arg.stopPropagation()
       } else {
@@ -491,7 +495,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               showHideBorder()
             }
           } */
-
           setTimeout(() =>{
             function moveParticipant(move:boolean) {
               const local = participants.local
@@ -579,6 +582,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       } else {
         member._down = false
       }
+
+
     },
     onMouseOver: (arg) => {
       //member._down = true
@@ -621,8 +626,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member._down = true
         member.downTime = new Date().getSeconds()
 
-        //console.log(member._down, " onDown")
-
         //props.content.zorder = 0x7FFF
         //console.log(participants)
         //participants.local.updateIndex()
@@ -659,6 +662,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
               contextMenuStatus = true
               setShowTitle(true)
+              //setEditing(false)
             }
           }
         },500)
@@ -862,13 +866,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             {/* <Icon icon={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} /> */}
             <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
           </div></Tooltip>
-          <Tooltip placement="top" title={editButtonTip(editing, props.content)} >
+         {/*  <Tooltip placement="top" title={editButtonTip(editing, props.content)} >
             <div className={classes.edit} onMouseUp={onClickEdit} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
              {
-              editing ? <DoneIcon style={{fontSize:TITLE_HEIGHT}} />
-                : <EditIcon style={{fontSize:TITLE_HEIGHT}} />}
+              editing ? <DoneIcon style={{fontSize:TITLE_HEIGHT, color:'white'}} />
+                : <EditIcon style={{fontSize:TITLE_HEIGHT, color:'white'}} />}
             </div>
-          </Tooltip>
+          </Tooltip> */}
           {/* {props.content.pinned ? undefined : */}
             <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
               <div className={classes.moveTopButton} onMouseUp={onClickMoveToTop}
@@ -1499,6 +1503,9 @@ const useStyles = makeStyles({
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',
+      position: 'absolute',
+      top: 147,
+      left: 217,
       ...buttonStyle,
     } : {display:'none'}
   ),

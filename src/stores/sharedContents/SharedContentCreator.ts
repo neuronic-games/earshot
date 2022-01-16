@@ -69,16 +69,21 @@ export function createContent() {
   return content
 }
 
-function makeItPdf(pasted:ISharedContent, urlStr: string, map:MapData){
+function makeItPdf(pasted:ISharedContent, urlStr: string, map:MapData, xCord:number, yCord:number, from:string){
   pasted.type = 'pdf'
   pasted.url = urlStr
-  pasted.pose.position[0] = map.mouseOnMap[0]
-  pasted.pose.position[1] = map.mouseOnMap[1]
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
   pasted.size[0] = 500
   pasted.size[1] = pasted.size[0] * 1.41421356
 }
 
-export function createContentOfIframe(urlStr: string, map: MapData) {
+export function createContentOfIframe(urlStr: string, map: MapData, xCord:number, yCord:number, from:string) {
   return new Promise<ISharedContent>((resolve, reject) => {
     const pasted = createContent()
     const url = new URL(urlStr)
@@ -97,8 +102,13 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
         }
       }
       pasted.type = 'youtube'
-      pasted.pose.position[0] = map.mouseOnMap[0]
-      pasted.pose.position[1] = map.mouseOnMap[1]
+      if(from === 'contextmenu') {
+        pasted.pose.position[0] = Number(xCord)
+        pasted.pose.position[1] = Number(yCord)
+      } else {
+        pasted.pose.position[0] = map.mouseOnMap[0]
+        pasted.pose.position[1] = map.mouseOnMap[1]
+      }
       pasted.size[0] = 640
       pasted.size[1] = 380
     }else if (url.hostname === 'drive.google.com' || url.hostname === 'docs.google.com') {  //  google drive
@@ -106,33 +116,48 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
       const fileIdStart = url.pathname.slice(url.pathname.indexOf('/d/') + 3)
       const fileId = fileIdStart.slice(0, fileIdStart.indexOf('/'))
       pasted.url = `id=${fileId}`
-      pasted.pose.position[0] = map.mouseOnMap[0]
-      pasted.pose.position[1] = map.mouseOnMap[1]
+      if(from === 'contextmenu') {
+        pasted.pose.position[0] = Number(xCord)
+        pasted.pose.position[1] = Number(yCord)
+      } else {
+        pasted.pose.position[0] = map.mouseOnMap[0]
+        pasted.pose.position[1] = map.mouseOnMap[1]
+      }
       pasted.size[0] = 900
       pasted.size[1] = 700
     }else if (url.hostname === 'wbo.ophir.dev'){  //  whiteboard
       pasted.type = 'whiteboard'
       pasted.url = urlStr
-      pasted.pose.position[0] = map.mouseOnMap[0]
-      pasted.pose.position[1] = map.mouseOnMap[1]
+      if(from === 'contextmenu') {
+        pasted.pose.position[0] = Number(xCord)
+        pasted.pose.position[1] = Number(yCord)
+      } else {
+        pasted.pose.position[0] = map.mouseOnMap[0]
+        pasted.pose.position[1] = map.mouseOnMap[1]
+      }
       pasted.size[0] = 700
       pasted.size[1] = 740
     }else if (url.pathname.substring(url.pathname.length-4) === '.pdf' ||
       url.pathname.substring(url.pathname.length-4) === '.PDF' ){  //  pdf
-      makeItPdf(pasted, urlStr, map)
+      makeItPdf(pasted, urlStr, map, xCord, yCord, from)
     }else {  //  generic iframe
       //  get mime type first
       getMimeType(getProxiedUrl(urlStr)).then((type)=>{
         if (type==='application/pdf'){
-          makeItPdf(pasted, urlStr, map)
+          makeItPdf(pasted, urlStr, map, xCord, yCord, from)
           resolve(pasted)
         }
       }).finally(()=>{
         if (!pasted.type){
           pasted.type = 'iframe'
           pasted.url = urlStr
-          pasted.pose.position[0] = map.mouseOnMap[0]
-          pasted.pose.position[1] = map.mouseOnMap[1]
+          if(from === 'contextmenu') {
+            pasted.pose.position[0] = Number(xCord)
+            pasted.pose.position[1] = Number(yCord)
+          } else {
+            pasted.pose.position[0] = map.mouseOnMap[0]
+            pasted.pose.position[1] = map.mouseOnMap[1]
+          }
           pasted.size[0] = 600
           pasted.size[1] = 800
           resolve(pasted)
@@ -145,9 +170,12 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
     }
 })
 }
-export function createContentOfText(message: string, map: MapData) {
+
+export function createContentOfTextOnly(message: string, map: MapData, xCord:number, yCord:number, from:string) {
+  //console.log(xCord, " --- ", yCord, " : ", from)
   const pasted = createContent()
   pasted.type = 'text'
+  pasted.noFrame = true
   const textMessage = {
     message,
     pid: participants.localId,
@@ -158,14 +186,54 @@ export function createContentOfText(message: string, map: MapData) {
   }
   const texts: TextMessages = {messages:[textMessage], scroll:[0, 0]}
   pasted.url = JSON.stringify(texts)
-  pasted.pose.position[0] = map.mouseOnMap[0]
-  pasted.pose.position[1] = map.mouseOnMap[1]
+
+
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
   const slen = Math.ceil(Math.sqrt(message.length))
   const STRING_SCALE_W = 20
   const STRING_SCALE_H = 25
   pasted.size[0] = Math.max(slen * STRING_SCALE_W, 200)
   pasted.size[1] = Math.max(slen * STRING_SCALE_H, slen ? STRING_SCALE_H : STRING_SCALE_H * 3)
+  return pasted
+}
 
+export function createContentOfText(message: string, map: MapData, xCord:number, yCord:number, from:string) {
+  console.log("2")
+
+  const pasted = createContent()
+  pasted.type = 'text'
+  pasted.noFrame = true
+  const textMessage = {
+    message,
+    pid: participants.localId,
+    name: participants.local.information.name,
+    color: participants.local.information.color,
+    textColor: participants.local.information.textColor,
+    time: Date.now(),
+  }
+  const texts: TextMessages = {messages:[textMessage], scroll:[0, 0]}
+  pasted.url = JSON.stringify(texts)
+
+  //console.log(from, " from")
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
+
+  const slen = Math.ceil(Math.sqrt(message.length))
+  const STRING_SCALE_W = 20
+  const STRING_SCALE_H = 25
+  pasted.size[0] = Math.max(slen * STRING_SCALE_W, 200)
+  pasted.size[1] = Math.max(slen * STRING_SCALE_H, slen ? STRING_SCALE_H : STRING_SCALE_H * 3)
   return pasted
 }
 export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string)
@@ -192,12 +260,14 @@ export function createContentOfImageUrl(url: string, map: MapData,
       pasted.type = 'img'
       if(_type === "image") {
         pasted.shareType = "img"
-        pasted.noFrame = true
+        //pasted.noFrame = true
       } else if(_type === "zoneimage") {
         pasted.shareType = 'zoneimg'
-        pasted.noFrame = true
+        //pasted.noFrame = true
         //pasted.zone = "open"
       }
+
+      pasted.noFrame = true
 
       pasted.url = url
       //const max = size[0] > size[1] ? size[0] : size[1]
@@ -272,12 +342,17 @@ export function createContentOfPdf(file: File, map: MapData, offset?:[number, nu
 }
 
 
-export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, type:ContentType) {
+export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, type:ContentType, xCord:number, yCord:number, from:string) {
   const pasted = createContent()
   pasted.type = type
   pasted.url = ''
-  pasted.pose.position[0] = map.mouseOnMap[0]
-  pasted.pose.position[1] = map.mouseOnMap[1]
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
   const track = tracks.find(track => track.getType() === 'video')
   const settings = track?.getTrack().getSettings()
   if (settings) {
@@ -290,29 +365,32 @@ export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, ty
   return pasted
 }
 
-export function createContentFromText(str: string, map:MapData){
+export function createContentFromText(str: string, map:MapData, xCord:number, yCord:number, from:string){
   return new Promise<ISharedContent>((resolve, reject)=>{
+    //console.log(from, " in creator")
     let content = undefined
     if (str.indexOf('http://') === 0 || str.indexOf('https://') === 0) {
       const url = new URL(str)
       const ext = str.slice(-4)
       if (isSelfUrl(url)) {
         //  Openning of self url makes infinite loop. So, create text instead.
-        content = createContentOfText(str, map)
+        content = createContentOfText(str, map, xCord, yCord, from)
+        //console.log("3")
         content.name = '! recursive reference'
         resolve(content)
-      }else if (ext === '.jpg' || ext === '.JPG' || ext === 'jpeg' || ext === 'JPEG' ||
+      } else if (ext === '.jpg' || ext === '.JPG' || ext === 'jpeg' || ext === 'JPEG' ||
         ext === '.png' || ext === '.PNG' || ext === '.gif' || ext === '.GIF' ||
         ext === '.svg' || ext === '.SVG') {
         createContentOfImageUrl(str, map).then((content) => {
           content.name = url.pathname
           resolve(content)
         }).catch(reject)
-      }else {
-        createContentOfIframe(str, map).then((content) => {
+      } else {
+        createContentOfIframe(str, map, xCord, yCord, from).then((content) => {
           if (content.type === 'iframe') {
             //  iframe is not work well because of CORS problem.
-            content = createContentOfText(str, map)
+            content = createContentOfText(str, map, xCord, yCord, from)
+            //console.log("4")
             content.name = `${url.host}${url.pathname}${url.search}`
           }
           if (content.type === 'youtube') {
@@ -323,8 +401,9 @@ export function createContentFromText(str: string, map:MapData){
           resolve(content)
         }).catch(reject)
       }
-    }else {
-      content = createContentOfText(str, map)
+    } else {
+      content = createContentOfText(str, map, xCord, yCord, from)
+      //console.log("5")
       content.name = str.substring(0, 20)
       resolve(content)
     }
@@ -367,7 +446,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
       }
     }else if (dataTransfer?.types.includes('text/plain')) {
       dataTransfer.items[0].getAsString((str:string) => {
-        createContentFromText(str, map).then(c => resolve([c])).catch(reject)
+        createContentFromText(str, map, 0, 0, '').then(c => resolve([c])).catch(reject)
       })
     }else {
       console.error('Unhandled content types:', dataTransfer?.types)

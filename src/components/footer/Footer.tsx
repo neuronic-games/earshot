@@ -707,6 +707,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
 
         <ErrorDialog {...props}/>
 
+
         {/* ADD ANIMATED ICONS*/}
 
         {/* <FabMain size={45} onClick={toggleSmileButton}
@@ -728,13 +729,14 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
 
         <FabMain size={fabSize} color={'primary'}
           aria-label="settings" onClick={(ev) => {
-            member.upTime = new Date().getSeconds()
+            /* member.upTime = new Date().getSeconds()
             let timeDiff = member.upTime - member.downTime;
             if(timeDiff > 1) {
             } else {
-            }
+            } */
+            setSettingsMenuEl(ev.currentTarget)
           }}
-          onDown={(ev) => {
+          /* onDown={(ev) => {
             member.downTime = new Date().getSeconds()
             //let _ev = ev
             let _target = ev.currentTarget
@@ -744,13 +746,13 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
               if(timeDiff >= 0) return
                 setSettingsMenuEl(_target)
             }, 500)
-          }}
+          }} */
           >
             <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
         </FabMain>
 
         <Menu anchorEl={settingsMenuEl} keepMounted={false} style={{marginTop:-70}}
-          open={Boolean(settingsMenuEl)} /* onChange={() => { closeSettingsMenu('') }} */ onClose={() => { closeSettingsMenu('') }}>
+          open={Boolean(settingsMenuEl)} onClick={() => { setTimeout(()=>{closeSettingsMenu('')},100)}} onClose={() => { closeSettingsMenu('') }}>
           {settingsMenuItems}
         </Menu>
 

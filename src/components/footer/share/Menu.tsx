@@ -27,7 +27,9 @@ import {connection} from '@models/api/ConnectionDefs'
 import {ISharedContent} from '@models/ISharedContent'
 import {useTranslation} from '@models/locales'
 import {assert} from '@models/utils'
-import {createContent, createContentFromText, createContentOfIframe, createContentOfText,
+// createContentOfText
+import {createContent, createContentFromText, createContentOfIframe,
+  createContentOfTextOnly,
   createContentOfVideo, extractContentData} from '@stores/sharedContents/SharedContentCreator'
   // extractContentDatas
 import {SharedContents} from '@stores/sharedContents/SharedContents'
@@ -106,6 +108,8 @@ interface ShareMenuProps extends DialogPageProps, BMProps {
 export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   const {t} = useTranslation()
   const {contents, participants, map} = props.stores
+
+  //console.log(Object(props).cordX)
   const sharing = useObserver(() => (
     {main: contents.tracks.localMains.size, contents: contents.tracks.localContents.size}))
   const showMouse = useObserver(() => participants.local.mouse.show)
@@ -136,15 +140,18 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   }
   const createText = () => {
     //  setStep('text')
+    //console.log("2")
     setStep('none')
-    const tc = createContentOfText('', map)
+    //const tc = createContentOfText('', map)
+    const tc = createContentOfTextOnly('', map, Object(props).cordX, Object(props).cordY, Object(props).origin)
     contents.shareContent(tc)
     contents.setEditing(tc.id)
   }
   const createFromClipboard = () => {
     setStep('none')
+    //console.log("1 ", props)
     navigator.clipboard.readText().then(str => {
-      createContentFromText(str, map).then(c => {
+      createContentFromText(str, map, Object(props).cordX, Object(props).cordY, Object(props).origin).then(c => {
         contents.shareContent(c)
       })
     })
@@ -156,7 +163,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
     let randStr = ''
     rand.forEach(i => randStr += i.toString(16))
     createContentOfIframe(
-      `https://wbo.ophir.dev/boards/BinauralMeet_${connection.conference.name}_${randStr}`, map).then((c) => {
+      `https://wbo.ophir.dev/boards/BinauralMeet_${connection.conference.name}_${randStr}`, map, Object(props).cordX, Object(props).cordY, Object(props).origin).then((c) => {
       contents.shareContent(c)
        contents.setEditing(c.id)
     })
@@ -164,7 +171,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   const createScreen = () => {
     startCapture(props).then((tracks) => {
       if (tracks.length) {
-        const content = createContentOfVideo(tracks, map, 'screen')
+        const content = createContentOfVideo(tracks, map, 'screen', Object(props).cordX, Object(props).cordY, Object(props).origin)
         contents.shareContent(content)
         assert(content.id)
         contents.tracks.addLocalContent(content.id, tracks)
