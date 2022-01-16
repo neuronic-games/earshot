@@ -202,6 +202,7 @@ let userIndex:number = 0;
 
     function checkToggle() {
       //setToggleStream(startStream ? startStream : (localStream ? localStream : false))
+      console.log(stream, " -- toggle check")
       setToggleStream((stream !== undefined) ? true : false)
     }
 
@@ -256,7 +257,7 @@ let userIndex:number = 0;
 
   //  keyboard shortcut
   useEffect(() => {
-    //console.log(videoRef?.current, "mask")
+    console.log(videoRef?.current, "mask")
 
     /* window.addEventListener('click', (ev) => {
       //checkZone()

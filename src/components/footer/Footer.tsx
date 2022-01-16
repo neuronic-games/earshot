@@ -138,6 +138,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
 
   const [vidStream, setVidStream] = React.useState<boolean>(false)
+  const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
 
   // For toggle emoticons
   /* const [toggleSmile, setToggleSmile] = React.useState<boolean>(false)
@@ -729,14 +730,16 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
 
         <FabMain size={fabSize} color={'primary'}
           aria-label="settings" onClick={(ev) => {
-            /* member.upTime = new Date().getSeconds()
+            member.upTime = new Date().getSeconds()
             let timeDiff = member.upTime - member.downTime;
             if(timeDiff > 1) {
             } else {
-            } */
-            setSettingsMenuEl(ev.currentTarget)
+              //setSettingsMenuEl(ev.currentTarget)
+              openAdmin()
+            }
+
           }}
-          /* onDown={(ev) => {
+          onDown={(ev) => {
             member.downTime = new Date().getSeconds()
             //let _ev = ev
             let _target = ev.currentTarget
@@ -745,14 +748,16 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
               let timeDiff = member.upTime - member.downTime;
               if(timeDiff >= 0) return
                 setSettingsMenuEl(_target)
+                setOpenSettiong(true)
             }, 500)
-          }} */
+          }}
           >
             <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
         </FabMain>
 
-        <Menu anchorEl={settingsMenuEl} keepMounted={false} style={{marginTop:-70}}
-          open={Boolean(settingsMenuEl)} onClick={() => { setTimeout(()=>{closeSettingsMenu('')},100)}} onClose={() => { closeSettingsMenu('') }}>
+        <Menu anchorEl={settingsMenuEl} keepMounted={false} style={openSettiong ? {marginTop:-70, display:'block'} : {marginTop:-70, display:'none'}}
+          //open={Boolean(settingsMenuEl)} /* onClick={() => { setTimeout(()=>{closeSettingsMenu('')},100)}} */ onClose={() => { closeSettingsMenu('') }}>
+          open={Boolean(settingsMenuEl)} onClick={() => { setTimeout(()=>{setOpenSettiong(false)},100)}} onClose={() => { closeSettingsMenu('') }}>
           {settingsMenuItems}
         </Menu>
 
@@ -781,7 +786,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mute.muteA, mute.muteS, mute.muteV, mute.onStage,
-    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, deviceInfos, startStream, localStream]
+    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, openSettiong, deviceInfos, startStream, localStream]
     )
 }
 Footer.displayName = 'Footer'
