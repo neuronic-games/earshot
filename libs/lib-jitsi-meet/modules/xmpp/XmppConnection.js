@@ -1,4 +1,4 @@
-import { getLogger } from 'jitsi-meet-logger';
+import { getLogger } from '@jitsi/logger';
 import { $pres, Strophe } from 'strophe.js';
 import 'strophejs-plugin-stream-management';
 
@@ -198,6 +198,19 @@ export default class XmppConnection extends Listenable {
      */
     get service() {
         return this._stropheConn.service;
+    }
+
+    /**
+     * Sets new value for shard.
+     * @param value the new shard value.
+     */
+    set shard(value) {
+        this._options.shard = value;
+
+        // shard setting changed so let's schedule a new keep-alive check if connected
+        if (this._oneSuccessfulConnect) {
+            this._maybeStartWSKeepAlive();
+        }
     }
 
     /**

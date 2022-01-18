@@ -118,7 +118,7 @@ export const enTranslate = {
   ctNotAudioZone: 'Just an image',
   ctOpaque: 'Opaque',
   ctTransparent: 'Transparent',
-  ctUploadZone: 'Upload zone image',
+  ctUploadZone: 'Upload and share',
   ctUploadImage: 'Upload image',
   upload: 'Upload',
   Save: 'Save',

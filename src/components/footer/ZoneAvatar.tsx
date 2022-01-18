@@ -139,6 +139,7 @@ let userIndex:number = 0;
    }
   }
 
+
   const localStream = useObserver(() => Boolean(participants.local.showVideo))
   const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
 

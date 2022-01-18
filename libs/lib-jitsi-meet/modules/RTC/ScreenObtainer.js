@@ -3,7 +3,7 @@ import JitsiTrackError from '../../JitsiTrackError';
 import * as JitsiTrackErrors from '../../JitsiTrackErrors';
 import browser from '../browser';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = require('@jitsi/logger').getLogger(__filename);
 
 /**
  * The default frame rate for Screen Sharing.
@@ -276,6 +276,21 @@ const ScreenObtainer = {
                 errorCallback(new JitsiTrackError(JitsiTrackErrors
                     .SCREENSHARING_USER_CANCELED));
             });
+    },
+
+    /**
+     * Sets the max frame rate to be used for a desktop track capture.
+     *
+     * @param {number} maxFps capture frame rate to be used for desktop tracks.
+     * @returns {void}
+     */
+    setDesktopSharingFrameRate(maxFps) {
+        logger.info(`Setting the desktop capture rate to ${maxFps}`);
+
+        this.options.desktopSharingFrameRate = {
+            min: SS_DEFAULT_FRAME_RATE,
+            max: maxFps
+        };
     }
 };
 

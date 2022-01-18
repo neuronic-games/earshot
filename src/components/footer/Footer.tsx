@@ -39,7 +39,10 @@ import {StereoSwitchControl} from './StereoSwitchControl'
 //import {SettingsControl} from './SettingsControl'
 import {BroadcastVideoControl} from './BroadcastVideoControl'
 import {FabMain, FabWithTooltip} from './FabEx'
-import {ShareButton} from './share/ShareButton'
+
+//import {ShareButton} from './share/ShareButton'
+
+
 //import {StereoAudioSwitch} from './StereoAudioSwitch'
 //import UploadIcon from '@material-ui/icons/Publish'
 //import DownloadIcon from '@material-ui/icons/GetApp'
@@ -135,6 +138,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   //  showor not
   const [show, setShow] = React.useState<boolean>(false)
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
+
+
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
 
   const [vidStream, setVidStream] = React.useState<boolean>(false)
@@ -703,8 +708,8 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
           {videoMenuItems}
         </Menu>
 
-        <ShareButton {...props} size={fabSize} iconSize={iconSize} showDialog={showShare}
-          setShowDialog={setShowShare} />
+        {/* <ShareButton {...props} size={fabSize} iconSize={iconSize} showDialog={showShare}
+          setShowDialog={setShowShare} /> */}
 
         <ErrorDialog {...props}/>
 

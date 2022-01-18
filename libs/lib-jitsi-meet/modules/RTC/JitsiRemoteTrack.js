@@ -4,7 +4,7 @@ import Statistics from '../statistics/statistics';
 
 import JitsiTrack from './JitsiTrack';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = require('@jitsi/logger').getLogger(__filename);
 
 const RTCEvents = require('../../service/RTC/RTCEvents');
 
@@ -15,10 +15,7 @@ let ttfmTrackerVideoAttached = false;
  * List of container events that we are going to process. _onContainerEventHandler will be added as listener to the
  * container for every event in the list.
  */
-const containerEvents = [
-    'abort', 'canplay', 'canplaythrough', 'emptied', 'ended', 'error', 'loadeddata', 'loadedmetadata', 'loadstart',
-    'pause', 'play', 'playing', 'ratechange', 'stalled', 'suspend', 'waiting'
-];
+const containerEvents = [ 'abort', 'canplaythrough', 'ended', 'error' ];
 
 /* eslint-disable max-params */
 
@@ -37,10 +34,11 @@ export default class JitsiRemoteTrack extends JitsiTrack {
      *        the new JitsiRemoteTrack
      * @param {MediaType} mediaType the type of the media
      * @param {VideoType} videoType the type of the video if applicable
-     * @param {number} ssrcs the SSRC numbers of the Media Stream
+     * @param {number} ssrc the SSRC number of the Media Stream
      * @param {boolean} muted the initial muted state
      * @param {boolean} isP2P indicates whether or not this track belongs to a
      * P2P session
+     * @param {String} sourceName the source name signaled for the track
      * @throws {TypeError} if <tt>ssrc</tt> is not a number.
      * @constructor
      */
@@ -52,9 +50,10 @@ export default class JitsiRemoteTrack extends JitsiTrack {
             track,
             mediaType,
             videoType,
-            ssrcs,
+            ssrc,
             muted,
-            isP2P) {
+            isP2P,
+            sourceName) {
         super(
             conference,
             stream,
@@ -67,18 +66,14 @@ export default class JitsiRemoteTrack extends JitsiTrack {
         this.rtc = rtc;
 
         // Prevent from mixing up type of SSRC which should be a number
-        if (ssrcs.length === 0){
-            throw new TypeError(`No SSRCs`);
+        if (typeof ssrc !== 'number') {
+            throw new TypeError(`SSRC ${ssrc} is not a number`);
         }
-        ssrcs.forEach((ssrc) => {
-            if  (typeof ssrc !== 'number') {
-                throw new TypeError(`SSRC ${ssrc} is not a number`);
-            }
-        })
-        this.ssrcs = ssrcs;
+        this.ssrc = ssrc;
         this.ownerEndpointId = ownerEndpointId;
         this.muted = muted;
         this.isP2P = isP2P;
+        this._sourceName = sourceName;
 
         logger.debug(`New remote track added: ${this}`);
 
@@ -192,10 +187,17 @@ export default class JitsiRemoteTrack extends JitsiTrack {
      * @returns {number} the SSRC of this remote track.
      */
     getSSRC() {
-        return this.ssrcs[0];
+        return this.ssrc;
     }
-    getSSRCs() {
-        return this.ssrcs;
+
+
+    /**
+     * Returns the tracks source name
+     *
+     * @returns {string} the track's source name
+     */
+    getSourceName() {
+        return this._sourceName;
     }
 
     /**
@@ -275,13 +277,10 @@ export default class JitsiRemoteTrack extends JitsiTrack {
     /**
      * Called when the track has been attached to a new container.
      *
-     * @param {HTMLElement} container the HTML container which can be 'video' or
-     * 'audio' element.
+     * @param {HTMLElement} container the HTML container which can be 'video' or 'audio' element.
      * @private
      */
     _onTrackAttach(container) {
-        logger.debug(`Track has been attached to a container: ${this}`);
-
         containerEvents.forEach(event => {
             container.addEventListener(event, this._containerHandlers[event]);
         });
@@ -290,13 +289,10 @@ export default class JitsiRemoteTrack extends JitsiTrack {
     /**
      * Called when the track has been detached from a container.
      *
-     * @param {HTMLElement} container the HTML container which can be 'video' or
-     * 'audio' element.
+     * @param {HTMLElement} container the HTML container which can be 'video' or 'audio' element.
      * @private
      */
     _onTrackDetach(container) {
-        logger.debug(`Track has been detached from a container: ${this}`);
-
         containerEvents.forEach(event => {
             container.removeEventListener(event, this._containerHandlers[event]);
         });
@@ -328,6 +324,6 @@ export default class JitsiRemoteTrack extends JitsiTrack {
      */
     toString() {
         return `RemoteTrack[userID: ${this.getParticipantId()}, type: ${this.getType()}, ssrc: ${
-            this.getSSRC()}, p2p: ${this.isP2P}, status: ${this._getStatus()}]`;
+            this.getSSRC()}, p2p: ${this.isP2P}, sourceName: ${this._sourceName}, status: ${this._getStatus()}]`;
     }
 }

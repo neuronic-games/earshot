@@ -1,4 +1,4 @@
-import {MapProps as BP} from '@components/utils'
+import {BMProps, MapProps as BP} from '@components/utils'
 import {makeStyles} from '@material-ui/core/styles'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {
@@ -8,11 +8,16 @@ import {
 import {addV2, mulV2, normV, subV2} from '@models/utils/coordinates'
 import {SCALE_LIMIT} from '@stores/Map'
 import {useObserver} from 'mobx-react-lite'
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
-import {getContextMenuStatus} from '../ShareLayer/RndContent'
+import {getContextMenuStatus, MouseOrTouch} from '../ShareLayer/RndContent'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
+import {Tooltip} from '@material-ui/core'
+import UploadShare from '@images/whoo-screen_btn-add-63.png'
+import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+import {t} from '@models/locales'
+import {ShareDialog} from '@components/footer/share/ShareDialog'
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -31,6 +36,8 @@ function limitScale(currentScale: number, scale: number): number {
 
 interface StyleProps {
   matrix: DOMMatrixReadOnly,
+  props: BMProps,
+  mem:BaseMember,
 }
 
 const useStyles = makeStyles({
@@ -55,7 +62,96 @@ const useStyles = makeStyles({
     width:0, height:0,
     transform: props.matrix.toString(),
   }),
+  hideMenuContainer: (props:StyleProps) => ({
+    display: 'flex',
+    position: 'relative',
+    width: 350,
+    height: 250,
+    overflow: 'hidden',
+    userSelect: 'none',
+    userDrag: 'none',
+    //top: (props.mem.zoomY) - 125,
+    //left: (props.mem.zoomX) - 170,
+    bottom: 'auto',
+    transform: 'scale(0)',
+    backgroundColor: 'transparent',
+    transition: '0s ease-out',
+    cursor: 'default',
+  }),
+  showMenuContainer: (props:StyleProps) => ({
+    display: 'flex',
+    position: 'relative',
+    width: 350,
+    height: 250,
+    overflow: 'hidden',
+    userSelect: 'none',
+    userDrag: 'none',
+    top: (props.mem.zoomY) - 125,
+    left: (props.mem.zoomX) - 170,
+    bottom: 'auto',
+    transform: 'scale(1.2)',
+    backgroundColor: 'transparent',
+    transition: '0.3s ease-out',
+    transitionDelay: '0.1s',
+    cursor: 'default',
+  }),
+
+  dashedCircle: (props: StyleProps) => ({
+    position: 'relative',
+    width:200,
+    height:200,
+    borderWidth:2,
+    borderStyle: 'solid',
+    borderColor:'#9e886c',
+    borderRadius:'50%',
+    opacity: 0.4,
+    /* top: 20,
+    left: -20, */
+    top: 25,
+    left: 65,
+    background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
+    zIndex: -9999,
+  }),
+
+  uploadZone: (props:StyleProps) => ({
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 180,
+      left: 145,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle
+    }),
 })
+
+const buttonStyle = {
+  '&': {
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
+
+    //border: '2px solid #9e886c',
+    //backgroundColor: 'white',
+  },
+
+  '&:hover': {
+    backgroundColor: 'black', //'rosybrown',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+  '&:active': {
+    //backgroundColor: 'firebrick',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+}
 
 type MapProps = React.PropsWithChildren<BP>
 
@@ -70,6 +166,12 @@ class BaseMember{
   downYpos = 0
   upXpos = 0
   upYpos = 0
+
+  contentX = 0
+  contentY = 0
+
+  zoomX = 0
+  zoomY = 0
 }
 
 
@@ -84,6 +186,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
   const thirdPersonView = useObserver(() => participants.local.thirdPersonView)
   const memRef = useRef<BaseMember>(new BaseMember())
   const mem = memRef.current
+
+  //console.log(mem.contentX, " onLoad")
 
   const center = transformPoint2D(matrix, participants.local.pose.position)
   if (thirdPersonView !== mem.prebThirdPersonView) {
@@ -157,6 +261,21 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
 
+          //const diff = subV2(map.mouseOnMap, participants.local.pose.position)
+
+          const downTimer = setTimeout(() => {
+            clearTimeout(downTimer)
+            if(mem.mouseDown && showUploadOption === false) {
+              console.log("Open Context Menu")
+              mem.zoomX = xy[0]
+              mem.zoomY = xy[1]
+              mem.contentX = map.mouseOnMap[0]
+              mem.contentY = map.mouseOnMap[1]
+              setShowMenu(true)
+              //setShowUploadOption(true)
+            }
+          }, 500)
+
           //  move participant to mouse position
           /* setTimeout(() => {
             function moveParticipant(move: boolean) {
@@ -183,7 +302,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
 
+        //console.log(_menuStatus, " --- ", showMenu)
         if(_menuStatus) {return}
+        if(showMenu) {return}
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
           if (!thirdPersonView && buttons === MOUSE_RIGHT) {  // right mouse drag - rotate map
@@ -264,6 +385,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         }
         mem.dragging = false
         mem.mouseDown = false
+        setShowMenu(false)
         //  console.log('Base onDragEnd:')
       },
 
@@ -417,8 +539,25 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
   const styleProps: StyleProps = {
     matrix,
+    props,
+    mem,
   }
+
+  //console.log(props.stores)
+
+  const [showMenu, setShowMenu] = useState(false)
+  const [showUploadOption, setShowUploadOption] = useState(false)
   const classes = useStyles(styleProps)
+
+  function stop(ev:MouseOrTouch|React.PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
+  }
+  function onClickUploadZone(evt: MouseOrTouch) {
+    //onLeaveIcon()
+    setShowUploadOption(true)
+    setShowMenu(false)
+  }
 
   return (
     <div className={classes.root} ref={outer} {...bind()}>
@@ -428,6 +567,17 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             {props.children}
         </div>
       </div>
+      {/* Add Context Menu */}
+      <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
+      <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''} >
+          <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
+            onTouchStart={stop} /* onMouseLeave={() => setTimeout(()=>{setShowMenu(false)},100)} */>
+              <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+          </div>
+        </Tooltip>
+      <div className={classes.dashedCircle}></div>
+      </div>
+      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={mem.contentX} cordY={mem.contentY} origin={'contextmenu'} />
     </div>
   )
 }

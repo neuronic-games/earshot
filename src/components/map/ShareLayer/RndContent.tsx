@@ -186,6 +186,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         const _mTimer = setTimeout( function() {
           clearTimeout(_mTimer)
           if(showTitle === true) return
+          contextMenuStatus = false
            setShowTitle(false)
         }, 2)
       }
@@ -308,6 +309,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   function onCloseForm(){
     setShowForm(false)
     if (props.content.pinned){
+      contextMenuStatus = false
       setShowTitle(false)
     }
     map.keyInputUsers.delete('contentForm')
@@ -468,12 +470,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {
-      console.log("Mouse up ", editing, "-", member._down)
+      //console.log("Mouse up ", editing, "-", member._down)
       //member._down = false
       if(editing) {
         arg.stopPropagation()
       } else {
         //console.log("UPUP")
+        if(arg.button > 0) {return}
         member.onContent = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
@@ -619,9 +622,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     },
     onMouseDown: (arg) => {
+      //console.log(arg.button, " button")
       if(editing) {
         arg.stopPropagation()
       } else {
+
+        if(arg.button > 0) {return}
+
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
@@ -1262,8 +1269,6 @@ const useStyles = makeStyles({
 
     // Scale Accordingly
     rv['transform'] = 'scale('+zoomRatio+')'
-
-
     }
     return rv
   },

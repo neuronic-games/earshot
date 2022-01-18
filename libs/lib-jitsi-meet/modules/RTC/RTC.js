@@ -1,12 +1,11 @@
-/* global __filename */
-
-import { getLogger } from 'jitsi-meet-logger';
+import { getLogger } from '@jitsi/logger';
 
 import * as JitsiConferenceEvents from '../../JitsiConferenceEvents';
+import BridgeVideoType from '../../service/RTC/BridgeVideoType';
 import * as MediaType from '../../service/RTC/MediaType';
 import RTCEvents from '../../service/RTC/RTCEvents';
-import VideoType from '../../service/RTC/VideoType';
 import browser from '../browser';
+import FeatureFlags from '../flags/FeatureFlags';
 import Statistics from '../statistics/statistics';
 import GlobalOnErrorHandler from '../util/GlobalOnErrorHandler';
 import Listenable from '../util/Listenable';
@@ -151,8 +150,13 @@ export default class RTC extends Listenable {
         this._updateAudioOutputForAudioTracks
             = this._updateAudioOutputForAudioTracks.bind(this);
 
-        // The default video type assumed by the bridge.
-        this._videoType = VideoType.CAMERA;
+        /**
+         * The default video type assumed by the bridge.
+         * @deprecated this will go away with multiple streams support
+         * @type {BridgeVideoType}
+         * @private
+         */
+        this._videoType = BridgeVideoType.NONE;
 
         // Switch audio output device on all remote audio tracks. Local audio
         // tracks handle this event by themselves.
@@ -209,7 +213,6 @@ export default class RTC extends Listenable {
     static obtainAudioAndVideoPermissions(options) {
         return RTCUtils.obtainAudioAndVideoPermissions(options)
             .then(tracksInfo => _createLocalTracks(tracksInfo));
-
     }
 
     /**
@@ -242,7 +245,7 @@ export default class RTC extends Listenable {
                 try {
                     this._channel.sendSelectedEndpointsMessage(this._selectedEndpoints);
                 } catch (error) {
-                    logError(error, 'SelectedEndpointsChangedEvent', this._selectedEndpoint);
+                    logError(error, 'SelectedEndpointsChangedEvent', this._selectedEndpoints);
                 }
             }
             if (typeof this._maxFrameHeight !== 'undefined') {
@@ -259,10 +262,12 @@ export default class RTC extends Listenable {
                     logError(error, 'LastNChangedEvent', this._lastN);
                 }
             }
-            try {
-                this._channel.sendVideoTypeMessage(this._videoType);
-            } catch (error) {
-                logError(error, 'VideoTypeMessage', this._videoType);
+            if (!FeatureFlags.isSourceNameSignalingEnabled()) {
+                try {
+                    this._channel.sendVideoTypeMessage(this._videoType);
+                } catch (error) {
+                    logError(error, 'VideoTypeMessage', this._videoType);
+                }
             }
 
             this.removeListener(RTCEvents.DATA_CHANNEL_OPEN, this._channelOpenListener);
@@ -331,6 +336,15 @@ export default class RTC extends Listenable {
     }
 
     /**
+     * Sets the capture frame rate to be used for desktop tracks.
+     *
+     * @param {number} maxFps framerate to be used for desktop track capture.
+     */
+    setDesktopSharingFrameRate(maxFps) {
+        RTCUtils.setDesktopSharingFrameRate(maxFps);
+    }
+
+    /**
      * Sets the receiver video constraints that determine how bitrate is allocated to each of the video streams
      * requested from the bridge. The constraints are cached and sent through the bridge channel once the channel
      * is established.
@@ -375,6 +389,17 @@ export default class RTC extends Listenable {
             if (this._channel && this._channel.isOpen()) {
                 this._channel.sendVideoTypeMessage(videoType);
             }
+        }
+    }
+
+    /**
+     * Sends the track's  video type to the JVB.
+     * @param {SourceName} sourceName - the track's source name.
+     * @param {BridgeVideoType} videoType - the track's video type.
+     */
+    sendSourceVideoType(sourceName, videoType) {
+        if (this._channel && this._channel.isOpen()) {
+            this._channel.sendSourceVideoTypeMessage(sourceName, videoType);
         }
     }
 
@@ -429,28 +454,19 @@ export default class RTC extends Listenable {
 
     /**
      * Creates new <tt>TraceablePeerConnection</tt>
-     * @param {SignalingLayer} signaling The signaling layer that will
-     *      provide information about the media or participants which is not
-     *      carried over SDP.
-     * @param {object} iceConfig An object describing the ICE config like
-     *      defined in the WebRTC specification.
-     * @param {boolean} isP2P Indicates whether or not the new TPC will be used
-     *      in a peer to peer type of session.
+     * @param {SignalingLayer} signaling The signaling layer that will provide information about the media or
+     * participants which is not carried over SDP.
+     * @param {object} pcConfig The {@code RTCConfiguration} to use for the WebRTC peer connection.
+     * @param {boolean} isP2P Indicates whether or not the new TPC will be used in a peer to peer type of session.
      * @param {object} options The config options.
      * @param {boolean} options.enableInsertableStreams - Set to true when the insertable streams constraints is to be
      * enabled on the PeerConnection.
-     * @param {boolean} options.disableSimulcast If set to 'true' will disable
-     *      the simulcast.
-     * @param {boolean} options.disableRtx If set to 'true' will disable the
-     *      RTX.
-     * @param {boolean} options.disableH264 If set to 'true' H264 will be
-     *      disabled by removing it from the SDP.
-     * @param {boolean} options.preferH264 If set to 'true' H264 will be
-     *      preferred over other video codecs.
+     * @param {boolean} options.disableSimulcast If set to 'true' will disable the simulcast.
+     * @param {boolean} options.disableRtx If set to 'true' will disable the RTX.
      * @param {boolean} options.startSilent If set to 'true' no audio will be sent or received.
      * @return {TraceablePeerConnection}
      */
-    createPeerConnection(signaling, iceConfig, isP2P, options) {
+    createPeerConnection(signaling, pcConfig, isP2P, options) {
         const pcConstraints = JSON.parse(JSON.stringify(RTCUtils.pcConstraints));
 
         if (typeof options.abtestSuspendVideo !== 'undefined') {
@@ -460,30 +476,27 @@ export default class RTC extends Listenable {
                 { abtestSuspendVideo: options.abtestSuspendVideo });
         }
 
-        // FIXME: We should rename iceConfig to pcConfig.
-
         if (options.enableInsertableStreams) {
             logger.debug('E2EE - setting insertable streams constraints');
-            iceConfig.encodedInsertableStreams = true;
-            iceConfig.forceEncodedAudioInsertableStreams = true; // legacy, to be removed in M88.
-            iceConfig.forceEncodedVideoInsertableStreams = true; // legacy, to be removed in M88.
+            pcConfig.encodedInsertableStreams = true;
         }
 
         const supportsSdpSemantics = browser.isReactNative()
             || (browser.isChromiumBased() && !options.usesUnifiedPlan);
 
         if (supportsSdpSemantics) {
-            iceConfig.sdpSemantics = 'plan-b';
+            logger.debug('WebRTC application is running in plan-b mode');
+            pcConfig.sdpSemantics = 'plan-b';
         }
 
         if (options.forceTurnRelay) {
-            iceConfig.iceTransportPolicy = 'relay';
+            pcConfig.iceTransportPolicy = 'relay';
         }
 
         // Set the RTCBundlePolicy to max-bundle so that only one set of ice candidates is generated.
         // The default policy generates separate ice candidates for audio and video connections.
         // This change is necessary for Unified plan to work properly on Chrome and Safari.
-        iceConfig.bundlePolicy = 'max-bundle';
+        pcConfig.bundlePolicy = 'max-bundle';
 
         peerConnectionIdCounter = safeCounterIncrement(peerConnectionIdCounter);
 
@@ -492,7 +505,7 @@ export default class RTC extends Listenable {
                 this,
                 peerConnectionIdCounter,
                 signaling,
-                iceConfig, pcConstraints,
+                pcConfig, pcConstraints,
                 isP2P, options);
 
         this.peerConnections.set(newConnection.id, newConnection);
@@ -895,11 +908,11 @@ export default class RTC extends Listenable {
         }
     }
 
-    setPerceptibles(value){
+    setPerceptibles(perceptibles){
         if (this._channel && this._channel.isOpen()) {
-            this._channel.sendSetPercieveEventMessage(value);
+            this._channel.sendSetPerceptiblesEventMessage(perceptibles);
         }
-        this.eventEmitter.emit(RTCEvents.PERCEPTIBLES_CHANGED, value);
+        this.eventEmitter.emit(RTCEvents.PERCEPTIBLES_CHANGED, perceptibles);
     }
 
     /**
