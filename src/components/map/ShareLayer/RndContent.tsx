@@ -58,6 +58,8 @@ import {ShareDialog} from '@components/footer/share/ShareDialog'
 //import {ShareMenu} from '../../footer/share/Menu'
 //import {Step} from '../../footer/share/Step'
 
+//import { getMenuStatus } from '@components/map/Base/Base'
+
 
 const MOUSE_RIGHT = 2
 //const TIMER_DELAY = 1 * 1000 // For 3 secs
@@ -389,8 +391,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDrag: ({down, delta, event, xy, buttons}) => {
       //console.log('onDragTitle:', delta, buttons)
 
+
+
       // checking the drag item
-      if(props.content.ownerName !== participants.local.information.name) return
+      //if(props.content.ownerName !== participants.local.information.name) return
 
       if(isFixed) {return}
       if(showTitle) {return}
@@ -406,7 +410,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //console.log(`dragStart delta=${delta}  buttons=${buttons}`)
 
+
+
       if(showTitle) {return}
+
+
 
       setDragging(true)
       member.buttons = buttons
@@ -643,7 +651,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         const _mTimer = setTimeout(function() {
           clearTimeout(_mTimer)
           //console.log("Enter timer")
-          if(props.content.ownerName === participants.local.information.name) {
+          //if(props.content.ownerName === participants.local.information.name) {
             if(member._down && showTitle === false) {
 
               //member.downPos = Number(Object(arg.nativeEvent).layerY)
@@ -671,7 +679,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               setShowTitle(true)
               //setEditing(false)
             }
-          }
+          //}
         },500)
         //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
       }
@@ -724,7 +732,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
     //console.log('onDragBody:', args.delta)
-    if(props.content.ownerName !== participants.local.information.name) return
+
+
+    //if(props.content.ownerName !== participants.local.information.name) return
 
     //if (isFixed || map.keyInputUsers.has(props.content.id)) { return }
     //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
@@ -741,6 +751,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     //if(isFixed && showTitle) {
 
 
+
     handlerForTitle.onDrag?.call(this, args)
 
 
@@ -748,7 +759,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
-    if(props.content.ownerName !== participants.local.information.name) return
+    //if(props.content.ownerName !== participants.local.information.name) return
 
     //console.log(showTitle, " checking edit section")
 
@@ -759,14 +770,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     setResizeBasePos(pose.position)
   }
   function onResizeStop(){
-    if(props.content.ownerName !== participants.local.information.name) return
+    //if(props.content.ownerName !== participants.local.information.name) return
     if(showTitle) {return}
     if (!member.dragCanceled){ updateHandler() }
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
 
-    if(props.content.ownerName !== participants.local.information.name) return
+    //if(props.content.ownerName !== participants.local.information.name) return
     if(showTitle) {return}
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)

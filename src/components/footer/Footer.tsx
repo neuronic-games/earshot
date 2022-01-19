@@ -291,9 +291,12 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
     //participants.local.muteVideo = !mute.muteV
     //participants.local.saveMediaSettingsToStorage()
 
-    console.log(mute.remoteStream, " .. in footer")
+    console.log(mute.remoteStream, " .. in footer ", mute.lStream, " : ", !mute.muteV)
+
+
     if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
-      if(!mute.muteV) {
+      //if(mute.lStream !== undefined) {
+      if(!mute.muteV && vidStream === false) {
         participants.local.muteVideo = !mute.muteV
         participants.local.saveMediaSettingsToStorage()
         if(vidStream) {
@@ -301,6 +304,7 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
         } else {
           setVidStream(true)
         }
+        //setVidStream(true)
       }
     }
 
@@ -500,6 +504,15 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
       }
     }
 
+    /* function toggleAllStream() {
+      console.log("toggle stream")
+      for (const [i] of remotes.entries()) {
+        if(participants.remote.get(remotes[i])?.showVideo) {
+          participants.remote.get(remotes[i])?.muteVideo
+        }
+      }
+    } */
+
     //  Device list update when the user clicks to show the menu
     const fabSize = props.height
     const iconSize = props.height ? props.height * 0.7 : 36
@@ -675,8 +688,13 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
               let timeDiff = member.upTime - member.downTime;
               if(timeDiff > 1) {
               } else {
+
+                //toggleAllStream()
+
                 participants.local.muteVideo = !mute.muteV
                 participants.local.saveMediaSettingsToStorage()
+
+
                 //setVidStream(false)
               }
            //}

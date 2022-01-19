@@ -110,6 +110,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //const {map, participants} = props.stores
   const {participants} = props.stores
 
+  //console.log("Zone Stream class")
 
 
   //const inzone = useObserver(() => participants.local.zone?.zone)
@@ -128,7 +129,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //console.log(remotes[0])
 //let pp:RemoteParticipant | undefined
 
-let userIndex:number = 0;
+  let userIndex:number = 0;
   for (const [i] of remotes.entries()) {
     //console.log(participants.remote.get(remotes[i])?.showVideo, " Video Status")
    //pp = participants.remote.get(remotes[i])?.showVideo
@@ -142,6 +143,8 @@ let userIndex:number = 0;
 
   const localStream = useObserver(() => Boolean(participants.local.showVideo))
   const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
+
+
 
 
   //const avStream = useObserver(() => participants.local.tracks.avatarStream)
@@ -158,7 +161,7 @@ let userIndex:number = 0;
       participants.videoBlob: undefined
  // }
 
- console.log(stream, " ------------")
+ //console.log(stream, " ------------")
 
 
 
@@ -181,11 +184,12 @@ let userIndex:number = 0;
   //  Footer collapse conrtrol
   /* function checkMouseOnBottom() {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
-  } */
+  }
 
-  //const mouseOnBottom = useObserver(checkMouseOnBottom)
-
+  const mouseOnBottom = useObserver(checkMouseOnBottom)
+ */
   useEffect(() => {
+    console.log("CHECKING")
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
