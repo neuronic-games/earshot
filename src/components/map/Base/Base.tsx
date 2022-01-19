@@ -11,7 +11,7 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
-import {getContextMenuStatus, MouseOrTouch} from '../ShareLayer/RndContent'
+import {getContextMenuStatus, MouseOrTouch, getContentLocked} from '../ShareLayer/RndContent'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import {Tooltip} from '@material-ui/core'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
@@ -266,8 +266,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.moveX = map.mouseOnMap[0]
         mem.moveY = map.mouseOnMap[1]
 
+        //console.log(getContentLocked(), "in base")
+        let itemLocked = getContentLocked()
 
-
+        if(itemLocked) {return}
         if(showUploadOption) {return}
 
         //  console.log('Base StartDrag:')

@@ -102,12 +102,19 @@ class RndContentMember{
   moveXPos = 0
   onContent = false
   onContext = false
+
+  moveX = 0
+  moveY = 0
 }
 
 // getting the status of context menu visibility
 let contextMenuStatus:boolean = false
 export function getContextMenuStatus(): boolean {
   return contextMenuStatus
+}
+let isLocaked:boolean = false
+export function getContentLocked(): boolean {
+  return isLocaked
 }
 
 //  -----------------------------------------------------------------------------------
@@ -392,6 +399,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log('onDragTitle:', delta, buttons)
 
 
+      isLocaked = props.content.pinned
+
+      //console.log(isLocaked, " LOCKED")
 
       // checking the drag item
       //if(props.content.ownerName !== participants.local.information.name) return
@@ -429,6 +439,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
       //console.log(Object(event?.target).nodeName)
       //if(showTitle) {
+
+        isLocaked = false
 
         member._down = false
         member._item = "DIV"
@@ -489,8 +501,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
 
-        if(diffTime < 1 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
-          //if(member._down === false || showTitle) returncd
+        //console.log(diffTime, " diffTi")
+
+        if(diffTime < 2 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
+          if(member._down === false || showTitle) return
           /* if(member._down) {
             const local = participants.local
             const diff = subV2(map.mouseOnMap, local.pose.position)
@@ -509,7 +523,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           setTimeout(() =>{
             function moveParticipant(move:boolean) {
               const local = participants.local
-              const diff = subV2(map.mouseOnMap, local.pose.position)
+              //const diff = subV2(map.mouseOnMap, local.pose.position)
+              const diff = subV2([member.moveX, member.moveY], local.pose.position)
               if (normV(diff) > PARTICIPANT_SIZE / 10) {
                 const dir = mulV2(normV(diff)/5 / normV(diff), diff)
                 local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
@@ -640,6 +655,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
+
+        member.moveX = map.mouseOnMap[0]
+        member.moveY = map.mouseOnMap[1]
 
         //props.content.zorder = 0x7FFF
         //console.log(participants)
