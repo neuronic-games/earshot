@@ -487,6 +487,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       },500)
     }, */
 
+    onMove:({xy}) => {
+      if(showTitle) {return}
+      const diff = subV2([xy[0], xy[1]], pose.position)
+      member.downPos = Number(diff[1])
+      member.downXPos = Number(diff[0])
+      map.setMouse(xy)
+    },
+
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {

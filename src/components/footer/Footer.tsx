@@ -296,7 +296,8 @@ if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
 
     if(mute.remoteStream !== undefined && mute.lStream !== undefined) {
       //if(mute.lStream !== undefined) {
-      if(!mute.muteV && vidStream === false) {
+        // && vidStream === false
+      if(!mute.muteV) {
         participants.local.muteVideo = !mute.muteV
         participants.local.saveMediaSettingsToStorage()
         if(vidStream) {

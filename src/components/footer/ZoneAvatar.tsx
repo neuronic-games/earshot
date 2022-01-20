@@ -193,7 +193,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
-        '250px', '250px')
+        '250', '250')
         //console.log("AAA")
         checkToggle()
     }
@@ -246,10 +246,10 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     }
     video.autoplay = true
     video.onloadedmetadata = () => {
+      console.log(video.width, " --- ", video.height)
       const settings = {
-
-        width: video.width,
-        height: video.height,
+        width: 300, //video.width,
+        height: 300, //video.height,
       }
       if (settings.width !== undefined && settings.height !== undefined) {
         video.className = settings.width >= settings.height ? videoLargerWidthClass : videoLargerHeightClass
@@ -290,13 +290,14 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     //console.log(toggleStream, " sS")
     //Please check firewall setting. Binaural Meet connect to https (port 443/TCP) and port 8801-8810/UDP or 80/TCP.
 
+    //  marginLeft:'-50px', marginTop:'-75px'
     return <Observer>{() => {
 
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef} style={{position: 'relative', marginLeft:'-50px', marginTop:'-25px'}}/>
+            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-50px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
