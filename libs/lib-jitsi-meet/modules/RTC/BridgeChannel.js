@@ -1,4 +1,4 @@
-import { getLogger } from '@jitsi/logger';
+import { getLogger } from 'jitsi-meet-logger';
 
 import RTCEvents from '../../service/RTC/RTCEvents';
 import { createBridgeChannelClosedEvent } from '../../service/statistics/AnalyticsEvents';
@@ -216,22 +216,17 @@ export default class BridgeChannel {
         });
     }
    /**
-     * Sends a perceptible message to the jvb.
+     * Sends a "perceptive endpoints value" or percieve message via the channel.
      * @param {number} value The new value for array of perceptive endpoints.
      */
-    sendSetPerceptiblesEventMessage(perceptibles) {
+    sendSetPercieveEventMessage(value) {
         const jsonObject = {
-            colibriClass: 'PerceptiblesEvent',
-            ... perceptibles
-            /*
-             *  visibleContents?:string[],
-             *  visibleParticipants?:string[],
-             *  audibles:string[],
-             */
+            colibriClass: 'PercieveEvent',
+            perceptibles: value     //  [[participant ids for video], [participant ids for audio]]
         };
 
         this._send(jsonObject);
-        logger.log('Channel PerceptiblesEvent peceptibles set to:', perceptibles);
+        logger.log('Channel PerceptEvent peceptible endpoints set to:', value);
     }
 
     /**
@@ -281,28 +276,11 @@ export default class BridgeChannel {
      * Sends a 'VideoTypeMessage' message via the bridge channel.
      *
      * @param {string} videoType 'camera', 'desktop' or 'none'.
-     * @deprecated to be replaced with sendSourceVideoTypeMessage
      */
     sendVideoTypeMessage(videoType) {
         logger.debug(`Sending VideoTypeMessage with video type as ${videoType}`);
         this._send({
             colibriClass: 'VideoTypeMessage',
-            videoType
-        });
-    }
-
-    /**
-     * Sends a 'VideoTypeMessage' message via the bridge channel.
-     *
-     * @param {BridgeVideoType} videoType - the video type.
-     * @param {SourceName} sourceName - the source name of the video track.
-     * @returns {void}
-     */
-    sendSourceVideoTypeMessage(sourceName, videoType) {
-        logger.info(`Sending SourceVideoTypeMessage with video type ${sourceName}: ${videoType}`);
-        this._send({
-            colibriClass: 'SourceVideoTypeMessage',
-            sourceName,
             videoType
         });
     }

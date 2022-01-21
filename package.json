@@ -58,8 +58,8 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
-    "link-lib-jitsi-meet": "cd libs/lib-jitsi-meet; yarn link; cd ../../; yarn link lib-jitsi-meet",
-    "link-typing-lib-jitsi-meet": "cd libs/@types/lib-jitsi-meet; yarn link; cd ../../../; yarn link @types/lib-jitsi-meet",
+    "link-lib-jitsi-meet": "cd libs/lib-jitsi-meet; yarn link; cd ../..; yarn link lib-jitsi-meet",
+    "link-typing-lib-jitsi-meet": "cd libs/@types/lib-jitsi-meet; yarn link; cd ../../..; yarn link @types/lib-jitsi-meet",
     "link-lib": "yarn run link-lib-jitsi-meet;yarn run link-typing-lib-jitsi-meet"
   },
   "eslintConfig": {

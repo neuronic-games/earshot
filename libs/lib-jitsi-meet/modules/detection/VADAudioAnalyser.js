@@ -1,5 +1,5 @@
-import { getLogger } from '@jitsi/logger';
 import { EventEmitter } from 'events';
+import { getLogger } from 'jitsi-meet-logger';
 
 import * as JitsiConferenceEvents from '../../JitsiConferenceEvents';
 
@@ -100,11 +100,9 @@ export default class VADAudioAnalyser extends EventEmitter {
      * @returns {void}
      */
     _startVADEmitter() {
-        if (this._vadEmitter) {
-            this._vadEmitter.on(VAD_SCORE_PUBLISHED, this._processVADScore);
-            this._vadEmitter.start();
-            this._isVADEmitterRunning = true;
-        }
+        this._vadEmitter.on(VAD_SCORE_PUBLISHED, this._processVADScore);
+        this._vadEmitter.start();
+        this._isVADEmitterRunning = true;
     }
 
     /**
@@ -112,10 +110,8 @@ export default class VADAudioAnalyser extends EventEmitter {
      * @returns {void}
      */
     _stopVADEmitter() {
-        if (this._vadEmitter) {
-            this._vadEmitter.removeListener(VAD_SCORE_PUBLISHED, this._processVADScore);
-            this._vadEmitter.stop();
-        }
+        this._vadEmitter.removeListener(VAD_SCORE_PUBLISHED, this._processVADScore);
+        this._vadEmitter.stop();
         this._isVADEmitterRunning = false;
     }
 

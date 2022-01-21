@@ -1,6 +1,6 @@
 /* global $ */
 
-import { getLogger } from '@jitsi/logger';
+import { getLogger } from 'jitsi-meet-logger';
 import { $msg, Strophe } from 'strophe.js';
 import 'strophejs-plugin-disco';
 
@@ -9,7 +9,6 @@ import * as JitsiConnectionEvents from '../../JitsiConnectionEvents';
 import XMPPEvents from '../../service/xmpp/XMPPEvents';
 import browser from '../browser';
 import { E2EEncryption } from '../e2ee/E2EEncryption';
-import Statistics from '../statistics/statistics';
 import GlobalOnErrorHandler from '../util/GlobalOnErrorHandler';
 import Listenable from '../util/Listenable';
 import RandomUtil from '../util/RandomUtil';
@@ -176,7 +175,7 @@ export default class XMPP extends Listenable {
 
         this._initStrophePlugins();
 
-        this.caps = new Caps(this.connection, /* clientNode */ 'https://jitsi.org/jitsi-meet');
+        this.caps = new Caps(this.connection, this.options.clientNode);
 
         // Initialize features advertised in disco-info
         this.initFeaturesList();
@@ -186,7 +185,7 @@ export default class XMPP extends Listenable {
         // they wanted to utilize the connected connection in an unload handler
         // of their own. However, it should be fairly easy for them to do that
         // by registering their unload handler before us.
-        $(window).on(`${this.options.disableBeforeUnloadHandlers ? '' : 'beforeunload '}unload`, ev => {
+        $(window).on('beforeunload unload', ev => {
             this.disconnect(ev).catch(() => {
                 // ignore errors in order to not brake the unload.
             });
@@ -207,9 +206,10 @@ export default class XMPP extends Listenable {
         this.caps.addFeature('urn:xmpp:jingle:transports:dtls-sctp:1');
         this.caps.addFeature('urn:xmpp:jingle:apps:rtp:audio');
         this.caps.addFeature('urn:xmpp:jingle:apps:rtp:video');
-        this.caps.addFeature('http://jitsi.org/json-encoded-sources');
 
-        if (!(this.options.disableRtx || !browser.supportsRTX())) {
+        // Disable RTX on Firefox 83 and older versions because of
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1668028
+        if (!(this.options.disableRtx || (browser.isFirefox() && browser.isVersionLessThan(84)))) {
             this.caps.addFeature('urn:ietf:rfc:4588');
         }
         if (this.options.enableOpusRed === true && browser.supportsAudioRed()) {
@@ -279,7 +279,6 @@ export default class XMPP extends Listenable {
             now);
 
         this.eventEmitter.emit(XMPPEvents.CONNECTION_STATUS_CHANGED, credentials, status, msg);
-        this._maybeSendDeploymentInfoStat();
         if (status === Strophe.Status.CONNECTED || status === Strophe.Status.ATTACHED) {
             // once connected or attached we no longer need this handle, drop it if it exist
             if (this._sysMessageHandler) {
@@ -294,8 +293,6 @@ export default class XMPP extends Listenable {
             // XmppConnection emits CONNECTED again on reconnect - a good opportunity to clear any "last error" flags
             this._resetState();
 
-            // make sure we will send the info after the features request succeeds or fails
-            this.sendDeploymentInfo = false;
             this.sendDiscoInfo && this.caps.getFeaturesAndIdentities(this.options.hosts.domain)
                 .then(({ features, identities }) => {
                     if (!features.has(Strophe.NS.PING)) {
@@ -312,8 +309,6 @@ export default class XMPP extends Listenable {
                     GlobalOnErrorHandler.callErrorHandler(
                         new Error(`${errmsg}: ${error}`));
                     logger.error(errmsg, error);
-
-                    this._maybeSendDeploymentInfoStat(true);
                 });
 
             // make sure we don't query again
@@ -445,21 +440,7 @@ export default class XMPP extends Listenable {
                         .catch(e => logger.warn('Error getting features from lobby.', e && e.message));
                 }
             }
-
-            if (identity.type === 'shard') {
-                this.options.deploymentInfo.shard = this.connection.shard = identity.name;
-            }
-
-            if (identity.type === 'region') {
-                this.options.deploymentInfo.region = this.connection.region = identity.name;
-            }
-
-            if (identity.type === 'breakout_rooms') {
-                this.breakoutRoomsComponentAddress = identity.name;
-            }
         });
-
-        this._maybeSendDeploymentInfoStat(true);
 
         if (this.avModerationComponentAddress
             || this.speakerStatsComponentAddress
@@ -521,7 +502,6 @@ export default class XMPP extends Listenable {
 
         // we want to send this only on the initial connect
         this.sendDiscoInfo = true;
-        this.sendDeploymentInfo = true;
 
         if (this.connection._stropheConn && this.connection._stropheConn._addSysHandler) {
             this._sysMessageHandler = this.connection._stropheConn._addSysHandler(
@@ -561,6 +541,13 @@ export default class XMPP extends Listenable {
         const { features, identities } = parseDiscoInfo(msg);
 
         this._processDiscoInfoIdentities(identities, features);
+
+        // check for shard name in identities
+        identities.forEach(i => {
+            if (i.type === 'shard') {
+                this.options.deploymentInfo.shard = i.name;
+            }
+        });
 
         if (foundIceServers || identities.size > 0 || features.size > 0) {
             this.connection._stropheConn.deleteHandler(this._sysMessageHandler);
@@ -649,11 +636,10 @@ export default class XMPP extends Listenable {
      * @returns {Promise} Resolves with an instance of a strophe muc.
      */
     createRoom(roomName, options, onCreateResource) {
-        // Support passing the domain in a String object as part of the room name.
-        const domain = roomName.domain || options.customDomain;
-
         // There are cases (when using subdomain) where muc can hold an uppercase part
-        let roomjid = `${this.getRoomJid(roomName, domain)}/`;
+        let roomjid = `${roomName}@${options.customDomain
+            ? options.customDomain : this.options.hosts.muc.toLowerCase()}/`;
+
         const mucNickname = onCreateResource
             ? onCreateResource(this.connection.jid, this.authenticatedUser)
             : RandomUtil.randomHexString(8).toLowerCase();
@@ -662,27 +648,6 @@ export default class XMPP extends Listenable {
         roomjid += mucNickname;
 
         return this.connection.emuc.createRoom(roomjid, null, options);
-    }
-
-    /**
-     * Returns the room JID based on the passed room name and domain.
-     *
-     * @param {string} roomName - The room name.
-     * @param {string} domain - The domain.
-     * @returns {string} - The room JID.
-     */
-    getRoomJid(roomName, domain) {
-        return `${roomName}@${domain ? domain : this.options.hosts.muc.toLowerCase()}`;
-    }
-
-    /**
-     * Check if a room with the passed JID is already created.
-     *
-     * @param {string} roomJid - The JID of the room.
-     * @returns {boolean}
-     */
-    isRoomCreated(roomName, domain) {
-        return this.connection.emuc.isRoomCreated(this.getRoomJid(roomName, domain));
     }
 
     /**
@@ -907,29 +872,6 @@ export default class XMPP extends Listenable {
     }
 
     /**
-     * Sends facial expression to speaker stats component.
-     * @param {String} roomJid - The room jid where the speaker event occurred.
-     * @param {Object} payload - The expression to be sent to the speaker stats.
-     */
-    sendFacialExpressionEvent(roomJid, payload) {
-        // no speaker stats component advertised
-        if (!this.speakerStatsComponentAddress || !roomJid) {
-            return;
-        }
-
-        const msg = $msg({ to: this.speakerStatsComponentAddress });
-
-        msg.c('facialExpression', {
-            xmlns: 'http://jitsi.org/jitmeet',
-            room: roomJid,
-            expression: payload.facialExpression,
-            duration: payload.duration
-        }).up();
-
-        this.connection.send(msg);
-    }
-
-    /**
      * Check if the given argument is a valid JSON ENDPOINT_MESSAGE string by
      * parsing it and checking if it has a field called 'type'.
      *
@@ -985,8 +927,7 @@ export default class XMPP extends Listenable {
 
         if (!(from === this.speakerStatsComponentAddress
             || from === this.conferenceDurationComponentAddress
-            || from === this.avModerationComponentAddress
-            || from === this.breakoutRoomsComponentAddress)) {
+            || from === this.avModerationComponentAddress)) {
             return true;
         }
 
@@ -1004,51 +945,8 @@ export default class XMPP extends Listenable {
             this.eventEmitter.emit(XMPPEvents.CONFERENCE_TIMESTAMP_RECEIVED, parsedJson.created_timestamp);
         } else if (parsedJson[JITSI_MEET_MUC_TYPE] === 'av_moderation') {
             this.eventEmitter.emit(XMPPEvents.AV_MODERATION_RECEIVED, parsedJson);
-        } else if (parsedJson[JITSI_MEET_MUC_TYPE] === 'breakout_rooms') {
-            this.eventEmitter.emit(XMPPEvents.BREAKOUT_ROOMS_EVENT, parsedJson);
         }
 
         return true;
-    }
-
-    /**
-     * Sends deployment info to stats if not sent already.
-     * We want to try sending it on failure to connect
-     * or when we get a sys message(from jiconop2)
-     * or after success or failure of disco-info
-     * @param force Whether to force sending without checking anything.
-     * @private
-     */
-    _maybeSendDeploymentInfoStat(force) {
-        const acceptedStatuses = [
-            Strophe.Status.ERROR,
-            Strophe.Status.CONNFAIL,
-            Strophe.Status.AUTHFAIL,
-            Strophe.Status.DISCONNECTED,
-            Strophe.Status.CONNTIMEOUT
-        ];
-
-        if (!force && !(acceptedStatuses.includes(this.connection.status) && this.sendDeploymentInfo)) {
-            return;
-        }
-
-        // Log deployment-specific information, if available. Defined outside
-        // the application by individual deployments
-        const aprops = this.options.deploymentInfo;
-
-        if (aprops && Object.keys(aprops).length > 0) {
-            const logObject = {};
-
-            logObject.id = 'deployment_info';
-            for (const attr in aprops) {
-                if (aprops.hasOwnProperty(attr)) {
-                    logObject[attr] = aprops[attr];
-                }
-            }
-
-            Statistics.sendLog(JSON.stringify(logObject));
-        }
-
-        this.sendDeploymentInfo = false;
     }
 }

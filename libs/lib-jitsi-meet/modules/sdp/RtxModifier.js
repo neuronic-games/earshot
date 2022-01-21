@@ -1,4 +1,6 @@
-import { getLogger } from '@jitsi/logger';
+/* global __filename */
+
+import { getLogger } from 'jitsi-meet-logger';
 
 import SDPUtil from './SDPUtil';
 import { parseSecondarySSRC, SdpTransformWrap } from './SdpTransformUtil';

@@ -1,4 +1,5 @@
-import { getLogger } from '@jitsi/logger';
+/* global __filename */
+import { getLogger } from 'jitsi-meet-logger';
 import isEqual from 'lodash.isequal';
 
 import * as ConferenceEvents from '../../JitsiConferenceEvents';

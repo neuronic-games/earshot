@@ -1,5 +1,5 @@
 
-import { getLogger } from '@jitsi/logger';
+import { getLogger } from 'jitsi-meet-logger';
 
 import * as JitsiConferenceEvents from '../../JitsiConferenceEvents';
 import CodecMimeType from '../../service/RTC/CodecMimeType';
@@ -47,7 +47,9 @@ export class CodecSelection {
         logger.debug(`Codec preferences for the conference are JVB: ${this.jvbPreferredCodec},
             P2P: ${this.p2pPreferredCodec}`);
 
-        if (this.jvbPreferredCodec === CodecMimeType.VP9 && !browser.supportsVP9()) {
+        // Do not prefer VP9 on Firefox because of the following bug.
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1633876
+        if (browser.isFirefox() && this.jvbPreferredCodec === CodecMimeType.VP9) {
             this.jvbPreferredCodec = CodecMimeType.VP8;
         }
 
@@ -124,20 +126,17 @@ export class CodecSelection {
      */
     _selectPreferredCodec(mediaSession = null, preferredCodec = null, disabledCodec = null) {
         const session = mediaSession ? mediaSession : this.conference.jvbJingleSession;
-        const currentCodec = preferredCodec ? preferredCodec : this.jvbPreferredCodec;
-        let selectedCodec = currentCodec;
+        const codec = preferredCodec ? preferredCodec : this.jvbPreferredCodec;
+        let selectedCodec = codec;
 
         if (session && !session.isP2P && !this.options.enforcePreferredCodec) {
             const remoteParticipants = this.conference.getParticipants().map(participant => participant.getId());
 
             for (const remote of remoteParticipants) {
-                const peerMediaInfo = session._signalingLayer.getPeerMediaInfo(remote, MediaType.VIDEO);
-                const peerCodec = peerMediaInfo?.codecType;
+                const peerMediaInfo = session.signalingLayer.getPeerMediaInfo(remote, MediaType.VIDEO);
 
-                if (peerCodec
-                    && peerCodec !== currentCodec
-                    && (peerCodec !== CodecMimeType.VP9 || browser.supportsVP9())) {
-                    selectedCodec = peerCodec;
+                if (peerMediaInfo && peerMediaInfo.codecType && peerMediaInfo.codecType !== codec) {
+                    selectedCodec = peerMediaInfo.codecType;
                 }
             }
         }

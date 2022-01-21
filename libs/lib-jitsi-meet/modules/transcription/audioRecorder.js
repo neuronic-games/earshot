@@ -1,3 +1,5 @@
+/* global MediaRecorder, MediaStream */
+
 const RecordingResult = require('./recordingResult');
 
 /**

@@ -37,9 +37,9 @@ const RATCHET_WINDOW_SIZE = 8;
  */
 export class Context {
     /**
-     * @param {Object} options
+     * @param {string} id - local muc resourcepart
      */
-    constructor({ sharedKey = false } = {}) {
+    constructor(id) {
         // An array (ring) of keys that we use for sending and receiving.
         this._cryptoKeyRing = new Array(KEYRING_SIZE);
 
@@ -48,7 +48,7 @@ export class Context {
 
         this._sendCounts = new Map();
 
-        this._sharedKey = sharedKey;
+        this._id = id;
     }
 
     /**
@@ -57,20 +57,18 @@ export class Context {
      * @param {Uint8Array|false} key bytes. Pass false to disable.
      * @param {Number} keyIndex
      */
-    async setKey(key, keyIndex = -1) {
-        let newKey = false;
+    async setKey(keyBytes, keyIndex) {
+        let newKey;
 
-        if (key) {
-            if (this._sharedKey) {
-                newKey = key;
-            } else {
-                const material = await importKey(key);
+        if (keyBytes) {
+            const material = await importKey(keyBytes);
 
-                newKey = await deriveKeys(material);
-            }
+            newKey = await deriveKeys(material);
+        } else {
+            newKey = false;
         }
-
-        this._setKeys(newKey, keyIndex);
+        this._currentKeyIndex = keyIndex % this._cryptoKeyRing.length;
+        this._setKeys(newKey);
     }
 
     /**
@@ -82,11 +80,10 @@ export class Context {
      */
     _setKeys(keys, keyIndex = -1) {
         if (keyIndex >= 0) {
-            this._currentKeyIndex = keyIndex % this._cryptoKeyRing.length;
+            this._cryptoKeyRing[keyIndex] = keys;
+        } else {
+            this._cryptoKeyRing[this._currentKeyIndex] = keys;
         }
-
-        this._cryptoKeyRing[this._currentKeyIndex] = keys;
-
         this._sendCount = BigInt(0); // eslint-disable-line new-cap
     }
 
@@ -210,7 +207,6 @@ export class Context {
     async _decryptFrame(
             encodedFrame,
             keyIndex,
-            initialKey = undefined,
             ratchetCount = 0) {
 
         const { encryptionKey } = this._cryptoKeyRing[keyIndex];
@@ -254,10 +250,6 @@ export class Context {
 
             encodedFrame.data = newData;
         } catch (error) {
-            if (this._sharedKey) {
-                return encodedFrame;
-            }
-
             if (ratchetCount < RATCHET_WINDOW_SIZE) {
                 material = await importKey(await ratchet(material));
 
@@ -268,17 +260,8 @@ export class Context {
                 return await this._decryptFrame(
                     encodedFrame,
                     keyIndex,
-                    initialKey || this._cryptoKeyRing[this._currentKeyIndex],
                     ratchetCount + 1);
             }
-
-            /**
-             * Since the key it is first send and only afterwards actually used for encrypting, there were
-             * situations when the decrypting failed due to the fact that the received frame was not encrypted
-             * yet and ratcheting, of course, did not solve the problem. So if we fail RATCHET_WINDOW_SIZE times,
-             * we come back to the initial key.
-             */
-            this._setKeys(initialKey);
 
             // TODO: notify the application about error status.
         }

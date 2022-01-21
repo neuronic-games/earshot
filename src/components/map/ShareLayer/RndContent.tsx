@@ -79,6 +79,7 @@ interface StyleProps{
   pose: Pose2DMap,
   size: [number, number],
   showTitle: boolean,
+  showBorder: boolean,
   pinned: boolean,
   dragging: boolean,
   editing: boolean,
@@ -230,10 +231,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     ev.preventDefault()
   }
 
-  function onClickShare(evt: MouseOrTouch) {
+  /* function onClickShare(evt: MouseOrTouch) {
     stop(evt)
     props.onShare?.call(null, evt)
-  }
+  } */
   function onClickClose(evt: MouseOrTouch) {
     stop(evt)
     props.onClose?.call(null, evt)
@@ -846,7 +847,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
 
-  const classes = useStyles({props, pose, size, showTitle, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay})
+  const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
   const formRef = React.useRef<HTMLDivElement>(null)
@@ -871,8 +872,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       {/* <div style={{marginLeft: '37.55%', textAlign:'center', backgroundColor:'#eab676', padding:'5px', marginBottom:'5px', width:'25%'}}>{props.content.name}</div> */}
       {/* <div className={classes.nameContainer}>{props.content.name}</div> */}
         <Content {...props}/>
-        <div className={showBorder ? classes.dashed : undefined}></div>
         <div className={classes.nameContainer}>{props.content.name}</div>
+        <div className={showBorder ? classes.dashed : undefined}></div>
+
       </div>
 
       <div className={classes.titlePosition} {...gestureForTitle() /* title can be placed out of Rnd */}>
@@ -970,7 +972,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           <SharedContentForm open={showForm} {...props} close={onCloseForm}
             anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
           />
-          <div className={classes.note} onMouseUp={onClickShare} onTouchStart={stop} onMouseLeave={onLeaveIcon}>Share</div>
+
+          {/* <div className={classes.note} onMouseUp={onClickShare} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+
+          </div> */}
          {/*  {props.content.pinned ? undefined : */}
             <div className={classes.close} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
               {/* <CloseRoundedIcon /> */}
@@ -1174,7 +1179,7 @@ const useStyles = makeStyles({
     borderStyle: 'dashed',
     borderColor:'red',
     borderRadius:0,
-    top: ((-(props.size[1])) - 6) + "px",
+    top: (props.props.content.showTitle ? '-5px' : ((-(props.size[1])) - 6) + "px"),
     left: '-6px',
   }),
 
@@ -1219,7 +1224,7 @@ const useStyles = makeStyles({
     left: props.props.content.shareType === 'img' ? 22 : -20, */
 
     top: 20,
-    left: -20,
+    left: 31,
 
     //backgroundColor: 'transparent',
     background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
@@ -1357,9 +1362,13 @@ const useStyles = makeStyles({
   }),
   note: (props:StyleProps) => (
     props.showTitle ? {
-      visibility: props.props.onShare ? 'visible' : 'hidden',
+      //visibility: props.props.onShare ? 'visible' : 'hidden',
+      visibility: 'hidden',
       whiteSpace: 'pre',
-      borderRadius: '0.5em 0 0 0',
+      //borderRadius: '0.5em 0 0 0',
+      position: 'relative',
+      top: 143,
+      left: 170,
       ...buttonStyle,
     } : {
       visibility: 'hidden',

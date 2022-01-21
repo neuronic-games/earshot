@@ -1,5 +1,7 @@
-import { getLogger } from '@jitsi/logger';
+/* global __filename */
+
 import async from 'async';
+import { getLogger } from 'jitsi-meet-logger';
 
 const logger = getLogger(__filename);
 
@@ -29,7 +31,7 @@ export default class AsyncQueue {
         try {
             task(finishedCallback);
         } catch (error) {
-            logger.error(`Task failed: ${error?.stack}`);
+            logger.error(`Task failed: ${error}`);
             finishedCallback(error);
         }
     }

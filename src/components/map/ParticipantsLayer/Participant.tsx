@@ -171,6 +171,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
 
+
   //const pcount = useObserver(() => props.stores.participants.count)
 
   //console.log(inZone, " zone ")
@@ -215,8 +216,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     onPointerDown: onClickEye,
   } */
 
+  //console.log(audioLevel, " audioLevel ")
+
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-  const audioMeter = audioMeterSteps.map(step => audioLevel > step ?
+  const audioMeter = audioMeterSteps.map(step => (audioLevel > step && inZone !== 'close') ?
     <React.Fragment key={step}>
       <circle r={props.size * HALF + step * AUDIOLEVELSCALE} cy={svgCenter} cx={svgCenter}
         stroke={color} fill="none" opacity={0.4 * (1 - step)} strokeDasharray="4 4 4 24" />
@@ -236,8 +239,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       <div className={classes.pointerRotate}>
         <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
           <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={color} />
-         {/*  {audioMeter} */}
-         {inZone === undefined ? audioMeter : undefined}
+          {audioMeter}
+        {/*  {inZone === undefined ? audioMeter : undefined} */}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
             <g transform={`translate(${svgCenter} ${svgCenter}) rotate(-135) `}>
               <rect style={{pointerEvents: 'fill'}}

@@ -1,6 +1,6 @@
 /* global $ */
 
-import { getLogger } from '@jitsi/logger';
+import { getLogger } from 'jitsi-meet-logger';
 import { $iq } from 'strophe.js';
 
 import ConnectionPlugin from './ConnectionPlugin';
