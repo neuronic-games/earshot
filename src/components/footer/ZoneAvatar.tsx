@@ -262,7 +262,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //  keyboard shortcut
   useEffect(() => {
-    console.log(videoRef?.current, "mask")
+    //console.log(videoRef?.current, "mask")
 
     /* window.addEventListener('click', (ev) => {
       //checkZone()
@@ -297,7 +297,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-50px'}}/>
+            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-20px', marginLeft:'-30px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',

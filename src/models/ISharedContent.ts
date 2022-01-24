@@ -3,7 +3,7 @@ import {MapObject} from './MapObject'
 const MAXIMIZABLE_IMAGE_MIN_WIDTH = 200
 
 export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
-  'gdrive' | 'whiteboard' | ''
+  'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' |  ''
 
 export interface SharedContentInfoData {
   name: string                    //  name or title of the content.
@@ -24,7 +24,7 @@ export function isEqualSharedContentInfo(a:SharedContentInfo, b:SharedContentInf
 }
 export function extractSharedContentInfo(c: SharedContentInfo){
   const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName,
-    color:c.color, textColor: c.textColor, type: c.type, shareType: c.shareType}
+    color:c.color, textColor: c.textColor, type: c.type,shareType: c.shareType}
 
   return rv
 }
@@ -41,6 +41,7 @@ export interface SharedContentData extends SharedContentInfoData {
   noFrame?: boolean               //  no (invisible) frame
   opacity?: number                //  opacity
   zone?: ZoneType                 //  is this a audio zone is the zone closed or open?
+  playback?: boolean              //  is playback or normal content
   showTitle:boolean               // for showing the title
 }
 

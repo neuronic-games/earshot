@@ -18,6 +18,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore'
 //import DownloadIcon from '@material-ui/icons/GetApp'
 import HttpIcon from '@material-ui/icons/Http'
 import ImageIcon from '@material-ui/icons/Image'
+//import InsertDriveFileTwoTone from '@material-ui/icons/InsertDriveFileTwoTone';
 //import UploadIcon from '@material-ui/icons/Publish'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
 import StopScreenShareIcon from '@material-ui/icons/StopScreenShare'
@@ -27,11 +28,9 @@ import {connection} from '@models/api/ConnectionDefs'
 import {ISharedContent} from '@models/ISharedContent'
 import {useTranslation} from '@models/locales'
 import {assert} from '@models/utils'
-// createContentOfText
 import {createContent, createContentFromText, createContentOfIframe,
   createContentOfTextOnly,
-  createContentOfVideo, extractContentData} from '@stores/sharedContents/SharedContentCreator'
-  // extractContentDatas
+  createContentOfVideo, extractContentData} from '@stores/sharedContents/SharedContentCreator' // createContentOfText, , extractContentDatas
 import {SharedContents} from '@stores/sharedContents/SharedContents'
 import JitsiMeetJS, {JitsiLocalTrack} from 'lib-jitsi-meet'
 import {isArray} from 'lodash'
@@ -55,18 +54,16 @@ function startCapture(props:BMProps) {
 }
 
 function downloadItems(contents:SharedContents) {
+ /*  const content = JSON.stringify(extractContentDatas(contents.all))
+  const blob = new Blob([content], {type: 'text/plain'}) */
 
   let contentAll = contents.all
   for(var i:number=0; i < contentAll.length; i++) {
     contentAll[i].ownerName = ""
   }
 
- /*  const content = JSON.stringify(extractContentDatas(contents.all))
-  const blob = new Blob([content], {type: 'text/plain'}) */
-
   const content = JSON.stringify(contentAll)
   const blob = new Blob([content], {type: 'text/plain'})
-
 
   const a = document.createElement('a')
   const url = URL.createObjectURL(blob)
@@ -74,6 +71,7 @@ function downloadItems(contents:SharedContents) {
   //a.download = 'BinauralMeetSharedItems.json'
   let roomName = sessionStorage.getItem('room')
   a.download = String(roomName) + ".json"
+
   document.body.appendChild(a)
   a.click()
   setTimeout(() => {
@@ -108,8 +106,6 @@ interface ShareMenuProps extends DialogPageProps, BMProps {
 export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   const {t} = useTranslation()
   const {contents, participants, map} = props.stores
-
-  //console.log(Object(props).cordX)
   const sharing = useObserver(() => (
     {main: contents.tracks.localMains.size, contents: contents.tracks.localContents.size}))
   const showMouse = useObserver(() => participants.local.mouse.show)
@@ -140,16 +136,13 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
   }
   const createText = () => {
     //  setStep('text')
-    //console.log("2")
     setStep('none')
-    //const tc = createContentOfText('', map)
     const tc = createContentOfTextOnly('', map, Object(props).cordX, Object(props).cordY, Object(props).origin)
     contents.shareContent(tc)
     contents.setEditing(tc.id)
   }
   const createFromClipboard = () => {
     setStep('none')
-    //console.log("1 ", props)
     navigator.clipboard.readText().then(str => {
       createContentFromText(str, map, Object(props).cordX, Object(props).cordY, Object(props).origin).then(c => {
         contents.shareContent(c)
@@ -256,6 +249,10 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
         tip = {t('shareImageTip')}
         key="shareImage" text={t('shareImage')} icon={<ImageIcon />} onClick={() => setStep('image')}
       />
+      {/* <ShareDialogItem
+        tip = {t('shareGDriveTip')}
+        key="shareGDrive" text={t('shareGDrive')} icon={<InsertDriveFileTwoTone />} onClick={() => setStep('Gdrive')}
+      /> */}
       <ShareDialogItem
         key="shareText" text={t('shareText')} icon={<SubjectIcon />} onClick={createText}
       />
@@ -340,15 +337,14 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
             text={sharing.main ? t('stopScreenBackground') : t('shareScreenBackground')}
             onClick={screenAsBackgrouond}
           />
-          {/*<Divider />
+          {/* <Divider />
           <ShareDialogItem
             key="shareImport" text={t('shareImport')} icon={<UploadIcon />} onClick={importFile}
             tip = {t('shareImportTip')}
           />
           <ShareDialogItem
             key="shareDownload" text={t('shareDownload')} icon={<DownloadIcon />} onClick={downloadFile}
-          />
-           */}
+          /> */}
         </div>
       </Collapse>
     </List>

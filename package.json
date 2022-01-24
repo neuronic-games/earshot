@@ -38,7 +38,6 @@
     "react-dom": "^17.0.2",
     "react-draggable": "^4.4.3",
     "react-i18next": "^11.8.8",
-    "react-idle-timer": "^4.6.4",
     "react-resize-observer": "^1.1.1",
     "react-rnd": "https://github.com/hasevr/react-rnd.git",
     "react-scripts": "4.0.3",
@@ -58,8 +57,8 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-scripts eject",
-    "link-lib-jitsi-meet": "cd libs/lib-jitsi-meet; yarn link; cd ../..; yarn link lib-jitsi-meet",
-    "link-typing-lib-jitsi-meet": "cd libs/@types/lib-jitsi-meet; yarn link; cd ../../..; yarn link @types/lib-jitsi-meet",
+    "link-lib-jitsi-meet": "cd libs/lib-jitsi-meet; yarn link; cd ../../; yarn link lib-jitsi-meet",
+    "link-typing-lib-jitsi-meet": "cd libs/@types/lib-jitsi-meet; yarn link; cd ../../../; yarn link @types/lib-jitsi-meet",
     "link-lib": "yarn run link-lib-jitsi-meet;yarn run link-typing-lib-jitsi-meet"
   },
   "eslintConfig": {
@@ -93,6 +92,9 @@
     "@iconify/icons-fluent": "^1.1.30",
     "@iconify/icons-mdi": "^1.1.13",
     "@iconify/react": "^1.1.4",
+    "@types/gapi": "^0.0.41",
+    "@types/gapi.client.drive": "^3.0.13",
+    "@types/google.picker": "^0.0.39",
     "@types/lodash": "^4.14.168",
     "@types/pdfjs-dist": "^2.7.2",
     "import": "^0.0.6",

@@ -7,6 +7,14 @@ import {connection} from '@models/api'
 import {t} from '@models/locales'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 interface MySliderProps{
   value:number, setValue(v:number):void
@@ -35,22 +43,24 @@ export const RemoteTrackLimitControl: React.FC<Stores> = (props:Stores) => {
     } } />
 
   return <>
-  <FormControlLabel
-    control={videoSlider}
-    label={t('videoLimit')}
-  />
-  <FormControlLabel
-    control={audioSlider}
-    label={t('audioLimit')}
-  /><br />
-  <Button variant="contained" color={roomInfo.passMatched ? 'primary' : 'default'}
-      style={{textTransform:'none'}} disabled={!roomInfo.passMatched}
-      onClick = { () => {
-        if (roomInfo.passMatched){
-          connection.conference.sync.sendTrackLimits('', [local.remoteVideoLimit, local.remoteAudioLimit])
-        }
-      }}
-  >Sync limits</Button>
+  <MuiThemeProvider theme={theme}>
+    <FormControlLabel
+      control={videoSlider}
+      label={t('videoLimit')}
+    />
+    <FormControlLabel
+      control={audioSlider}
+      label={t('audioLimit')}
+    /><br />
+    <Button variant="contained" color={roomInfo.passMatched ? 'primary' : 'default'}
+        style={{textTransform:'none'}} disabled={!roomInfo.passMatched}
+        onClick = { () => {
+          if (roomInfo.passMatched){
+            connection.conference.sync.sendTrackLimits('', [local.remoteVideoLimit, local.remoteAudioLimit])
+          }
+        }}
+    >Sync limits</Button>
+  </MuiThemeProvider>
   </>
 }
 RemoteTrackLimitControl.displayName = 'RemoteTrackLimitControl'

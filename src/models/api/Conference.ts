@@ -1,3 +1,4 @@
+import { MAP_SIZE } from '@components/Constants'
 import {recorder} from '@models/api/Recorder'
 import {KickTime} from '@models/KickTime'
 import {assert} from '@models/utils'
@@ -8,6 +9,7 @@ import roomInfo from '@stores/RoomInfo'
 import contents from '@stores/sharedContents/SharedContents'
 import {EventEmitter} from 'events'
 import JitsiMeetJS, {JitsiLocalTrack, JitsiRemoteTrack, JitsiTrack, JitsiValues, TMediaType} from 'lib-jitsi-meet'
+import {ConnectionQualityStats} from 'lib-jitsi-meet/JitsiConference'
 import JitsiParticipant from 'lib-jitsi-meet/JitsiParticipant'
 import {makeObservable, observable} from 'mobx'
 import {BMMessage} from './BMMessage'
@@ -164,7 +166,9 @@ export class Conference extends EventEmitter {
         && (this.lastReceivedTime >= this.lastRequestTime
           || now - this.lastRequestTime > REQUEST_WAIT_TIMEOUT)){
           this.lastRequestTime = now
-          this.pushOrUpdateMessageViaRelay(MessageType.REQUEST_RANGE, [map.visibleArea(), participants.audibleArea()])
+          const area = recorder.recording ? [-MAP_SIZE*2, MAP_SIZE*2, MAP_SIZE*2, -MAP_SIZE*2]
+            : map.visibleArea()
+          this.pushOrUpdateMessageViaRelay(MessageType.REQUEST_RANGE, [area, participants.audibleArea()])
           this.sendMessageViaRelay()
       }
       //  console.log(`step RTT:${this.relayRttAverage} remain:${deadline - Date.now()}/${timeToProcess}`)
@@ -288,8 +292,8 @@ export class Conference extends EventEmitter {
   }
 
   //  send Perceptibles API added by hasevr
-  public setPerceptibles(perceptibles:[string[], string[]]) {
-    sendLog(`SEND setPerceptibles ${perceptibles[0].length} ${perceptibles[1].length}`)
+  public setPerceptibles(perceptibles:JitsiMeetJS.BMPerceptibles) {
+    //  console.log(`SEND setPerceptibles ${JSON.stringify(perceptibles)}`)
     if (this._jitsiConference?.setPerceptibles) {
       this._jitsiConference.setPerceptibles(perceptibles)
     }
@@ -587,12 +591,26 @@ export class Conference extends EventEmitter {
         eventLog('MESSAGE_RECEIVED', id, text, timeStamp)
         //  this.emit(ConferenceEvents.MESSAGE_RECEIVED, id, text, timeStamp)
     })
+    //  connection quality
+    this._jitsiConference.on(JitsiMeetJS.events.connectionQuality.LOCAL_STATS_UPDATED,
+      (stats:ConnectionQualityStats)=>{participants.local.quality = stats})
+    this._jitsiConference.on(JitsiMeetJS.events.connectionQuality.REMOTE_STATS_UPDATED,
+      (id:string, stats:ConnectionQualityStats)=>{
+        const remote = participants.remote.get(id)
+        if (remote) { remote.quality = stats }
+      })
 
     //  kicked
     this._jitsiConference.on(JitsiMeetJS.events.conference.KICKED,
       (p:JitsiParticipant, r:string)=>{this.sync.onKicked(p.getId(),r)})
+
+    //  connection status (bandwidth etc)
+    //	this._jitsiConference.statistics.addConnectionStatsListener(this.onConnectionStats)
   }
-  /*
+//  onConnectionStats(tpc: TraceablePeerConnection, stats:Object){
+//    console.log(`onConnectionStats: ${JSON.stringify(stats)}`)
+//  }
+  /*  Resize the video (May not have any effect on the resolution)
   private video:undefined | HTMLVideoElement = undefined
   private canvas:undefined | HTMLCanvasElement = undefined
   private cameraTrackConverter(track: JitsiLocalTrack) {

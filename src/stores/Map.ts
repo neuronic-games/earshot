@@ -5,6 +5,7 @@ import {
   addV2, extractRotation, extractScaleX, radian2Degree, rotateVector2D, subV2, transformPoint2D} from '@models/utils'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {action, computed, makeObservable, observable} from 'mobx'
+import { participants } from '.'
 
 export const SCALE_LIMIT = {
   minScale: 0.2,
@@ -36,6 +37,13 @@ export class MapData {
   @observable mouseOnMap: [number, number] = [0, 0]
   @action setMatrix(m: DOMMatrixReadOnly) {
     this.matrix = m
+    this.updateViewpoint(m)
+  }
+  private updateViewpoint(m: DOMMatrixReadOnly){
+    const scale = extractScaleX(m)
+    const width = this.screenSize[0] / scale
+    participants.local.viewpoint.height = width
+    participants.local.updateViewpointCenter(this)
   }
   @action setCommittedMatrix(m: DOMMatrixReadOnly) {
     const mouse = this.toWindow(this.mouseOnMap)
@@ -43,10 +51,12 @@ export class MapData {
     this.mouseOnMap = this.fromWindow(mouse)
     this.saveMatrixToStorage(false)
     this.matrixBeforeZoom = undefined
+    this.updateViewpoint(m)
   }
   @action setScreenSize(s:[number, number]) {   //  size of the client window of the map
     this.screenSize[0] = s[0]
     this.screenSize[1] = s[1]
+    this.updateViewpoint(this.committedMatrix)
   }
   @action setLeft(l:number) {
     this.left = l
@@ -94,6 +104,9 @@ export class MapData {
   }
   @computed get zoomed(){
     return this.matrixBeforeZoom !== undefined
+  }
+  @computed get centerOnMap(){
+    return transformPoint2D(this.matrix.inverse(), [0,0])
   }
 
   toWindow(pos:[number, number]) {
@@ -144,6 +157,7 @@ export class MapData {
       newMat.f = ar[5]
       this.setMatrix(newMat)
       this.setCommittedMatrix(newMat)
+      console.log(`loadMatrixFromStorage() loaded.`)
     }
   }
 }

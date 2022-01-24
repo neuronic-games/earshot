@@ -13,6 +13,14 @@ import {Observer} from 'mobx-react-lite'
 import React from 'react'
 import {SketchPicker} from 'react-color'
 import {RemoteTrackLimitControl} from './RemoteTrackLimitControl'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 export interface AdminConfigFormProps{
   close?: () => void,
@@ -40,6 +48,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
     const btnColor = roomInfo.passMatched ? 'primary' : 'default'
 
     return  <Box m={2}>
+      <MuiThemeProvider theme={theme}>
       <Box m={2}>
         <RemoteTrackLimitControl key="remotelimitcontrol" {...props.stores}/>
       </Box>
@@ -167,21 +176,22 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
           disabled={!roomInfo.passMatched} onClick={() => {
             participants.local.recording = !participants.local.recording
             if (participants.local.recording){
+              if (props.close) { props.close() }
               recorder.start(props.stores)
             }else{
               recorder.stop().then((all)=>{
                 setDownloadLink(URL.createObjectURL(all))
-                all.slice(0, 4).arrayBuffer().then(buffer => {
-                  const view = new Int32Array(buffer)
-                  const headerLen = view[0]
-                  all.slice(4, 4+headerLen).text().then(text => {
-                    const headers = JSON.parse(text) as BlobHeader[]
-                    console.log(JSON.stringify(headers))
-                    for (const header of headers){
-                      console.log(`blob: ${JSON.stringify(header)}`)
-                    }
+                if (false){
+                  all.slice(0, 4).arrayBuffer().then(buffer => {
+                    const view = new Int32Array(buffer)
+                    const headerLen = view[0]
+                    all.slice(4, 4+headerLen).text().then(text => {
+                      const headers = JSON.parse(text) as BlobHeader[]
+                      console.log(JSON.stringify(headers))
+                      for (const header of headers){ console.log(`blob: ${JSON.stringify(header)}`) }
+                    })
                   })
-                })
+                }
               })
             }
           }}>{participants.local.recording ? 'Stop Recorder' : 'Start Recorder'}</Button>&nbsp;
@@ -190,17 +200,18 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
           onChange={ (ev) => {
             const files = ev.currentTarget?.files
             if (files && files.length) {
+              if (props.close){ props.close() }
               player.load(files[0]).then(()=>{
-                player.play(props.stores, connection)
+                player.play()
               })
             }
           }}  />
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
-          disabled={!roomInfo.passMatched} onClick={() => {
+        <Button variant="contained" color='primary' style={{textTransform:'none'}}
+          onClick={() => {
             fileToPlay.current?.click()
           }}>Play</Button>
       </Box>
-
+      </MuiThemeProvider>
     </Box>}
   }</Observer>
 }

@@ -40,6 +40,14 @@ import {Observer} from 'mobx-react-lite'
 import React, {Fragment} from 'react'
 import {contentTypeIcons, editButtonTip} from './Content'
 import {RndContentProps} from './RndContent'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 type PopoverPropsNoOnClose = Omit<PopoverProps, 'onClose'>
 export interface SharedContentFormProps extends Omit<RndContentProps, 'content'>, PopoverPropsNoOnClose{
@@ -90,9 +98,9 @@ class SharedContentFormMember{
     if (!props.content) { return }
     props.content.zorder = this.zorder
     props.content.pinned = this.pinned
-    props.content.showTitle = this.showTitle
     props.content.name = this.name
     props.content.pose = this.pose
+    props.content.showTitle = this.showTitle
     props.stores.contents.setEditing(this.editing)
   }
 }
@@ -139,6 +147,7 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
           onKeyPress={onKeyPress} fullWidth={true}
         />
         </td></tr></tbody></table>
+        <MuiThemeProvider theme={theme}>
         <Box mt={2} mb={2}>
           <Button variant="contained" style={{textTransform:'none'}}
             onClick={()=>{
@@ -166,44 +175,43 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
             }}>{t('ctFocus')}</Button>
         </Box>
         <Table size="small" ><TableBody>{[
-
-          Row(t('ctUnTitle'),<Icon icon={biImage} height={TITLE_HEIGHT} />,
-          <Switch color="primary" checked={props.content?.showTitle} onChange={(ev, checked)=>{
-            if (!props.content) { return }
-            props.content.showTitle = checked
-            props.updateOnly(props.content)
-          }}/>, <Icon icon={biImage} height={TITLE_HEIGHT} />, t('ctTitle'), 'title'),
+           Row(t('ctUnTitle'),<Icon icon={biImage} height={TITLE_HEIGHT} />,
+           <Switch color="secondary" checked={props.content?.showTitle} onChange={(ev, checked)=>{
+             if (!props.content) { return }
+             props.content.showTitle = checked
+             props.updateOnly(props.content)
+           }}/>, <Icon icon={biImage} height={TITLE_HEIGHT} />, t('ctTitle'), 'title'),
 
           Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
-            <Switch color="primary" checked={props.content?.pinned} onChange={(ev, checked)=>{
+            <Switch color="secondary" checked={props.content?.pinned} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.pinned = checked
               props.updateOnly(props.content)
             }}/>, <Icon icon={pinIcon} height={TITLE_HEIGHT} />, t('ctPin'), 'pin'),
           <Fragment key="edit">{isContentEditable(props.content) ?
             Row(editButtonTip(true, props.content),<DoneIcon />,
-            <Switch color="primary" checked={props.content?.id === contents.editing} onChange={(ev, checked)=>{
+            <Switch color="secondary" checked={props.content?.id === contents.editing} onChange={(ev, checked)=>{
               if (!props.content) { return }
               contents.setEditing(checked ? props.content.id : '')
             }}/>, <EditIcon />, editButtonTip(false, props.content)) : undefined}</Fragment>,
           <Fragment key="wall">{canContentBeAWallpaper(props.content) ?
             Row(t('ctUnWallpaper'), <Icon icon={imageLine} height={TITLE_HEIGHT}/>,
-            <Switch color="primary" checked={isContentWallpaper(props.content)} onChange={(ev, checked)=>{
+            <Switch color="secondary" checked={isContentWallpaper(props.content)} onChange={(ev, checked)=>{
               if (!props.content) { return }
               makeContentWallpaper(props.content, checked)
               props.updateOnly(props.content)
             }}/>, <Icon icon={imageOutlineBadged} height={TITLE_HEIGHT}/>, t('ctWallpaper')) : undefined}</Fragment>,
           <Fragment key="noFrame">{
             Row(t('ctFrameVisible'), <Icon icon={biImage} height={TITLE_HEIGHT}/>,
-            <Switch color="primary" checked={props.content?.noFrame} onChange={(ev, checked)=>{
+            <Switch color="secondary" checked={props.content?.noFrame ? true : false} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.noFrame = checked ? true : undefined
               props.updateOnly(props.content)
             }}/>, <Icon icon={biImageNoFrame} height={TITLE_HEIGHT}/>, t('ctFrameInvisible')) }</Fragment>,
           <Fragment key="zone">{
-            (props.content?.shareType === 'zoneimg' || props.content?.shareType === 'img') ?
+            props.content?.type === 'img' ?
             Row(t('ctNotAudioZone'), <Icon icon={imageLine} height={TITLE_HEIGHT}/>,
-              <Switch color="primary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
+              <Switch color="secondary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
                 if (!props.content) { return }
                 props.content.zone = checked ? (props.content.zone ? props.content.zone : 'open') : undefined
                 props.updateOnly(props.content)
@@ -219,7 +227,7 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
               </>) : undefined }</Fragment>,
           <Fragment key="opacity">{
             Row(t('ctTransparent'), <Icon icon={biDashCircleDotted} height={TITLE_HEIGHT}/>,
-            <Slider color="primary" value={props.content?.opacity===undefined ? 1000 : props.content.opacity*1000}
+            <Slider color="secondary" value={props.content?.opacity===undefined ? 1000 : props.content.opacity*1000}
               min={0} max={1000}
               style={{width:'6em', marginLeft:'0.4em', marginRight:'0.4em'}}
               onChange={(ev, value) => {
@@ -229,6 +237,7 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
             }} />, <Icon icon={biPlusCircleFill} height={TITLE_HEIGHT}/>, t('ctOpaque')) }</Fragment>,
             ]}</TableBody></Table>
         <Box mt={2} mb={2}>
+
           <Button variant="contained" color="primary" style={{textTransform:'none'}}
             onClick={()=>{
               closeForm({}, 'enter')
@@ -243,7 +252,9 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
             onClick={(ev)=>{
               props.onClose(ev)
             }}><CloseRoundedIcon /> &nbsp; {t('ctDelete')}</Button> &nbsp;&nbsp;
+
         </Box>
+        </MuiThemeProvider>
       </DialogContent>}
     </Observer>
   </Popover>

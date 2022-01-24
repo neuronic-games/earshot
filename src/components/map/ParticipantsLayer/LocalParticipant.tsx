@@ -46,17 +46,12 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const participants = props.stores.participants
   const participant = participants.local
 
-  //console.log(participant.information.avatarSrc, " src")
-  //participant.information.avatarSrc = ''
-
   // Showing default Avatar
   if(participant.information.avatarSrc === '') {
     var _rnd = Math.ceil(Math.random() * (AVATARS.length-1))
     participant.information.avatarSrc = AVATARS[_rnd]
     participant.saveInformationToStorage(true)
   }
-
-  
 
   assert(props.participant.id === participant.id)
   const member = useRef<LocalParticipantMember>({} as LocalParticipantMember).current
@@ -252,6 +247,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     map.keyInputUsers.add('LocalParticipantConfig')
   }
   const ref = useRef<HTMLButtonElement>(null)
+
+  //  Mouse and touch operations ----------------------------------------------
+
 
   return (
     <div ref={drag.target} {...drag} {...moreControl}>

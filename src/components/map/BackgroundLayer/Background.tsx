@@ -68,8 +68,7 @@ export const Background: React.FC<MapProps> = (props) => {
 
   return <Observer>{() => {
     return <div className={classes.img}>
-      {/* <img className={classes.logo} src={jitsiIcon} alt="jitsi icon"/> */}
-      
+     {/*  <img className={classes.logo} src={jitsiIcon} alt="jitsi icon"/> */}
     </div>
   }}</Observer>
 }

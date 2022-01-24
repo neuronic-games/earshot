@@ -1,5 +1,6 @@
 import { ISharedContent } from '@models/ISharedContent'
 import {JitsiTrack} from 'lib-jitsi-meet'
+import {ConnectionQualityStats} from 'lib-jitsi-meet/JitsiConference'
 import {MapObject} from './MapObject'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from './utils/color'
 import {Mouse} from './utils/coordinates'
@@ -9,8 +10,10 @@ export const PARTICIPANT_SIZE = 60
 export interface ParticipantBase extends MapObject{
   physics: Physics
   mouse: Mouse
+  viewpoint: Viewpoint
   id: string
   information: RemoteInformation|LocalInformation
+  quality?: ConnectionQualityStats
 }
 
 export interface PlaybackParticipant extends ParticipantBase {
@@ -79,8 +82,8 @@ export interface TrackStates{
   emoticon: string,
 }
 export interface Physics {
-  located: boolean
-  onStage: boolean
+  located: boolean            //  located on map or not
+  onStage: boolean            //  bloardcast or not
   awayFromKeyboard: boolean
 }
 export const defaultPhysics: Physics = {
@@ -88,7 +91,14 @@ export const defaultPhysics: Physics = {
   onStage: false,
   awayFromKeyboard: false,
 }
-
+export interface Viewpoint{
+  height: number              //  zoom (viewing range) of the map
+  center: [number, number]    //  center of the map from the avatar
+}
+export const defaultViewpoint: Viewpoint = {
+  height: 0,
+  center: [0,0]
+}
 export type SoundLocalizationBase = 'avatar' | 'user'
 
 export function getColorOfParticipant(information: BaseInformation) {

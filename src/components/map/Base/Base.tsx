@@ -11,6 +11,7 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
+
 import {getContextMenuStatus, MouseOrTouch, getContentLocked} from '../ShareLayer/RndContent'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import {Tooltip} from '@material-ui/core'
@@ -160,22 +161,19 @@ class BaseMember{
   mouseDown = false
   dragging = false
 
+  // New values
   upTime = 0
   downTime = 0
   downXpos = 0
   downYpos = 0
   upXpos = 0
   upYpos = 0
-
   contentX = 0
   contentY = 0
-
   zoomX = 0
   zoomY = 0
-
   moveX = 0
   moveY = 0
-
 }
 
 let _menuCanvas = false
@@ -183,17 +181,14 @@ export function getMenuStatus():boolean {
   return _menuCanvas
 }
 
-
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
   const matrix = useObserver(() => map.matrix)
   const container = useRef<HTMLDivElement>(null)
   const outer = useRef<HTMLDivElement>(null)
-
   function offset():[number, number] {
     return map.offset
   }
-
   const thirdPersonView = useObserver(() => participants.local.thirdPersonView)
   const memRef = useRef<BaseMember>(new BaseMember())
   const mem = memRef.current
@@ -230,8 +225,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
   const MOUSE_LEFT = 1
   const MOUSE_RIGHT = 2
 
-
-
   //  zoom by scrollwheel
   function wheelHandler(event:React.WheelEvent) {
     if (!event.ctrlKey) {
@@ -255,6 +248,30 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       map.setCommittedMatrix(newMatrix)
     }
   }
+  /* function moveParticipant(move: boolean, givenTarget?:[number,number]) {
+    const local = participants.local
+    console.log("moving")
+    let target = givenTarget
+    if (!target){ target = [mem.moveX, mem.moveY] }
+    const diff = subV2(target, local.pose.position)
+    if (normV(diff) > (givenTarget ? PARTICIPANT_SIZE*2 : PARTICIPANT_SIZE / 10)) {
+      const dir = mulV2(20 / normV(diff)/5, diff)
+      local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+      if (move) {
+        local.pose.position = addV2(local.pose.position, dir)
+      }
+      local.savePhysicsToStorage(false)
+    }
+  }
+  function moveParticipantPeriodically(move: boolean, target?:[number,number]) {
+    moveParticipant(move, target)
+    const TIMER_INTERVAL = move ? 0 : 0
+    setTimeout(() => {
+      //if (mem.mouseDown) {
+        moveParticipantPeriodically(true)
+      //}
+    }, TIMER_INTERVAL) //  move to mouse position
+  } */
 
   const bind = useGesture(
     {
@@ -263,13 +280,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.dragging = true
         mem.mouseDown = true
 
+        mem.downTime = new Date().getSeconds()
         mem.moveX = map.mouseOnMap[0]
         mem.moveY = map.mouseOnMap[1]
 
-        //console.log(getContentLocked(), "in base")
         let itemLocked = getContentLocked()
 
-        if(itemLocked) {return}
+        //console.log("locked -- ", itemLocked)
+
+
         if(showUploadOption) {return}
 
         //  console.log('Base StartDrag:')
@@ -279,12 +298,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
 
-          //const diff = subV2(map.mouseOnMap, participants.local.pose.position)
-
           const downTimer = setTimeout(() => {
             clearTimeout(downTimer)
+            if(itemLocked) {return}
             if(mem.mouseDown && showUploadOption === false) {
-              console.log("Open Context Menu")
+              //console.log("Open Context Menu")
               mem.zoomX = xy[0]
               mem.zoomY = xy[1]
               mem.contentX = map.mouseOnMap[0]
@@ -296,35 +314,16 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           }, 500)
 
           //  move participant to mouse position
-          /* setTimeout(() => {
-            function moveParticipant(move: boolean) {
-              if (mem.mouseDown) {
-                const local = participants.local
-                const diff = subV2(map.mouseOnMap, local.pose.position)
-                if (normV(diff) > PARTICIPANT_SIZE / 2) {
-                  const dir = mulV2(10 / normV(diff), diff)
-                  local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-                  if (move) {
-                    local.pose.position = addV2(local.pose.position, dir)
-                  }
-                  local.savePhysicsToStorage(false)
-                }
-                const TIMER_INTERVAL = move ? 33 : 300
-                setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
-              }
-            }
-            moveParticipant(false)
-          },         300) */
+          //moveParticipantPeriodically(false)  //  inital rotation.
         }
       },
       onDrag: ({down, delta, xy, buttons}) => {
-
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
 
-        //console.log(_menuStatus, " --- ", showMenu)
         if(_menuStatus) {return}
         if(showMenu) {return}
+
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
           if (!thirdPersonView && buttons === MOUSE_RIGHT) {  // right mouse drag - rotate map
@@ -347,7 +346,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             const diff = rotateVector2D(matrix.inverse(), delta)
             const newMatrix = matrix.translate(...diff)
             map.setMatrix(newMatrix)
-            //  console.log('Base onDrag:', delta)
+            //  rotate and direct participant to the mouse position.
+            if (delta[0] || delta[1]){
+              //moveParticipant(false, map.centerOnMap)
+            }
+            //console.log('Base onDrag:', delta)
           }
         }
       },
@@ -358,10 +361,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let timeDiff = mem.upTime - mem.downTime;
 
         let _dialogStatus:boolean = isDialogOpen()
-        //console.log(_dialogStatus, " >> _dialogStatus")
         if(_dialogStatus) {return}
-        //if(showMenu) {return}
-        //if(showUploadOption) {return}
 
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
           const local = participants.local
@@ -375,17 +375,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
               return
             }
           }
-          /* const diff = subV2(map.mouseOnMap, local.pose.position)
-          if (normV(diff) > PARTICIPANT_SIZE / 2) {
-            const dir = mulV2(normV(diff) / normV(diff), diff)
-            local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-            local.pose.position = addV2(local.pose.position, dir)
-          } */
-
           setTimeout(() => {
             function moveParticipant(move: boolean) {
                 //const local = participants.local
                 //const diff = subV2(map.mouseOnMap, local.pose.position)
+
 
                 const diff = subV2([mem.moveX, mem.moveY], local.pose.position)
 
@@ -402,19 +396,19 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             }
             moveParticipant(false)
           },  0)
-
         }
+
 
         if (matrix.toString() !== map.committedMatrix.toString()) {
           map.setCommittedMatrix(matrix)
+          //moveParticipant(false, map.centerOnMap)
+          //console.log(`Base onDragEnd: (${map.centerOnMap})`)
         }
         mem.dragging = false
         mem.mouseDown = false
         _menuCanvas = false
         setShowMenu(false)
-        //  console.log('Base onDragEnd:')
       },
-
       onPinch: ({da: [d, a], origin, event, memo}) => {
         if (memo === undefined) {
           return [d, a]
@@ -570,8 +564,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     props,
     mem,
   }
-
-  //console.log(props.stores)
 
   const [showMenu, setShowMenu] = useState(false)
   const [showUploadOption, setShowUploadOption] = useState(false)

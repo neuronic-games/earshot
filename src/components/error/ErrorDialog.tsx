@@ -12,15 +12,13 @@ import {AfkDialog} from './AfkDialog'
 import {TheEntrance} from './TheEntrance'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 
-export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
-
 // Setting default room animated names
 const defaultRoom = {
   room: generateRoomWithoutSeparator()
 }
 
-dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom}/>)
-/* dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props}/>) */
+export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
+dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom} />)
 dialogs.set('afk', (props: BMProps) => <AfkDialog />)
 
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {
@@ -32,6 +30,7 @@ export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void
   {props.children}
 </Dialog>
 }
+
 
 export const ErrorDialog: React.FC<BMProps> = (props) => {
   function close(){

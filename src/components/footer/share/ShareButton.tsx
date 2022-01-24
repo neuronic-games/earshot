@@ -31,16 +31,12 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
   let upTime = 0
   let downTime = 0
 
-
-  //let xCord = 0
-  //let yCord = 0
-
-
   return (
     <div className={classes.root}>
       <FabWithTooltip size={props.size} color={sharing ? 'secondary' : 'primary'}
         title = {acceleratorText2El(t('ttCreateAndshare'))}
         aria-label="share"
+        /* onClick={() => props.setShowDialog(true)} */
         onClick={(ev) => {
           upTime = new Date().getSeconds()
           let timeDiff = upTime - downTime;
@@ -61,9 +57,9 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
           }, 700)
         }}
         >
-        <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize, color:'white'}} />
+        <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize}} />
       </FabWithTooltip>
-      <ShareDialog {...props} open={props.showDialog} onClose={() => props.setShowDialog(false)} cordX={props.stores.map.mouseOnMap[0]} cordY={props.stores.map.mouseOnMap[1]} origin={'mainmenu'}/>
+      <ShareDialog {...props} open={props.showDialog} onClose={() => props.setShowDialog(false)} cordX={props.stores.map.mouseOnMap[0]} cordY={props.stores.map.mouseOnMap[1]} origin={'mainmenu'} />
     </div>
   )
 }

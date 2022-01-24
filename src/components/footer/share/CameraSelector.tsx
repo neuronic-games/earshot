@@ -23,7 +23,6 @@ interface CameraSelectorProps extends DialogPageProps{
 export const CameraSelector: React.FC<CameraSelectorProps> = (props) => {
   const {setStep} = props
   const {contents, map, participants} = props.stores
-  //console.log("camera - ", props)
   const videoMenuItems = useObserver(() =>
     props.cameras.videos.map((info, idx) => makeMenuItem(info, closeVideoMenu, idx)))
   function makeMenuItem(info: MediaDeviceInfo, close:(did:string) => void, key:number):JSX.Element {

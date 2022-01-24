@@ -1,7 +1,6 @@
 import React from 'react'
 import {ImageAvatar, ImageAvatarProps} from './ImageAvatar'
-//import {StreamAvatar, StreamAvatarProps} from './StreamAvatar'
-import {StreamAvatarProps} from './StreamAvatar'
+import {StreamAvatarProps} from './StreamAvatar' // StreamAvatar,
 
 type ComposedAvatarProps = ImageAvatarProps & Partial<StreamAvatarProps>
 
@@ -20,6 +19,6 @@ export const ComposedAvatar: React.FC<ComposedAvatarProps> = (props: ComposedAva
     avatarSrc={avatarSrc} {...remainProps} />
   //}
 
- // return <StreamAvatar stream={stream} blob={blob} {...remainProps} />
+  //return <StreamAvatar stream={stream} blob={blob} {...remainProps} />
 }
 ComposedAvatar.displayName = 'ComposedAvatar'

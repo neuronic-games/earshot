@@ -1,20 +1,6 @@
-//import clipboardCopy from '@iconify-icons/heroicons-outline/clipboard-copy'
-//import maximizeIcon from '@iconify-icons/tabler/arrows-maximize'
-//import minimizeIcon from '@iconify-icons/tabler/arrows-minimize'
-/* import pinIcon from '@iconify/icons-mdi/pin'
-import pinOffIcon from '@iconify/icons-mdi/pin-off' */
-
-//import {Icon} from '@iconify/react'
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {CreateCSSProperties} from '@material-ui/core/styles/withStyles'
-//import DoneIcon from '@material-ui/icons/CheckCircle'
-//import CloseRoundedIcon from '@material-ui/icons/CloseRounded'
-//import EditIcon from '@material-ui/icons/Edit'
-//import FlipToBackIcon from '@material-ui/icons/FlipToBack'
-//import FlipToFrontIcon from '@material-ui/icons/FlipToFront'
-//import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-//import MoreHorizIcon from '@images/whoo-screen_btn-more.png'
 import proximityIcon from '@images/whoo-screen_btn-earshot.png'
 import proximityOffIcon from '@images/whoo-screen_btn-earshot.png'
 import MoreIcon from '@images/whoo-screen_btn-more.png'
@@ -23,20 +9,14 @@ import pinIcon from '@images/whoo-screen_btn-lock.png'
 import pinOffIcon from '@images/whoo-screen_btn-lock.png'
 import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
-
-//import ImageIcon from '@material-ui/icons/Image'
-//import windowArrowUp from '@iconify/icons-fluent/window-arrow-up-24-regular'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
 
-
 import settings from '@models/api/Settings'
-// isContentMaximizable,
-import {doseContentEditingUseKeyinput, isContentEditable,  ISharedContent} from '@models/ISharedContent'
+import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
 import {t} from '@models/locales'
 import {Pose2DMap} from '@models/utils'
 import {addV2, extractScaleX, extractScaleY, mulV, rotateVector2DByDegree, subV2, normV, mulV2} from '@models/utils'
-// copyContentToClipboard,
-import {moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator'
+import {moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator' // copyContentToClipboard,
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import _ from 'lodash'
 import {useObserver} from 'mobx-react-lite'
@@ -44,25 +24,13 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {Rnd} from 'react-rnd'
 import {useGesture} from 'react-use-gesture'
 import { FullGestureState, UserHandlersPartial } from 'react-use-gesture/dist/types'
-// contentTypeIcons,
-// , editButtonTip
-import {Content} from './Content'
+import {Content} from './Content' // , contentTypeIcons, editButtonTip
 import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
-
-
 import {ShareDialog} from '@components/footer/share/ShareDialog'
-//import {ImageInput} from '@components/footer/share/ImageInput'
-//import { Step } from '@components/footer/share/Step'
-//import {ShareMenu} from '../../footer/share/Menu'
-//import {Step} from '../../footer/share/Step'
-
-//import { getMenuStatus } from '@components/map/Base/Base'
-
 
 const MOUSE_RIGHT = 2
-//const TIMER_DELAY = 1 * 1000 // For 3 secs
 const BORDER_TIMER_DELAY = 1 * 1000 // For 1 secs
 
 export type MouseOrTouch = React.MouseEvent | React.TouchEvent
@@ -82,7 +50,7 @@ interface StyleProps{
   showBorder: boolean,
   pinned: boolean,
   dragging: boolean,
-  editing: boolean,
+  editing: boolean
   downPos: number,
   downXPos: number,
   _down: boolean,
@@ -91,6 +59,7 @@ interface StyleProps{
 class RndContentMember{
   buttons = 0
   dragCanceled = false
+
   _borderTimer = 0
   _down = false
   _item = ''
@@ -103,12 +72,10 @@ class RndContentMember{
   moveXPos = 0
   onContent = false
   onContext = false
-
   moveX = 0
   moveY = 0
 }
 
-// getting the status of context menu visibility
 let contextMenuStatus:boolean = false
 export function getContextMenuStatus(): boolean {
   return contextMenuStatus
@@ -149,8 +116,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [resizeBasePos, setResizeBasePos] = useState(pose.position)    //  position when resize start
   //const [showTitle, setShowTitle] = useState(!props.autoHideTitle || !props.content.pinned)
   const [showTitle, setShowTitle] = useState(false)
-
-
   const [showForm, setShowForm] = useState(false)
   const [preciseOrientation, setPreciseOrientation] = useState(pose.orientation)
   const [dragging, setDragging] = useState(false)
@@ -163,22 +128,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const member = memberRef.current
 
   const titleDisplay = useObserver(() => props.content.showTitle)
-
   const [showUploadOption, setShowUploadOption] = useState(false)
-
-  //console.log(props, " props ", titleDisplay)
-
-  //const [step, setStep] = useState<Step>('menu')
-
-
-
-
-
-  // For dotted border
   const [showBorder, setShowBorder] = useState(false)
-  //const [step, setStep] = useState<Step>("menu")
 
-  //console.log(props.content.zone, " zone")
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
       props.content.zone = "close"
@@ -230,17 +182,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     ev.stopPropagation()
     ev.preventDefault()
   }
-
-  /* function onClickShare(evt: MouseOrTouch) {
+ /*  function onClickShare(evt: MouseOrTouch) {
     stop(evt)
     props.onShare?.call(null, evt)
   } */
   function onClickClose(evt: MouseOrTouch) {
     stop(evt)
     props.onClose?.call(null, evt)
-
     onLeaveIcon()
-
   }
   /* function onClickEdit(evt: MouseOrTouch) {
     stop(evt)
@@ -248,36 +197,26 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   } */
   function onClickMoveToTop(evt: MouseOrTouch) {
     stop(evt)
-    member._down = false
     moveContentToTop(props.content)
     props.updateAndSend(props.content)
-
     onLeaveIcon()
   }
   function onClickMoveToBottom(evt: MouseOrTouch) {
     stop(evt)
-    member._down = false
     moveContentToBottom(props.content)
     props.updateAndSend(props.content)
-
     onLeaveIcon()
   }
   function onClickPin(evt: MouseOrTouch) {
     stop(evt)
-    member._down = false
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
     onLeaveIcon()
   }
-
   function onClickUploadZone(evt: MouseOrTouch) {
     onLeaveIcon()
     setShowUploadOption(true)
   }
- /*  function onClickUploadImage(evt: MouseOrTouch) {
-    onLeaveIcon()
-  } */
-
   function onClickZone(evt: MouseOrTouch) {
     stop(evt)
     member._down = false
@@ -295,7 +234,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     onLeaveIcon()
   }
-
   /* function onClickCopy(evt: MouseOrTouch){
     stop(evt)
     copyContentToClipboard(props.content)
@@ -310,10 +248,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   } */
   function onClickMore(evt: MouseOrTouch){
     stop(evt)
-    member._down = false
     map.keyInputUsers.add('contentForm')
     setShowForm(true)
-
     onLeaveIcon()
   }
   function onCloseForm(){
@@ -345,10 +281,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //  drag for title area
   function dragHandler(delta:[number, number], buttons:number, event:any) {
     if (member.dragCanceled){ return }
-
     const ROTATION_IN_DEGREE = 360
     const ROTATION_STEP = 15
-    //if(isFixed && showTitle){ event?.stopPropagation(); return}
     if (buttons === MOUSE_RIGHT) {
       setPreciseOrientation((preciseOrientation + delta[0] + delta[1]) % ROTATION_IN_DEGREE)
       let newOri
@@ -374,10 +308,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
   const isFixed = (props.content.pinned)
-  //console.log(isFixed, " isFixed")
 
   const handlerForTitle:UserHandlersPartial = {
-
     onWheel:(evt)=> {
       if(member._down) {
         if(showTitle) {
@@ -388,71 +320,45 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         }
       }
     },
-
     onDoubleClick: (evt)=>{
       if (isContentEditable(props.content)){
         stop(evt)
         setEditing(!editing)
       }
     },
-
     onDrag: ({down, delta, event, xy, buttons}) => {
-      //console.log('onDragTitle:', delta, buttons)
-
-
+      //  console.log('onDragTitle:', delta)
       isLocaked = props.content.pinned
-
-      //console.log(isLocaked, " LOCKED")
-
-      // checking the drag item
-      //if(props.content.ownerName !== participants.local.information.name) return
-
-      if(isFixed) {return}
+      //console.log(isLocaked, " rnd")
+      if (isFixed) { return }
       if(showTitle) {return}
-
       event?.stopPropagation()
       if (down) {
         //  event?.preventDefault()
         dragHandler(delta, buttons, event)
       }
-    //}
     },
-
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
-      //console.log(`dragStart delta=${delta}  buttons=${buttons}`)
-
-
-
+      //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
       if(showTitle) {return}
-
-
-
       setDragging(true)
       member.buttons = buttons
       member.dragCanceled = false
       if (currentTarget instanceof Element && event instanceof PointerEvent){
         currentTarget.setPointerCapture(event?.pointerId)
       }
-
     },
-
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
-      //console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
-      //console.log(Object(event?.target).nodeName)
-      //if(showTitle) {
-
-        isLocaked = false
-
-        member._down = false
-        member._item = "DIV"
-        window.clearTimeout(member._timer)
-        if(String(Object(event?.target).nodeName)==="DIV") {
-          showHideTimer(0)
-        } else {
-          showHideTimer(1)
-        }
-      //}
-
+      //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
+      isLocaked = false
+      member._down = false
+      member._item = "DIV"
+      window.clearTimeout(member._timer)
+      if(String(Object(event?.target).nodeName)==="DIV") {
+        showHideTimer(0)
+      } else {
+        showHideTimer(1)
+      }
       if(showTitle) {return}
 
       setDragging(false)
@@ -468,34 +374,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
       member.buttons = 0
     },
-
-    /* onTouchStart: (arg) => {
-      member._down = true
-      member.downTime = new Date().getSeconds()
-      window.clearTimeout(member._timer)
-      const _mTimer = setTimeout(function() {
-        clearTimeout(_mTimer)
-        //console.log("Enter timer")
-        if(props.content.ownerName === participants.local.information.name) {
-          if(member._down && showTitle === false) {
-            const diff = subV2(map.mouseOnMap, pose.position)
-            member.downPos = Number(diff[1])
-            member.downXPos = Number(diff[0])
-            contextMenuStatus = true
-            setShowTitle(true)
-          }
-        }
-      },500)
-    }, */
-
     onMove:({xy}) => {
+      isLocaked = props.content.pinned
       if(showTitle) {return}
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
       member.downXPos = Number(diff[0])
       map.setMouse(xy)
     },
-
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {
@@ -509,26 +395,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.onContent = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
-
         //console.log(diffTime, " diffTi")
-
         if(diffTime < 2 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
           if(member._down === false || showTitle) return
-          /* if(member._down) {
-            const local = participants.local
-            const diff = subV2(map.mouseOnMap, local.pose.position)
-            if (normV(diff) > 60 / 2) {
-              const dir = mulV2(normV(diff) / normV(diff), diff)
-              local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-              //if (move) {
-              local.pose.position = addV2(local.pose.position, dir)
-
-              setShowBorder(true)
-              // Start Timer to disable border
-              window.clearTimeout(member._borderTimer)
-              showHideBorder()
-            }
-          } */
           setTimeout(() =>{
             function moveParticipant(move:boolean) {
               const local = participants.local
@@ -552,156 +421,53 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             }
             moveParticipant(false)
           }, 0)
-
-
-          /* setTimeout(() => {
-            function moveParticipant(move: boolean) {
-              if(member._down) {
-                console.log("ENTER")
-                const local = participants.local
-                const diff = subV2(map.mouseOnMap, local.pose.position)
-                if (normV(diff) > PARTICIPANT_SIZE / 10) {
-                  const dir = mulV2(normV(diff)/5 / normV(diff), diff)
-                  local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-                  if (move) {
-                    local.pose.position = addV2(local.pose.position, dir)
-                  } else {
-                    setShowBorder(true)
-                  // Start Timer to disable border
-                  window.clearTimeout(member._borderTimer)
-                  showHideBorder()
-                  }
-                  local.savePhysicsToStorage(false)
-                  const TIMER_INTERVAL = move ? 0 : 0
-                  setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
-                }
-              }
-
-            }
-            moveParticipant(false)
-          },  0) */
-
-
-
         } else {
-          /* if(member._down) {
-            member._down = false
-            member._item = String(Object(arg.target).tagName)
-            window.clearTimeout(member._timer)
-            showHideTimer(0)
-            //console.log("Show Hide Timer on up")
-          } */
         }
       }
 
     },
     onMouseMove: (arg) => {
-
-      /* if(map.mouseOnMap >= pose.position) {
-        console.log("outside")
-      } */
-      //const diff = subV2(map.mouseOnMap, pose.position)
-      //console.log(normV(diff), " calc")
-
       if(showTitle) {return}
-
-      /* member.movePos = Number(Object(arg.nativeEvent).layerY)
-      member.moveXPos = Number(Object(arg.nativeEvent).layerX) */
-
       member.movePos = Number(map.mouseOnMap[1])
       member.moveXPos = Number(map.mouseOnMap[0])
-
       //console.log(member.downXPos, " --- ", member.moveXPos)
       if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
         member._down = true
       } else {
         member._down = false
       }
-
-
     },
     onMouseOver: (arg) => {
       //member._down = true
-
       //console.log(Object(arg.target).id , " target")
       member._item = String(Object(arg.target).tagName)
       window.clearTimeout(member._timer)
-     //showHideTimer()
-      //console.log(String(Object(arg.target).tagName))
     },
     onMouseOut: (arg) => {
-
       //console.log(Object(arg.target).id , " target")
-
-      /* if(String(Object(arg.target).id) === "tp"){
-        console.log("out from content")
-      } */
-
       member.onContent = false
-      //console.log("Out - ", String(Object(arg.target).tagName))
-      //member._down = true
-      /* if(member._down) return
-      member._down = false
-      member._item = "DIV"
-      window.clearTimeout(member._timer)
-      showHideTimer() */
-      //console.log(member._down)
-
-      /* member._down = false
-      member._item = "DIV"
-      window.clearTimeout(member._timer)
-      showHideTimer(0) */
-
     },
     onMouseDown: (arg) => {
       //console.log(arg.button, " button")
       if(editing) {
         arg.stopPropagation()
       } else {
-
         if(arg.button > 0) {return}
-
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
-
         member.moveX = map.mouseOnMap[0]
         member.moveY = map.mouseOnMap[1]
-
-        //props.content.zorder = 0x7FFF
-        //console.log(participants)
-        //participants.local.updateIndex()
-
         window.clearTimeout(member._timer)
-        //clearTimeout(menuTimer);
         //console.log("Click")
         const _mTimer = setTimeout(function() {
           clearTimeout(_mTimer)
           //console.log("Enter timer")
           //if(props.content.ownerName === participants.local.information.name) {
             if(member._down && showTitle === false) {
-
-              //member.downPos = Number(Object(arg.nativeEvent).layerY)
-              //member.downXPos = Number(Object(arg.nativeEvent).layerX)
-
-              //console.log(pose.position[1], " -- ", map.mouseOnMap[1])
-
-              //member.downPos = Number(pose.position[1]) //Number(map.mouseOnMap[1])
-              //member.downXPos = Number(pose.position[0]) //Number(map.mouseOnMap[0])
-
-
-
-
               const diff = subV2(map.mouseOnMap, pose.position)
-
               member.downPos = Number(diff[1])
               member.downXPos = Number(diff[0])
-
-              /* const dir = mulV2(normV(diff) / normV(diff), diff)
-              console.log(pose.position[0], " --- X -- ", member.downXPos)
-              console.log(pose.position[1], " --- X -- ", member.downPos)
-              console.log(addV2(pose.position, dir)) */
-
               contextMenuStatus = true
               setShowTitle(true)
               //setEditing(false)
@@ -711,24 +477,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
       }
     },
-    onTouchStart: (arg) => { if(editing) {arg.stopPropagation()}},
+    onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
   }
-
-  /* function showTimer(y:number, x:number) {
-    member._timer = window.setTimeout( function() {
-      console.log("show Title")
-      if(props.content.ownerName === participants.local.information.name) {
-        if (props.autoHideTitle && props.content.noFrame && member._down === true) {
-          if(showTitle === false) {
-            member.downPos = y
-            member.downXPos = x
-            setShowTitle(true)
-          }
-        }
-      }
-    }, 1500)
-  } */
 
   function showHideBorder() {
     //member._borderTimer = window.setTimeout( function() {
@@ -737,16 +488,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       setShowBorder(false)
      }, BORDER_TIMER_DELAY)
   }
-
   function showHideTimer(_delay:number) {
-    // TIMER_DELAY
-    //if(props.content.ownerName !== participants.local.information.name) return
-    //console.log(member._down, "in timer")
-
-    //console.log(map.matrix.a, " map")
-
-    //if(member._item !== "DIV" && member._down) return
-    //window.setTimeout( function() {
     const _mTimer = setTimeout( function() {
       //window.clearTimeout(member._timer)
       clearTimeout(_mTimer)
@@ -758,58 +500,33 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
-    //console.log('onDragBody:', args.delta)
-
-
-    //if(props.content.ownerName !== participants.local.information.name) return
-
-    //if (isFixed || map.keyInputUsers.has(props.content.id)) { return }
-    //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
-
-    //console.log("moving")
-    //if(showTitle === false) {return}
-
-    //if (showTitle) { return }
-    //if(isFixed && showTitle) {return}
-
-    //}
-    //console.log("after pin")
-    //if (isFixed || map.keyInputUsers.has(props.content.id) && showTitle) { return }
-    //if(isFixed && showTitle) {
-
-
-
+    //  console.log('onDragBody:', args.delta)
+    if (isFixed || map.keyInputUsers.has(props.content.id)) { return }
     handlerForTitle.onDrag?.call(this, args)
-
-
-    //}
   }
 
   function onResizeStart(evt:React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>){
-    //if(props.content.ownerName !== participants.local.information.name) return
-
-    //console.log(showTitle, " checking edit section")
-
     if(showTitle) {return}
+
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
     setResizeBase(size)
     setResizeBasePos(pose.position)
   }
   function onResizeStop(){
-    //if(props.content.ownerName !== participants.local.information.name) return
     if(showTitle) {return}
+
     if (!member.dragCanceled){ updateHandler() }
     member.dragCanceled = false
   }
   function onResize(evt:MouseEvent | TouchEvent, dir: any, elem:HTMLDivElement, delta:any, pos:any) {
-
-    //if(props.content.ownerName !== participants.local.information.name) return
     if(showTitle) {return}
+
     evt.stopPropagation(); evt.preventDefault()
     //  console.log(`dragcancel:${member.dragCanceled}`)
     if (member.dragCanceled) {
       setPoseAndSizeToRnd()
+
       return
     }
 
@@ -869,8 +586,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           }
         }}
       >
-      {/* <div style={{marginLeft: '37.55%', textAlign:'center', backgroundColor:'#eab676', padding:'5px', marginBottom:'5px', width:'25%'}}>{props.content.name}</div> */}
-      {/* <div className={classes.nameContainer}>{props.content.name}</div> */}
         <Content {...props}/>
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={showBorder ? classes.dashed : undefined}></div>
@@ -1219,13 +934,8 @@ const useStyles = makeStyles({
     borderColor:'#9e886c',
     borderRadius:'50%',
     opacity: 0.4,
-
-    /* top: props.props.content.shareType === 'img' ? 22 : 20,
-    left: props.props.content.shareType === 'img' ? 22 : -20, */
-
     top: 20,
     left: 31,
-
     //backgroundColor: 'transparent',
     background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
     zIndex: -9999,
@@ -1261,57 +971,28 @@ const useStyles = makeStyles({
       rv['display'] = 'flex'
       rv['position'] = 'relative'
       rv['bottom'] = 'auto'
-      //rv['top'] = (props.downPos - (130/2)) // 100
-      //rv['left'] = (props.downXPos - (380/2)) // 270
-      //rv['top'] = (props.downPos - (130/2)) // 100
-      //rv['left'] = (props.downXPos - (380/2)) // 270
-      //rv['top'] = (props.downPos + 5) // 100
-      //rv['left'] = (props.downXPos + 10) // 270
-
-
-      /* rv['top'] = (props.downPos - (140/2)) // 100
-      rv['left'] = (props.downXPos - (380/2)) // 270 */
-
-      //console.log(props.props.stores.map.matrix)
-
-      //var zoomRatio = 0 //(1/props.props.stores.map.matrix.a);
-
-
-      // Working
-      //rv['top'] = (props.downPos - (165/2)) // 100
-
-      //rv['top'] = (props.downPos - ((165/2))) // 100
-      /* rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - (372/2)) // 270 */
-     // rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - (380/2)) // 270
-
       // New Changes [Making menu normal]
       var zoomValue = Number(props.props.stores.map.matrix.a)
-
       //console.log(zoomValue, " zoomValue")
-
       var zoomRatio = 1.2/zoomValue;
-
-     var tPos =  165 + (2.7 * zoomValue)
-     var lPos = 0
-
-    if(zoomValue >= 1 && zoomValue < 5) {
-      lPos = 380 - (6 * zoomValue)
-    } else if(zoomValue === 5) {
-      lPos = 382 - (5 * zoomValue)
-    } else if(zoomValue < 0.34) {
-      lPos = 500 - (1 * zoomValue)
-    } else if(zoomValue > 0.34 && zoomValue < 0.4) {
-      lPos = 465 - (1 * zoomValue)
-    } else {
-      lPos = 400 - (1 * zoomValue)
-    }
-
-    rv['top'] = (props.downPos - ((tPos/2))) // 165
-    rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - ((lPos/2))) // 380
-
-    // Scale Accordingly
-    rv['transform'] = 'scale('+zoomRatio+')'
-    }
+      var tPos =  165 + (2.7 * zoomValue)
+      var lPos = 0
+      if(zoomValue >= 1 && zoomValue < 5) {
+        lPos = 380 - (6 * zoomValue)
+      } else if(zoomValue === 5) {
+        lPos = 382 - (5 * zoomValue)
+      } else if(zoomValue < 0.34) {
+        lPos = 500 - (1 * zoomValue)
+      } else if(zoomValue > 0.34 && zoomValue < 0.4) {
+        lPos = 465 - (1 * zoomValue)
+      } else {
+        lPos = 400 - (1 * zoomValue)
+      }
+      rv['top'] = (props.downPos - ((tPos/2))) // 165
+      rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - ((lPos/2))) // 380
+      // Scale Accordingly
+      rv['transform'] = 'scale('+zoomRatio+')'
+      }
     return rv
   },
 
@@ -1611,7 +1292,7 @@ const useStyles = makeStyles({
     marginBottom: 5,
     marginTop: -(props.size[1] + 38),
     padding:5,
-    backgroundColor: '#eab676',
+    backgroundColor: '#7ececc', //'#eab676',
     textAlign: 'center',
     borderRadius: 2,
     overflow:'hidden',

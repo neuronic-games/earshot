@@ -1,5 +1,4 @@
-/* global __filename */
-import { getLogger } from 'jitsi-meet-logger';
+import { getLogger } from '@jitsi/logger';
 
 import Listenable from '../util/Listenable';
 
@@ -22,12 +21,9 @@ export default class JingleSession extends Listenable {
      * @param {string} localJid our JID
      * @param {string} remoteJid the JID of the remote peer
      * @param {XmppConnection} connection the XMPP connection
-     * @param {Object} mediaConstraints the media constraints object passed to
-     * the PeerConnection onCreateAnswer/Offer as defined by the WebRTC.
-     * @param {Object} iceConfig the ICE servers config object as defined by
-     * the WebRTC. Passed to the PeerConnection's constructor.
-     * @param {boolean} isInitiator indicates if it will be the side which
-     * initiates the session.
+     * @param {Object} mediaConstraints the media constraints object passed to the PeerConnection onCreateAnswer/Offer.
+     * @param {Object} pcConfig The {@code RTCConfiguration} object passed to the PeerConnection's constructor.
+     * @param {boolean} isInitiator indicates if it will be the side which initiates the session.
      */
     constructor(
             sid,
@@ -35,7 +31,7 @@ export default class JingleSession extends Listenable {
             remoteJid,
             connection,
             mediaConstraints,
-            iceConfig,
+            pcConfig,
             isInitiator) {
         super();
         this.sid = sid;
@@ -43,7 +39,7 @@ export default class JingleSession extends Listenable {
         this.remoteJid = remoteJid;
         this.connection = connection;
         this.mediaConstraints = mediaConstraints;
-        this.iceConfig = iceConfig;
+        this.pcConfig = pcConfig;
 
         /**
          * Indicates whether this instance is an initiator or an answerer of
@@ -68,6 +64,13 @@ export default class JingleSession extends Listenable {
          * @type {ChatRoom}
          */
         this.room = null;
+
+        /**
+         * The signaling layer.
+         * @type {SignalingLayerImpl | null}
+         * @private
+         */
+        this._signalingLayer = null;
 
         /**
          * Jingle session state - uninitialized until {@link initialize} is
@@ -105,10 +108,11 @@ export default class JingleSession extends Listenable {
      * @param {ChatRoom} room the chat room for the conference associated with
      * this session
      * @param {RTC} rtc the RTC service instance
+     * @param {SignalingLayerImpl} signalingLayer - The signaling layer instance.
      * @param {object} options - the options, see implementing class's
      * {@link #doInitialize} description for more details.
      */
-    initialize(room, rtc, options) {
+    initialize(room, rtc, signalingLayer, options) {
         if (this.state !== null) {
             const errmsg
                 = `attempt to initiate on session ${this.sid}
@@ -117,8 +121,11 @@ export default class JingleSession extends Listenable {
             logger.error(errmsg);
             throw new Error(errmsg);
         }
+
+        // TODO decouple from room
         this.room = room;
         this.rtc = rtc;
+        this._signalingLayer = signalingLayer;
         this.state = JingleSessionState.PENDING;
         this.doInitialize(options);
     }

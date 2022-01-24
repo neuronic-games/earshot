@@ -16,6 +16,7 @@ import {useObserver} from 'mobx-react-lite'
 import React from 'react'
 import {GDrive} from './GDrive'
 import {PDF} from './PDF'
+import {PlaybackScreenContent} from './PlaybackScreenContent'
 import {ScreenContent} from './ScreenContent'
 import {Text} from './Text'
 import {YouTube} from './YouTube'
@@ -32,6 +33,8 @@ export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
     whiteboard: <span style={{width, height:size}}><Icon icon={whiteboard24Regular} height={size} /></span>,
     camera: <CameraAltIcon style={{fontSize:size, width}} />,
     pdf : <span style={{width, height:size}}><Icon icon={filePdfBox} height={size} /></span>,
+    playbackScreen: <ScreenShareIcon style={{fontSize:size, width}} />,
+    playbackCamera: <CameraAltIcon style={{fontSize:size, width}} />,
     '': undefined,
   }
 
@@ -94,7 +97,7 @@ export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
   }else if (props.content.type === 'iframe' || props.content.type === 'whiteboard') {
     rv = <div className={classes.div}>
       <iframe className={editing ? classes.iframeEdit : classes.iframe}
-        style={props.content.type==='whiteboard'?{backgroundColor:'white'}:{}}
+        style={props.content.type==='whiteboard'?{backgroundColor: props.content.noFrame?'rgba(0,0,0,0)':'white'}:{}}
         src={props.content.url} key={props.content.name} title={props.content.name}/>
       </div>
   }else if (props.content.type === 'youtube') {
@@ -107,6 +110,8 @@ export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
     rv = <Text {...props} />
   }else if (props.content.type === 'screen' || props.content.type === 'camera') {
     rv = <ScreenContent {...props} />
+  }else if (props.content.type === 'playbackScreen' || props.content.type === 'playbackCamera') {
+    rv = <PlaybackScreenContent {...props} />
   }else {
     rv = <div>Unknown type:{props.content.type} for {props.content.url}</div>
   }

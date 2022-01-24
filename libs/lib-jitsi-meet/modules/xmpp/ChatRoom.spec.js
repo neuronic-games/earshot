@@ -161,12 +161,15 @@ describe('ChatRoom', () => {
             const pres = new DOMParser().parseFromString(presStr, 'text/xml').documentElement;
 
             room.onPresence(pres);
-            expect(emitterSpy.calls.count()).toEqual(2);
+            expect(emitterSpy.calls.count()).toEqual(3);
             expect(emitterSpy.calls.argsFor(0)).toEqual([
                 XMPPEvents.PRESENCE_RECEIVED,
                 jasmine.any(Object)
             ]);
             expect(emitterSpy.calls.argsFor(1)).toEqual([
+                XMPPEvents.MUC_JOIN_IN_PROGRESS
+            ]);
+            expect(emitterSpy.calls.argsFor(2)).toEqual([
                 XMPPEvents.MUC_MEMBER_JOINED,
                 'fromjid',
                 undefined, // nick
@@ -177,7 +180,8 @@ describe('ChatRoom', () => {
                 undefined,
                 undefined,
                 'fulljid',
-                undefined // features
+                undefined, // features
+                0 // isReplaceParticipant
             ]);
         });
 
@@ -191,11 +195,15 @@ describe('ChatRoom', () => {
             const pres = new DOMParser().parseFromString(presStr, 'text/xml').documentElement;
 
             room.onPresence(pres);
-            expect(emitterSpy.calls.count()).toEqual(2);
+            expect(emitterSpy.calls.count()).toEqual(3);
             expect(emitterSpy.calls.argsFor(0)).toEqual([
                 XMPPEvents.PRESENCE_RECEIVED,
                 jasmine.any(Object)
             ]);
+            expect(emitterSpy.calls.argsFor(1)).toEqual([
+                XMPPEvents.MUC_JOIN_IN_PROGRESS
+            ]);
+
             expect(emitterSpy).toHaveBeenCalledWith(
                 XMPPEvents.MUC_MEMBER_JOINED,
                 'fromjid',
@@ -207,7 +215,42 @@ describe('ChatRoom', () => {
                 undefined,
                 undefined,
                 'jid=attr',
-                undefined); // features
+                undefined, // features
+                0); // isReplaceParticipant
+        });
+
+        it('parses muc user replacing other user correctly', () => {
+            const presStr = '' +
+              '<presence to="tojid" from="fromjid">' +
+                  '<x xmlns="http://jabber.org/protocol/muc#user">' +
+                      '<item jid="jid=attr" affiliation="affiliation-attr" role="role-attr"/>' +
+                  '</x>' +
+                  '<flip_device />' +
+              '</presence>';
+            const pres = new DOMParser().parseFromString(presStr, 'text/xml').documentElement;
+
+            room.onPresence(pres);
+            expect(emitterSpy.calls.count()).toEqual(3);
+            expect(emitterSpy.calls.argsFor(0)).toEqual([
+                XMPPEvents.PRESENCE_RECEIVED,
+                jasmine.any(Object)
+            ]);
+            expect(emitterSpy.calls.argsFor(1)).toEqual([
+                XMPPEvents.MUC_JOIN_IN_PROGRESS
+            ]);
+            expect(emitterSpy).toHaveBeenCalledWith(
+              XMPPEvents.MUC_MEMBER_JOINED,
+              'fromjid',
+              undefined, // nick
+              'role-attr', // role
+              jasmine.any(Boolean), // isHiddenDomain
+              undefined, // statsID
+              undefined,
+              undefined,
+              undefined,
+              'jid=attr',
+              undefined, // features
+              1); // isReplaceParticipant
         });
 
         it('parses identity correctly', () => {
@@ -238,12 +281,15 @@ describe('ChatRoom', () => {
             };
 
             room.onPresence(pres);
-            expect(emitterSpy.calls.count()).toEqual(2);
+            expect(emitterSpy.calls.count()).toEqual(3);
             expect(emitterSpy.calls.argsFor(0)).toEqual([
                 XMPPEvents.PRESENCE_RECEIVED,
                 jasmine.any(Object)
             ]);
             expect(emitterSpy.calls.argsFor(1)).toEqual([
+                XMPPEvents.MUC_JOIN_IN_PROGRESS
+            ]);
+            expect(emitterSpy.calls.argsFor(2)).toEqual([
                 XMPPEvents.MUC_MEMBER_JOINED,
                 'fromjid',
                 undefined, // nick
@@ -254,7 +300,8 @@ describe('ChatRoom', () => {
                 expectedIdentity,
                 undefined,
                 'fulljid',
-                undefined // features
+                undefined, // features
+                0 // isReplaceParticipant
             ]);
         });
 
@@ -271,12 +318,15 @@ describe('ChatRoom', () => {
             const pres = new DOMParser().parseFromString(presStr, 'text/xml').documentElement;
 
             room.onPresence(pres);
-            expect(emitterSpy.calls.count()).toEqual(2);
+            expect(emitterSpy.calls.count()).toEqual(3);
             expect(emitterSpy.calls.argsFor(0)).toEqual([
                 XMPPEvents.PRESENCE_RECEIVED,
                 jasmine.any(Object)
             ]);
             expect(emitterSpy.calls.argsFor(1)).toEqual([
+                XMPPEvents.MUC_JOIN_IN_PROGRESS
+            ]);
+            expect(emitterSpy.calls.argsFor(2)).toEqual([
                 XMPPEvents.MUC_MEMBER_JOINED,
                 'fromjid',
                 undefined, // nick
@@ -287,7 +337,8 @@ describe('ChatRoom', () => {
                 undefined,
                 expectedBotType,
                 'fulljid',
-                undefined // features
+                undefined, // features
+                0 // isReplaceParticipant
             ]);
         });
 

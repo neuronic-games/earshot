@@ -1,6 +1,6 @@
 import {
-  defaultInformation, defaultPhysics,
-  defaultRemoteInformation, LocalInformation,
+  defaultInformation, defaultPhysics, defaultRemoteInformation,
+  defaultViewpoint, LocalInformation,
   ParticipantBase as IParticipantBase, Physics, RemoteInformation, Tracks, TrackStates as ITrackStates
 } from '@models/Participant'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from '@models/utils'
@@ -8,6 +8,7 @@ import {Mouse} from '@models/utils'
 import {MapObject} from '@stores/MapObject'
 import {Store} from '@stores/utils'
 import {JitsiTrack} from 'lib-jitsi-meet'
+import { ConnectionQualityStats } from 'lib-jitsi-meet/JitsiConference'
 import {action, computed, makeObservable, observable} from 'mobx'
 
 export class TracksStore implements Tracks{
@@ -31,7 +32,7 @@ export class TrackStates implements Store<ITrackStates>{
   @observable speakerMuted = false
   @observable headphone = false
   @observable emoticon = ''
-  constructor(){
+  constructor() {
     makeObservable(this)
   }
 }
@@ -39,13 +40,14 @@ export class TrackStates implements Store<ITrackStates>{
 export class ParticipantBase extends MapObject implements Store<IParticipantBase> {
   @observable id = ''
   @observable.shallow physics = defaultPhysics
+  @observable.shallow viewpoint = defaultViewpoint
   @observable.shallow mouse:Mouse = {position:[0, 0], show:false}
-  @observable awayFromKeyboard = false
   @observable.shallow information: LocalInformation | RemoteInformation
   @observable muteAudio = false
   @observable muteSpeaker = false
   @observable muteVideo = false
   @observable audioLevel = 0
+  @observable.ref quality?:ConnectionQualityStats = undefined
   @action setAudioLevel(a:number) { this.audioLevel = a }
   @observable recording = false
   // determines whether the audio would be rendered

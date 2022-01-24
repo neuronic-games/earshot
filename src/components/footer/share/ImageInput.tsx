@@ -7,7 +7,6 @@ import {DialogPageProps} from './DialogPage'
 import {Input} from './Input'
 import {Step} from './Step'
 import {makeStyles} from '@material-ui/styles'
-//import classes from '*.module.css'
 
 const useStyles = makeStyles({
   preview: {
@@ -31,9 +30,6 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
   const classes = useStyles()
   const [files, setFiles] = useState<File[]>([])
 
-  //console.log(props.yCord, " TYPE")
-
-
   const {t} = useTranslation()
   const field = (
     <DropzoneArea
@@ -47,14 +43,12 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
 
   const map = props.stores.map
 
-  //console.log(props)
-
   return (
     <Input stores={props.stores}
       setStep={setStep}
       onFinishInput={(files) => {
         // TODO modify store
-        files.forEach((file, i) => {
+        files.forEach(async (file, i) => {
           const IMAGE_OFFSET_X = 30
           const IMAGE_OFFSET_Y = -20
           createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from).then(

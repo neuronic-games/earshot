@@ -1,6 +1,6 @@
 # Development Guide
 
-Binaural Meet was bootstrapped with [create-react-app](https://github.com/facebook/create-react-app) and configured with [react-app-rewired](https://github.com/timarney/react-app-rewired#readme).
+Earshot chat Meet was bootstrapped with [create-react-app](https://github.com/facebook/create-react-app) and configured with [react-app-rewired](https://github.com/timarney/react-app-rewired#readme).
 
 ## Installation
 

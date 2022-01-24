@@ -39,8 +39,6 @@ export const FabMain: React.FC<MyFabProps> = (props) => {
   const memberRef = useRef<MoreButtonMember>({timeout:undefined})
   const member = memberRef.current
 
-
-
   return <div className={classes.container + (props.className ? ` ${props.className}` : '')}
     style={props.style} ref={props.divRef}
     {...moreButtonControl(setShowMore, member)}

@@ -5,7 +5,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Popover, { PopoverProps } from '@material-ui/core/Popover'
+import Popover, { PopoverOrigin, PopoverReference } from '@material-ui/core/Popover'
 import TextField from '@material-ui/core/TextField'
 import {uploadToGyazo} from '@models/api/Gyazo'
 import {useTranslation} from '@models/locales'
@@ -14,9 +14,22 @@ import {isSmartphone} from '@models/utils/utils'
 import {Observer} from 'mobx-react-lite'
 import React, {useState} from 'react'
 import {SketchPicker} from 'react-color'
+import {SignalQualityButton} from './SignalQuality'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 
-export interface LocalParticipantFormProps extends PopoverProps, BMProps{
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
+
+export interface LocalParticipantFormProps extends BMProps{
+  open: boolean
+  anchorEl: HTMLElement | null
+  anchorOrigin: PopoverOrigin
   close: () => void,
+  anchorReference?: PopoverReference
 }
 
 const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
@@ -72,6 +85,8 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
       <span  style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
         {t('lsTitle')}
       </span>
+      <span style={{float:'right'}}>
+        <SignalQualityButton open={props.open} stats={local.quality} isLocal={true}/></span>
     </DialogTitle>
     <DialogContent>
       <Observer>{ ()=> {
@@ -144,29 +159,32 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
               />
             </Box>
           </Box>
+          <MuiThemeProvider theme={theme}>
           <Box mt={3}>
             <div style={{fontSize:12}}>{t('lsNotification')}</div>
             <Box mt={-1} ml={2}>
             <FormControlLabel control={
-              <Checkbox color="primary" checked={local.information.notifyCall}
+              <Checkbox color="secondary" checked={local.information.notifyCall}
               onChange={(ev)=>{local.information.notifyCall = ev.target.checked}} />
               } label={t('lsNotifyCall')} />
             <FormControlLabel control={
-              <Checkbox color="primary" checked={local.information.notifyTouch}
+              <Checkbox color="secondary" checked={local.information.notifyTouch}
                 onChange={(ev)=>{local.information.notifyTouch = ev.target.checked}} />
               } label={t('lsNotifyTouch')} />
             <FormControlLabel control={
-              <Checkbox color="primary" checked={local.information.notifyNear}
+              <Checkbox color="secondary" checked={local.information.notifyNear}
                 onChange={(ev)=>{local.information.notifyNear = ev.target.checked}} />
               } label={t('lsNotifyNear')} />
             <FormControlLabel control={
-              <Checkbox color="primary" checked={local.information.notifyYarn}
+              <Checkbox color="secondary" checked={local.information.notifyYarn}
                 onChange={(ev)=>{local.information.notifyYarn = ev.target.checked}} />
               } label={t('lsNotifyYarn')} />
             </Box>
           </Box>
+          </MuiThemeProvider>
         </>}}
       </Observer>
+      <MuiThemeProvider theme={theme}>
       <Box mt={4} mb={3}>
         <Button variant="contained" color="primary" style={{textTransform:'none'}}
           onClick={()=>{
@@ -179,6 +197,7 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
             map.focusOn(local)
           }}>{t('ctFocus')}</Button>
       </Box>
+      </MuiThemeProvider>
     </DialogContent>
   </Popover>
 }

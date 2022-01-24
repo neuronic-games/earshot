@@ -44,7 +44,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
         const items = JSON.parse(text)
         if (isArray(items)) {
           items.forEach((item) => {
-            console.log("Loading -- ", name)
+            //console.log("Loading -- ", name)
             item.ownerName = name
             const content = extractContentData(item as ISharedContent)
             if (content.type === 'screen' || content.type === 'camera') { return }
@@ -111,7 +111,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
       }
     />
 
-  <div style={{width:'130%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
+  <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
   {/* <ShareDialogItem
   key="settingPreference" onClick={()=>showAdmin()} text={t('settingPreference')} icon={<RoomPreferencesIcon />}
 />*/}

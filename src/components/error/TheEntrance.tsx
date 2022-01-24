@@ -33,6 +33,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
 
+  const mapData = props.stores.map
+
 
 
   let roomURL = String(urlParameters.room).split("_");
@@ -49,12 +51,16 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   //const [room, setRoom] = useState(urlParameters.room ? urlParameters.room : savedRoom ? savedRoom : '')
   //const [room, setRoom] = useState(savedRoom ? savedRoom : '')
 
+  //console.log(roomURL[num], " room- ", savedRoom, name, participants.local.information.name)
+
   const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : savedRoom ? savedRoom : '')
 
   //console.log(urlParameters, " --- ")
-  //console.log(Object(props).room)
 
-  const [nameArr, setNameArr] = useState([String(Object(props).room)])
+  //console.log(room, " room")
+
+  const [nameArr, setNameArr] = useState([String(Object(props).room).toLocaleLowerCase()])
+  //const [nameArr, setNameArr] = useState([(room)])
   //const [index, setIndex] = useState(0);
   const passedPlaceholder = nameArr[0]
   const [placeholder, setPlaceholder] = useState(passedPlaceholder.slice(0, 0));
@@ -75,7 +81,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
             const inner = setTimeout(() => {
               clearTimeout(inner)
               setPlaceholderIndex(0)
-              setNameArr([generateRoomWithoutSeparator()])
+              setNameArr([generateRoomWithoutSeparator().toLocaleLowerCase()])
             },4000)
         } else {
             setPlaceholderIndex(placeholderIndex + 1)
@@ -90,21 +96,21 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     if (save) {
         if (participants.local.information.name !== name) {
           nameStr = name
-          /*participants.local.information.name = name
+          participants.local.information.name = name
           participants.local.sendInformation()
-          participants.local.saveInformationToStorage(true) */
+          participants.local.saveInformationToStorage(true)
         }
         if(room === "") {
-          setRoom(nameArr[0])
+
           //console.log(room, " ---- ")
           urlParameters.room = nameArr[0]
           sessionStorage.setItem('room', nameArr[0])
+          setRoom(nameArr[0])
         } else {
           urlParameters.room = room
           sessionStorage.setItem('room', room)
         }
       }
-
 
     //console.log(room, " --- ", nameArr[0])
 
@@ -149,6 +155,15 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     const cTimer = setTimeout(function() {
     //window.setTimeout(function() {
       clearTimeout(cTimer)
+      // Here
+      const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
+      mapData.setMatrix(changeMatrix)
+      mapData.setCommittedMatrix(changeMatrix)
+
+      // Position Avatar at center of stage
+      mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+
       onClose(true)
     },10)
 
@@ -212,7 +227,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.0</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.1</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

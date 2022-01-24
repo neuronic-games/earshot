@@ -4,22 +4,22 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import {useTranslation} from '@models/locales'
 import {isSmartphone} from '@models/utils'
-// createContentOfText
 import {createContentOfIframe, createContentOfTextOnly} from '@stores/sharedContents/SharedContentCreator'
 import sharedContents from '@stores/sharedContents/SharedContents'
 import React, {useRef, useState} from 'react'
 import {CameraSelector} from './CameraSelector'
 import {CameraSelectorMember} from './CameraSelector'
+import { GoogleDriveImport } from './GoogleDrive'
 import {ImageInput} from './ImageInput'
 import {ShareMenu} from './Menu'
 import {Step} from './Step'
 import {TextInput} from './TextInput'
 
 interface ShareDialogProps extends BMProps{
-  open: boolean
   cordX: number
   cordY:number
   origin:string
+  open: boolean
   onClose: () => void
 }
 
@@ -31,8 +31,6 @@ export function isDialogOpen():boolean {
 export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   const {open, onClose, cordX, cordY, origin} = props
   const {map} = props.stores
-
-  //console.log(cordX, " >cordX")
 
   const cameras = useRef(new CameraSelectorMember())
 
@@ -46,7 +44,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
     }
   }
   function getPage(step: Step, setStep: (step: Step) => void): JSX.Element | undefined {
-
     switch (step) {
       case 'menu':
         return <ShareMenu {...props} setStep={setStep} cameras={cameras.current} />
@@ -72,11 +69,19 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             multiline = {false}
           />
       case 'image':
-        return <ImageInput setStep={setStep} stores={props.stores} type={step}  xCord={cordX} yCord={cordY} from={origin} />
+        return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin}/>
       case 'zoneimage':
         return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin} />
       case 'camera':
-        return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} xCord={cordX} yCord={cordY} from={origin} />
+        return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} xCord={cordX} yCord={cordY} from={origin}/>
+      case 'Gdrive':
+        return <GoogleDriveImport
+        stores={props.stores}
+        setStep={setStep} onSelectedFile={(value) => {
+          createContentOfIframe(value, map, cordX, cordY, origin).then((c) => {
+            sharedContents.shareContent(c)
+          })
+        }} />
       default:
         throw new Error(`Unknown step: ${step}`)
     }

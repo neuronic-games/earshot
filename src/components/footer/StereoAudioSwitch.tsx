@@ -40,7 +40,6 @@ export const StereoAudioSwitch: React.FC<BMProps&{size?: number, iconSize:number
   const switchStereo = () => {
     participants.local.useStereoAudio = !stereo
     participants.local.saveMediaSettingsToStorage()
-
   }
 
   const {t} = useTranslation()
@@ -53,8 +52,8 @@ export const StereoAudioSwitch: React.FC<BMProps&{size?: number, iconSize:number
         </>}
       onClick={switchStereo} color = {stereo ? 'secondary' : 'primary'}
       onClickMore = {stereo ? (ev) => { setButton(ev.currentTarget) } : undefined} >
-      {stereo ? <HeadsetIcon style={{width:props.iconSize, height:props.iconSize, color:'white'}} />  :
-      <SpeakerIcon style={{width:props.iconSize, height:props.iconSize, color:'white'}} /> }
+      {stereo ? <HeadsetIcon style={{width:props.iconSize, height:props.iconSize}} />  :
+      <SpeakerIcon style={{width:props.iconSize, height:props.iconSize}} /> }
     </FabWithTooltip>
     <Popover open={Boolean(button)} onClose={() => setButton(null)}
       anchorEl={button} anchorOrigin={{vertical:'top', horizontal:'left'}}

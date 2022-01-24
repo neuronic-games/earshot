@@ -1,8 +1,8 @@
 import { ISharedContent } from '@models/ISharedContent'
 import {LocalInformation, LocalParticipant as ILocalParticipant, Physics, RemoteInformation, TrackStates} from '@models/Participant'
 import {urlParameters} from '@models/url'
-import {Pose2DMap} from '@models/utils'
-import {checkImageUrl} from '@models/utils'
+import {checkImageUrl, mulV2, Pose2DMap, subV2} from '@models/utils'
+import {MapData} from '@stores/Map'
 import {Store} from '@stores/utils'
 import md5 from 'md5'
 import {action, computed, makeObservable, observable} from 'mobx'
@@ -21,12 +21,15 @@ export interface MediaSettings{
   device:DevicePreference,
   headphone: boolean,
   soundLocalizationBase: string,
+  uploadPreference: string
 }
 
 interface PhysicsInfo{
   pose: Pose2DMap,
   physics: Physics,
 }
+
+type UploaderPreference = 'gyazo' | 'gdrive'
 
 export class LocalParticipant extends ParticipantBase implements Store<ILocalParticipant> {
   devicePreference = new DevicePreference()
@@ -35,6 +38,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   @observable emoticon = ''  //  for emoticon
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
+  @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
   @observable.ref zone:ISharedContent|undefined = undefined    //  The zone on which the local participant located.
   @observable remoteVideoLimit = config.remoteVideoLimit as number || -1
   @observable remoteAudioLimit = config.remoteAudioLimit as number || -1
@@ -113,6 +117,11 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     }
   }
 
+  @action updateViewpointCenter(map: MapData){
+    const pos = map.toWindow(this.pose.position)
+    this.viewpoint.center = subV2(mulV2(0.5, map.screenSize), pos)
+  }
+
   //  Save and MediaSettings etc.
   saveMediaSettingsToStorage() {
     const muteStatus:MediaSettings = {
@@ -124,6 +133,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       device:this.devicePreference,
       headphone: this.useStereoAudio,
       soundLocalizationBase: this.soundLocalizationBase,
+      uploadPreference: this.uploaderPreference,
     }
     //  console.log(storage === localStorage ? 'Save to localStorage' : 'Save to sessionStorage')
     localStorage.setItem('localParticipantStreamControl', JSON.stringify(muteStatus))
