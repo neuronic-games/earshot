@@ -71,6 +71,7 @@ const useStyles = makeStyles({
     height: props.size * 0.25,
     left: props.size * 0.8,
     top: props.size * 0.8,
+    display: 'none', // Hide the connection quality icon
     pointerEvents: 'none',
   }),
   iconProximity: (props: StyleProps) => ({

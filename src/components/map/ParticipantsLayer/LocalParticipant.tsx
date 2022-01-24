@@ -17,7 +17,7 @@ const HALF_DEGREE = 180
 const WHOLE_DEGREE = 360
 const HALF = 0.5
 
-const AVATARS = ["avatar/whoo_whoo-01.png", "avatar/whoo_whoo-02.png", "avatar/whoo_whoo-03.png", "avatar/whoo_whoo-04.png", "avatar/whoo_whoo-05.png", "avatar/whoo_whoo-06.png", "avatar/whoo_whoo-07.png"]
+const AVATARS = ["avatar/whoo-avatars_whoo-01.png", "avatar/whoo-avatars_whoo-02.png", "avatar/whoo-avatars_whoo-03.png", "avatar/whoo-avatars_whoo-04.png", "avatar/whoo-avatars_whoo-05.png", "avatar/whoo-avatars_whoo-06.png", "avatar/whoo-avatars_whoo-07.png"]
 
 
 type LocalParticipantProps = ParticipantProps
