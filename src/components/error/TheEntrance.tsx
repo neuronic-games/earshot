@@ -20,6 +20,7 @@ import errorInfo from '@stores/ErrorInfo'
 import React, {useState, useEffect} from 'react'
 import {ErrorDialogFrame} from './ErrorDialog'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
+import {rgb2Color} from '@models/utils'
 
 let nameStr:string = ''
 
@@ -35,6 +36,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   const mapData = props.stores.map
 
+  console.log(props.stores.participants.local.information, "AA")
 
 
   let roomURL = String(urlParameters.room).split("_");
@@ -66,6 +68,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   // setting default room
   const urlRoom = urlParameters.room
+
+  const rgb = participants.local.getColorRGB()
 
 
   useEffect(() => {
@@ -225,7 +229,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.2</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.3</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -242,7 +246,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em'}} src={bgCircle}
         alt="" />
       </div>
@@ -293,7 +297,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       */}
 
       <div style={active ? {position: 'relative', top: '-34.7em', width: '100%', textAlign:'center', transform: "scale(0.15)", transition: '0.3s ease-out', opacity:'1'} : {display:'none', position: 'relative', top: '-59em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0)"}}>
-        <img style={{width:'30em'}} src={participants.local.information.avatarSrc}
+          <img style={{width:'30em', backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={participants.local.information.avatarSrc}
         alt="" />
       </div>
       <div style={active ? {position: 'relative', top: '-47.5em', width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
