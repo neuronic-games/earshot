@@ -153,7 +153,7 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
               </form>
               <TextField label={t('lsEmail')} multiline={false} value={local.info.email}
                 style={{...tfDivStyle, marginTop:8}}
-                inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
+                inputProps={{style: tfIStyle, autoFocus:false}} InputLabelProps={{style: tfLStyle}}
                 onChange={event => local.info.email = event.target.value}
                 onKeyPress={onKeyPress} fullWidth={true}
               />

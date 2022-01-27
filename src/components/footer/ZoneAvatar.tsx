@@ -38,6 +38,7 @@ import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 /* import {ShareButton} from './share/ShareButton'
 import {StereoAudioSwitch} from './StereoAudioSwitch' */
 import {Observer} from 'mobx-react-lite'
+import {rgb2Color} from '@models/utils'
 
 
 /* import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
@@ -111,6 +112,8 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   const {participants} = props.stores
 
   //console.log("Zone Stream class")
+  const rgb = participants.local.getColorRGB()
+
 
 
   //const inzone = useObserver(() => participants.local.zone?.zone)
@@ -134,16 +137,19 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     //console.log(participants.remote.get(remotes[i])?.showVideo, " Video Status")
    //pp = participants.remote.get(remotes[i])?.showVideo
    //const startStream = useObserver(() => _status)
-   if(participants.remote.get(remotes[i])?.showVideo) {
+   //if(participants.remote.get(remotes[i])?.showVideo) {
+  if(participants.remote.get(remotes[i])?.tracks.avatarStream !== undefined) {
     userIndex = i
-    break
+    //break
    }
   }
 
+  //const rgbRemote = (participants.remote.get(remotes[userIndex])?.getColorRGB())
 
   const localStream = useObserver(() => Boolean(participants.local.showVideo))
   const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
 
+  const rgbR = participants.remote.get(remotes[userIndex])?.getColorRGB()
 
 
 
@@ -178,7 +184,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //console.log("CALLED")
 
-  console.log(toggleStream, " ====================", localStream, "--", startStream)
+  //console.log(toggleStream, " ====================", localStream, "--", startStream)
 
   const classes = useStyles()
   //  Footer collapse conrtrol
@@ -193,7 +199,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
-        '250', '250')
+        '300', '300')
         //console.log("AAA")
         checkToggle()
     }
@@ -207,7 +213,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
     function checkToggle() {
       //setToggleStream(startStream ? startStream : (localStream ? localStream : false))
-      console.log(stream, " -- toggle check")
+      //console.log(stream, " -- toggle check")
       setToggleStream((stream !== undefined) ? true : false)
     }
 
@@ -297,12 +303,12 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-20px', marginLeft:'-30px'}}/>
+            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'0px', marginLeft:'-30px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
           verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-35px', color:'white'}}>
-            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'-10px', marginLeft: '35px'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
+            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'-10px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
             <p style={{position:'relative', marginTop:'-6px', marginLeft:'4px'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
         </div>
       </Collapse>

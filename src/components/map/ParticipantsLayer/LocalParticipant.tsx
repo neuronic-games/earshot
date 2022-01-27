@@ -34,6 +34,7 @@ const useStyles = makeStyles({
     height: props.size * 0.5,
     left: props.position[0] + props.size * 0.4,
     top: props.position[1] - props.size * 0.8,
+    opacity:'0',
   }),
 })
 

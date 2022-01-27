@@ -53,7 +53,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
         <RemoteTrackLimitControl key="remotelimitcontrol" {...props.stores}/>
       </Box>
       <Box mt={2} mb={2}>
-        <TextField autoFocus label="Admin password" type="password" style={{marginTop:-12}}
+        <TextField autoFocus={false} label="Admin password" type="password" style={{marginTop:-12}}
           value={roomInfo?.password} onChange={(ev)=>{ roomInfo.password=ev.currentTarget.value}}
           onKeyPress={(ev)=>onKeyPress(ev, roomInfo)}/>
         &emsp;

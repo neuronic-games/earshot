@@ -116,6 +116,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
   const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
 
+  // For Video Stream
+  //const [vidStream, setVidStream] = React.useState<boolean>(false)
+
   //console.log(props.stores.roomInfo.password, " pass")
 
   function setShowShare(flag: boolean) {
@@ -131,13 +134,35 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const member = memberRef.current
   const containerRef = useRef<HTMLDivElement>(null)
   const adminButton = useRef<HTMLDivElement>(null)
+
+
+  // For Check user video stream
+  let userIndex:number = 0
+  const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+
+  //console.log(participants.remote, " remote")
+
+  for (const [i] of remotes.entries()) {
+    //if(participants.remote.get(remotes[i])?.showVideo) {
+    if(participants.remote.get(remotes[i])?.tracks.avatarStream !== undefined) {
+      userIndex = i;
+      //break;
+    }
+  }
+
+
   //  observers
   const mute = useObserver(() => ({
     muteA: participants.local.muteAudio,  //  mic
     muteS: participants.local.muteSpeaker,  //  speaker
     muteV: participants.local.muteVideo,  //  camera
-    onStage: participants.local.physics.onStage
+    onStage: participants.local.physics.onStage,
+
+    // For video stream
+    lStream: participants.local.tracks.avatarStream,
+    remoteStream: participants.remote.get(remotes[userIndex])?.tracks.avatarStream,
   }))
+
   //  Fab state and menu
   const [deviceInfos, setDeviceInfos] = React.useState<MediaDeviceInfo[]>([])
   const [micMenuEl, setMicMenuEl] = React.useState<Element|null>(null)
@@ -149,6 +174,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const classes = useStyles()
 
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
+  //console.log(mute.lStream, " AAAAA")
+
+
 
   //  Footer collapse conrtrol
   function checkMouseOnBottom() {
@@ -156,6 +184,66 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   }
   const mouseOnBottom = useObserver(checkMouseOnBottom)
   useEffect(() => {
+    //console.log(mute.remoteStream, " .. in footer ", mute.lStream?.getTracks(), " : ", mute.muteV)
+
+    if(mute.remoteStream !== undefined || mute.lStream !== undefined) {
+      //if(mute.lStream !== undefined) {
+        // && vidStream === false
+      /* if(!mute.muteV) {
+        participants.local.muteVideo = !mute.muteV
+        participants.local.saveMediaSettingsToStorage()
+        if(vidStream) {
+          setVidStream(false)
+        } else {
+          setVidStream(true)
+        }
+        //setVidStream(true)
+      } */
+
+      ////////////////////////////////////////////////////////////////////
+
+
+      /* if(mute.remoteStream !== undefined) {
+        if(mute.muteV) {
+          console.log("mute")
+          participants.local.muteVideo = !mute.muteV
+          participants.local.saveMediaSettingsToStorage()
+
+        } else {
+          console.log("unmute")
+          participants.local.muteVideo = !mute.muteV
+          participants.local.saveMediaSettingsToStorage()
+        }
+
+        if(vidStream) {
+          setVidStream(false)
+        } else {
+          setVidStream(true)
+        } */
+
+
+
+        ///////////////////////////////////////////////////////////////////
+
+        /* if(mute.muteV) {
+          console.log("muted")
+          participants.local.muteVideo = !mute.muteV
+          participants.local.saveMediaSettingsToStorage()
+        } else {
+          console.log("unmuted")
+          participants.local.muteVideo = !mute.muteV
+         participants.local.saveMediaSettingsToStorage()
+        }
+        if(vidStream) {
+          setVidStream(false)
+        } else {
+          setVidStream(true)
+        } */
+
+
+      //}
+    }
+
     /* if (checkMouseOnBottom()) { member.touched = true }
     setShowFooter(mouseOnBottom || !member.touched) */
     // eslint-disable-next-line react-hooks/exhaustive-deps

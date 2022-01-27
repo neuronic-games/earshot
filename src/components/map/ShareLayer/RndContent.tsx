@@ -350,6 +350,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onDragEnd: ({event, currentTarget, delta, buttons}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
+
       isLocaked = false
       member._down = false
       member._item = "DIV"
@@ -375,13 +376,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       member.buttons = 0
     },
     onMove:({xy}) => {
-      isLocaked = props.content.pinned
+      //isLocaked = props.content.pinned
       if(showTitle) {return}
+      //isLocaked = props.content.pinned
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
       member.downXPos = Number(diff[0])
       map.setMouse(xy)
     },
+
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onMouseUp: (arg) => {
@@ -427,6 +430,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     },
     onMouseMove: (arg) => {
+      isLocaked = props.content.pinned
       if(showTitle) {return}
       member.movePos = Number(map.mouseOnMap[1])
       member.moveXPos = Number(map.mouseOnMap[0])
@@ -446,6 +450,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onMouseOut: (arg) => {
       //console.log(Object(arg.target).id , " target")
       member.onContent = false
+      isLocaked = false
     },
     onMouseDown: (arg) => {
       //console.log(arg.button, " button")

@@ -259,9 +259,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
         xmlns="http://www.w3.org/2000/svg">{/* Cast shadow to show the height */}
         <defs>
           <radialGradient id="grad">
-            <stop offset="0%" stopColor="rgb(0,0,0,0.4)"/>
+            {/* <stop offset="0%" stopColor="rgb(0,0,0,0.4)"/>
             <stop offset="70%" stopColor="rgb(0,0,0,0.4)"/>
-            <stop offset="100%" stopColor="rgb(0,0,0,0)"/>
+            <stop offset="100%" stopColor="rgb(0,0,0,0)"/> */}
           </radialGradient>
         </defs>
         <circle r={outerRadius * shadowScale} cy={svgCenter+shadowOffset} cx={svgCenter+shadowOffset}
