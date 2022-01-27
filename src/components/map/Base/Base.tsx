@@ -298,6 +298,23 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
 
+          ////////////////////////////////////////////////
+          //const local = participants.local
+          const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+          for (const [i] of remotes.entries()) {
+            let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
+            let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
+            let mouseX = Number(map.mouseOnMap[0])
+            let mouseY = Number(map.mouseOnMap[1])
+            if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
+              return
+            }
+          }
+          ////////////////////////////////////////////////
+
+
+
+
           const downTimer = setTimeout(() => {
             clearTimeout(downTimer)
             if(itemLocked) {return}

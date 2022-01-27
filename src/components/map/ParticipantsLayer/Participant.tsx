@@ -189,7 +189,11 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const speakerMuted = useObserver(() => participant.trackStates.speakerMuted)
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
-  const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
+
+
+  //const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
+
+
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
 
@@ -204,8 +208,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const AUDIOLEVELSCALE = props.size * SVG_RATIO * HALF
   const svgCenter = SVG_RATIO * props.size * HALF
 
-  const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
-  const shadowScale = 1 + (shadowOffset/200)
+  //const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
+  //const shadowScale = 1 + (shadowOffset/200)
+
+
   //const eyeOffsetMul = normV(viewpoint.center)/500 * 0.16 + 0.85
 
   /* const dir = subV2(participantProps.mousePosition, participantProps.position)
@@ -257,15 +263,15 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     <div className={classes.root + ' dragHandle'} onContextMenu={props.onContextMenu}>
       <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO}
         xmlns="http://www.w3.org/2000/svg">{/* Cast shadow to show the height */}
-        <defs>
+        {/* <defs>
           <radialGradient id="grad">
-            {/* <stop offset="0%" stopColor="rgb(0,0,0,0.4)"/>
+            <stop offset="0%" stopColor="rgb(0,0,0,0.4)"/>
             <stop offset="70%" stopColor="rgb(0,0,0,0.4)"/>
-            <stop offset="100%" stopColor="rgb(0,0,0,0)"/> */}
+            <stop offset="100%" stopColor="rgb(0,0,0,0)"/>
           </radialGradient>
         </defs>
         <circle r={outerRadius * shadowScale} cy={svgCenter+shadowOffset} cx={svgCenter+shadowOffset}
-          stroke="none" fill={'url(#grad)'} />
+          stroke="none" fill={'url(#grad)'} /> */}
       </svg>
       <div className={classes.pointerRotate}>{/* The avatar */}
         <svg
