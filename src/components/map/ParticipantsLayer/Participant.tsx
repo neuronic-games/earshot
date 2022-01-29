@@ -130,6 +130,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
 
+  //console.log(participant.quality?.connectionQuality, " quality")
+
 
     //if(props.stores.participants.localId != '') {return}
     //console.log("CHECKING")

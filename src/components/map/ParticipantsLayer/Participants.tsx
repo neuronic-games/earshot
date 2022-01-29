@@ -39,6 +39,7 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
 
+
     return remote.physics.located
   }))
   const localId = useObserver(() => store.localId)

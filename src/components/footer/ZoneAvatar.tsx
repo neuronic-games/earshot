@@ -146,17 +146,38 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //const rgbRemote = (participants.remote.get(remotes[userIndex])?.getColorRGB())
 
+
+
+
+  const store = props.stores.participants
+  const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
+    const remote = store.find(id)!
+    if(remote.tracks.avatarStream !== undefined) {
+      //return remote.tracks.avatarStream
+      return remote
+    }
+    return undefined
+  }))
+
+  //console.log(participants.remote.get(ids[ids.length-1])?.tracks.avatarStream, " checking")
+  //console.log(ids, " ids")
+
+  //const [toggleUser, setToggleUser] = React.useState<string>(ids[ids.length-1])
+  //console.log(toggleUser, " toggleUser")
+
   const localStream = useObserver(() => Boolean(participants.local.showVideo))
-  const startStream = useObserver(() => Boolean(participants.remote.get(remotes[userIndex])?.showVideo))
+  const startStream = useObserver(() => Boolean(participants.remote.get(ids[ids.length-1])?.showVideo))
 
-  const rgbR = participants.remote.get(remotes[userIndex])?.getColorRGB()
-
-
+  const rgbR = participants.remote.get(ids[ids.length-1])?.getColorRGB()
 
   //const avStream = useObserver(() => participants.local.tracks.avatarStream)
   const avLocalStream = useObserver(() =>  participants.local.tracks.avatarStream)
-  const avStream = useObserver(() =>  participants.remote.get(remotes[userIndex])?.tracks.avatarStream)
+  //const avStream = useObserver(() =>  participants.remote.get(remotes[userIndex])?.tracks.avatarStream)
+  const avStream = useObserver(() =>  participants.remote.get(ids[ids.length-1])?.tracks.avatarStream)
+
   //console.log(startStream, " video on")
+
+
 
   //if(startStresm)
 
