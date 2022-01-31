@@ -1,3 +1,4 @@
+import {BMProps} from '@components/utils'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -9,13 +10,16 @@ import {Observer} from 'mobx-react-lite'
 import React from 'react'
 import {AfkDialog} from './AfkDialog'
 import {TheEntrance} from './TheEntrance'
+import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 
+// Setting default room animated names
+const defaultRoom = {
+  room: generateRoomWithoutSeparator()
+}
 
-export const dialogs = new Map<ErrorType, JSX.Element>()
-dialogs.set('entrance', <TheEntrance />)
-dialogs.set('afk', <AfkDialog />)
-
-// md
+export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
+dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom} />)
+dialogs.set('afk', (props: BMProps) => <AfkDialog />)
 
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {
   return <Dialog {...props} open={errorInfo.show()}
@@ -28,7 +32,7 @@ export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void
 }
 
 
-export const ErrorDialog: React.FC<{}> = (props) => {
+export const ErrorDialog: React.FC<BMProps> = (props) => {
   function close(){
     if (errorInfo.type !== 'retry'){
       errorInfo.clear()
@@ -39,7 +43,7 @@ export const ErrorDialog: React.FC<{}> = (props) => {
     () => {
       if (errorInfo.type){
         if (dialogs.has(errorInfo.type)) {
-          return dialogs.get(errorInfo.type)!
+          return dialogs.get(errorInfo.type)!(props)
         }else{
           return <ErrorDialogFrame onClose={() => { close() }}>
             <DialogContent>{errorInfo.message}</DialogContent>

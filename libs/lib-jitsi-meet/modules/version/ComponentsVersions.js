@@ -1,6 +1,6 @@
 import Statistics from '../statistics/statistics';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = require('@jitsi/logger').getLogger(__filename);
 
 /**
  * Creates new instance of <tt>ComponentsVersions</tt> which will be discovering
@@ -21,7 +21,7 @@ export default function ComponentsVersions(conference) {
 
 ComponentsVersions.prototype.processVersions
     = function(versions, mucResource, mucJid) {
-        if (!this.conference._isFocus(mucJid)) {
+        if (!this.conference.isFocus(mucJid)) {
             logger.warn(
                 `Received versions not from the focus user: ${versions}`,
                 mucJid);

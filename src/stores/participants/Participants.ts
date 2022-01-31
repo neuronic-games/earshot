@@ -2,6 +2,7 @@ import { PARTICIPANT_SIZE } from '@models/Participant'
 import {JitsiRemoteTrack} from 'lib-jitsi-meet'
 import {action, computed, makeObservable, observable} from 'mobx'
 import {LocalParticipant} from './LocalParticipant'
+import {PlaybackParticipant} from './PlaybackParticipant'
 import {RemoteParticipant} from './RemoteParticipant'
 
 export class Participants {
@@ -11,8 +12,9 @@ export class Participants {
 
   @observable.shallow readonly remote = new Map<string, RemoteParticipant>()
   local_ = observable.box(new LocalParticipant())
+  @observable.shallow readonly playback = new Map<string, PlaybackParticipant>()
 
-  @observable.shallow readonly yarnPhones = new Set<string>()
+  @observable readonly yarnPhones = new Set<string>()
   @observable yarnPhoneUpdated = false
 
   @computed get count(): number {
@@ -59,6 +61,19 @@ export class Participants {
     const res = this.remote.get(participantId)
 
     return res
+  }
+
+  getPlayback(id: string){
+    let rv = this.playback.get(id)
+    if (!rv){
+      rv = new PlaybackParticipant(id)
+      this.playback.set(id, rv)
+    }
+
+    return rv
+  }
+  removePlayback(id:string){
+    return this.playback.delete(id)
   }
 
   addRemoteTrack(track: JitsiRemoteTrack):boolean {

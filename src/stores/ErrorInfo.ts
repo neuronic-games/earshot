@@ -79,7 +79,7 @@ export class ErrorInfo {
       }
     })
     autorun(() => {
-      if (participants.local.awayFromKeyboard){
+      if (participants.local.physics.awayFromKeyboard){
         this.setType('afk')
       }
     })
@@ -121,7 +121,7 @@ export class ErrorInfo {
   }
   @action clear(type?: ErrorType) {
     if (this.type === 'afk'){
-      participants.local.awayFromKeyboard = false
+      participants.local.physics.awayFromKeyboard = false
     }
     if (type){
       this.types.delete(type)
@@ -198,6 +198,8 @@ export class ErrorInfo {
   canvas: HTMLCanvasElement|undefined = undefined
   oscillator: OscillatorNode|undefined = undefined
   startTestBot () {
+    participants.local.muteAudio = false
+    participants.local.muteVideo = false
     let counter = 0
     //  Create dummy audio
     const ctxA = new AudioContext()
@@ -278,12 +280,9 @@ export class ErrorInfo {
     const stream = new MediaStream()
     stream.addTrack(audioStream.getAudioTracks()[0])
     stream.addTrack(vidoeStream.getVideoTracks()[0])
-    createJitisLocalTracksFromStream(stream).then(
-      (tracks) => {
-        connection.conference.setLocalCameraTrack(tracks[0])
-        connection.conference.setLocalMicTrack(tracks[1])
-      },
-    )
+    const tracks = createJitisLocalTracksFromStream(stream)
+    connection.conference.setLocalCameraTrack(tracks[0])
+    connection.conference.setLocalMicTrack(tracks[1])
   }
 }
 

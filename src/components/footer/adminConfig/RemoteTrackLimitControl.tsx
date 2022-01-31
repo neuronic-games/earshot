@@ -1,13 +1,20 @@
-import {useStore} from '@hooks/ParticipantsStore'
+import {Stores} from '@components/utils'
 import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Grid from '@material-ui/core/Grid'
 import Slider from '@material-ui/core/Slider'
 import {connection} from '@models/api'
 import {t} from '@models/locales'
-import roomInfo from '@stores/RoomInfo'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 interface MySliderProps{
   value:number, setValue(v:number):void
@@ -21,8 +28,9 @@ const MySlider: React.FC<MySliderProps> = (props) => {
   /></Grid>
 }
 
-export const RemoteTrackLimitControl: React.FC<{}> = () => {
-  const local = useStore().local
+export const RemoteTrackLimitControl: React.FC<Stores> = (props:Stores) => {
+  const roomInfo = props.roomInfo
+  const local = props.participants.local
   const videoLimit = useObserver(() => local.remoteVideoLimit)
   const audioLimit = useObserver(() => local.remoteAudioLimit)
   const videoSlider = <MySlider value={videoLimit >= 0 ? videoLimit : MAX}
@@ -35,22 +43,24 @@ export const RemoteTrackLimitControl: React.FC<{}> = () => {
     } } />
 
   return <>
-  <FormControlLabel
-    control={videoSlider}
-    label={t('videoLimit')}
-  />
-  <FormControlLabel
-    control={audioSlider}
-    label={t('audioLimit')}
-  /><br />
-  <Button variant="contained" color={roomInfo.passMatched ? 'primary' : 'default'}
-      style={{textTransform:'none'}} disabled={!roomInfo.passMatched}
-      onClick = { () => {
-        if (roomInfo.passMatched){
-          connection.conference.sync.sendTrackLimits('', [local.remoteVideoLimit, local.remoteAudioLimit])
-        }
-      }}
-  >Sync limits</Button>
+  <MuiThemeProvider theme={theme}>
+    <FormControlLabel
+      control={videoSlider}
+      label={t('videoLimit')}
+    />
+    <FormControlLabel
+      control={audioSlider}
+      label={t('audioLimit')}
+    /><br />
+    <Button variant="contained" color={roomInfo.passMatched ? 'primary' : 'default'}
+        style={{textTransform:'none'}} disabled={!roomInfo.passMatched}
+        onClick = { () => {
+          if (roomInfo.passMatched){
+            connection.conference.sync.sendTrackLimits('', [local.remoteVideoLimit, local.remoteAudioLimit])
+          }
+        }}
+    >Sync limits</Button>
+  </MuiThemeProvider>
   </>
 }
 RemoteTrackLimitControl.displayName = 'RemoteTrackLimitControl'

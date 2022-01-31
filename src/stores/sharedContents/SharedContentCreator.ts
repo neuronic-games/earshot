@@ -1,17 +1,18 @@
 import {getProxiedUrl} from '@models/api/CORS'
+import GoogleDrive from '@models/api/GoogleDrive'
 import {getImageSize, uploadToGyazo} from '@models/api/Gyazo'
 import {ContentType, isContentWallpaper, ISharedContent, SharedContentData,
   SharedContentId, TEN_YEAR, TextMessages, TIME_RESOLUTION_IN_MS} from '@models/ISharedContent'
 import {Pose2DMap} from '@models/utils'
 import {extract} from '@models/utils'
 import { getMimeType } from '@models/utils'
+import {isSelfUrl} from '@models/utils'
 import {MapData} from '@stores/Map'
 import {defaultValue as mapObjectDefaultValue} from '@stores/MapObject'
 import {JitsiLocalTrack} from 'lib-jitsi-meet'
 import _ from 'lodash'
 import participants from '../participants/Participants'
 import sharedContents, {contentLog} from './SharedContents'
-import { PastedContent } from '@components/map/ShareLayer/PastedContent'
 import { Step } from '@components/footer/share/Step'
 
 export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefaultValue, {
@@ -27,6 +28,7 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   zorder: 0,
   pinned: false,
   shareType: '',
+  showTitle: false,
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -48,8 +50,8 @@ class SharedContentImp implements ISharedContent {
   originalSize!:[number, number]
   noFrame?: boolean
   opacity?: number
-  proximity?: boolean
   shareType!: string
+  showTitle!: boolean
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -61,6 +63,7 @@ export function createContent() {
   content.color = participants.local.information.color
   content.textColor = participants.local.information.textColor
   content.zorder = Date.now()
+
   return content
 }
 
@@ -73,7 +76,7 @@ function makeItPdf(pasted:ISharedContent, urlStr: string, map:MapData){
   pasted.size[1] = pasted.size[0] * 1.41421356
 }
 
-export function createContentOfIframe(urlStr: string, map: MapData) {
+export function createContentOfIframe(urlStr: string, map: MapData, xCord:number, yCord:number, from:string) {
   return new Promise<ISharedContent>((resolve, reject) => {
     const pasted = createContent()
     const url = new URL(urlStr)
@@ -92,8 +95,13 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
         }
       }
       pasted.type = 'youtube'
-      pasted.pose.position[0] = map.mouseOnMap[0]
-      pasted.pose.position[1] = map.mouseOnMap[1]
+      if(from === 'contextmenu') {
+        pasted.pose.position[0] = Number(xCord)
+        pasted.pose.position[1] = Number(yCord)
+      } else {
+        pasted.pose.position[0] = map.mouseOnMap[0]
+        pasted.pose.position[1] = map.mouseOnMap[1]
+      }
       pasted.size[0] = 640
       pasted.size[1] = 380
     }else if (url.hostname === 'drive.google.com' || url.hostname === 'docs.google.com') {  //  google drive
@@ -103,15 +111,15 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
       pasted.url = `id=${fileId}`
       pasted.pose.position[0] = map.mouseOnMap[0]
       pasted.pose.position[1] = map.mouseOnMap[1]
-      pasted.size[0] = 600
-      pasted.size[1] = 800
+      pasted.size[0] = 900
+      pasted.size[1] = 700
     }else if (url.hostname === 'wbo.ophir.dev'){  //  whiteboard
       pasted.type = 'whiteboard'
       pasted.url = urlStr
       pasted.pose.position[0] = map.mouseOnMap[0]
       pasted.pose.position[1] = map.mouseOnMap[1]
-      pasted.size[0] = 600
-      pasted.size[1] = 700
+      pasted.size[0] = 700
+      pasted.size[1] = 740
     }else if (url.pathname.substring(url.pathname.length-4) === '.pdf' ||
       url.pathname.substring(url.pathname.length-4) === '.PDF' ){  //  pdf
       makeItPdf(pasted, urlStr, map)
@@ -140,7 +148,7 @@ export function createContentOfIframe(urlStr: string, map: MapData) {
     }
 })
 }
-export function createContentOfText(message: string, map: MapData) {
+export function createContentOfText(message: string, map: MapData, xCord:number, yCord:number, from:string) {
   const pasted = createContent()
   pasted.type = 'text'
   const textMessage = {
@@ -153,8 +161,13 @@ export function createContentOfText(message: string, map: MapData) {
   }
   const texts: TextMessages = {messages:[textMessage], scroll:[0, 0]}
   pasted.url = JSON.stringify(texts)
-  pasted.pose.position[0] = map.mouseOnMap[0]
-  pasted.pose.position[1] = map.mouseOnMap[1]
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
   const slen = Math.ceil(Math.sqrt(message.length))
   const STRING_SCALE_W = 20
   const STRING_SCALE_H = 25
@@ -163,45 +176,101 @@ export function createContentOfText(message: string, map: MapData) {
 
   return pasted
 }
-export function createContentOfImage(imageFile: Blob, map: MapData,  offset?:[number, number], _type?:Step)
+
+export function createContentOfTextOnly(message: string, map: MapData, xCord:number, yCord:number, from:string) {
+  //console.log(xCord, " --- ", yCord, " : ", from)
+  const pasted = createContent()
+  pasted.type = 'text'
+  pasted.noFrame = true
+  const textMessage = {
+    message,
+    pid: participants.localId,
+    name: participants.local.information.name,
+    color: participants.local.information.color,
+    textColor: participants.local.information.textColor,
+    time: Date.now(),
+  }
+  const texts: TextMessages = {messages:[textMessage], scroll:[0, 0]}
+  pasted.url = JSON.stringify(texts)
+
+
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
+  const slen = Math.ceil(Math.sqrt(message.length))
+  const STRING_SCALE_W = 20
+  const STRING_SCALE_H = 25
+  pasted.size[0] = Math.max(slen * STRING_SCALE_W, 200)
+  pasted.size[1] = Math.max(slen * STRING_SCALE_H, slen ? STRING_SCALE_H : STRING_SCALE_H * 3)
+  return pasted
+}
+
+export function createContentOfImage(imageFile: File, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string)
   : Promise<SharedContentImp> {
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
-    uploadToGyazo(imageFile).then((url) => {
-      createContentOfImageUrl(url, map, offset, _type).then(resolutionFunc)
-    }).catch(rejectionFunc)
+    if (participants.local.uploaderPreference === 'gyazo'){
+      uploadToGyazo(imageFile).then((url) => {
+        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc)
+      }).catch((error) => {
+        if (error === 'type'){
+          GoogleDrive.uploadFileToGoogleDrive(imageFile).then((url) => {
+            createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc)
+          }).catch(rejectionFunc)
+        }else{
+          rejectionFunc(error)
+        }
+      })
+    }else{
+      GoogleDrive.uploadFileToGoogleDrive(imageFile).then((url) => {
+        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc).catch(rejectionFunc)
+      })
+    }
   })
 
   return promise
 }
 
 export function createContentOfImageUrl(url: string, map: MapData,
-  offset?:[number, number], _type?:Step): Promise<SharedContentImp> {
-  const IMAGESIZE_LIMIT = 500
+  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string): Promise<SharedContentImp> {
+  //const IMAGESIZE_LIMIT = 500
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
-      console.log(" TYPE ", _type)
+
       pasted.type = 'img'
-      
       if(_type === "image") {
         pasted.shareType = "img"
-        pasted.noFrame = false
+        //pasted.noFrame = true
       } else if(_type === "zoneimage") {
         pasted.shareType = 'zoneimg'
-        pasted.noFrame = true
+        //pasted.noFrame = true
+        //pasted.zone = "open"
       }
+
+      pasted.noFrame = true
+
       pasted.url = url
-      const max = size[0] > size[1] ? size[0] : size[1]
+      /* const max = size[0] > size[1] ? size[0] : size[1]
       const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
-      //pasted.size = [size[0] * scale, size[1] * scale]
+      pasted.size = [size[0] * scale, size[1] * scale] */
       pasted.size = [size[0], size[1]]
       pasted.originalSize = [size[0], size[1]]
       const CENTER = 0.5
       for (let i = 0; i < pasted.pose.position.length; i += 1) {
         if (offset) {
-          pasted.pose.position[i] = map.mouseOnMap[i] + offset[i]
-        }else {
+          if(from === 'contextmenu') {
+            //console.log('contextmenu')
+            pasted.pose.position[0] = Number(xCord)
+            pasted.pose.position[1] = Number(yCord)
+          } else {
+            pasted.pose.position[i] = map.mouseOnMap[i] + offset[i]
+          }
+        } else {
           pasted.pose.position[i] = map.mouseOnMap[i] - CENTER * pasted.size[i]
         }
       }
@@ -255,12 +324,17 @@ export function createContentOfPdf(file: File, map: MapData, offset?:[number, nu
 }
 
 
-export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, type:ContentType) {
+export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, type:ContentType, xCord:number, yCord:number, from:string) {
   const pasted = createContent()
   pasted.type = type
   pasted.url = ''
-  pasted.pose.position[0] = map.mouseOnMap[0]
-  pasted.pose.position[1] = map.mouseOnMap[1]
+  if(from === 'contextmenu') {
+    pasted.pose.position[0] = Number(xCord)
+    pasted.pose.position[1] = Number(yCord)
+  } else {
+    pasted.pose.position[0] = map.mouseOnMap[0]
+    pasted.pose.position[1] = map.mouseOnMap[1]
+  }
   const track = tracks.find(track => track.getType() === 'video')
   const settings = track?.getTrack().getSettings()
   if (settings) {
@@ -273,9 +347,96 @@ export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, ty
   return pasted
 }
 
+export function createContentFromText(str: string, map:MapData, xCord:number, yCord:number, from:string){
+  return new Promise<ISharedContent>((resolve, reject)=>{
+    let content = undefined
+    if (str.indexOf('http://') === 0 || str.indexOf('https://') === 0) {
+      const url = new URL(str)
+      const ext = str.slice(-4)
+      if (isSelfUrl(url)) {
+        //  Openning of self url makes infinite loop. So, create text instead.
+        content = createContentOfText(str, map, xCord, yCord, from)
+        content.name = '! recursive reference'
+        resolve(content)
+      }else if (ext === '.jpg' || ext === '.JPG' || ext === 'jpeg' || ext === 'JPEG' ||
+        ext === '.png' || ext === '.PNG' || ext === '.gif' || ext === '.GIF' ||
+        ext === '.svg' || ext === '.SVG') {
+        createContentOfImageUrl(str, map).then((content) => {
+          content.name = url.pathname
+          resolve(content)
+        }).catch(reject)
+      }else {
+        createContentOfIframe(str, map, xCord, yCord, from).then((content) => {
+          if (content.type === 'iframe') {
+            //  iframe is not work well because of CORS problem.
+            content = createContentOfText(str, map, xCord, yCord, from)
+            content.name = `${url.host}${url.pathname}${url.search}`
+          }
+          if (content.type === 'youtube') {
+            content.name = `${url.search.substring(1)}`
+          }else {
+            content.name = `${url.host}${url.pathname}${url.search}`
+          }
+          resolve(content)
+        }).catch(reject)
+      }
+    }else {
+      content = createContentOfText(str, map, xCord, yCord, from)
+      content.name = str.substring(0, 20)
+      resolve(content)
+    }
+  })
+}
+//  set pasted or dragged content to pasted content (not shared) or create shared content directly
+export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: MapData) {
+  return new Promise<ISharedContent[]>((resolve, reject)=>{
+    if (dataTransfer?.types.includes('Files')) {   //  If file is pasted)
+      const items = Array.from(dataTransfer.items)
+      const contents:ISharedContent[] = []
+      const reasons:any[] = []
+      for(const item of items){
+        const file = item.getAsFile()
+        if (item.kind === 'file' && file) {
+          let creator: ((file:File, map:MapData, offset?:[number, number]) => Promise<ISharedContent>)
+            | undefined = undefined
+          if (item.type.indexOf('image') !== -1) {
+            creator = createContentOfImage
+          }else if (item.type === 'application/pdf') {
+            creator = createContentOfPdf
+          }
+          if (creator) {
+            creator(file, map).then((content) => {
+              content.name = file.name
+              contents.push(content)
+              if (contents.length + reasons.length === items.length){
+                contents.length ? resolve(contents) : reject(reasons)
+              }
+            }).catch((reason) => {
+              reasons.push(reason)
+              if (contents.length + reasons.length  === items.length){
+                contents.length ? resolve(contents) : reject(reasons)
+              }
+            })
+          }
+        }else{
+          reasons.push('Creator not found.')
+        }
+      }
+    }else if (dataTransfer?.types.includes('text/plain')) {
+      dataTransfer.items[0].getAsString((str:string) => {
+        createContentFromText(str, map, 0, 0, '').then(c => resolve([c])).catch(reject)
+      })
+    }else {
+      console.error('Unhandled content types:', dataTransfer?.types)
+      reject(`Unhandled content types:${dataTransfer?.types}`)
+    }
+  })
+}
+
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
-  type: true, url: true, pose: true, size: true, originalSize: true, pinned: true, noFrame: true, opacity: true, proximity: true, shareType:true
+  type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
+  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -286,7 +447,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, id: true, proximity: true, shareType:true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)
@@ -342,13 +503,23 @@ export function isGDrivePreviewScrollable(mimeType?: string) {
   if (!mimeType){ return true }
 
   return !(
-    mimeType === 'application/vnd.google-apps.presentation'
+    mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    || mimeType === 'application/vnd.google-apps.presentation'
     || mimeType === 'application/vnd.google-apps.spreadsheet'
     || mimeType.slice(0, 5) === 'image'
     || mimeType.slice(0, 5) === 'video'
     || mimeType.slice(0, 5) === 'audio'
   )
 }
+export function isGDrivePreviewEditUrl(mimeType?: string){
+  if (!mimeType){ return false }
+
+  return mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  || mimeType === 'application/vnd.google-apps.spreadsheet'
+  || mimeType === 'application/vnd.google-apps.document'
+  || mimeType === 'application/vnd.google-apps.presentation'
+}
+
 export function getGDriveUrl(editing: boolean, params: Map<string, string>){
   const fileId = params.get('id')
   let mimeType = params.get('mimeType')
@@ -356,13 +527,16 @@ export function getGDriveUrl(editing: boolean, params: Map<string, string>){
   const comp = 'application/vnd.google-apps.'
 
   let url = `https://drive.google.com/file/d/${fileId}/preview`
-  if (editing){
+  if (editing || isGDrivePreviewEditUrl(mimeType)){
     if (mimeType.substr(0, comp.length) === comp){
       let app = mimeType.substr(comp.length)
       if (app !== 'failed'){
         if (app === 'spreadsheet'){ app = 'spreadsheets' }
         url = `https://docs.google.com/${app}/d/${fileId}/edit`
       }
+    } else if (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      const app = 'spreadsheets'
+      url = `https://docs.google.com/${app}/d/${fileId}/edit`
     }
   }
 

@@ -1,13 +1,14 @@
+import { ISharedContent } from '@models/ISharedContent'
 import {LocalInformation, LocalParticipant as ILocalParticipant, Physics, RemoteInformation, TrackStates} from '@models/Participant'
 import {urlParameters} from '@models/url'
-import {Pose2DMap} from '@models/utils'
-import {checkImageUrl} from '@models/utils'
+import {checkImageUrl, mulV2, Pose2DMap, subV2} from '@models/utils'
+import {MapData} from '@stores/Map'
 import {Store} from '@stores/utils'
 import md5 from 'md5'
 import {action, computed, makeObservable, observable} from 'mobx'
 import {autorun} from 'mobx'
 import {DevicePreference} from './localPlugins'
-import {ParticipantBase} from './ParticipantBase'
+import {ParticipantBase, TracksStore} from './ParticipantBase'
 // config.js
 declare const config:any                  //  from ../../config.js included from index.html
 
@@ -20,6 +21,7 @@ export interface MediaSettings{
   device:DevicePreference,
   headphone: boolean,
   soundLocalizationBase: string,
+  uploadPreference: string
 }
 
 interface PhysicsInfo{
@@ -27,16 +29,23 @@ interface PhysicsInfo{
   physics: Physics,
 }
 
+type UploaderPreference = 'gyazo' | 'gdrive'
+
 export class LocalParticipant extends ParticipantBase implements Store<ILocalParticipant> {
   devicePreference = new DevicePreference()
+  @observable.shallow tracks = new TracksStore()
   @observable useStereoAudio = false  //  will be override by url switch
+  @observable emoticon = ''  //  for emoticon
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
-  @observable remoteVideoLimit = config.remoteVideoLimit || -1 as number
-  @observable remoteAudioLimit = config.remoteAudioLimit || -1 as number
+  @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
+  @observable.ref zone:ISharedContent|undefined = undefined    //  The zone on which the local participant located.
+  @observable remoteVideoLimit = config.remoteVideoLimit as number || -1
+  @observable remoteAudioLimit = config.remoteAudioLimit as number || -1
   @observable audioInputDevice:string|undefined = undefined
   @observable videoInputDevice:string|undefined = undefined
   @observable audioOutputDevice:string|undefined = undefined
+
 
   information = this.information as LocalInformation
   @observable.ref informationToSend:RemoteInformation|undefined
@@ -46,6 +55,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       micMuted: this.muteAudio,
       speakerMuted: this.muteSpeaker,
       headphone: this.useStereoAudio,
+      emoticon: this.emoticon,
     }
   }
   get info():LocalInformation { return this.information as LocalInformation}
@@ -62,9 +72,10 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     //  console.debug('URL muteMic', urlParameters.muteMic)
     this.muteVideo = urlParameters.cameraOn !== null ? false : true
     //  console.debug('URL cameraOn', urlParameters.cameraOn)
+    this.emoticon = '' // for emoticon
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()
-    autorun(() => {
+    autorun(() => { //  image avatar
       const gravatar = 'https://www.gravatar.com/avatar/'
       let src = this.information.avatarSrc
       if ((!src || src.includes(gravatar, 0)) && this.information.email){
@@ -106,6 +117,11 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     }
   }
 
+  @action updateViewpointCenter(map: MapData){
+    const pos = map.toWindow(this.pose.position)
+    this.viewpoint.center = subV2(mulV2(0.5, map.screenSize), pos)
+  }
+
   //  Save and MediaSettings etc.
   saveMediaSettingsToStorage() {
     const muteStatus:MediaSettings = {
@@ -117,6 +133,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       device:this.devicePreference,
       headphone: this.useStereoAudio,
       soundLocalizationBase: this.soundLocalizationBase,
+      uploadPreference: this.uploaderPreference,
     }
     //  console.log(storage === localStorage ? 'Save to localStorage' : 'Save to sessionStorage')
     localStorage.setItem('localParticipantStreamControl', JSON.stringify(muteStatus))

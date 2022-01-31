@@ -2,7 +2,7 @@ import {priorityCalculator} from '@models/middleware/trafficControl'
 import {assert} from '@models/utils'
 import errorInfo from '@stores/ErrorInfo'
 import {autorun} from 'mobx'
-import {NodeGroup, PlayMode, setAudioOutputDevice} from './NodeGroup'
+import {NodeGroup, NodeGroupForPlayback, PlayMode, setAudioOutputDevice} from './NodeGroup'
 
 export class StereoManager {
   private readonly audioContext: AudioContext = new window.AudioContext()
@@ -78,7 +78,14 @@ export class StereoManager {
 
     return this.nodes[id]
   }
+  addPlayback(id: string) {
+    assert(this.nodes[id] === undefined)
+    const node = new NodeGroupForPlayback(this.audioContext, this.audioDestination,
+                                   this.playMode, !this.audioOutputMuted)
+    this.nodes[id] = node
 
+    return node
+  }
   removeSpeaker(id: string) {
     //  console.log('remove speaker')
     this.nodes[id].disconnect()
@@ -92,7 +99,7 @@ export class StereoManager {
       autorun(() => {
         const accepts = new Set(priorityCalculator.tracksToAccept[1].map(info => info.endpointId))
         for (const id in this.nodes) {
-          if (accepts.has(id)) {
+          if (accepts.has(id) || this.nodes[id] instanceof NodeGroupForPlayback) {
             this.nodes[id].setPlayMode(this.playMode)
           }else {
             this.nodes[id].setPlayMode('Pause')

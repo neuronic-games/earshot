@@ -2,20 +2,24 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta http-equiv="EXPIRES" content="Fri, 28 Jan 2022 11:00:00 GMT">
     <title>EarShot Chat</title>
     <script src="./config.js"></script>
     <script> const d = {}; </script>
     <script src="https://apis.google.com/js/client.js"></script>
-    <link rel="icon" href="./favicon.ico">
+    <link rel="icon" href="./earshoticon.ico">
     <style>
       body {
         -webkit-text-size-adjust: 100%;
+        font-family:Arial, Helvetica, sans-serif;
       }
     </style>
   </head>
   <body tabindex="0" bgcolor="#5f7ca0">
-    <h2 style="color: white;"> Loading EarShot Chat </h1>
+    <h2 style="color: white;"> Loading EarShot Chat </h2>
     <div id="root"></div>
     <div id="overlay" style="position: fixed; top: 0px; left: 0px;"></div>
+    <!--Import the browser google api-->
+    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
   </body>
 </html>

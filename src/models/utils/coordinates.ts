@@ -2,6 +2,12 @@ export interface Pose2DMap {
   position: [number, number]
   orientation: number
 }
+export function clonePose2DMap(p:Pose2DMap):Pose2DMap{
+  return {position:[p.position[0], p.position[1]], orientation:p.orientation}
+}
+export function cloneV2(v:number[]):[number, number]{
+  return [v[0], v[1]]
+}
 
 export interface Pose3DAudio {  // right hand cartesian coordinate system
   position: [number, number, number],
@@ -14,8 +20,8 @@ export function addV2(a:number[], b:number[]): [number, number] {
 export function subV2(a:number[], b:number[]): [number, number] {
   return [a[0] - b[0], a[1] - b[1]]
 }
-export function mulV<S extends number, T extends number[]>(s: S, v2: T): T {
-  return [v2[0] * s,  v2[1] * s] as T
+export function mulV<S extends number, T extends number[]>(s: S, v: T): T {
+  return v.map(e => s*e) as T
 }
 export function mulV2(a:number, v:number[]): [number, number] {
   return [a * v[0], a * v[1]]
@@ -101,8 +107,11 @@ export function square(s: number) {
   return s * s
 }
 
+//  rect or circle
+export type Shape = [number, number, number, number] | [number, number, number]
+
 //  rect: [top, right, bottom, left]
-export function getRect(pose: Pose2DMap, size: [number, number]){
+export function getRect(pose: Pose2DMap, size: [number, number]):[number, number, number, number]{
   if (pose.orientation === 0){
     return [pose.position[1], pose.position[0] + size[0], pose.position[1] + size[1], pose.position[0]]
   }
@@ -134,6 +143,10 @@ export function isOverlappedToCircle(rect:number[], circle:number[]){
 export function isInRect(point: [number, number], rect:number[]){
   return rect[3] <= point[0] && point[0] <= rect[1]
     && rect[0] <= point[1] && point[1] <= rect[2]
+}
+export function isCircleInRect(point: [number, number], radius:number, rect:number[]){
+  return rect[3] <= point[0]-radius && point[0]+radius <= rect[1]
+    && rect[0] <= point[1]-radius && point[1]+radius <= rect[2]
 }
 export function isInCircle(point: [number, number], circle:number[]){
   const d2 = square(point[0] - circle[0]) + square(point[1] - circle[1])

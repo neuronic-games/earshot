@@ -1,10 +1,11 @@
 import {formatTimestamp} from '@components/utils'
+import {textToLinkedText} from '@components/utils/Text'
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {CSSProperties} from '@material-ui/styles'
 import settings from '@models/api/Settings'
 import {compTextMessage, TextMessage, TextMessages} from '@models/ISharedContent'
-import {assert, findTextColorRGB, isSelfUrl} from '@models/utils'
+import {assert, findTextColorRGB} from '@models/utils'
 import {getRandomColorRGB, rgba} from '@models/utils'
 import _ from 'lodash'
 import {Observer, useObserver} from 'mobx-react-lite'
@@ -77,13 +78,16 @@ export const TextEdit: React.FC<TextEditProps> = (props:TextEditProps) => {
         if (sendTextLater){ sendTextLater.cancel() }
         sendText(text, props)
       }}
+      onFocus={()=>{
+
+      }}
       onKeyDown={(ev) => {
         if (ev.key === 'Escape' || ev.key === 'Esc') {
           ev.stopPropagation()
           ev.preventDefault()
           if (sendTextLater){ sendTextLater.cancel() }
           sendText(text, props)
-          props.contents.setEditing('')
+          props.stores.contents.setEditing('')
         }
       }}
     />
@@ -141,27 +145,6 @@ export const TextDiv: React.FC<TextDivProps> = (props:TextDivProps) => {
   </div></Tooltip>
 }
 
-function makeLink(key:number, regResult: string[]){
-  //console.log('reg:', regResult)
-  let href='', target='', disp=''
-  if (regResult[1]) { disp=href=regResult[1]; target='_blank' }
-  else if (regResult[2]) {
-    href = regResult[2]
-    disp = regResult[6] ? regResult[6] : regResult[2]
-    target = regResult[3] ? '_self' : '_blank'
-  }
-  else {
-    disp = regResult[7]
-    href = regResult[11]
-    target = (regResult[9]||regResult[10]) ? '_self' : '_blank'
-  }
-  if (isSelfUrl(new URL(href))){
-    target = '_self'
-  }
-
-  return <a key={key} href={href} target={target} rel="noreferrer">{disp}</a>
-}
-
 const cssText: CSSProperties = {
   height: '100%',
   width: '100%',
@@ -182,6 +165,7 @@ const useStyles = makeStyles({
 
 export const Text: React.FC<ContentProps> = (props:ContentProps) => {
   assert(props.content.type === 'text')
+  const {contents, participants} = props.stores
   const memberRef = React.useRef<TextMember>(new TextMember())
   const member = memberRef.current
   const classes = useStyles()
@@ -189,15 +173,15 @@ export const Text: React.FC<ContentProps> = (props:ContentProps) => {
   const url = props.content.url
   const newTexts = JSON.parse(url) as TextMessages
   //const refEdit = useRef<HTMLDivElement>(null)
-  const editing = useObserver(() => props.contents.editing === props.content.id)
+  const editing = useObserver(() => contents.editing === props.content.id)
   if (editing){
-    props.contents.setBeforeChangeEditing((cur, next) => {
+    contents.setBeforeChangeEditing((cur, next) => {
       if (cur === props.content.id && next === ''){
         if (ref.current){
           member.messages = member.messages.filter(text => text.message.length)
           onUpdateTexts(member.messages, ref.current, props)
         }
-        props.contents.setBeforeChangeEditing() //  clear me
+        contents.setBeforeChangeEditing() //  clear me
       }
     })
   }
@@ -218,14 +202,14 @@ export const Text: React.FC<ContentProps> = (props:ContentProps) => {
     if (index === -1) {
       indices.add(member.messages.length)
       member.messages.push(newMessage)       //  Add new messages
-    }else if (newMessage.pid !== props.participants.localId){
+    }else if (newMessage.pid !== participants.localId){
       indices.add(index)
       member.messages[index] = newMessage  //  Update remote messages
     }
   })
   //  remove removed messages
   member.messages = member.messages.filter((msg, idx) =>
-    msg.pid === props.participants.localId || indices.has(idx))
+    msg.pid === participants.localId || indices.has(idx))
   member.messages.sort(compTextMessage)
 
   let focusToEdit:undefined|TextMessage = undefined
@@ -235,16 +219,16 @@ export const Text: React.FC<ContentProps> = (props:ContentProps) => {
     if (last) {
       member.messages.push(last)
     }
-    if (last?.pid !== props.participants.localId) {
-      member.messages.push({message:'', pid:props.participants.localId,
-        name:props.participants.local.information.name,
-        color: props.participants.local.information.color,
-        textColor: props.participants.local.information.textColor,
+    if (last?.pid !== participants.localId) {
+      member.messages.push({message:'', pid:participants.localId,
+        name:participants.local.information.name,
+        color: participants.local.information.color,
+        textColor: participants.local.information.textColor,
         time:Date.now()})
     }
     if (!member.editing) {  //  Find the message to focus to edit, i.e. my last message.
       member.messages.reverse()
-      focusToEdit = member.messages.find(message => message.pid === props.participants.localId)
+      focusToEdit = member.messages.find(message => message.pid === participants.localId)
       member.messages.reverse()
     }
   }
@@ -252,27 +236,10 @@ export const Text: React.FC<ContentProps> = (props:ContentProps) => {
   //  Makeing text (JSX element) to show
   const textDivs = member.messages.map((text, idx) => {
     const textEditing = (editing &&
-      (text.pid === props.participants.localId || !props.participants.remote.has(text.pid)))
+      (text.pid === participants.localId || !participants.remote.has(text.pid)))
 
-    const textToShow:JSX.Element[] = []
-    if (!textEditing){
-      //  add link to URL strings
-      const urlReg = 'https?:\\/\\/[-_.!~*\'()a-zA-Z0-9;/?:@&=+$,%#]+'
-      const urlRegExp = new RegExp(`(${urlReg})|` +
-        `\\[(${urlReg})(( *>)|( +move))?\\s*(\\S+)\\]` +
-        `|\\[(\\S+)((\\s*>)|(\\s+move)|\\s)\\s*(${urlReg})\\]`)
-      let regResult:RegExpExecArray | null
-      let start = 0
-      while ((regResult = urlRegExp.exec(text.message.slice(start))) !== null) {
-        const before = text.message.slice(start, start + regResult.index)
-        if (before) {
-          textToShow.push(<span key={start}>{before}</span>)
-        }
-        textToShow.push(makeLink(start + before.length, regResult))
-        start += before.length + regResult[0].length
-      }
-      textToShow.push(<span key={start}>{text.message.slice(start)}</span>)
-    }
+    let textToShow:JSX.Element[] = []
+    if (!textEditing){ textToShow = textToLinkedText(text.message) }
 
     return <TextDiv {...props} key={idx} text={text} div={ref.current} textToShow={textToShow}
       member={member} textEditing={textEditing} autoFocus = {text === focusToEdit} />

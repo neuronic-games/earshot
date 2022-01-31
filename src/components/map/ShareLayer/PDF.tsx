@@ -158,8 +158,19 @@ class Member{
           this.numPages = doc.numPages
           resolve(this.document)
         }).catch(reason => {
-          console.error(`PDF: failed to load ${this.mainUrl}`)
-          reject(reason)
+          const task = getDocument({
+            url: this.mainUrl,
+            cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/cmaps/',
+            cMapPacked: true,
+          })
+          task.promise.then((doc) => {
+            this.document = doc
+            this.numPages = doc.numPages
+            resolve(this.document)
+          }).catch(reason => {
+            console.error(`PDF: failed to load ${this.mainUrl}`)
+            reject(reason)
+          })
         })
 //        task.onProgress = (progress:{loaded: number, total: number}) => {
 //          console.log(`PDF progress ${progress.loaded}/${progress.total}`)
@@ -217,7 +228,7 @@ export const PDF: React.FC<ContentProps> = (props:ContentProps) => {
   const refCanvas = useRef<HTMLCanvasElement>(null)
   const refTextDiv = useRef<HTMLDivElement>(null)
   const refAnnotationDiv = useRef<HTMLDivElement>(null)
-  const editing = useObserver(() => props.contents.editing === props.content.id)
+  const editing = useObserver(() => props.stores.contents.editing === props.content.id)
 
   useEffect(()=>{
     member.canvas = refCanvas.current
@@ -234,7 +245,7 @@ export const PDF: React.FC<ContentProps> = (props:ContentProps) => {
     onDoubleClick = {(ev) => { if (!editing) {
       ev.stopPropagation()
       ev.preventDefault()
-      props.contents.setEditing(props.content.id)
+      props.stores.contents.setEditing(props.content.id)
     } }} >
     <canvas style={{ width:`${CANVAS_SCALE*100}%`, height:`${CANVAS_SCALE*100}%`,
       transformOrigin:'top left', transform:`scale(${1/CANVAS_SCALE})`}} ref={refCanvas} />

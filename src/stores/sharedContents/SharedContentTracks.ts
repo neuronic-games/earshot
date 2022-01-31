@@ -11,7 +11,7 @@ declare const config:any             //  from ../../config.js included from inde
 
 export const CID_MAINSCREEN = 'mainScreen'
 
-const LOG_CONTENT_TRACK = true
+const LOG_CONTENT_TRACK = false
 const contentTrackLog = LOG_CONTENT_TRACK ? console.log : () => {}
 
 export class SharedContentTracks {
@@ -42,6 +42,24 @@ export class SharedContentTracks {
 
   // -----------------------------------------------------------------
   //  Public interface
+  public allContentStreams(){
+    const streams: {stream:MediaStream, cid:string}[] = []
+    this.localContents.forEach((tracks, cid) => {
+      if (tracks.size){
+        streams.push({cid,
+          stream: new MediaStream(Array.from(tracks).map(c => c.getTrack())) })
+      }
+    })
+    this.remoteContents.forEach((tracks, cid) => {
+      if (tracks.size){
+        streams.push({cid,
+          stream: new MediaStream(Array.from(tracks).map(c => c.getTrack())) })
+      }
+    })
+
+    return streams
+  }
+
   public clearConnection(){
     this.clearAllRemotes()
     this.clearLocalContentCarriers()

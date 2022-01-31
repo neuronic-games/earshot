@@ -8,8 +8,7 @@ export const styleCommon = makeStyles({
     height: '100%',
     top: 0,
     left: 0,
-    /* backgroundColor: '#DFDBE5', */
-   /*  backgroundColor: '#FF00FF30', */
+    backgroundColor: '#DFDBE5',
   },
   fill:{
     position: 'absolute',
@@ -67,6 +66,9 @@ export const styleForList = makeStyles({
   outer: {
     display: 'flex',
     whiteSpace: 'nowrap',
+    padding: 0,
+    margin: 0,
+    width: '100%',
   },
   line: (props: ListLineProps) => ({
     display: 'flex',
@@ -79,6 +81,6 @@ export const styleForList = makeStyles({
     fontSize: props.fontSize,
     height: props.height,
     width: '100%',
-    margin: '1px 0 1px 0',
+    padding: 0,
   }),
 })

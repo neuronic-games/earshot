@@ -1,22 +1,22 @@
 import {
-  defaultInformation, defaultPhysics,
-  defaultRemoteInformation,
-  LocalInformation, ParticipantBase as IParticipantBase, Physics, RemoteInformation, Tracks
+  defaultInformation, defaultPhysics, defaultRemoteInformation,
+  defaultViewpoint, LocalInformation,
+  ParticipantBase as IParticipantBase, Physics, RemoteInformation, Tracks, TrackStates as ITrackStates
 } from '@models/Participant'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from '@models/utils'
 import {Mouse} from '@models/utils'
 import {MapObject} from '@stores/MapObject'
 import {Store} from '@stores/utils'
 import {JitsiTrack} from 'lib-jitsi-meet'
+import { ConnectionQualityStats } from 'lib-jitsi-meet/JitsiConference'
 import {action, computed, makeObservable, observable} from 'mobx'
 
-export class TracksStore<T extends JitsiTrack> implements Tracks{
+export class TracksStore implements Tracks{
   constructor(){
     makeObservable(this)
   }
-  @observable.ref audio:T|undefined = undefined
-  @observable audioLevel = 0
-  @observable.ref avatar:T|undefined = undefined
+  @observable.ref audio:JitsiTrack|undefined = undefined
+  @observable.ref avatar:JitsiTrack|undefined = undefined
   @observable avatarOk = this.avatar ? !this.avatar.getTrack().muted : true
   @computed get audioStream() { return this.audio?.getOriginalStream() }
   @computed get avatarStream() { return this.avatarOk ? this.avatar?.getOriginalStream() : undefined }
@@ -25,22 +25,31 @@ export class TracksStore<T extends JitsiTrack> implements Tracks{
       this.avatarOk = !mute
     }
   }
-  @action setAudioLevel(newLevel: number) {
-    this.audioLevel = newLevel
+}
+
+export class TrackStates implements Store<ITrackStates>{
+  @observable micMuted = false
+  @observable speakerMuted = false
+  @observable headphone = false
+  @observable emoticon = ''
+  constructor() {
+    makeObservable(this)
   }
 }
 
-
 export class ParticipantBase extends MapObject implements Store<IParticipantBase> {
   @observable id = ''
-  @observable.shallow tracks = new TracksStore<JitsiTrack>()
   @observable.shallow physics = defaultPhysics
+  @observable.shallow viewpoint = defaultViewpoint
   @observable.shallow mouse:Mouse = {position:[0, 0], show:false}
-  @observable awayFromKeyboard = false
   @observable.shallow information: LocalInformation | RemoteInformation
   @observable muteAudio = false
   @observable muteSpeaker = false
   @observable muteVideo = false
+  @observable audioLevel = 0
+  @observable.ref quality?:ConnectionQualityStats = undefined
+  @action setAudioLevel(a:number) { this.audioLevel = a }
+  @observable recording = false
   // determines whether the audio would be rendered
   @computed get showAudio () {
     return !this.muteAudio

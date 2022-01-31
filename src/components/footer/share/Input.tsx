@@ -3,6 +3,14 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import React from 'react'
 import {DialogPageProps} from './DialogPage'
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 interface InputProps<T> extends DialogPageProps{
   inputField: JSX.Element
@@ -24,6 +32,7 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
         {inputField}
       </ListItem>
       <ListItem>
+      <MuiThemeProvider theme={theme}>
         <Button
           variant="contained"
           color="primary"
@@ -34,6 +43,7 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
         >
           Done
         </Button>
+        </MuiThemeProvider>
       </ListItem>
     </List>
   )

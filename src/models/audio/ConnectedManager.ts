@@ -1,20 +1,21 @@
-import {RemoteParticipant} from '@models/Participant'
+import {PlaybackParticipant, RemoteParticipant} from '@models/Participant'
 import {urlParameters} from '@models/url'
 import {diffMap} from '@models/utils'
 import participants from '@stores/participants/Participants'
 import contents from '@stores/sharedContents/SharedContents'
 import {JitsiRemoteTrack} from 'lib-jitsi-meet'
 import {autorun} from 'mobx'
-import {ConnectedGroup} from './ConnectedGroup'
+import {ConnectedGroup, ConnectedGroupForPlayback} from './ConnectedGroup'
 import {StereoManager} from './StereoManager'
 export class ConnectedManager {
   private readonly manager = new StereoManager()
 
   private readonly connectedGroups: {
-    [key: string]: ConnectedGroup,
+    [key: string]: ConnectedGroup|ConnectedGroupForPlayback,
   } = {}
 
-  private participantsMemo = new Map<string, RemoteParticipant>()
+  private remotesMemo = new Map<string, RemoteParticipant>()
+  private playbacksMemo = new Map<string, PlaybackParticipant>()
   private contentsMemo = new Map<string, Set<JitsiRemoteTrack>>()
 
   public setAudioOutput(deviceId: string) {
@@ -23,23 +24,33 @@ export class ConnectedManager {
   constructor() {
     if (urlParameters.testBot !== null) { return }
 
-    autorun(this.onPopulationChange)
+    autorun(this.onRemotesChange)
+    autorun(this.onPlaybacksChange)
     autorun(this.onScreenContentsChange)
     autorun(
       () => {
-        const muteSpeaker = participants.local.muteSpeaker || participants.local.awayFromKeyboard
+        const muteSpeaker = participants.local.muteSpeaker || participants.local.physics.awayFromKeyboard
         this.manager.switchPlayMode(participants.local.useStereoAudio ? 'Context' : 'Element', muteSpeaker)
       },
     )
   }
 
-  private onPopulationChange = () => {
+  private onRemotesChange = () => {
     const newRemotes = new Map(participants.remote)
-    const added = diffMap(newRemotes, this.participantsMemo)
-    const removed = diffMap(this.participantsMemo, newRemotes)
-    removed.forEach(this.remove)
-    added.forEach(this.add)
-    this.participantsMemo = newRemotes
+    const added = diffMap(newRemotes, this.remotesMemo)
+    const removed = diffMap(this.remotesMemo, newRemotes)
+    removed.forEach(this.removeRemote)
+    added.forEach(this.addRemote)
+    this.remotesMemo = newRemotes
+    //  console.log('Update connectedGroups:', this.connectedGroups)
+  }
+  private onPlaybacksChange = () => {
+    const newPlaybacks = new Map(participants.playback)
+    const added = diffMap(newPlaybacks, this.playbacksMemo)
+    const removed = diffMap(this.playbacksMemo, newPlaybacks)
+    removed.forEach(this.removePlayback)
+    added.forEach(this.addPlayback)
+    this.playbacksMemo = newPlaybacks
     //  console.log('Update connectedGroups:', this.connectedGroups)
   }
 
@@ -52,17 +63,29 @@ export class ConnectedManager {
     this.contentsMemo = newRemotes
   }
 
-  private remove = (rp: RemoteParticipant) => {
+  private removePlayback = (pp: PlaybackParticipant) => {
+    const id = pp.id
+    this.connectedGroups[id].dispose()
+    delete this.connectedGroups[id]
+
+    this.manager.removeSpeaker(id)
+  }
+  private addPlayback = (pp: PlaybackParticipant) => {
+    const id = pp.id
+    const group = this.manager.addPlayback(id)
+    this.connectedGroups[id] = new ConnectedGroupForPlayback(participants.local_, pp, group)
+  }
+
+  private removeRemote = (rp: RemoteParticipant) => {
     const id = rp.id
     this.connectedGroups[id].dispose()
     delete this.connectedGroups[id]
 
     this.manager.removeSpeaker(id)
   }
-
-  private add = (remote: RemoteParticipant) => {
+  private addRemote = (remote: RemoteParticipant) => {
     const group = this.manager.addSpeaker(remote.id)
-    this.connectedGroups[remote.id] = new ConnectedGroup(participants.local_, remote, undefined, group)
+    this.connectedGroups[remote.id] = new ConnectedGroup(participants.local_, undefined, remote, group)
   }
 
   private removeContent = (tracks: Set<JitsiRemoteTrack>) => {
@@ -87,7 +110,7 @@ export class ConnectedManager {
       const carrierId = audioTrack.getParticipantId()
       if (carrierId) {
         const group = this.manager.addSpeaker(carrierId)
-        this.connectedGroups[carrierId] = new ConnectedGroup(participants.local_, undefined, audioTrack, group)
+        this.connectedGroups[carrierId] = new ConnectedGroup(participants.local_, audioTrack, undefined, group)
       }else {
         console.error('addContent: track does not have content id.', audioTrack)
       }

@@ -1,6 +1,3 @@
-import {useStore as useMapStore} from '@hooks/MapStore'
-import {useStore as useParticipants} from '@hooks/ParticipantsStore'
-import {useStore as useContents} from '@hooks/SharedContentsStore'
 import MenuItem from '@material-ui/core/MenuItem'
 import {assert} from '@models/utils'
 import {createContentOfVideo} from '@stores/sharedContents/SharedContentCreator'
@@ -18,15 +15,14 @@ export class CameraSelectorMember{
 }
 interface CameraSelectorProps extends DialogPageProps{
   cameras: CameraSelectorMember
+  xCord:number
+  yCord:number
+  from:string
 }
 
 export const CameraSelector: React.FC<CameraSelectorProps> = (props) => {
-  const {
-    setStep,
-  } = props
-  const contents = useContents()
-  const map = useMapStore()
-  const participants = useParticipants()
+  const {setStep} = props
+  const {contents, map, participants} = props.stores
   const videoMenuItems = useObserver(() =>
     props.cameras.videos.map((info, idx) => makeMenuItem(info, closeVideoMenu, idx)))
   function makeMenuItem(info: MediaDeviceInfo, close:(did:string) => void, key:number):JSX.Element {
@@ -44,7 +40,7 @@ export const CameraSelector: React.FC<CameraSelectorProps> = (props) => {
       JitsiMeetJS.createLocalTracks({devices:['video'],
         cameraDeviceId: did}).then((tracks: JitsiLocalTrack[]) => {
           if (tracks.length) {
-            const content = createContentOfVideo(tracks, map, 'camera')
+            const content = createContentOfVideo(tracks, map, 'camera', Object(props).xCord, Object(props).yCord, Object(props).from)
             contents.shareContent(content)
             assert(content.id)
             contents.tracks.addLocalContent(content.id, tracks)

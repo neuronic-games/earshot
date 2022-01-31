@@ -8,7 +8,7 @@ import JitsiTrack, { TrackInfo, VideoType, MediaType, TMediaType, JitsiTrackEven
 import JitsiLocalTrack from './modules/RTC/JitsiLocalTrack'
 import JitsiRemoteTrack from './modules/RTC/JitsiRemoteTrack'
 import { JitsiConnection } from './JitsiConnection';
-import { JitsiConference, JitsiValues, VideoConstraints} from "./JitsiConference"
+import { JitsiConference, JitsiValues, VideoConstraints, BMPerceptibles} from "./JitsiConference"
 
 export const version: string;
 export const events: JitsiMeetEvents;
@@ -103,7 +103,7 @@ export function init(options?: IJitsiMeetJSOptions): void;
 export function setLogLevel(level: any): void;
 export function createLocalTracks(options?: JitsiTrackOptions, firePermissionPromptIsShownEvent?: boolean): Promise<Array<JitsiLocalTrack>>;
 export { JitsiConnection, JitsiConference, JitsiTrack, TrackInfo, JitsiLocalTrack, JitsiRemoteTrack,
-   VideoType, MediaType, TMediaType, JitsiValues, JitisTrackError, JitsiTrackEvents, VideoConstraints};
+   VideoType, MediaType, TMediaType, JitsiValues, JitisTrackError, JitsiTrackEvents, VideoConstraints, BMPerceptibles};
 export interface JitsiMediaDevices{
   setAudioOutputDevice(deviceId: string):void
   getAudioOutputDevice():string

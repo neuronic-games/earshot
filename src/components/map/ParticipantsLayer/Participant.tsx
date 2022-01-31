@@ -1,20 +1,29 @@
 import {Avatar} from '@components/avatar'
-import {useStore as useMapStore} from '@hooks/MapStore'
+import {Stores} from '@components/utils'
 import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 import {Icon} from '@iconify/react'
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import HeadsetIcon from '@material-ui/icons/HeadsetMic'
 import MicOffIcon from '@material-ui/icons/MicOff'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
-import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
-import {MapData} from '@stores/Map'
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
-import {Participants} from '@stores/participants/Participants'
+import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
+import {SignalQualityIcon} from './SignalQuality'
+// Image
+import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
+// Animated Emoticons
+import symSmileIcon from '@images/whoo-screen_sym-smile.png'
+import symClapIcon from '@images/whoo-screen_sym-clap.png'
+import symHandIcon from '@images/whoo-screen_sym-hand.png'
+
+//import {connection} from '@models/api/ConnectionDefs' // For checking Host
+//import {userName} from '@components/error/TheEntrance'
 declare const config:any             //  from ../../config.js included from index.html
 
 interface StyleProps {
@@ -56,6 +65,15 @@ const useStyles = makeStyles({
     top: props.size * 0.6,
     pointerEvents: 'none',
   }),
+  signalIcon: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.25 ,
+    height: props.size * 0.25,
+    left: props.size * 0.8,
+    top: props.size * 0.8,
+    display: 'none', // Hide the connection quality icon
+    pointerEvents: 'none',
+  }),
   iconProximity: (props: StyleProps) => ({
     position: 'absolute',
     width: props.size * 0.6 ,
@@ -63,6 +81,26 @@ const useStyles = makeStyles({
     left: props.size * 0.7,
     top: props.size * 0.4,
     pointerEvents: 'none',
+  }),
+  iconEmoticon: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
+    left: props.size * -0.2,
+    top: props.size * -0.2,
+    pointerEvents: 'none',
+    transform: 'scale(1)',
+    transition: '0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  }),
+  iconEmoticonNone: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
+    left: props.size * 0.1,
+    top: props.size * 0,
+    pointerEvents: 'none',
+    transform: 'scale(0)',
+    transition: '0s ease-out',
   }),
   more: (props: StyleProps) => ({
     position: 'absolute',
@@ -74,43 +112,92 @@ const useStyles = makeStyles({
 })
 
 export interface ParticipantProps{
-  participant: LocalParticipant | RemoteParticipant
-  participants: Participants
+  participant: LocalParticipant | RemoteParticipant | PlaybackParticipant
   size: number
   onContextMenu?:(ev:React.MouseEvent<HTMLDivElement, MouseEvent>) => void
-  map: MapData
-  
+  stores: Stores
 }
 export interface RawParticipantProps extends ParticipantProps{
   isLocal: boolean
-  
+  isPlayback?: boolean
 }
 
 const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawParticipantProps> = (props, ref) => {
-  const mapData = useMapStore()
+  const mapData = props.stores.map
 //  const participants = useStore()
   const participant = props.participant
-  
+
+
+  //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
+
+  //console.log(participant.quality?.connectionQuality, " quality")
+
+
+    //if(props.stores.participants.localId != '') {return}
+    //console.log("CHECKING")
+
+  //let _name = userName()
+  //console.log(props.stores.participants.localId, " --- ", _name)
+  //if(props.stores.participants.localId === '') {
+    // set Matrix [Reset ZoomLevel]
+    //const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
+    //mapData.setMatrix(changeMatrix)
+   // mapData.setCommittedMatrix(changeMatrix)
+
+    // Position Avatar at center of stage
+    //mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+    //participant.pose.position = Object.assign({}, mapData.mouseOnMap)
+  //}
+  /* if(_name !== '') {
+    // set Name
+    props.stores.participants.local.information.name = _name
+    props.stores.participants.local.sendInformation()
+    props.stores.participants.local.saveInformationToStorage(true)
+
+  } */
+
+  /* if(props.stores.participants.localId === '') {
+    // set Matrix [Reset ZoomLevel]
+    const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
+    mapData.setMatrix(changeMatrix)
+    mapData.setCommittedMatrix(changeMatrix)
+
+    // Position Avatar at center of stage
+    mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+    participant.pose.position = Object.assign({}, mapData.mouseOnMap)
+  }
+
+  // Setting logged-in Username
+  if(_name !== '') {
+    // set Name
+    props.stores.participants.local.information.name = _name
+    props.stores.participants.local.sendInformation()
+    props.stores.participants.local.saveInformationToStorage(true)
+  } */
+
+
+
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
     orientation: participant.pose.orientation,
     mousePosition: participant.mouse.position,
-    awayFromKeyboard: participant.awayFromKeyboard,
+    awayFromKeyboard: participant.physics.awayFromKeyboard,
   }))
-  //const ky = useObserver(()=> participant!.physics.inProximity)
   const name = useObserver(() => participant!.information.name)
   const audioLevel = useObserver(() =>
-    participant!.trackStates.micMuted ? 0 : Math.pow(participant!.tracks.audioLevel, 0.5))
+    participant!.trackStates.micMuted ? 0 : Math.pow(participant!.audioLevel, 0.5))
   // console.log(`audioLevel ${audioLevel}`)
   const micMuted = useObserver(() => participant.trackStates.micMuted)
   const speakerMuted = useObserver(() => participant.trackStates.speakerMuted)
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
 
-  const inProximimty = useObserver(() => participant.physics.inProximity)
 
-  console.log(inProximimty, " inProxomity")
-  
+  //const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
+
+
+  const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
+  const _icons = useObserver(() => participant.trackStates.emoticon)
 
   const classes = useStyles({
     ...participantProps,
@@ -120,48 +207,46 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const [color, textColor] = participant ? participant.getColor() : ['white', 'black']
   const outerRadius = props.size / 2 + 2
   const isLocal = props.isLocal
-  
-
   const AUDIOLEVELSCALE = props.size * SVG_RATIO * HALF
   const svgCenter = SVG_RATIO * props.size * HALF
 
-  /* 
-  const dir = subV2(participantProps.mousePosition, participantProps.position)
+  //const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
+  //const shadowScale = 1 + (shadowOffset/200)
+
+
+  //const eyeOffsetMul = normV(viewpoint.center)/500 * 0.16 + 0.85
+
+  /* const dir = subV2(participantProps.mousePosition, participantProps.position)
+  const eyeDist = 0.4
   const eyeOffsets:[[number, number], [number, number]]
-    = [[0.4 * outerRadius, -outerRadius], [-0.4 * outerRadius, -outerRadius]]
-  const dirs = eyeOffsets.map(offset => subV2(dir, rotateVector2DByDegree(participantProps.orientation, offset)))
-  const eyeballsGlobal = dirs.map((dir) => {
+    = [[eyeDist * outerRadius, - eyeOffsetMul*outerRadius],
+      [-eyeDist * outerRadius, - eyeOffsetMul*outerRadius]] */
+ // const dirs = eyeOffsets.map(offset => subV2(dir, rotateVector2DByDegree(participantProps.orientation, offset)))
+  /* const eyeballsGlobal = dirs.map((dir) => {
     const norm = normV(dir)
     const dist = Math.log(norm < 1 ? 1 : norm) * 0.3
     const limit = 0.1 * outerRadius
     const offset = dist > limit ? limit : dist
 
     return mulV2(offset / norm, dir)
-  })
-  const eyeballs = eyeballsGlobal.map(g => addV2([0, -0.04 * outerRadius],
-                                                 rotateVector2DByDegree(-participantProps.orientation, g)))
-  function onClickEye(ev: React.MouseEvent | React.TouchEvent | React.PointerEvent){
-    if (props.participant.id === props.participants.localId){
+  }) */
+  //const eyeballs = eyeballsGlobal.map(g => addV2([0, -0.04 * outerRadius],
+                                                 //rotateVector2DByDegree(-participantProps.orientation, g)))
+  /* function onClickEye(ev: React.MouseEvent | React.TouchEvent | React.PointerEvent){
+    if (props.participant.id === props.stores.participants.localId){
       ev.stopPropagation()
       ev.preventDefault()
-      props.participants.local.awayFromKeyboard = true
+      props.stores.participants.local.physics.awayFromKeyboard = true
     }
   }
   const eyeClick = {
     onMouseDown: onClickEye,
     onTouchStart: onClickEye,
     onPointerDown: onClickEye,
-  }
- */
- 
-const inProxZone = participant.physics.inProximity
-
-//console.log(participant.physics.inProximity, " >inProximimty")
-//participant.setPhysics({inProximity: false})
-//console.log(participant.physics.inProximity, " >inProximimty")
+  } */
 
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
-  const audioMeter = audioMeterSteps.map(step => audioLevel > step ?
+  const audioMeter = audioMeterSteps.map(step => (audioLevel > step && inZone !== 'close') ?
     <React.Fragment key={step}>
       <circle r={props.size * HALF + step * AUDIOLEVELSCALE} cy={svgCenter} cx={svgCenter}
         stroke={color} fill="none" opacity={0.4 * (1 - step)} strokeDasharray="4 4 4 24" />
@@ -170,19 +255,32 @@ const inProxZone = participant.physics.inProximity
     </React.Fragment>
     : undefined)
 
-  const iconMeter = audioMeterSteps.map(step => audioLevel > step ?
-    <React.Fragment key={step}>
-      <img src={proximityVolumeIcon} className={classes.iconProximity} alt=""/>
-    </React.Fragment>
-    : undefined)
+    const iconMeter = audioMeterSteps.map(step => audioLevel > step ?
+      <React.Fragment key={step}>
+        <img src={proximityVolumeIcon} className={classes.iconProximity} alt=""/>
+      </React.Fragment>
+      : undefined)
 
   return (
     <div className={classes.root + ' dragHandle'} onContextMenu={props.onContextMenu}>
-      <div className={classes.pointerRotate}>
-      
-        <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
+      <svg className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO}
+        xmlns="http://www.w3.org/2000/svg">{/* Cast shadow to show the height */}
+        {/* <defs>
+          <radialGradient id="grad">
+            <stop offset="0%" stopColor="rgb(0,0,0,0.4)"/>
+            <stop offset="70%" stopColor="rgb(0,0,0,0.4)"/>
+            <stop offset="100%" stopColor="rgb(0,0,0,0)"/>
+          </radialGradient>
+        </defs>
+        <circle r={outerRadius * shadowScale} cy={svgCenter+shadowOffset} cx={svgCenter+shadowOffset}
+          stroke="none" fill={'url(#grad)'} /> */}
+      </svg>
+      <div className={classes.pointerRotate}>{/* The avatar */}
+        <svg
+          className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
           <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={color} />
-          {inProxZone ? audioMeter : undefined}
+          {audioMeter}
+        {/*  {inZone === undefined ? audioMeter : undefined} */}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
             <g transform={`translate(${svgCenter} ${svgCenter}) rotate(-135) `}>
               <rect style={{pointerEvents: 'fill'}}
@@ -195,9 +293,7 @@ const inProxZone = participant.physics.inProximity
             </g>
             : // Frog type (two eyes) avatar
             <g style={{pointerEvents: 'fill'}} >
-
-            {/* 
-              {isLocal ?
+              {/* {isLocal ?
                 <circle r={outerRadius} cy={svgCenter} cx={svgCenter} fill="none" stroke={textColor} />
                 : undefined}
               <circle {...eyeClick} r={0.35 * outerRadius} cy={svgCenter + eyeOffsets[0][1]}
@@ -215,10 +311,7 @@ const inProxZone = participant.physics.inProximity
                   cx={svgCenter + eyeOffsets[0][0] +  eyeballs[0][0]} fill="black" />
                 <circle {...eyeClick} r={0.14 * outerRadius} cy={svgCenter + eyeOffsets[1][1] + eyeballs[1][1]}
                   cx={svgCenter + eyeOffsets[1][0] +  eyeballs[1][0]} fill="black" />
-              </>}
-
-                 */}
-
+              </>} */}
             </g>
           }
         </svg>
@@ -229,10 +322,13 @@ const inProxZone = participant.physics.inProximity
           <div>
             <Avatar {...props} />
             {iconMeter}
+            <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
+            <SignalQualityIcon className={classes.signalIcon} quality={participant.quality?.connectionQuality} />
             {headphone ? <HeadsetIcon className={classes.icon} htmlColor="rgba(0, 0, 0, 0.3)" /> : undefined}
             {speakerMuted ? <SpeakerOffIcon className={classes.icon} color="secondary" /> :
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}
             {!micMuted && onStage ? <Icon className={classes.icon} icon={megaphoneIcon} color="gold" /> : undefined }
+            {props.isPlayback ? <PlayArrowIcon className={classes.icon} htmlColor="#0C0" /> : undefined}
           </div>
         </Tooltip>
       </div>

@@ -1,5 +1,5 @@
-import {Stores} from '@components/utils'
-import whiteboard24Regular from '@iconify-icons/fluent/whiteboard-24-regular'
+import {BMProps} from '@components/utils'
+import whiteboard24Regular from '@iconify/icons-fluent/whiteboard-24-regular'
 import filePdfBox from '@iconify/icons-mdi/file-pdf-box'
 import GoogleDriveIcon from '@iconify/icons-mdi/google-drive'
 import {Icon} from '@iconify/react'
@@ -16,6 +16,7 @@ import {useObserver} from 'mobx-react-lite'
 import React from 'react'
 import {GDrive} from './GDrive'
 import {PDF} from './PDF'
+import {PlaybackScreenContent} from './PlaybackScreenContent'
 import {ScreenContent} from './ScreenContent'
 import {Text} from './Text'
 import {YouTube} from './YouTube'
@@ -24,7 +25,6 @@ export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
   if (width < 0) { width = size }
   const icons = {
     img: <PhotoIcon style={{fontSize:size, width}} />,
-    zoneimg: <PhotoIcon style={{fontSize:size, width}} />,
     text:<SubjectIcon style={{fontSize:size, width}} />,
     iframe: <HttpIcon style={{fontSize:size, width}} />,
     youtube: <YouTubeIcon style={{fontSize:size, width}} />,
@@ -33,6 +33,8 @@ export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
     whiteboard: <span style={{width, height:size}}><Icon icon={whiteboard24Regular} height={size} /></span>,
     camera: <CameraAltIcon style={{fontSize:size, width}} />,
     pdf : <span style={{width, height:size}}><Icon icon={filePdfBox} height={size} /></span>,
+    playbackScreen: <ScreenShareIcon style={{fontSize:size, width}} />,
+    playbackCamera: <CameraAltIcon style={{fontSize:size, width}} />,
     '': undefined,
   }
 
@@ -80,14 +82,14 @@ const useStyles = makeStyles({
     height: '100%',
   },
 })
-export interface ContentProps extends Stores{
+export interface ContentProps extends BMProps{
   content:ISharedContent
   updateAndSend: (c: ISharedContent) => void
   updateOnly: (c:ISharedContent) => void
 }
 export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
   const classes = useStyles()
-  const editing = useObserver(() => props.contents.editing === props.content.id)
+  const editing = useObserver(() => props.stores.contents.editing === props.content.id)
 
   let rv
   if (props.content.type === 'img') {
@@ -95,7 +97,7 @@ export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
   }else if (props.content.type === 'iframe' || props.content.type === 'whiteboard') {
     rv = <div className={classes.div}>
       <iframe className={editing ? classes.iframeEdit : classes.iframe}
-        style={props.content.type==='whiteboard'?{backgroundColor:'white'}:{}}
+        style={props.content.type==='whiteboard'?{backgroundColor: props.content.noFrame?'rgba(0,0,0,0)':'white'}:{}}
         src={props.content.url} key={props.content.name} title={props.content.name}/>
       </div>
   }else if (props.content.type === 'youtube') {
@@ -108,6 +110,8 @@ export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
     rv = <Text {...props} />
   }else if (props.content.type === 'screen' || props.content.type === 'camera') {
     rv = <ScreenContent {...props} />
+  }else if (props.content.type === 'playbackScreen' || props.content.type === 'playbackCamera') {
+    rv = <PlaybackScreenContent {...props} />
   }else {
     rv = <div>Unknown type:{props.content.type} for {props.content.url}</div>
   }
@@ -118,6 +122,6 @@ export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
 export const Content = (props: ContentProps) =>
   React.useMemo(() => <RawContent {...props} />,
   //  eslint-disable-next-line react-hooks/exhaustive-deps
-  [props.content.url, props.content.id, props.content.type, props.contents.editing === props.content.id,
+  [props.content.url, props.content.id, props.content.type, props.stores.contents.editing === props.content.id,
    props.content.pose, props.content.size, props.content.originalSize])
 Content.displayName = 'Content'

@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => {
 })
 interface MyFabProps{
   children: React.ReactElement,
+  onDown?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>|React.TouchEvent<HTMLButtonElement>) => void,
   onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>|React.TouchEvent<HTMLButtonElement>) => void,
   onClickMore?: (e: React.PointerEvent<HTMLButtonElement>
     |React.MouseEvent<HTMLButtonElement, MouseEvent>|React.TouchEvent<HTMLButtonElement>) => void,
@@ -44,6 +45,8 @@ export const FabMain: React.FC<MyFabProps> = (props) => {
   >
     <Fab style={{height:props.size, width:props.size}}
       onClick = {(ev) => { if (props.onClick) { props.onClick(ev) } } }
+      onMouseDown = {(ev) => { if (props.onDown) { props.onDown(ev) } } }
+      onTouchStart = {(ev) => { if (props.onDown) { props.onDown(ev) } } }
       onContextMenu={(ev) => {
         ev.preventDefault()
         if (props.onClickMore) { props.onClickMore(ev) }
@@ -51,7 +54,7 @@ export const FabMain: React.FC<MyFabProps> = (props) => {
       color = {props.color} onFocus = {(e) => { (e.target as HTMLElement)?.blur() }}>
       {props.children}
     </Fab>
-    {props.onClickMore ? <MoreButton style={{position:'relative', top:-35, left:-15, marginRight:-41}}
+    {props.onClickMore ? <MoreButton style={{position:'relative', top:-35, left:-15, marginRight:-41, display:'none'}}
     show={showMore} color={props.color} htmlColor={props.htmlColor} iconColor={props.iconColor}
     onClickMore = {props.onClickMore}
     /> : undefined}

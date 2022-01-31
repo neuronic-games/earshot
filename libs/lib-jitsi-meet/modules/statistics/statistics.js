@@ -14,7 +14,7 @@ import { PerformanceObserverStats } from './PerformanceObserverStats';
 import RTPStats from './RTPStatsCollector';
 import { CALLSTATS_SCRIPT_URL } from './constants';
 
-const logger = require('jitsi-meet-logger').getLogger(__filename);
+const logger = require('@jitsi/logger').getLogger(__filename);
 
 /**
  * Stores all active {@link Statistics} instances.
@@ -72,7 +72,8 @@ function _initCallStatsBackend(options) {
         applicationName: options.applicationName,
         getWiFiStatsMethod: options.getWiFiStatsMethod,
         confID: options.confID,
-        siteID: options.siteID
+        siteID: options.siteID,
+        configParams: options.configParams
     })) {
         logger.error('CallStats Backend initialization failed bad');
     }
@@ -141,6 +142,8 @@ Statistics.init = function(options) {
  * @property {string} customScriptUrl - A custom lib url to use when downloading
  * callstats library.
  * @property {string} roomName - The room name we are currently in.
+ * @property {string} configParams - The set of parameters
+ * to enable/disable certain features in the library. See CallStats docs for more info.
  */
 /**
  *

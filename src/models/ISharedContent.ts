@@ -1,8 +1,9 @@
 import {Pose2DMap} from '@models/utils/coordinates'
 import {MapObject} from './MapObject'
+const MAXIMIZABLE_IMAGE_MIN_WIDTH = 200
 
-export type ContentType = 'img' | "zoneimg" | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
-  'gdrive' | 'whiteboard' | ''
+export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
+  'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' |  ''
 
 export interface SharedContentInfoData {
   name: string                    //  name or title of the content.
@@ -23,10 +24,12 @@ export function isEqualSharedContentInfo(a:SharedContentInfo, b:SharedContentInf
 }
 export function extractSharedContentInfo(c: SharedContentInfo){
   const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName,
-    color:c.color, textColor: c.textColor, type: c.type, shareType: c.shareType}
+    color:c.color, textColor: c.textColor, type: c.type,shareType: c.shareType}
 
   return rv
 }
+
+export type ZoneType = 'open' | 'close'
 
 export interface SharedContentData extends SharedContentInfoData {
   zorder: number                  //  unix timestamp when shared or moved to top.
@@ -37,7 +40,9 @@ export interface SharedContentData extends SharedContentInfoData {
   pinned: boolean                 //  pinned (not resizable or resizable)
   noFrame?: boolean               //  no (invisible) frame
   opacity?: number                //  opacity
-  proximity?: boolean             // proximity
+  zone?: ZoneType                 //  is this a audio zone is the zone closed or open?
+  playback?: boolean              //  is playback or normal content
+  showTitle:boolean               // for showing the title
 }
 
 export interface ISharedContent extends MapObject, SharedContentData, SharedContentId {
@@ -60,16 +65,20 @@ export function isContentEditable(c?: ISharedContent) {
   return c && (c.type === 'text' || c.type === 'iframe' || c.type === 'pdf' ||
     c.type === 'whiteboard' || c.type === 'gdrive' || c.type === 'youtube')
 }
+//  maximizable or not
+export function isContentMaximizable(c?: ISharedContent) {
+  return c && (c.type === 'iframe' || c.type === 'pdf' || c.type === 'whiteboard' ||
+    c.type === 'gdrive' || c.type === 'youtube' || c.type === 'screen' || c.type === 'camera'
+    ||  (c.type === 'img' && c.size[0] > MAXIMIZABLE_IMAGE_MIN_WIDTH))
+}
 //  wallpaper or not
 export function isContentWallpaper(c?: ISharedContent) {
   return c && c.zorder <= TEN_YEAR
 }
-
 export const CONTENT_OUT_OF_RANGE_VALUE = 1024*1024
 export function isContentOutOfRange(c?: ISharedContent) {
   return !c || c.pose.position[0] === CONTENT_OUT_OF_RANGE_VALUE
 }
-
 
 export interface WallpaperStore {
   room: string
