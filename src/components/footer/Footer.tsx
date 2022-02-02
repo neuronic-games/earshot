@@ -117,7 +117,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
 
   // For Video Stream
-  //const [vidStream, setVidStream] = React.useState<boolean>(false)
+  const [vidStream, setVidStream] = React.useState<boolean>(false)
 
   //console.log(props.stores.roomInfo.password, " pass")
 
@@ -136,8 +136,53 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const adminButton = useRef<HTMLDivElement>(null)
 
 
+  const store = props.stores.participants
+  const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
+    const remote = store.find(id)!
+    //console.log(participants.local.tracks.avatarStream, " local Video status")
+    if(remote.tracks.avatarStream !== undefined) {
+        return remote
+    }
+    return undefined
+  }))
+
+  //console.log(ids, " in footer")
+
+  /* if(participants.local.tracks.avatarStream !== undefined) {
+    ids.push(participants.localId)
+  } */
+
+
+/* const [streamUser, setStreamUser] = React.useState(ids)
+let result:any = []
+if(ids.length !== streamUser.length) {
+  //console.log(streamUser, ids)
+  let onlyInA = ids.filter(comparer(streamUser));
+  let onlyInB = streamUser.filter(comparer(ids));
+
+  if(ids.length === 0) {
+    result = []
+  }else {
+    result = onlyInA.concat(onlyInB)
+  }
+  console.log(ids, "---", result)
+  setStreamUser(result)
+}
+
+function comparer(otherArray:string[]){
+  return function(current:string){
+    return otherArray.filter(function(other){
+      return other === current
+    }).length === 0;
+  }
+}
+ */
+
+
+
+
   // For Check user video stream
-  let userIndex:number = 0
+  //let userIndex:number = 0
   const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
 
   //console.log(participants.remote, " remote")
@@ -145,7 +190,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   for (const [i] of remotes.entries()) {
     //if(participants.remote.get(remotes[i])?.showVideo) {
     if(participants.remote.get(remotes[i])?.tracks.avatarStream !== undefined) {
-      userIndex = i;
+      //userIndex = i;
       //break;
     }
   }
@@ -160,7 +205,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
     // For video stream
     lStream: participants.local.tracks.avatarStream,
-    remoteStream: participants.remote.get(remotes[userIndex])?.tracks.avatarStream,
+    remoteStream: participants.remote.get(ids[ids.length-1])?.tracks.avatarStream,
   }))
 
   //  Fab state and menu
@@ -176,16 +221,23 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
   //console.log(mute.lStream, " AAAAA")
 
-
+  // Video stream toggle
+  //console.log(ids.length, " ids", vidStream, " --- ", mute.lStream)
+  if(ids.length > 0 && vidStream === false && mute.lStream !== undefined) {
+    //console.log("LENGTH >")
+    participants.local.muteVideo = !mute.muteV
+    participants.local.saveMediaSettingsToStorage()
+    setVidStream(true)
+  }
 
   //  Footer collapse conrtrol
   function checkMouseOnBottom() {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
   const mouseOnBottom = useObserver(checkMouseOnBottom)
+
   useEffect(() => {
     //console.log(mute.remoteStream, " .. in footer ", mute.lStream?.getTracks(), " : ", mute.muteV)
-
     if(mute.remoteStream !== undefined || mute.lStream !== undefined) {
       //if(mute.lStream !== undefined) {
         // && vidStream === false
@@ -592,8 +644,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
                 participants.local.muteVideo = !mute.muteV
                 participants.local.saveMediaSettingsToStorage()
 
+                setVidStream(false)
 
-                //setVidStream(false)
               }
            //}
           }}

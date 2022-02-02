@@ -102,6 +102,7 @@ export interface SignalIconProps{
 export const SignalQualityIcon: React.FC<SignalIconProps> = (props) => {
   let qualityIcon: JSX.Element|undefined = undefined
   const quality = props.quality
+
   if (quality){
     qualityIcon = <SignalCellular0BarIcon className={props.className} style={{color:'red'}} />
     if(quality > 30) { qualityIcon =

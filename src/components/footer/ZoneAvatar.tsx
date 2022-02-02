@@ -147,14 +147,16 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //const rgbRemote = (participants.remote.get(remotes[userIndex])?.getColorRGB())
 
 
-
-
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
+
     if(remote.tracks.avatarStream !== undefined) {
       //return remote.tracks.avatarStream
-      return remote
+      //if(remote.id !== activeStreamUser) {
+        //activeStreamUser = remote.id
+        return remote
+      //}
     }
     return undefined
   }))
@@ -165,15 +167,76 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //const [toggleUser, setToggleUser] = React.useState<string>(ids[ids.length-1])
   //console.log(toggleUser, " toggleUser")
 
-  const localStream = useObserver(() => Boolean(participants.local.showVideo))
-  const startStream = useObserver(() => Boolean(participants.remote.get(ids[ids.length-1])?.showVideo))
 
-  const rgbR = participants.remote.get(ids[ids.length-1])?.getColorRGB()
+
+
+
+const [streamUser, setStreamUser] = React.useState(ids)
+let result:any = []
+if(ids.length !== streamUser.length) {
+  //console.log(streamUser, ids)
+  let onlyInA = ids.filter(comparer(streamUser));
+  let onlyInB = streamUser.filter(comparer(ids));
+
+  if(ids.length === 0) {
+    result = []
+  }else {
+    result = onlyInA.concat(onlyInB)
+  }
+  console.log(ids, "---", result)
+  setStreamUser(result)
+}
+
+function comparer(otherArray:string[]){
+  return function(current:string){
+    return otherArray.filter(function(other){
+      return other === current
+    }).length === 0;
+  }
+}
+
+/*
+  let val = ["abc", "ghi"]
+  const name = ["abc", "def", "ghi"]
+  function comparer(otherArray:string[]){
+    return function(current:string){
+      return otherArray.filter(function(other){
+        return other == current
+      }).length == 0;
+    }
+  }
+  var onlyInA = name.filter(comparer(val));
+  var onlyInB = val.filter(comparer(name));
+  let result = onlyInA.concat(onlyInB);
+  console.log(result); */
+
+
+
+
+  //ids.find(element => element !== streamUser)
+  //for (let i=0; i<ids.length; i++) {
+    //console.log(ids[i], " List of stream user ", streamUser)
+    /* for(let j=0; j<streamUser.length; j++) {
+      if(ids[i] !== streamUser[j])
+      {
+        console.log(ids[i], " List of stream user")
+      }
+
+    } */
+ // }
+
+
+
+
+  const localStream = useObserver(() => Boolean(participants.local.showVideo))
+  const startStream = useObserver(() => Boolean(participants.remote.get(streamUser[streamUser.length-1])?.showVideo))
+
+  const rgbR = participants.remote.get(streamUser[streamUser.length-1])?.getColorRGB()
 
   //const avStream = useObserver(() => participants.local.tracks.avatarStream)
   const avLocalStream = useObserver(() =>  participants.local.tracks.avatarStream)
   //const avStream = useObserver(() =>  participants.remote.get(remotes[userIndex])?.tracks.avatarStream)
-  const avStream = useObserver(() =>  participants.remote.get(ids[ids.length-1])?.tracks.avatarStream)
+  const avStream = useObserver(() =>  participants.remote.get(streamUser[streamUser.length-1])?.tracks.avatarStream)
 
   //console.log(startStream, " video on")
 
@@ -184,6 +247,10 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     let stream = (localStream && !(participants instanceof PlaybackParticipant) ?
     avLocalStream : (startStream && !(participants instanceof PlaybackParticipant) ?
     avStream : undefined))
+    /* let stream = (startStream && !(participants instanceof PlaybackParticipant) ?
+    avStream : (localStream && !(participants instanceof PlaybackParticipant) ?
+    avLocalStream : undefined)) */
+
     let blob = stream && (participants instanceof PlaybackParticipant) ?
       participants.videoBlob: undefined
  // }
@@ -204,6 +271,9 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //  observers
 
   //console.log("CALLED")
+  //console.log(window.navigator.userAgent.indexOf("Mozilla"), " browser type")
+
+
 
   //console.log(toggleStream, " ====================", localStream, "--", startStream)
 
@@ -216,7 +286,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   const mouseOnBottom = useObserver(checkMouseOnBottom)
  */
   useEffect(() => {
-    console.log("CHECKING")
+    //console.log("CHECKING")
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
@@ -273,7 +343,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
     }
     video.autoplay = true
     video.onloadedmetadata = () => {
-      console.log(video.width, " --- ", video.height)
+      //console.log(video.width, " --- ", video.height)
       const settings = {
         width: 300, //video.width,
         height: 300, //video.height,
@@ -290,6 +360,9 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //  keyboard shortcut
   useEffect(() => {
     //console.log(videoRef?.current, "mask")
+
+
+
 
     /* window.addEventListener('click', (ev) => {
       //checkZone()
@@ -319,12 +392,11 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
     //  marginLeft:'-50px', marginTop:'-75px'
     return <Observer>{() => {
-
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'0px', marginLeft:'-30px'}}/>
+            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-50px', marginLeft:'-30px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',

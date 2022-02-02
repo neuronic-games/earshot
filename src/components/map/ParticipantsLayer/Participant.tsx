@@ -21,6 +21,8 @@ import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
 import symSmileIcon from '@images/whoo-screen_sym-smile.png'
 import symClapIcon from '@images/whoo-screen_sym-clap.png'
 import symHandIcon from '@images/whoo-screen_sym-hand.png'
+import badConnIcon from '@images/whoo-screen_sym-slow.png'
+
 
 //import {connection} from '@models/api/ConnectionDefs' // For checking Host
 //import {userName} from '@components/error/TheEntrance'
@@ -101,6 +103,14 @@ const useStyles = makeStyles({
     pointerEvents: 'none',
     transform: 'scale(0)',
     transition: '0s ease-out',
+  }),
+  conIcon: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.85 ,
+    height: props.size * 0.85,
+    left: props.size * 0.5,
+    top: props.size * -0.3,
+    pointerEvents: 'none',
   }),
   more: (props: StyleProps) => ({
     position: 'absolute',
@@ -198,6 +208,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
+  const _connQuality = useObserver(() => participant.quality?.connectionQuality)
+  //console.log(_connQuality, " quaity")
 
   const classes = useStyles({
     ...participantProps,
@@ -324,6 +336,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             {iconMeter}
             <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
             <SignalQualityIcon className={classes.signalIcon} quality={participant.quality?.connectionQuality} />
+            <img src={(_connQuality === undefined || _connQuality < 90) ? badConnIcon : undefined} className={classes.conIcon}  alt='' />
             {headphone ? <HeadsetIcon className={classes.icon} htmlColor="rgba(0, 0, 0, 0.3)" /> : undefined}
             {speakerMuted ? <SpeakerOffIcon className={classes.icon} color="secondary" /> :
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}
