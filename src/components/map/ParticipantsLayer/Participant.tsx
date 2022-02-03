@@ -336,7 +336,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             {iconMeter}
             <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
             <SignalQualityIcon className={classes.signalIcon} quality={participant.quality?.connectionQuality} />
-            <img src={(_connQuality === undefined || _connQuality < 90) ? badConnIcon : undefined} className={classes.conIcon}  alt='' />
+            {(_connQuality !== undefined && _connQuality < 90) ? <img src={badConnIcon} className={classes.conIcon}  alt='' /> : undefined}
             {headphone ? <HeadsetIcon className={classes.icon} htmlColor="rgba(0, 0, 0, 0.3)" /> : undefined}
             {speakerMuted ? <SpeakerOffIcon className={classes.icon} color="secondary" /> :
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}

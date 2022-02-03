@@ -396,7 +396,7 @@ function comparer(otherArray:string[]){
       <Collapse in={true} classes={classes}>
         <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
-            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'relative', marginTop:'-50px', marginLeft:'-30px'}}/>
+            <video ref={videoRef} style={{width: '300px', height:'300px', position: 'absolute', marginTop:'-30px', marginLeft:'-150px'}}/>
           </div>
         </FabMain>
         <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
