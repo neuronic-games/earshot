@@ -16,6 +16,7 @@ export const jaTranslate = {
   'Select video camera to share':'共有するカメラの選択',
   shareImport: 'ファイルからインポート (_i)',
   shareImportTip: 'ダウンロードしたファイルから、共有コンテンツをロードします。',
+  meetingSpace: 'ファイルにダウンロード (_d)',
   shareDownload: 'ファイルにダウンロード (_d)',
   shareDownloadTip: '画面共有とカメラ以外の全共有コンテンツをファイルにダウンロードします。',
   shareIframe: 'Webページ (_f)',

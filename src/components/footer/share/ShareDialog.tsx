@@ -11,11 +11,13 @@ import {CameraSelector} from './CameraSelector'
 import {CameraSelectorMember} from './CameraSelector'
 import { GoogleDriveImport } from './GoogleDrive'
 import {ImageInput} from './ImageInput'
+import {SettingImageInput} from './SettingImageInput'
 import {ShareMenu} from './Menu'
 import {Step} from './Step'
 import {TextInput} from './TextInput'
 
 interface ShareDialogProps extends BMProps{
+  _type: string
   cordX: number
   cordY:number
   origin:string
@@ -29,12 +31,22 @@ export function isDialogOpen():boolean {
 }
 
 export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
-  const {open, onClose, cordX, cordY, origin} = props
+  const {open, onClose, cordX, cordY, origin, _type} = props
   const {map} = props.stores
+
+  //console.log("type ::: ", _type)
 
   const cameras = useRef(new CameraSelectorMember())
 
-  const [step, setStep] = useState<Step>('menu')
+  //const [step, setStep] = useState<Step>('menu')
+  let assignType:Step
+  if(_type === "roomImage") {
+    assignType = 'roomImage'
+  } else {
+    assignType = 'menu'
+  }
+  const [step, setStep] = useState<Step>(assignType)
+
 
   const wrappedSetStep = (step: Step) => {
     if (step === 'none') {
@@ -72,6 +84,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin}/>
       case 'zoneimage':
         return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin} />
+      case 'roomImage':
+        return <SettingImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin} />
       case 'camera':
         return <CameraSelector setStep={setStep} stores={props.stores} cameras={cameras.current} xCord={cordX} yCord={cordY} from={origin}/>
       case 'Gdrive':
@@ -99,6 +113,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
     iframe: t('Share iframe'),
     image: t('Share image'),
     zoneimage: t('Share zone image'),
+    roomImage: t('meetingSpace'),
     none: 'None',
     camera: t('Select video camera to share'),
   }
@@ -107,7 +122,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
 
   isOpen = open
 
-  return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm"
+  return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm" fullWidth={true}
       onPointerMove = {(ev) => {
         map.setMouse([ev.clientX, ev.clientY])
       }}

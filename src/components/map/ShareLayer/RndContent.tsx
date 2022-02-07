@@ -779,7 +779,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         {theContent}
       </Rnd>
-      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} />
+      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} _type={'menu'}/>
 
     </div >
   )

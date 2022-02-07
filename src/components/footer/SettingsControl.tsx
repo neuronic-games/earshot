@@ -7,7 +7,7 @@ import {useTranslation} from '@models/locales'
 //import {Observer} from 'mobx-react-lite'
 //import {useObserver} from 'mobx-react-lite'
 // useEffect,
-import React, {useRef} from 'react'
+import React, {useRef, useState} from 'react'
 //import UploadIcon from '@material-ui/icons/Publish'
 //import DownloadIcon from '@material-ui/icons/GetApp'
 //import RoomPreferencesIcon from '@material-ui/icons/Settings'
@@ -18,7 +18,14 @@ import {SharedContents} from '@stores/sharedContents/SharedContents'
 import {createContent, extractContentData} from '@stores/sharedContents/SharedContentCreator'
 //createContentFromText, createContentOfIframe, createContentOfText, createContentOfVideo,
 import {isArray} from 'lodash'
-
+/* import {SettingImageInput} from '@components/footer/share/SettingImageInput'
+import {Step} from '@components/footer/share/Step'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import {isSmartphone} from '@models/utils'
+import sharedContents from '@stores/sharedContents/SharedContents' */
+import {ShareDialog} from '@components/footer/share/ShareDialog'
 
 
 export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
@@ -26,6 +33,10 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
   // , map
   const {contents, participants} = props.stores
   const fileInput = useRef<HTMLInputElement>(null)
+
+ // const [step, setStep] = useState<Step>('image')
+  const [show, setShow] = useState<boolean>(false)
+
 
   function openImport() {
     console.log("open Import ", fileInput.current?.clientHeight)
@@ -36,6 +47,12 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     console.log("open download")
     downloadItems(contents)
   }
+
+  /* function openMeetingSpaceDialog() {
+    //console.log(props.stores.roomInfo, " stores")
+    setShow(true)
+
+  } */
 
   function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
     const files = ev.currentTarget?.files
@@ -90,9 +107,12 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
  /*  icon={<UploadIcon/>}
   icon={<DownloadIcon />} */
 
-
-
   return <Container>
+
+  {/* <ShareDialogItem
+      key="meetingSpace" onClick={()=>openMeetingSpaceDialog()} text={t('meetingSpace')}
+    />
+    <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div> */}
 
     <ShareDialogItem
     key="shareDownload" onClick={()=>openDownload()} text={t('shareDownload')}
@@ -115,7 +135,12 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
   {/* <ShareDialogItem
   key="settingPreference" onClick={()=>showAdmin()} text={t('settingPreference')} icon={<RoomPreferencesIcon />}
 />*/}
-
+  {/* <Dialog open={show} onClose={()=>setShow(false)} onExited={() => setShow(false)} maxWidth="sm" fullWidth={true}>
+       <DialogTitle id="simple-dialog-title" style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
+      {t('meetingSpace')}</DialogTitle>
+    <DialogContent>{<SettingImageInput setStep={setStep} stores={props.stores} type={step} xCord={0} yCord={0} from={''}/>}</DialogContent>
+  </Dialog> */}
+  <ShareDialog {...props} open={show} onClose={() => setShow(false)} cordX={0} cordY={0} origin={''} _type={'roomImage'} />
   </Container>
 }
 SettingsControl.displayName = 'SettingsControl'

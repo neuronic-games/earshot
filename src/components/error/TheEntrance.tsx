@@ -22,6 +22,9 @@ import {ErrorDialogFrame} from './ErrorDialog'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 import {rgb2Color} from '@models/utils'
 
+//import {connection} from '@models/api'
+
+
 let nameStr:string = ''
 
 export function userName(): string {
@@ -92,6 +95,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   },);
 
   const onClose = (save: boolean) => {
+    console.log(sessionStorage.getItem("room"), " Stored name ", room)
     if (save) {
         if (participants.local.information.name !== name) {
           nameStr = name
@@ -100,7 +104,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
           participants.local.saveInformationToStorage(true)
         }
         if(room === "") {
-
           //console.log(room, " ---- ")
           urlParameters.room = nameArr[0]
           sessionStorage.setItem('room', nameArr[0])
@@ -112,6 +115,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       }
 
     //console.log(room, " --- ", nameArr[0])
+
+
 
     if(room !== "") {
       if(concatURL === '') {
@@ -127,6 +132,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       }
      }
 
+
+
     // setTimer to clear
     //errorInfo.clear()
     const endScreen = setTimeout(() => {
@@ -139,6 +146,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
      } else {
       window.history.replaceState({}, "null", ("/" + nameArr[0]))
      } */
+
+     // Show Description here
+     //console.log(connection.conference.name, " room name")
+
     },5000)
   }
 
@@ -150,6 +161,16 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     setActive(true)
 
     //console.log("called- Error")
+
+    /*
+    //console.log(props.stores.roomInfo.roomProps.entries, " SS")
+    //console.log(props.stores.roomInfo.password, " ------------- ", room);
+    //props.stores.roomInfo.onUpdateProp('password', 'abcd')
+    //connection.conference.setRoomProp('password', 'abcd')
+    //console.log(props.stores.roomInfo.password, " password")
+    //console.log(connection.conference._jitsiConference?.isModerator, " room name")
+    //props.stores.roomInfo.roomName = room
+    */
 
     const cTimer = setTimeout(function() {
     //window.setTimeout(function() {
@@ -226,7 +247,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.8</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.9</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

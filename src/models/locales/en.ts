@@ -17,6 +17,7 @@ export const enTranslate = {
   'Select video camera to share':'Select video camera to share',
   shareImport: '_Load Meeting Space...',
   shareImportTip: 'Load the shared content from the downloaded .json file.',
+  meetingSpace: '_Meeting Space',
   shareDownload: '_Save Meeting Space',
   shareDownloadTip: 'Download all shared contents except screen sharing and cameras to a file.',
   shareIframe: 'I_frame',

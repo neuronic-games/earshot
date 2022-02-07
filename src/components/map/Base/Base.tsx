@@ -614,7 +614,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         </Tooltip>
       <div className={classes.dashedCircle}></div>
       </div>
-      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={mem.contentX} cordY={mem.contentY} origin={'contextmenu'} />
+      <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={mem.contentX} cordY={mem.contentY} origin={'contextmenu'} _type={'menu'}/>
     </div>
   )
 }

@@ -202,6 +202,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   }
   const keycodesUse = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
     'KeyQ', 'KeyW', 'KeyE', 'KeyA', 'KeyS', 'KeyD'])
+
+  // Disable when dialog is open
+
   KeyHandlerPlain(onKeyTimer, 33, keycodesUse, keycodesUse, () => (map.keyInputUsers.size === 0))
 
   //  pointer drag

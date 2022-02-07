@@ -399,10 +399,10 @@ function comparer(otherArray:string[]){
             <video ref={videoRef} style={{width: '300px', height:'300px', position: 'absolute', marginTop:'-30px', marginLeft:'-150px'}}/>
           </div>
         </FabMain>
-        <div style={{height:'20px', width:'150px', textAlign:'center', position:'relative', left:'-67px',
-          verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-35px', color:'white'}}>
-            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'-10px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
-            <p style={{position:'relative', marginTop:'-6px', marginLeft:'4px'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
+        <div style={{height:'50px', width:'150px', textAlign:'center', position:'relative', left:'-66px',
+          verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-50px', color:'white', overflow:'hidden'}}>
+            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'0px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
+            <p style={{position:'relative', marginTop:'4px', marginLeft:'4px', overflow:'hidden'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
         </div>
       </Collapse>
     </div >

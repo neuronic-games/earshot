@@ -209,6 +209,14 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
   return pasted
 }
 
+export function createRoomImageDesc(imageFile: File, desc:string) {
+  uploadToGyazo(imageFile).then((url) => {
+    console.log("Uploaded image : Path --> ", url)
+    // Update the desc and image for roomInfo
+
+  })
+}
+
 export function createContentOfImage(imageFile: File, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string)
   : Promise<SharedContentImp> {
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {

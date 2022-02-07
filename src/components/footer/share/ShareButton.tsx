@@ -59,7 +59,7 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
         >
         <Icon icon={windowArrowUp} style={{width:props.iconSize, height:props.iconSize}} />
       </FabWithTooltip>
-      <ShareDialog {...props} open={props.showDialog} onClose={() => props.setShowDialog(false)} cordX={props.stores.map.mouseOnMap[0]} cordY={props.stores.map.mouseOnMap[1]} origin={'mainmenu'} />
+      <ShareDialog {...props} open={props.showDialog} onClose={() => props.setShowDialog(false)} cordX={props.stores.map.mouseOnMap[0]} cordY={props.stores.map.mouseOnMap[1]} origin={'mainmenu'} _type='menu' />
     </div>
   )
 }
