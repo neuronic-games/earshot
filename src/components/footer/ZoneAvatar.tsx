@@ -40,6 +40,9 @@ import {StereoAudioSwitch} from './StereoAudioSwitch' */
 import {Observer} from 'mobx-react-lite'
 import {rgb2Color} from '@models/utils'
 
+import {connection} from '@models/api'
+import {MessageType} from '@models/api/MessageType'
+
 
 /* import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 const theme = createMuiTheme({
@@ -63,6 +66,20 @@ const buttonStyle = {
 }
 
 const useStyles = makeStyles({
+  tapBroadcast: {
+    display: 'block',
+    width:'265px',
+    position:'relative',
+    left:'-10px',
+    textAlign:'center',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: '20px',
+    textShadow: '1px 1px #000, -1px 1px #cdcdcd, -1px -1px #cdcdcd, 1px -1px #cdcdcd' // '1px 2px 2px #000000' //
+  },
+  hidetapBroadcast:{
+    display: 'none',
+  },
   fab:{
     display:'none',
   },
@@ -162,14 +179,10 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   }))
 
   //console.log(participants.remote.get(ids[ids.length-1])?.tracks.avatarStream, " checking")
-  //console.log(ids, " ids")
+  //console.log(ids.length, " ids")
 
   //const [toggleUser, setToggleUser] = React.useState<string>(ids[ids.length-1])
   //console.log(toggleUser, " toggleUser")
-
-
-
-
 
 const [streamUser, setStreamUser] = React.useState(ids)
 let result:any = []
@@ -247,9 +260,15 @@ function comparer(otherArray:string[]){
     let stream = (localStream && !(participants instanceof PlaybackParticipant) ?
     avLocalStream : (startStream && !(participants instanceof PlaybackParticipant) ?
     avStream : undefined))
+
+    /* let stream = (localStream && !(participants instanceof PlaybackParticipant) ?
+    avLocalStream : undefined) */
+
     /* let stream = (startStream && !(participants instanceof PlaybackParticipant) ?
     avStream : (localStream && !(participants instanceof PlaybackParticipant) ?
     avLocalStream : undefined)) */
+
+
 
     let blob = stream && (participants instanceof PlaybackParticipant) ?
       participants.videoBlob: undefined
@@ -262,6 +281,9 @@ function comparer(otherArray:string[]){
   // For toggle emoticons
   //const [toggleStream, setToggleStream] = React.useState<boolean>(startStream ? startStream : (localStream ? localStream : false))
   const [toggleStream, setToggleStream] = React.useState<boolean>((stream !== undefined) ? true : false)
+
+  //const [toggleBreadCast, setToggleBreadCast] = React.useState<boolean>(false)
+
   //const [zone, setZone] = React.useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -274,6 +296,14 @@ function comparer(otherArray:string[]){
   //console.log(window.navigator.userAgent.indexOf("Mozilla"), " browser type")
 
 
+  //  observers
+  const mute = useObserver(() => ({
+    muteA: participants.local.muteAudio,  //  mic
+    muteS: participants.local.muteSpeaker,  //  speaker
+    muteV: participants.local.muteVideo,  //  camera
+    onStage: participants.local.physics.onStage,
+  }))
+
 
   //console.log(toggleStream, " ====================", localStream, "--", startStream)
 
@@ -282,6 +312,8 @@ function comparer(otherArray:string[]){
   /* function checkMouseOnBottom() {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
+
+
 
   const mouseOnBottom = useObserver(checkMouseOnBottom)
  */
@@ -394,7 +426,14 @@ function comparer(otherArray:string[]){
     return <Observer>{() => {
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
-        <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}>
+        <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}
+        onClick = { () => {
+          /* console.log("on Vid Click") */
+          connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
+          participants.local.muteVideo = !mute.muteV
+          participants.local.saveMediaSettingsToStorage()
+        }}
+        >
           <div className={(toggleStream) ? classes.vidiconActive : classes.vidicon}>
             <video ref={videoRef} style={{width: '300px', height:'300px', position: 'absolute', marginTop:'-30px', marginLeft:'-150px'}}/>
           </div>
@@ -403,6 +442,9 @@ function comparer(otherArray:string[]){
           verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-50px', color:'white', overflow:'hidden'}}>
             <img style={{position:'relative', width:'25px', height:'25px', marginTop:'0px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
             <p style={{position:'relative', marginTop:'4px', marginLeft:'4px', overflow:'hidden'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
+        </div>
+        <div className={localStream || ids.length === 0 ? classes.hidetapBroadcast : classes.tapBroadcast}>
+          TAP TO BROADCAST
         </div>
       </Collapse>
     </div >

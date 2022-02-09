@@ -74,7 +74,8 @@ const useStyles = makeStyles({
   container:{
     position: 'absolute',
     width: '30%',
-    top: '70%',
+    /* top: '70%', */
+    bottom: 15,
     right:0,
     padding: 0,
     outline: 'none',
@@ -82,10 +83,7 @@ const useStyles = makeStyles({
   },
   wrapper:{width:'100%'},
   wrapperInner:{width:'100%', display:'flex', flexDirection:'column', alignItems:'flex-end'},
-
 })
-
-
 
 class Member{
   timeoutOut:NodeJS.Timeout|undefined = undefined

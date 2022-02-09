@@ -33,6 +33,8 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 //import { SettingsControl } from './SettingsControl'
 import Container from '@material-ui/core/Container'
 //import {connection} from '@models/api/ConnectionDefs' // For checking Host
+import {connection} from '@models/api'
+import {MessageType} from '@models/api/MessageType'
 
 const theme = createMuiTheme({
   palette: {
@@ -117,7 +119,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
 
   // For Video Stream
-  const [vidStream, setVidStream] = React.useState<boolean>(false)
+  //const [vidStream, setVidStream] = React.useState<boolean>(false)
+  const [toggleIcon, setToggleIcon] = React.useState<boolean>(false)
 
   //console.log(props.stores.roomInfo.password, " pass")
 
@@ -135,7 +138,6 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const adminButton = useRef<HTMLDivElement>(null)
 
-
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
@@ -146,7 +148,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     return undefined
   }))
 
-  //console.log(ids, " in footer")
+  //console.log(ids.length, " in footer")
 
   /* if(participants.local.tracks.avatarStream !== undefined) {
     ids.push(participants.localId)
@@ -223,12 +225,14 @@ function comparer(otherArray:string[]){
 
   // Video stream toggle
   //console.log(ids.length, " ids", vidStream, " --- ", mute.lStream)
-  if(ids.length > 0 && vidStream === false && mute.lStream !== undefined) {
+  //if(ids.length > 0 && vidStream === false && mute.lStream !== undefined) {
     //console.log("LENGTH >")
-    participants.local.muteVideo = !mute.muteV
+
+    /* participants.local.muteVideo = !mute.muteV
     participants.local.saveMediaSettingsToStorage()
-    setVidStream(true)
-  }
+    setVidStream(true) */
+
+  //}
 
   //  Footer collapse conrtrol
   function checkMouseOnBottom() {
@@ -238,6 +242,9 @@ function comparer(otherArray:string[]){
 
   useEffect(() => {
     //console.log(mute.remoteStream, " .. in footer ", mute.lStream?.getTracks(), " : ", mute.muteV)
+
+    //console.log("CALLED EACH TIME - ", mute.muteV)
+
     if(mute.remoteStream !== undefined || mute.lStream !== undefined) {
       //if(mute.lStream !== undefined) {
         // && vidStream === false
@@ -631,7 +638,9 @@ function comparer(otherArray:string[]){
           {micMenuItems}
         </Menu>
 
-        <FabWithTooltip size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
+       {/*  <FabWithTooltip size={fabSize} color={mute.muteV ? 'secondary' : 'secondary'} aria-label="camera" */}
+        <FabWithTooltip size={fabSize} color={(toggleIcon === false && mute.muteV) ? 'primary' : 'secondary'} aria-label="camera"
+
           onClick = { () => {
             //if(inzone !== undefined) {
               member.upTime = new Date().getSeconds()
@@ -639,13 +648,25 @@ function comparer(otherArray:string[]){
               if(timeDiff > 1) {
               } else {
 
-                //toggleAllStream()
 
-                participants.local.muteVideo = !mute.muteV
-                participants.local.saveMediaSettingsToStorage()
 
-                setVidStream(false)
+                //Stop All Stream
+                //if(!mute.muteV) {
+                  //(mute.lStream, " LEN")
+                  //if(mute.lStream === undefined) {
+                  connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
+                  //}
+                  // Start Local Stream
+                  //participants.local.muteVideo = !mute.muteV
+                  participants.local.muteVideo = !mute.muteV
+                  participants.local.saveMediaSettingsToStorage()
 
+                  setToggleIcon(true)
+
+
+                //setVidStream(false)
+
+              //}
               }
            //}
           }}
@@ -668,6 +689,8 @@ function comparer(otherArray:string[]){
             setVideoMenuEl(ev.currentTarget)
           } }
         >
+
+        {/* {toggleIcon === false ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> */}
           {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
             : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>

@@ -67,10 +67,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   // setting default room
-  const urlRoom = urlParameters.room
+
+  //const urlRoom = String(urlParameters.room)
 
   const rgb = participants.local.getColorRGB()
 
+  //console.log(urlRoom, " urlname ", roomURL[1])
 
   useEffect(() => {
     if(room !== "") {
@@ -116,23 +118,19 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
     //console.log(room, " --- ", nameArr[0])
 
-
-
     if(room !== "") {
       if(concatURL === '') {
         window.history.replaceState({}, "null", ("/?room=" + room))
       } else {
         window.history.replaceState({}, "null", ("/" + concatURL + "/?room=" + room))
       }
-     } else {
+    } else {
       if(concatURL === '') {
         window.history.replaceState({}, "null", ("/?room=" + nameArr[0]))
       } else {
         window.history.replaceState({}, "null", ("/" + concatURL + "/?room=" + nameArr[0]))
       }
-     }
-
-
+    }
 
     // setTimer to clear
     //errorInfo.clear()
@@ -247,7 +245,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.3.9</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.4.1</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -291,7 +289,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
         /> */}
         <InputLabel style={tfLStyle}> {t('Venue')} </InputLabel>
-        <Input value={room} readOnly={urlRoom !== '' ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
+        {/* <Input value={room} readOnly={(urlRoom !== '' || urlRoom !== undefined) ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} /> */}
+        <Input value={room} readOnly={roomURL[1] !== '' ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
       </div>
       </Box>
       <Box mt={2}>
