@@ -342,7 +342,7 @@ function comparer(otherArray:string[]){
             e.stopPropagation()
           }
           if (e.code === 'KeyL' || e.code === 'Escape') {  //  Leave from keyboard
-            participants.local.physics.awayFromKeyboard = true
+            //participants.local.physics.awayFromKeyboard = true
           }
         }
       }

@@ -211,9 +211,18 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
 
 export function createRoomImageDesc(imageFile: File, desc:string) {
   uploadToGyazo(imageFile).then((url) => {
-    console.log("Uploaded image : Path --> ", url)
+    //console.log("Uploaded image : Path --> ", url)
     // Update the desc and image for roomInfo
-
+    const roomDetails = sessionStorage.getItem('room')
+    let details: Object|undefined = undefined
+    if (roomDetails) { details = JSON.parse(roomDetails) as Object }
+    const roomInDetails = details
+    const _roomDetails:Object = {
+      name: Object(roomInDetails).name,
+      image: url,
+      desc: desc,
+    }
+    sessionStorage.setItem('room', JSON.stringify(_roomDetails))
   })
 }
 
@@ -258,6 +267,8 @@ export function createContentOfImageUrl(url: string, map: MapData,
         pasted.shareType = 'zoneimg'
         //pasted.noFrame = true
         //pasted.zone = "open"
+      } else if(_type === "roomImage") {
+        pasted.shareType = 'roomimg'
       }
 
       pasted.noFrame = true

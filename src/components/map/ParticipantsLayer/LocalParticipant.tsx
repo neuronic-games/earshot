@@ -1,13 +1,15 @@
 import {MAP_SIZE} from '@components/Constants'
 import {MoreButton, moreButtonControl, MoreButtonMember} from '@components/utils/MoreButton'
 import {makeStyles} from '@material-ui/core/styles'
-import {addV2, assert, mulV2, rotateVector2DByDegree, subV2, transformPoint2D, transfromAt} from '@models/utils'
+import {addV2, assert, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import {DragHandler, DragState} from '../../utils/DragHandler'
-import {KeyHandlerPlain} from '../../utils/KeyHandler'
+//import {KeyHandlerPlain} from '../../utils/KeyHandler'
 import {LocalParticipantForm} from './LocalParticipantForm'
 import {Participant, ParticipantProps} from './Participant'
+
+//import { isDialogOpen } from '@components/footer/share/ShareDialog'
 
 
 const AVATAR_SPEED_LIMIT = 50
@@ -15,7 +17,8 @@ const MAP_SPEED_LIMIT = 600
 const MAP_SPEED_MIN = 100
 const HALF_DEGREE = 180
 const WHOLE_DEGREE = 360
-const HALF = 0.5
+
+//const HALF = 0.5
 
 const AVATARS = ["avatar/whoo-avatars_whoo-01.png", "avatar/whoo-avatars_whoo-02.png", "avatar/whoo-avatars_whoo-03.png", "avatar/whoo-avatars_whoo-04.png", "avatar/whoo-avatars_whoo-05.png", "avatar/whoo-avatars_whoo-06.png", "avatar/whoo-avatars_whoo-07.png"]
 
@@ -84,7 +87,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     }
     participant.savePhysicsToStorage(false)
   }
-  const moveParticipantByKey = (keys:Set<string>) => {
+
+  ////////////////////////////////////////////////////////////////////////
+  /* const moveParticipantByKey = (keys:Set<string>) => {
     let deltaF = 0
     let deltaA = 0
     const VEL = 10
@@ -132,7 +137,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     participant.savePhysicsToStorage(false)
 
     return relatedKeyPressed
-  }
+  } */
+
+  //////////////////////////////////////////////////////////////////////
 
   const scrollMap = () => {
     const posOnScreen = map.toWindow(participant!.pose.position)
@@ -190,8 +197,14 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     //  console.log('participant onDrag')
     moveParticipant(state)
   }
-  const onKeyTimer = (keys:Set<string>) => {
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // REMOVED KEY EVENTS TO MOVE AVATAR
+
+  /* const onKeyTimer = (keys:Set<string>) => {
     //   console.log('onKeyTimer()', keys)
+
     const participantMoved = moveParticipantByKey(keys)
 
     if (member.scrollAgain || participantMoved) {
@@ -201,11 +214,14 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     return false
   }
   const keycodesUse = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-    'KeyQ', 'KeyW', 'KeyE', 'KeyA', 'KeyS', 'KeyD'])
+    'KeyQ', 'KeyW', 'KeyE', 'KeyA', 'KeyS', 'KeyD']) */
 
   // Disable when dialog is open
+  //KeyHandlerPlain(onKeyTimer, 33, keycodesUse, keycodesUse, () => (map.keyInputUsers.size === 0))
+  //////////////////////////////////////////////////////////////////////////////
 
-  KeyHandlerPlain(onKeyTimer, 33, keycodesUse, keycodesUse, () => (map.keyInputUsers.size === 0))
+
+
 
   //  pointer drag
   const TIMER_INTERVAL = 33

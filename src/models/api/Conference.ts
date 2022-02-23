@@ -71,6 +71,7 @@ export class Conference extends EventEmitter {
     roomInfo.onUpdateProp(name, value)
   }
 
+
   public init(name:string, createJitsiConference:()=>JitsiMeetJS.JitsiConference|undefined){
     //  check last kicked time
     if (name){

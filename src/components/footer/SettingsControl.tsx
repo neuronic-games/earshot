@@ -48,11 +48,10 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     downloadItems(contents)
   }
 
-  /* function openMeetingSpaceDialog() {
+  function openMeetingSpaceDialog() {
     //console.log(props.stores.roomInfo, " stores")
     setShow(true)
-
-  } */
+  }
 
   function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
     const files = ev.currentTarget?.files
@@ -62,6 +61,9 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
         if (isArray(items)) {
           items.forEach((item) => {
             //console.log("Loading -- ", name)
+
+            //console.log(item, " --- item")
+
             item.ownerName = name
             const content = extractContentData(item as ISharedContent)
             if (content.type === 'screen' || content.type === 'camera') { return }
@@ -78,22 +80,37 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
     console.log("download")
 
+    //console.log(props.stores.roomInfo.roomDetails)
+
     let contentAll = contents.all
     for(var i:number=0; i < contentAll.length; i++) {
       contentAll[i].ownerName = ""
     }
 
+
    /*  const content = JSON.stringify(extractContentDatas(contents.all))
     const blob = new Blob([content], {type: 'text/plain'}) */
 
     const content = JSON.stringify(contentAll)
+
+
     const blob = new Blob([content], {type: 'text/plain'})
     const a = document.createElement('a')
     const url = URL.createObjectURL(blob)
     a.href = url
     //a.download = 'BinauralMeetSharedItems.json'
+
+
     let roomName = sessionStorage.getItem('room')
-    a.download = String(roomName) + ".json"
+    let details: Object|undefined = undefined
+    if (roomName) { details = JSON.parse(roomName) as Object }
+    const roomInDetails = details
+
+    let saveJsonRoom = Object(roomInDetails).name
+
+    //a.download = String(roomName) + ".json"
+    a.download = String(saveJsonRoom) + ".json"
+
     document.body.appendChild(a)
     a.click()
     setTimeout(() => {
@@ -109,10 +126,10 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
   return <Container>
 
-  {/* <ShareDialogItem
+  <ShareDialogItem
       key="meetingSpace" onClick={()=>openMeetingSpaceDialog()} text={t('meetingSpace')}
     />
-    <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div> */}
+    <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
 
     <ShareDialogItem
     key="shareDownload" onClick={()=>openDownload()} text={t('shareDownload')}

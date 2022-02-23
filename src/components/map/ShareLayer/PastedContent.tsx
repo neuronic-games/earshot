@@ -85,8 +85,9 @@ export const PastedContent: React.FC<BMProps> = (props:BMProps) => {
   const pastedContent = useObserver(() => sharedContents.pasted)
   //  console.log('Pasted contents rendered.')
 
+
   return (
-    <RndContent {...props} hideAll={pastedContent.type === ''} content={pastedContent}
+    <RndContent {...props} hideAll={pastedContent.type === '' || pastedContent.shareType === "roomimg"} content={pastedContent}
       onShare = {(evt: MouseOrTouch) => { onShare() }}
       onClose = {(evt: MouseOrTouch) => {
         sharedContents.setPasted(createContent())

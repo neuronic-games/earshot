@@ -14,11 +14,18 @@ export class RoomInfo{
   @observable backgroundFill = this.defaultBackgroundFill
   @observable backgroundColor = this.defaultBackgroundColor
 
+  @observable roomDetails=JSON.stringify({name:'',image:'',desc:''})
+
+
+
+
+
   constructor() {
     makeObservable(this)
   }
+
   @action onUpdateProp(key:string, val:string|undefined){
-    console.log(val, " val ", key)
+    //console.log(val, " val ", key)
     if (val === undefined){
       this.roomProps.delete(key)
     }else{
@@ -28,7 +35,7 @@ export class RoomInfo{
     switch(key){
       case 'backgroundFill': this.backgroundFill = val ? JSON.parse(val) : this.defaultBackgroundFill; break
       case 'backgroundColor': this.backgroundColor = val ? JSON.parse(val) : this.defaultBackgroundColor; break
-      case 'password': this.password = val ? val : ''; break
+      case 'roomDetails': this.roomDetails = val ? JSON.parse(val) : this.roomDetails; break
     }
   }
 }

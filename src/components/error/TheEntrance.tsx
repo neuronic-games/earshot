@@ -21,6 +21,10 @@ import React, {useState, useEffect} from 'react'
 import {ErrorDialogFrame} from './ErrorDialog'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 import {rgb2Color} from '@models/utils'
+import { connection } from '@models/api'
+import { useObserver } from 'mobx-react-lite'
+
+
 
 //import {connection} from '@models/api'
 
@@ -34,13 +38,95 @@ export function userName(): string {
 export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
-  const savedRoom = sessionStorage.getItem('room')
+  //const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
 
-  const mapData = props.stores.map
 
+
+
+
+  // Get Store values
+  const roomDetails = sessionStorage.getItem('room')
+
+
+
+
+
+  let details: Object|undefined = undefined
+  if (roomDetails) { details = JSON.parse(roomDetails) as Object }
+  const roomInDetails = details
+  const savedRoom = Object(roomInDetails).name
+
+  //console.log("ROOM DETAILS - ", roomDetails)
+
+  // Update conf
+  connection.conference.setRoomProp('roomDetails', JSON.stringify(roomDetails))
+
+
+  //const rname = useObserver(() => (props.stores.roomInfo.roomProps))
+
+  //const rnameValue = useObserver(() => (props.stores.roomInfo.roomProps.get('roomDetails')))
+
+  //console.log(rname, " STORES ")
+
+
+
+
+
+  //Object.entries(rname).map(([key, value]) => {
+    // Pretty straightforward - use key for the key and value for the value.
+    // Just to clarify: unlike object destructuring, the parameter names don't matter here.
+    //if(key === "data_"){
+      //console.log(rname)
+    //}
+//})
+
+
+  //let sData = rname
+
+  //console.log(sData)
+
+  //const mDetails1 = useObserver(() => (Object(rname).data_))
+
+  //console.log(mDetails1)
+
+
+
+
+  //let mDetails
+  //Object.keys(mDetails1).map((key) => {
+    //if(key === "data_") {
+      //console.log(key, " --- ", Object(rname).data_.get('roomDetails')));  // November
+      //console.log(Object(rname).data_);  // November
+      //mDetails = Object(rname).data_.get('roomDetails')
+      //mDetails = useObserver(() => (Object(rname).data_.get('roomDetails')))
+
+      //console.log(Object(mDetails).value_)
+      //return mDetails
+   //}
+
+    //console.log((Object(mDetails1).value.value_))
+
+
+    //rname[key].forEach((name) => {
+      //console.log(name); // some-event 2017-11-05
+    //});
+  //})
+
+
+
+
+
+
+
+
+
+
+  const mapData = props.stores.map
   let roomURL = String(urlParameters.room).split("_");
   let num = (Number(roomURL?.length) - 1)
+
+  //console.log(urlParameters.room, " room")
 
   let concatURL = ''
 
@@ -59,7 +145,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   //console.log(urlParameters, " --- ")
   //console.log(room, " room")
 
-  const [nameArr, setNameArr] = useState([String(Object(props).room).toLocaleLowerCase()])
+  /* const [nameArr, setNameArr] = useState([String(Object(props).room).toLocaleLowerCase()]) */
+  const [nameArr, setNameArr] = useState([String(Object(props).room)])
   //const [nameArr, setNameArr] = useState([(room)])
   //const [index, setIndex] = useState(0);
   const passedPlaceholder = nameArr[0]
@@ -72,9 +159,65 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   const rgb = participants.local.getColorRGB()
 
+
+
+
+  /* // Get Store values
+  const roomDetails = sessionStorage.getItem('room')
+  let details: Object|undefined = undefined
+  if (roomDetails) { details = JSON.parse(roomDetails) as Object }
+  const roomInDetails = details */
+
   //console.log(urlRoom, " urlname ", roomURL[1])
 
+  //console.log('2 ', savedRoom)
+
+  //console.log(props.stores.roomInfo.roomDetails, " Details of the room start path")
+
+
+  const storeRoom = (props.stores.roomInfo.roomDetails)
+  let detailsStore: Object|undefined = undefined
+  if (storeRoom) { detailsStore = JSON.parse(storeRoom) as Object }
+  const roomInStore = detailsStore
+
+
+
+
+  //console.log(savedRoom, " --- ", room, " ====== ", props.stores.roomInfo.roomDetails)
+
+  let roomImage = ''
+  let roomDesc = ''
+
+  if(savedRoom === room) {
+    if(Object(roomInStore).image !== '') {
+      roomImage = Object(roomInStore).image
+    }
+    if(Object(roomInStore).desc !== '') {
+      roomDesc = Object(roomInStore).desc
+    }
+  }
+
+  //console.log(props.stores.roomInfo.roomDetails, " roomDetails")
+
+  //console.log(Object(roomInStore).name, " SR ", Object(roomInStore).image, " ---- ", room)
+
+  // console.log(Object(roomInStore).image.toString(), " >>> IMAGE AFTER LOAD")
+
+  /* let storeDetails: Object|undefined = undefined
+  if (storeRoom) { details = JSON.parse(storeRoom) as Object }
+  const roomInStore = storeDetails
+
+  console.log("IIIIIIIIIIIII - ", roomInStore) */
+
+  //console.log(savedRoom, " --- ", room)
+
   useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if(e.key === "Enter") {
+        onErrorClose()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
     if(room !== "") {
       return
     }
@@ -85,19 +228,25 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
             const inner = setTimeout(() => {
               clearTimeout(inner)
               setPlaceholderIndex(0)
-              setNameArr([generateRoomWithoutSeparator().toLocaleLowerCase()])
+             /*  setNameArr([generateRoomWithoutSeparator().toLocaleLowerCase()]) */
+             setNameArr([generateRoomWithoutSeparator()])
             },4000)
         } else {
             setPlaceholderIndex(placeholderIndex + 1)
         }
     }, 30);
     return () => {
+      window.removeEventListener('keydown', onKeyDown)
         clearTimeout(intr)
     }
   },);
 
   const onClose = (save: boolean) => {
-    console.log(sessionStorage.getItem("room"), " Stored name ", room)
+    //console.log(sessionStorage.getItem("room"), " Stored name ", room)
+
+    // get the value
+    //console.log(sessionStorage.getItem('room'))
+
     if (save) {
         if (participants.local.information.name !== name) {
           nameStr = name
@@ -105,14 +254,39 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
           participants.local.sendInformation()
           participants.local.saveInformationToStorage(true)
         }
-        if(room === "") {
+        if( room === "") {
           //console.log(room, " ---- ")
+          //console.log('1 - ', savedRoom, )
           urlParameters.room = nameArr[0]
-          sessionStorage.setItem('room', nameArr[0])
+          /////////////////////////////////////
+          if(savedRoom !== room) {
+            const roomDetails:Object = {
+              name: nameArr[0],
+              image: '',
+              desc: '',
+            }
+
+            //sessionStorage.setItem('room', nameArr[0])
+            sessionStorage.setItem('room', JSON.stringify(roomDetails))
+          }
+          /////////////////////////////////////
+
           setRoom(nameArr[0])
         } else {
           urlParameters.room = room
-          sessionStorage.setItem('room', room)
+          //console.log("2 - ", savedRoom, " -- ", room)
+          /////////////////////////////////////
+          if(savedRoom !== room) {
+            const roomDetails:Object = {
+              name: room,
+              image: '',
+              desc: '',
+            }
+            //sessionStorage.setItem('room', room)
+            sessionStorage.setItem('room', JSON.stringify(roomDetails))
+            /////////////////////////////////////
+          }
+          //setRoom(room)
         }
       }
 
@@ -137,7 +311,24 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     const endScreen = setTimeout(() => {
     //window.setTimeout(() => {
       clearTimeout(endScreen)
+
+
+
+      //console.log(props.stores.roomInfo.roomProps)
+      /* for ([i] in props.stores.roomInfo.roomProps.entries()) {
+        console.log(props.stores.roomInfo.roomProps.get(i).value)
+      } */
+      //console.log(props.stores.roomInfo.roomProps, " updated rooms")
+
+      //for (const [i] of props.stores.roomInfo.roomProps.entries()) {
+        //console.log(i, " key ", props.stores.roomInfo.roomProps.get('roomDetails'))
+        //let map = {props.stores.roomInfo.roomProps}
+        //console.log(props.stores.roomInfo.roomProps)
+      //}
+
       errorInfo.clear()
+
+
      // updating room url
      /* if(room !== "") {
       window.history.replaceState({}, "null", ("/" + room))
@@ -148,6 +339,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
      // Show Description here
      //console.log(connection.conference.name, " room name")
 
+     // Update conf
+    //connection.conference.setRoomProp('roomDetails', JSON.stringify(roomDetails))
+
     },5000)
   }
 
@@ -157,6 +351,11 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //if(active) {return}
 
     setActive(true)
+
+
+
+
+
 
     //console.log("called- Error")
 
@@ -169,6 +368,22 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //console.log(connection.conference._jitsiConference?.isModerator, " room name")
     //props.stores.roomInfo.roomName = room
     */
+
+
+
+
+    // Also update the data to connection
+    //console.log(roomDetails, " roomDetails")
+
+
+    /* if(savedRoom !== room) {
+      Object(roomInDetails).name = room
+      Object(roomInDetails).image = ''
+      Object(roomInDetails).desc = ''
+    }
+    connection.conference.setRoomProp('roomDetails', JSON.stringify(roomDetails)) */
+
+    //console.log(props.stores.roomInfo.roomDetails, " Details of the room")
 
     const cTimer = setTimeout(function() {
     //window.setTimeout(function() {
@@ -187,13 +402,13 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   }
 
-  const onKeyPress = (ev:React.KeyboardEvent) => {
+  /* const onKeyPress = (ev:React.KeyboardEvent) => {
     if (ev.key === 'Enter') {
       onClose(true)
     }else if (ev.key === 'Esc' || ev.key === 'Escape') {
       onClose(false)
     }
-  }
+  } */
 
   const {t, i18n} = useTranslation()
 
@@ -245,7 +460,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.4.1</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.4.2</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -278,7 +493,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
           onChange={event => setName(event.target.value)} onKeyPress={onKeyPress} fullWidth={false}
         /> */}
         <InputLabel style={tfLNStyle}> {t('YourName')} </InputLabel>
-        <Input value={name} autoFocus={true} disableUnderline={true} inputProps={{style: tfIStyle}} onChange={event => (setName(event.target.value))} onKeyPress={onKeyPress} />
+        <Input value={name} autoFocus={true} disableUnderline={true} inputProps={{style: tfIStyle}} onChange={event => (setName(event.target.value))} /* onKeyPress={onKeyPress} */ />
       </div>
       </Box>
       <Box mt={2}>
@@ -289,8 +504,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} fullWidth={false}
         /> */}
         <InputLabel style={tfLStyle}> {t('Venue')} </InputLabel>
-        {/* <Input value={room} readOnly={(urlRoom !== '' || urlRoom !== undefined) ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} /> */}
-        <Input value={room} readOnly={roomURL[1] !== '' ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />
+        {/* <Input value={room} readOnly={(urlRoom !== '' || urlRoom !== undefined) ? true : false} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} onKeyPress={onKeyPress} />  readOnly={roomURL[0] !== '' ? true : false}  */}
+        <Input value={room} autoFocus={false} disableUnderline={true} placeholder={placeholder} inputProps={{style: tfIStyle}} onChange={event => (setRoom(event.target.value))} /* onKeyPress={onKeyPress} */ />
       </div>
       </Box>
       <Box mt={2}>
@@ -304,23 +519,41 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={7}>
-      <div style={active ? {position: 'relative', top: '0.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '8.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
         <img style={{width:'8em'}} src={logo_es} alt="" />
       </div>
       </Box>
 
       {/*
       Display Screen
+      This is my dummy room desc
+      https://i.gyazo.com/eced85aecb2b5242dad432ad5eb83766.jpg
       */}
 
-      <div style={active ? {position: 'relative', top: '-34.7em', width: '100%', textAlign:'center', transform: "scale(0.15)", transition: '0.3s ease-out', opacity:'1'} : {display:'none', position: 'relative', top: '-59em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0)"}}>
+      <div style={active ? {position: 'relative', top: ((roomImage === '') ? '-30.5em' : '-40.5em'), width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
+        <p style={{textAlign:'center', color: 'white', marginTop:'2.5em',fontSize:'1.2em'}}>Welcome To</p>
+        <p style={{textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold'}}>{room}</p>
+        <div style={{width: '100%', height: '300px', overflow:'hidden', alignItems:'center', display: 'flex', justifyContent: 'center'}}>
+          <img src={roomImage} style={{width: '600px'}}  alt=''/>
+        </div>
+        <div style={{width: '100%', height: '100px', overflow:'hidden', alignItems:'center', display: 'flex', justifyContent: 'center', marginTop:'0.5em'}}>
+        <p style={{textAlign:'center', color: '#cdcdcd', fontSize:'1em', width:'600px', height: '100px', position:'absolute', overflow:'hidden'}}>{roomDesc}</p>
+        </div>
+      </div>
+
+      <div style={active ? {position: 'relative', top: ((roomImage === '') ? '-63.5em' : '-52.7em'), width: '100%', textAlign:'center', transform: "scale(0.15)", transition: '0.3s ease-out', opacity:'1'} : {display:'none', position: 'relative', top: '-59em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0)"}}>
           <img style={{width:'30em', backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={participants.local.information.avatarSrc}
         alt="" />
       </div>
-      <div style={active ? {position: 'relative', top: '-47.5em', width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
+      <div style={active ? {position: 'relative', top: ((roomImage === '') ? '-75.5em' : '-65em'), width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
         <p style={{textAlign:'center', color: 'black', marginTop:'0.2em', fontSize:'1.2em'}}>{name}</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'2.5em',fontSize:'1.2em'}}>Welcome To</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold'}}>{room}</p>
+        {/* <p style={{textAlign:'center', color: 'black', marginTop:'2.5em',fontSize:'1.2em'}}>Welcome To</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold'}}>{room}</p> */}
+        {/* <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p> */}
+      </div>
+
+      <div style={active ? {position: 'relative', top:  ((roomImage === '') ? '-70em' : '-64em'), width: '100%', textAlign:'center', transform: "scale(1)", transition: '0.3s ease-out', display:'block'} : {position: 'relative', top: '-59em', width: '100%', textAlign:'center', display:'none'}}>
         <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
         <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p>
       </div>

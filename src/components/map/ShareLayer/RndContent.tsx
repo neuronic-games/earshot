@@ -769,6 +769,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }>
 
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
+      {props.content.shareType !== 'roomimg' ?
       <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : resizeEnable}
         disableDragging={isFixed} ref={rnd}
         /* disableDragging={showTitle} ref={rnd} */
@@ -778,7 +779,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         onResizeStop = {onResizeStop}
       >
         {theContent}
-      </Rnd>
+      </Rnd> : ''}
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} _type={'menu'}/>
 
     </div >

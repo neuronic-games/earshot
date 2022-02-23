@@ -39,14 +39,17 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   const cameras = useRef(new CameraSelectorMember())
 
   //const [step, setStep] = useState<Step>('menu')
+
+
+
   let assignType:Step
   if(_type === "roomImage") {
     assignType = 'roomImage'
   } else {
     assignType = 'menu'
   }
-  const [step, setStep] = useState<Step>(assignType)
 
+  const [step, setStep] = useState<Step>(assignType)
 
   const wrappedSetStep = (step: Step) => {
     if (step === 'none') {
@@ -113,7 +116,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
     iframe: t('Share iframe'),
     image: t('Share image'),
     zoneimage: t('Share zone image'),
-    roomImage: t('meetingSpace'),
+    roomImage: t('Meeting Space'),
     none: 'None',
     camera: t('Select video camera to share'),
   }
@@ -122,7 +125,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
 
   isOpen = open
 
-  return  <Dialog open={open} onClose={onClose} onExited={() => setStep('menu')} maxWidth="sm" fullWidth={true}
+  return  <Dialog open={open} onClose={onClose} onExited={() => setStep(assignType)} maxWidth="sm" fullWidth={true}
       onPointerMove = {(ev) => {
         map.setMouse([ev.clientX, ev.clientY])
       }}

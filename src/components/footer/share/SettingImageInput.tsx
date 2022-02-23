@@ -1,6 +1,6 @@
 import {useTranslation} from '@models/locales'
-import {createRoomImageDesc} from '@stores/sharedContents/SharedContentCreator'
-//import sharedContents from '@stores/sharedContents/SharedContents'
+import {createRoomImageDesc, createContentOfImage} from '@stores/sharedContents/SharedContentCreator'
+import sharedContents from '@stores/sharedContents/SharedContents'
 import {DropzoneArea} from 'material-ui-dropzone'
 import React, {useState} from 'react'
 import {DialogPageProps} from './DialogPage'
@@ -22,6 +22,7 @@ interface SettingImageInputProps extends DialogPageProps{
   yCord:number
   from:string
 }
+
 
 export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
   const {
@@ -46,29 +47,31 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
     />
   )
 
-  //const map = props.stores.map
+  const map = props.stores.map
 
   return (
     <div>
-    <TextField label={'Descriptipn'} multiline={true} rowsMax={2}
+    <TextField label={t('meetingDesc')} multiline={true} rowsMax={2}
     style={{position:'relative',marginLeft:15, width:'94%', marginTop:'-10px', fontWeight:'bold'}}
     onChange={event => {
       setDesc(event.target.value)
+      event.preventDefault()
     }}/>
     <SettingInput stores={props.stores}
       setStep={setStep}
       onFinishInput={(files) => {
         // TODO modify store
         files.forEach(async (file, i) => {
-          console.log("done", desc)
-          //const IMAGE_OFFSET_X = 30
-          //const IMAGE_OFFSET_Y = -20
+
+          //console.log("done", desc)
+          const IMAGE_OFFSET_X = 30
+          const IMAGE_OFFSET_Y = -20
 
           // Set desc and image for the room
-          createRoomImageDesc(file, desc)
+          //createRoomImageDesc(file, desc)
 
-         /*  createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from).then(
-            imageContent => sharedContents.shareContent(imageContent)) */
+          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from).then(
+            imageContent => sharedContents.shareContent(imageContent))
         })
       }}
       value={files}

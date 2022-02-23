@@ -137,13 +137,16 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 //  const participants = useStore()
   const participant = props.participant
 
-
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
 
   //console.log(participant.quality?.connectionQuality, " quality")
 
 
     //if(props.stores.participants.localId != '') {return}
+
+    /* const rname = useObserver(() => (props.stores.roomInfo.roomProps.get('roomDetails')))
+    console.log(rname, " STORES") */
+
     //console.log("CHECKING")
 
   //let _name = userName()
