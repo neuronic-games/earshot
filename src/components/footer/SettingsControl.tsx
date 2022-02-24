@@ -102,14 +102,14 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
 
     let roomName = sessionStorage.getItem('room')
-    let details: Object|undefined = undefined
+    /* let details: Object|undefined = undefined
     if (roomName) { details = JSON.parse(roomName) as Object }
     const roomInDetails = details
 
-    let saveJsonRoom = Object(roomInDetails).name
+    let saveJsonRoom = Object(roomInDetails).name */
 
-    //a.download = String(roomName) + ".json"
-    a.download = String(saveJsonRoom) + ".json"
+    a.download = String(roomName) + ".json"
+    //a.download = String(saveJsonRoom) + ".json"
 
     document.body.appendChild(a)
     a.click()

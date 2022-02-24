@@ -51,7 +51,7 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
         files.forEach(async (file, i) => {
           const IMAGE_OFFSET_X = 30
           const IMAGE_OFFSET_Y = -20
-          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from).then(
+          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from, '').then(
             imageContent => sharedContents.shareContent(imageContent))
         })
       }}

@@ -42,6 +42,8 @@ function connectConference() {
     logStr = `${logStr}beforeunload called. ${Date()} `
     localStorage.setItem('log', logStr)
 
+
+
     //  prevent leaving from and reloading browser, when the user shares screen(s).
     if (!errorInfo.type &&
       (contents.tracks.localMains.size || contents.tracks.localContents.size)) {

@@ -141,8 +141,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   //console.log(participant.quality?.connectionQuality, " quality")
 
-
-    //if(props.stores.participants.localId != '') {return}
+  //if(props.stores.participants.localId != '') {return}
 
     /* const rname = useObserver(() => (props.stores.roomInfo.roomProps.get('roomDetails')))
     console.log(rname, " STORES") */

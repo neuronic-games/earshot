@@ -95,6 +95,9 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
   //  console.log('Render RawContentList')
   const roomInfo = props.stores.roomInfo
   const contents = props.stores.contents
+
+
+
   const all = useObserver(() => {
     const all:SharedContentInfo[] =
       Array.from(contents.roomContentsInfo.size ? contents.roomContentsInfo.values() : contents.all)

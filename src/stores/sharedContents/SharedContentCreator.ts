@@ -29,6 +29,7 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   pinned: false,
   shareType: '',
   showTitle: false,
+  contentDesc: '',
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -52,6 +53,7 @@ class SharedContentImp implements ISharedContent {
   opacity?: number
   shareType!: string
   showTitle!: boolean
+  contentDesc!: string
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -210,7 +212,7 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
 }
 
 export function createRoomImageDesc(imageFile: File, desc:string) {
-  uploadToGyazo(imageFile).then((url) => {
+  /* uploadToGyazo(imageFile).then((url) => {
     //console.log("Uploaded image : Path --> ", url)
     // Update the desc and image for roomInfo
     const roomDetails = sessionStorage.getItem('room')
@@ -223,19 +225,19 @@ export function createRoomImageDesc(imageFile: File, desc:string) {
       desc: desc,
     }
     sessionStorage.setItem('room', JSON.stringify(_roomDetails))
-  })
+  }) */
 }
 
-export function createContentOfImage(imageFile: File, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string)
+export function createContentOfImage(imageFile: File, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string, desc?:string)
   : Promise<SharedContentImp> {
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     if (participants.local.uploaderPreference === 'gyazo'){
       uploadToGyazo(imageFile).then((url) => {
-        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc)
+        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from, desc).then(resolutionFunc)
       }).catch((error) => {
         if (error === 'type'){
           GoogleDrive.uploadFileToGoogleDrive(imageFile).then((url) => {
-            createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc)
+            createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from, desc).then(resolutionFunc)
           }).catch(rejectionFunc)
         }else{
           rejectionFunc(error)
@@ -243,7 +245,7 @@ export function createContentOfImage(imageFile: File, map: MapData,  offset?:[nu
       })
     }else{
       GoogleDrive.uploadFileToGoogleDrive(imageFile).then((url) => {
-        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from).then(resolutionFunc).catch(rejectionFunc)
+        createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from, desc).then(resolutionFunc).catch(rejectionFunc)
       })
     }
   })
@@ -252,12 +254,14 @@ export function createContentOfImage(imageFile: File, map: MapData,  offset?:[nu
 }
 
 export function createContentOfImageUrl(url: string, map: MapData,
-  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string): Promise<SharedContentImp> {
+  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string, desc?:string): Promise<SharedContentImp> {
   //const IMAGESIZE_LIMIT = 500
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
+
+      //console.log("DESC - ", desc)
 
       pasted.type = 'img'
       if(_type === "image") {
@@ -270,6 +274,9 @@ export function createContentOfImageUrl(url: string, map: MapData,
       } else if(_type === "roomImage") {
         pasted.shareType = 'roomimg'
       }
+
+      // Assign the desc values of content uploaded to differentiate between the images/room image
+      pasted.contentDesc = String(desc?.toString())
 
       pasted.noFrame = true
 
@@ -455,7 +462,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,
+  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -466,7 +473,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)

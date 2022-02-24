@@ -7,8 +7,8 @@ import mapStore from '@stores/Map'
 import participantsStore from '@stores/participants/Participants'
 import roomInfo from '@stores/RoomInfo'
 import sharedContentsStore from '@stores/sharedContents/SharedContents'
-import {Observer} from 'mobx-react-lite'
-import React, {Fragment, useRef, useState} from 'react'
+import {Observer, useObserver} from 'mobx-react-lite'
+import React, {Fragment, useRef, useState, useEffect} from 'react'
 import SplitPane from 'react-split-pane'
 import {Footer} from './footer/Footer'
 import {Emoticons} from './footer/Emoticons'
@@ -18,6 +18,9 @@ import {MainScreen} from './map/MainScreen'
 import {Map} from './map/map'
 import {Stores} from './utils'
 import {styleCommon, styleForSplit} from './utils/styles'
+import logo_es from '@images/logo.png'
+import { getLoginClick, getRoomName} from './error/TheEntrance' // getRoomName
+
 
 export const App: React.FC<{}> = () => {
   const clsSplit = styleForSplit()
@@ -33,7 +36,38 @@ export const App: React.FC<{}> = () => {
   const refDiv = useRef<HTMLDivElement>(null)
   const [able, setAble] = useState<Boolean>(false)
 
+  const [showIntro, setShowIntro] = useState<Boolean>(true)
+
+
+  // to display image and desc
+  let roomImgPath:string = ""
+  let roomImgDesc:string = ""
+  const cContent = useObserver(() => stores.contents.all)
+  cContent.filter(item => item.shareType==="roomimg").map(content => (
+    roomImgPath = content.url
+  ))
+  cContent.filter(item => item.shareType==="roomimg").map(content => (
+    roomImgDesc = content.contentDesc
+  ))
+  const rgb = stores.participants.local.getColorRGB()
   let press = false
+  const loginStatus = useObserver(() => stores.participants.localId)
+
+  const _roomName = getRoomName()
+
+  //console.log(_roomName, " roomname")
+
+  //console.log("CALLLEEEED- ", loginStatus)
+  useEffect(() => {
+    //console.log("CALLLEEEED- ", getLoginClick())
+    if(getLoginClick() || loginStatus) {
+      setTimeout(function() {
+        setShowIntro(false)
+      }, 5000)
+    }
+  })
+
+
   // For toggle right panel that has users/contents/chat
   window.addEventListener('keydown', (ev) => {
     //ev.preventDefault()
@@ -76,6 +110,7 @@ export const App: React.FC<{}> = () => {
 
   return <Observer>{()=>{
     return <div ref={refDiv} className={classes.back} style={{backgroundColor: rgb2Color(roomInfo.backgroundFill)}}>
+
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
@@ -96,6 +131,21 @@ export const App: React.FC<{}> = () => {
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
+        <div style={{width:'100%', height:'100%', alignItems:'center', position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
+          <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.4.3</p>
+          <p style={{textAlign:'center', color: 'white', marginTop:roomImgPath !== '' ? '1em' : '10.5em',fontSize:'1.2em'}}>Welcome To</p>
+          <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms', width: '50%', marginLeft:'25%'} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
+          <img src={roomImgPath} style={roomImgPath ? {height: '300px', transform: "scale(1)", opacity:1, transition: 'opacity 300ms, transform: 300ms'} : {height: '300px', transform: "scale(0)", opacity:0, transition: '0.3s ease-out'}} alt=""/>
+          <p style={{textAlign:'center', color: '#cdcdcd', fontSize:'1em', overflow:'hidden', position:'relative', marginTop:'0.5em', width:'36%', marginLeft:'32%'}}>{roomImgDesc}</p>
+          <img style={{width:'4em', backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '50px' : '30px'}} src={stores.participants.local.information.avatarSrc}
+        alt="" />
+        <p style={{textAlign:'center', color: 'black', marginTop:'0.5em', fontSize:'1.2em'}}>{stores.participants.local.information.name}</p>
+        {/* <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p> */}
+         <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '90px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '65px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p>
+        <img style={{width:'8em', position:'absolute', bottom:'30px', marginLeft:'-4em'}} src={logo_es} alt="" />
+        </div>
       </div>
   }}</Observer>
 }
