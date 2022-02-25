@@ -9,6 +9,9 @@ import {Step} from './Step'
 import {makeStyles} from '@material-ui/styles'
 import TextField from '@material-ui/core/TextField'
 import contents from '@stores/sharedContents/SharedContents'
+import DeleteIcon from '@material-ui/icons/Delete'
+
+
 
 const useStyles = makeStyles({
   preview: {
@@ -34,6 +37,7 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
   const classes = useStyles()
   const [files, setFiles] = useState<File[]>([])
   const [desc, setDesc] = useState<string>('')
+  const [reset, setReset] = useState(false)
 
   // Filtering the imagepath
   //console.log(contents.all)
@@ -47,15 +51,17 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
     descText = content.contentDesc
   ))
 
+  if(reset) {}
+
   //console.log(uploadedPath.toString(), " path")
 
   const {t} = useTranslation()
   const field = (
     <DropzoneArea
       acceptedFiles={['image/*']}
-      initialFiles={
-        files
-      }
+      initialFiles={[
+        //uploadedPath
+      ]}
       clearOnUnmount={false}
       dropzoneText={t('imageDropzoneText')}
       onChange={setFiles}
@@ -67,16 +73,30 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
 
   const map = props.stores.map
 
+
+  function onDeleteClick() {
+    console.log("Delete Click")
+    contents.all.filter(item => item.shareType==="roomimg").map(content => (
+      contents.removeByLocal(content.id)
+    ))
+    setDesc('')
+    setReset(true)
+  }
+
   return (
     <div>
-    <TextField label={t('meetingDesc')} multiline={true} rowsMax={2} defaultValue={descText}
-    style={{position:'relative',marginLeft:15, width:'94%', marginTop:'-10px', fontWeight:'bold'}}
+    <TextField label={t('meetingDesc')} multiline={true} rowsMax={4} defaultValue={descText}
+    style={{position:'relative', marginLeft:15, width:'94%', marginTop:'-10px', fontWeight:'bold'}}
     onChange={event => {
       setDesc(event.target.value)
       event.preventDefault()
     }}/>
-    <div style={{position:'absolute', height:'90px', top:'20px', right:'30px', overflow:'hidden'}}>
-      <img style={{height:'70px', position:'relative'}} src={uploadedPath} alt=''/>
+    <div style={uploadedPath !== '' ? {position:'absolute', height:'90px', top:'20px', right:'20px', overflow:'hidden', display:'block'} : {display:'none'}}>
+      <img style={{height:'60px', position:'relative'}} src={uploadedPath} alt=''/>
+        <DeleteIcon style={{position:'relative', left:'0px', width:'35', height:'35'}} color='secondary' onClick={onDeleteClick}/>
+    </div>
+    <div>
+
     </div>
     <SettingInput stores={props.stores}
       setStep={setStep}
@@ -90,8 +110,8 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
 
           // Set desc and image for the room
           //createRoomImageDesc(file, desc)
-
           //console.log("DESC in upload - ", desc)
+          //setReset(false)
 
           createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from, desc).then(
             imageContent => sharedContents.shareContent(imageContent))

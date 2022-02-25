@@ -19,7 +19,7 @@ import {Map} from './map/map'
 import {Stores} from './utils'
 import {styleCommon, styleForSplit} from './utils/styles'
 import logo_es from '@images/logo.png'
-import { getLoginClick, getRoomName} from './error/TheEntrance' // getRoomName
+import { getLoginClick} from './error/TheEntrance' // getRoomName
 
 
 export const App: React.FC<{}> = () => {
@@ -53,14 +53,15 @@ export const App: React.FC<{}> = () => {
   let press = false
   const loginStatus = useObserver(() => stores.participants.localId)
 
-  const _roomName = getRoomName()
+  const _roomName = sessionStorage.getItem("room") //getRoomName()
 
-  //console.log(_roomName, " roomname")
+
 
   //console.log("CALLLEEEED- ", loginStatus)
   useEffect(() => {
     //console.log("CALLLEEEED- ", getLoginClick())
     if(getLoginClick() || loginStatus) {
+      //console.log(sessionStorage.getItem("room"), " roomname")
       setTimeout(function() {
         setShowIntro(false)
       }, 5000)
@@ -131,20 +132,23 @@ export const App: React.FC<{}> = () => {
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
-        <div style={{width:'100%', height:'100%', alignItems:'center', position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-          <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.4.3</p>
-          <p style={{textAlign:'center', color: 'white', marginTop:roomImgPath !== '' ? '1em' : '10.5em',fontSize:'1.2em'}}>Welcome To</p>
+        <div style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.4.4</p>
+          <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
+          <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:'1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms', width: '50%', marginLeft:'25%'} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
-          <img src={roomImgPath} style={roomImgPath ? {height: '300px', transform: "scale(1)", opacity:1, transition: 'opacity 300ms, transform: 300ms'} : {height: '300px', transform: "scale(0)", opacity:0, transition: '0.3s ease-out'}} alt=""/>
-          <p style={{textAlign:'center', color: '#cdcdcd', fontSize:'1em', overflow:'hidden', position:'relative', marginTop:'0.5em', width:'36%', marginLeft:'32%'}}>{roomImgDesc}</p>
-          <img style={{width:'4em', backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '50px' : '30px'}} src={stores.participants.local.information.avatarSrc}
+          <img src={roomImgPath} style={roomImgPath ? {height: '250px', transform: "scale(1)", opacity:1, transition: 'opacity 300ms, transform: 300ms'} : {height: '0px', transform: "scale(0)", opacity:0, transition: '0.3s ease-out'}} alt=""/>
+          <p style={{textAlign:'center', color: '#cdcdcd', fontSize:'1em', overflow:'hidden', position:'relative', marginTop:'0.5em', width:'80%', marginLeft:'10%'}}>{roomImgDesc}</p>
+          <img style={{width:'4em', backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '20px' : '-15px'}} src={stores.participants.local.information.avatarSrc}
         alt="" />
         <p style={{textAlign:'center', color: 'black', marginTop:'0.5em', fontSize:'1.2em'}}>{stores.participants.local.information.name}</p>
-        {/* <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p> */}
-         <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '90px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>Give your web browser permissions</p>
-        <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '65px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p>
-        <img style={{width:'8em', position:'absolute', bottom:'30px', marginLeft:'-4em'}} src={logo_es} alt="" />
+        <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p>
+         {/* <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '90px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>Give your web browser permissions</p>
+        <p style={{textAlign:'center', color: 'black', position:'absolute', bottom: '65px', width:'40%', marginLeft:'30%',fontSize:'1.2em'}}>to access the mic and camera if necessary.</p> */}
+        {/* <img style={{width:'8em', position:'absolute', bottom:'30px', marginLeft:'-4em'}} src={logo_es} alt="" /> */}
+        <img style={{width:'8em', position:'relative'}} src={logo_es} alt="" />
+        </div>
         </div>
       </div>
   }}</Observer>
