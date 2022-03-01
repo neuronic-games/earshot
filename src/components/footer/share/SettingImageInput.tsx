@@ -75,7 +75,7 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
 
 
   function onDeleteClick() {
-    console.log("Delete Click")
+    //console.log("Delete Click")
     contents.all.filter(item => item.shareType==="roomimg").map(content => (
       contents.removeByLocal(content.id)
     ))

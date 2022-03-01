@@ -211,7 +211,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
   const _connQuality = useObserver(() => participant.quality?.connectionQuality)
-  //console.log(_connQuality, " quaity")
+
+  //const vCon = useObserver(() => participant.muteVideo)
+
+
 
   const classes = useStyles({
     ...participantProps,
@@ -226,6 +229,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   //const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
   //const shadowScale = 1 + (shadowOffset/200)
+
+  console.log()
 
 
   //const eyeOffsetMul = normV(viewpoint.center)/500 * 0.16 + 0.85

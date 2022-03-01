@@ -110,6 +110,11 @@ class Member{
    upTime = 0
 }
 
+let buttonClickStatus:boolean = false
+export function getVideoButtonStatus():boolean {
+  return buttonClickStatus
+}
+
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  showor not
@@ -219,6 +224,11 @@ function comparer(otherArray:string[]){
 
   const {t} = useTranslation()
   const classes = useStyles()
+
+
+  // for video
+  //const vStatus = useObserver(() => participants.local.trackStates.videoOn)
+
 
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
   //console.log(mute.lStream, " AAAAA")
@@ -654,13 +664,38 @@ function comparer(otherArray:string[]){
                 //if(!mute.muteV) {
                   //(mute.lStream, " LEN")
                   //if(mute.lStream === undefined) {
-                  connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
+
+                    /* if(vStatus === false) {
+                      participants.local.videoEnabled = true
+                    } else {
+                      participants.local.videoEnabled = false
+                    } */
+
+                    /* if(vStatus === "on") {
+                      participants.local.videoOn = ''
+                    } else {
+                      participants.local.videoOn = 'on'
+                    } */
+
+                    // uncomment if needed
+                  // connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
+
+
                   //}
                   // Start Local Stream
                   //participants.local.muteVideo = !mute.muteV
+
+                  //console.log(vStatus, " CHECK STATUS")
+
+
+                  // mute all remote videos
+                  connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
+
+
                   participants.local.muteVideo = !mute.muteV
                   participants.local.saveMediaSettingsToStorage()
 
+                  buttonClickStatus = true
                   setToggleIcon(true)
 
 

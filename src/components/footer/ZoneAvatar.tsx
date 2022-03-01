@@ -26,7 +26,7 @@ import SpeakerOnIcon from '@material-ui/icons/VolumeUp' */
 
 /* import {useTranslation} from '@models/locales' */
 import {useObserver} from 'mobx-react-lite'
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 /* import {AdminConfigForm} from './adminConfig/AdminConfigForm' */
 /* import {BroadcastControl} from './BroadcastControl' */
 import {FabMain} from './FabEx'
@@ -43,11 +43,13 @@ import {rgb2Color} from '@models/utils'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 
+import { getVideoButtonStatus } from './Footer'
+
 
 /* import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 const theme = createMuiTheme({
   palette: {
-    primary: { main: '#9e886c' },
+    primary: { main: '#000000' },
     secondary: { main: '#ef4623' }
   }
 }); */
@@ -131,7 +133,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   //console.log("Zone Stream class")
   const rgb = participants.local.getColorRGB()
 
-
+  const videoButtonStatus = getVideoButtonStatus()
 
   //const inzone = useObserver(() => participants.local.zone?.zone)
   //if(inzone !== undefined) {
@@ -140,6 +142,8 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
 
   //const startStream = useObserver(() => participants.local.showVideo)
+
+  //var dispText = ''
 
 
 
@@ -238,11 +242,9 @@ function comparer(otherArray:string[]){
     } */
  // }
 
-
-
-
   const localStream = useObserver(() => Boolean(participants.local.showVideo))
   const startStream = useObserver(() => Boolean(participants.remote.get(streamUser[streamUser.length-1])?.showVideo))
+  /* const startStream = useObserver(() => Boolean(participants.remote.get(remotes[0])?.showVideo)) */
 
   const rgbR = participants.remote.get(streamUser[streamUser.length-1])?.getColorRGB()
 
@@ -250,9 +252,11 @@ function comparer(otherArray:string[]){
   const avLocalStream = useObserver(() =>  participants.local.tracks.avatarStream)
   //const avStream = useObserver(() =>  participants.remote.get(remotes[userIndex])?.tracks.avatarStream)
   const avStream = useObserver(() =>  participants.remote.get(streamUser[streamUser.length-1])?.tracks.avatarStream)
+  /* const avStream = useObserver(() =>  participants.remote.get(remotes[0])?.tracks.avatarStream) */
 
   //console.log(startStream, " video on")
 
+  //console.log(localStream, " ---- ", startStream)
 
 
   //if(startStresm)
@@ -280,12 +284,18 @@ function comparer(otherArray:string[]){
 
   // For toggle emoticons
   //const [toggleStream, setToggleStream] = React.useState<boolean>(startStream ? startStream : (localStream ? localStream : false))
-  const [toggleStream, setToggleStream] = React.useState<boolean>((stream !== undefined) ? true : false)
+
+  //const [toggleStream, setToggleStream] = React.useState<boolean>((stream !== undefined) ? true : false)
+  const [toggleStream, setToggleStream] = React.useState<boolean>((localStream !== false || startStream !== false) ? true : false)
+
+  //const [toggleUI, setToggleUI] = React.useState<boolean>(true)
 
   //const [toggleBreadCast, setToggleBreadCast] = React.useState<boolean>(false)
 
   //const [zone, setZone] = React.useState<boolean>(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const [liveTimer, setLiveTimer] = useState(1)
 
   //const memberRef = useRef<Member>(new Member())
   //const member = memberRef.current
@@ -307,6 +317,67 @@ function comparer(otherArray:string[]){
 
   //console.log(toggleStream, " ====================", localStream, "--", startStream)
 
+  //console.log(mute.muteV, " current status")
+
+  //console.log("AAAAAA")
+  //const bStatus = useObserver(() => getVideoButtonStatus())
+  //console.log("bStatus - ", bStatus)
+
+  //console.log(localStream, " --- ", startStream, " --- ", stream, "----", videoButtonStatus)
+
+  // for video
+  //const vStatus = useObserver(() => participants.local.trackStates.videoOn)
+
+  //console.log("CHECK STATUS --- ", vStatus)
+
+
+
+  //if(localStream || startStream) {
+
+    //if(localStream === false && startStream === false) {return}
+
+
+
+    if(stream === undefined) {
+      /* if(localStream || ids.length === 0 || videoButtonStatus === false) { */
+      var dispText = ''
+      //console.log(liveTimer, " liveTimer")
+      dispText = "GOING LIVE IN " + (4-liveTimer) + "..."
+      if(videoButtonStatus === false) {
+        dispText = "STREAM OFF"
+      } else {
+        if(localStream) {
+          setTimeout (() => {
+            let nTime = liveTimer
+            //if(nTime <= 6) {
+              nTime += 1
+              //console.log(nTime, " nTime")
+              setLiveTimer(nTime)
+
+            //}
+            //console.log(nTime, " nTime")
+            //dispText = "GOING LIVE... " + liveTimer
+        },500)
+
+        /* // Reset Timer
+        if(liveTimer >= 4) {
+          setLiveTimer(1)
+        } */
+
+        } else if(startStream) {
+          dispText = "RECONNECTING..."
+        } else {
+          dispText = "STREAM OFF"
+        }
+      }
+    } else {
+        dispText = ""
+    }
+  //}
+
+
+  //console.log(toggleUI, " UI toggle")
+
   const classes = useStyles()
   //  Footer collapse conrtrol
   /* function checkMouseOnBottom() {
@@ -315,15 +386,34 @@ function comparer(otherArray:string[]){
 
 
 
+
   const mouseOnBottom = useObserver(checkMouseOnBottom)
  */
   useEffect(() => {
     //console.log("CHECKING")
+   /*  if (videoRef?.current !== null) {
+    let activeTime = liveTimer
+    activeTime++
+    const timer = setTimeout(() => {
+      clearTimeout(timer)
+      setLiveTimer(activeTime)
+    }, 100)
+  } */
+
+  /* const timer = setTimeout(() => {
+    clearTimeout(timer)
+    console.log("ENTER IN VIDEO STREAM - ", startStream, " ---- ", localStream)
+    checkToggle()
+  }, 300) */
+
+
+
     if (videoRef?.current !== null) {
       //console.log(blob, " TYPE", stream)
       setStream(videoRef.current, stream, blob,
         '300', '300')
         //console.log("AAA")
+
         checkToggle()
     }
     //if (checkMouseOnBottom()) { member.touched = true }
@@ -332,12 +422,22 @@ function comparer(otherArray:string[]){
    /*  if (checkMouseOnBottom()) { member.touched = true }
       setShowFooter(mouseOnBottom || !member.touched)*/
       // eslint-disable-next-line react-hooks/exhaustive-deps
+      return () => {
+        if(localStream === false) {
+          setLiveTimer(1)
+        }
+      }
     },)
 
     function checkToggle() {
       //setToggleStream(startStream ? startStream : (localStream ? localStream : false))
       //console.log(stream, " -- toggle check")
-      setToggleStream((stream !== undefined) ? true : false)
+
+      //console.log(localStream, " -----LS------ ", startStream)
+
+      //setToggleStream((stream !== undefined) ? true : false)
+      setToggleStream((localStream !== false || startStream !== false) ? true : false)
+
     }
 
     /* function checkZone() {
@@ -396,6 +496,8 @@ function comparer(otherArray:string[]){
 
 
 
+
+
     /* window.addEventListener('click', (ev) => {
       //checkZone()
       ev.preventDefault()
@@ -426,7 +528,13 @@ function comparer(otherArray:string[]){
     return <Observer>{() => {
     return <div ref={containerRef} className={classes.container}>
       <Collapse in={true} classes={classes}>
-        <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab}
+        {/* <FabMain size={250} className={(toggleStream) ? classes.fabActive : classes.fab} */}
+        {/* <MuiThemeProvider  theme={theme}> */}
+
+       {/*  <FabMain size={250} className={((localStream !== false || startStream !== false || ids.length > 0  || videoButtonStatus)) ? classes.fabActive : classes.fab} */}
+
+        <FabMain size={250} color={(dispText === "STREAM OFF" ? 'default' : 'default')} className={((localStream !== false || startStream !== false || videoButtonStatus)) ? classes.fabActive : classes.fab}
+
         onClick = { () => {
           /* console.log("on Vid Click") */
           connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
@@ -438,14 +546,18 @@ function comparer(otherArray:string[]){
             <video ref={videoRef} style={{width: '300px', height:'300px', position: 'absolute', marginTop:'-30px', marginLeft:'-150px'}}/>
           </div>
         </FabMain>
+        {/* </MuiThemeProvider> */}
         <div style={{height:'50px', width:'150px', textAlign:'center', position:'relative', left:'-66px',
           verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-50px', color:'white', overflow:'hidden'}}>
-            <img style={{position:'relative', width:'25px', height:'25px', marginTop:'0px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
-            <p style={{position:'relative', marginTop:'4px', marginLeft:'4px', overflow:'hidden'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
+            <img style={{position:'relative', display: dispText !== "STREAM OFF" ? 'block' : 'none', width:'25px', height:'25px', marginTop:'0px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
+            <p style={{position:'relative', marginTop:'4px', marginLeft:'4px', overflow:'hidden', display: dispText !== 'STREAM OFF' ? 'block' : 'none'}}>{localStream ? participants.local.information.name : participants.remote.get(remotes[userIndex])?.information.name}</p>
         </div>
-        <div className={localStream || ids.length === 0 ? classes.hidetapBroadcast : classes.tapBroadcast}>
-          TAP TO BROADCAST
+        <div className={localStream || ids.length === 0 || videoButtonStatus === false ? classes.hidetapBroadcast : classes.tapBroadcast}>
+          TAP TO GO LIVE
         </div>
+        {/* <div style={stream === undefined ? {width:'240px', height:'240px', top:'14px', left:'-148px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div> */}
+        <div style={(stream === undefined && localStream) || dispText === "STREAM OFF" ? {width:'240px', height:'243px', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div>
+        <p style={{position:'absolute', color:(dispText === "STREAM OFF" ? 'red' : 'white'), top:'110px', width:'270px', textAlign:'center'}}>{dispText}</p>
       </Collapse>
     </div >
     }}</Observer>
