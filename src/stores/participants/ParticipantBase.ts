@@ -32,7 +32,8 @@ export class TrackStates implements Store<ITrackStates>{
   @observable speakerMuted = false
   @observable headphone = false
   @observable emoticon = ''
-  //@observable videoOn = ''
+  @observable pingIcon = false
+
   constructor() {
     makeObservable(this)
   }

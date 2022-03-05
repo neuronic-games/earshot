@@ -36,7 +36,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   @observable.shallow tracks = new TracksStore()
   @observable useStereoAudio = false  //  will be override by url switch
   @observable emoticon = ''  //  for emoticon
-  //@observable videoOn = ''  //  for video status
+  @observable pingIcon = false  //  for ping status
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
   @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
@@ -57,7 +57,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       speakerMuted: this.muteSpeaker,
       headphone: this.useStereoAudio,
       emoticon: this.emoticon,
-      //videoOn: this.videoOn,
+      pingIcon: this.pingIcon,
     }
   }
   get info():LocalInformation { return this.information as LocalInformation}
@@ -75,7 +75,8 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     this.muteVideo = urlParameters.cameraOn !== null ? false : true
     //  console.debug('URL cameraOn', urlParameters.cameraOn)
     this.emoticon = '' // for emoticon
-    //this.videoOn = '' // for video status
+    this.pingIcon = false // for video status
+
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()
     autorun(() => { //  image avatar

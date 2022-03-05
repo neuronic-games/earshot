@@ -10,6 +10,7 @@ import pinOffIcon from '@images/whoo-screen_btn-lock.png'
 import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
+import PingIcon from '@images/whoo-screen_pointer.png'
 
 import settings from '@models/api/Settings'
 import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
@@ -29,6 +30,7 @@ import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
+import { getBasePingStatus } from '../Base'
 
 const MOUSE_RIGHT = 2
 const BORDER_TIMER_DELAY = 1 * 1000 // For 1 secs
@@ -55,6 +57,9 @@ interface StyleProps{
   downXPos: number,
   _down: boolean,
   _title:boolean,
+  pingX: number,
+  pingY: number,
+
 }
 class RndContentMember{
   buttons = 0
@@ -74,6 +79,13 @@ class RndContentMember{
   onContext = false
   moveX = 0
   moveY = 0
+
+  clickStatus = ''
+  userAngle = 0
+  clickEnter = false
+  pingX = 0
+  pingY = 0
+  isMoved = false
 }
 
 let contextMenuStatus:boolean = false
@@ -83,6 +95,11 @@ export function getContextMenuStatus(): boolean {
 let isLocaked:boolean = false
 export function getContentLocked(): boolean {
   return isLocaked
+}
+
+let pingEnable:boolean = false
+export function getRndPingStatus():boolean {
+  return pingEnable
 }
 
 //  -----------------------------------------------------------------------------------
@@ -130,6 +147,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const titleDisplay = useObserver(() => props.content.showTitle)
   const [showUploadOption, setShowUploadOption] = useState(false)
   const [showBorder, setShowBorder] = useState(false)
+
+
+  // For Ping Location
+  const [pingLocation, setPingLocation] = useState(false)
+  const _pingIcon = useObserver(()=> participants.local.pingIcon)
 
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
@@ -306,6 +328,63 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }
   }
 
+
+  ////////////////////////////
+  function hindleClickStatus() {
+    //console.log(mem.clickStatus, " onClick")
+    if(member.clickStatus === 'single') {
+      if(member.clickEnter) {return}
+      if(pingLocation) {return}
+      if(member.isMoved) {return}
+      pingEnable = false
+      participants.local.pingIcon = false
+      setPingLocation(false)
+      const moveTimer = setTimeout(() =>{
+        clearTimeout(moveTimer)
+        function moveParticipant(move:boolean) {
+          const local = participants.local
+          //const diff = subV2(map.mouseOnMap, local.pose.position)
+          const diff = subV2([member.moveX, member.moveY], local.pose.position)
+          if (normV(diff) > PARTICIPANT_SIZE / 10) {
+            const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+            local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+            if (move) {
+              local.pose.position = addV2(local.pose.position, dir)
+            } else {
+              setShowBorder(true)
+            // Start Timer to disable border
+            window.clearTimeout(member._borderTimer)
+            showHideBorder()
+            }
+            local.savePhysicsToStorage(false)
+            const TIMER_INTERVAL = move ? 0 : 0
+            setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+          }
+        }
+        moveParticipant(false)
+      }, 0)
+    } else {
+      //console.log('double click action goes here and play sound')
+      //mem.userAngle = props.stores.participants.loca
+      if(pingLocation) {return}
+      if(getBasePingStatus()) {return}
+
+      let audio = new Audio("sound/beep.mp3")
+      audio.play()
+      pingEnable = true
+      setPingLocation(true)
+      participants.local.pingIcon = true
+      const hidePinIcon = setTimeout(() => {
+        clearTimeout(hidePinIcon)
+        member.clickStatus = ''
+        participants.local.pingIcon = false
+        pingEnable = false
+        setPingLocation(false)
+      }, 3000)
+    }
+  }
+  ////////////////////////////
+
   //const isFixed = (props.autoHideTitle && props.content.pinned)
   const isFixed = (props.content.pinned)
 
@@ -348,8 +427,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         currentTarget.setPointerCapture(event?.pointerId)
       }
     },
-    onDragEnd: ({event, currentTarget, delta, buttons}) => {
+    onDragEnd: ({event, currentTarget, delta, buttons, xy}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
+
+      //console.log(event?.detail, " DETAILS")
 
       isLocaked = false
       member._down = false
@@ -363,6 +444,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if(showTitle) {return}
 
       setDragging(false)
+
       if (!member.dragCanceled){ updateHandler() }
       member.dragCanceled = false
 
@@ -374,10 +456,31 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         map.keyInputUsers.add('contentForm')
       }
       member.buttons = 0
+
+      ///////////////////////////////////////////////
+      if (event?.detail === 1) {
+        member.clickStatus = 'single'
+      } else if (event?.detail === 2) {
+        member.clickStatus = "double"
+        member.pingX = map.mouseOnMap[0]
+        member.pingY = map.mouseOnMap[1]
+      }
+
+      member.clickEnter = true
+      const timer = setTimeout(() => {
+        clearTimeout(timer);
+        if(member.clickEnter) {
+          member.clickEnter = false
+          hindleClickStatus()
+        }
+      }, 250)
+//////////////////////////////////////////
+
     },
     onMove:({xy}) => {
       //isLocaked = props.content.pinned
       if(showTitle) {return}
+      member.isMoved = true
       //isLocaked = props.content.pinned
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
@@ -387,6 +490,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
+
+
     onMouseUp: (arg) => {
       //console.log("Mouse up ", editing, "-", member._down)
       //member._down = false
@@ -396,12 +501,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         //console.log("UPUP")
         if(arg.button > 0) {return}
         member.onContent = false
+        member.isMoved = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
         //console.log(diffTime, " diffTi")
         if(diffTime < 2 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
           if(member._down === false || showTitle) return
-          setTimeout(() =>{
+
+
+
+          /* setTimeout(() =>{
             function moveParticipant(move:boolean) {
               const local = participants.local
               //const diff = subV2(map.mouseOnMap, local.pose.position)
@@ -423,12 +532,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               }
             }
             moveParticipant(false)
-          }, 0)
+          }, 0) */
+
         } else {
         }
       }
-
     },
+
     onMouseMove: (arg) => {
       isLocaked = props.content.pinned
       if(showTitle) {return}
@@ -569,7 +679,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
 
-  const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay})
+  const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
   const formRef = React.useRef<HTMLDivElement>(null)
@@ -780,6 +890,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         {theContent}
       </Rnd> : ''}
+      <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
+        <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>
+      </div>
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} _type={'menu'}/>
     </div >
   )
@@ -1304,6 +1417,28 @@ const useStyles = makeStyles({
     alignContent: 'center',
     position:'relative',
     bottom: 5,
+  }),
+
+  PingLocation: (props:StyleProps) => ({
+    display: 'block',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    top: (props.pingY - 25),
+    left: (props.pingX - 17),
+    //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+    whiteSpace: 'pre',
+  }),
+
+  PingLocationHide: (props:StyleProps) => ({
+    display: 'none',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    top: (props.pingY - 25),
+    left: (props.pingX - 17),
+    //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+    whiteSpace: 'pre',
   }),
 })
 

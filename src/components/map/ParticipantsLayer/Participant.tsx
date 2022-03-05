@@ -8,7 +8,9 @@ import HeadsetIcon from '@material-ui/icons/HeadsetMic'
 import MicOffIcon from '@material-ui/icons/MicOff'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
+//////////////
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
+/////////////
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
 import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
@@ -22,6 +24,10 @@ import symSmileIcon from '@images/whoo-screen_sym-smile.png'
 import symClapIcon from '@images/whoo-screen_sym-clap.png'
 import symHandIcon from '@images/whoo-screen_sym-hand.png'
 import badConnIcon from '@images/whoo-screen_sym-slow.png'
+
+import PingIcon from '@images/whoo-screen_pointer.png'
+import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+
 
 
 //import {connection} from '@models/api/ConnectionDefs' // For checking Host
@@ -119,7 +125,36 @@ const useStyles = makeStyles({
     left: props.size * 0.9,
     top: -props.size * 0.3,
   }),
+
+  /* PingLocation: (props:StyleProps) => ({
+    display: 'block',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    //top: (props.position[1] - 125),
+    //left: (props.position[0] - 17),
+    //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+    whiteSpace: 'pre',
+  }),
+
+  PingLocationHide: (props:StyleProps) => ({
+    display: 'none',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    //top: (props.position[1] - 25),
+    //left: (props.position[0] - 17),
+    //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+    whiteSpace: 'pre',
+  }), */
+
 })
+
+
+/* class Member{
+  isShown = false
+} */
+
 
 export interface ParticipantProps{
   participant: LocalParticipant | RemoteParticipant | PlaybackParticipant
@@ -204,16 +239,52 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
 
+  //const mousePos = useObserver(() => props.stores.map.mouseOnMap)
+  //console.log(mousePos, " mousePos")
 
+///////////////////
   //const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
-
+///////////////////
 
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
   const _connQuality = useObserver(() => participant.quality?.connectionQuality)
 
+
   //const vCon = useObserver(() => participant.muteVideo)
 
+  /* let xPos = -1
+  let yPos = -1 */
+
+  const _pingIcon = useObserver(() => participant.trackStates.pingIcon)
+  //const _pingCursor = useObserver(() => participant.trackStates.cursorMove)
+  //const _pingY = useObserver(() => participant.trackStates.pingY)
+
+  //const isSetIconPos = useObserver(()=> props.stores.participants.local.cursorMove)
+
+  //console.log("AAAA - ", _pingIcon1)
+
+
+  //console.log(_pingCursor, " --- ")
+
+  //xPos = (_pingX - participantProps.position[0]) + 17
+  //yPos = (_pingY - participantProps.position[1]) - 50
+  //let xPos = _pingX
+  //let yPos = _pingY
+
+ //if(xPos === -1) {
+   //if(xPos === 0) {
+  //if(_pingCursor === false) {
+  //console.log(_pingIcon, " ::: ")
+  //if(_pingIcon)
+  //if(xPos === 0) {
+
+  let xPos = ((participantProps.mousePosition[0] - participantProps.position[0]) + 12)
+  let yPos = ((participantProps.mousePosition[1] - participantProps.position[1]) - 55)
+
+  //}
+  // }
+ //}
 
 
   const classes = useStyles({
@@ -230,28 +301,30 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
   //const shadowScale = 1 + (shadowOffset/200)
 
-  console.log()
 
 
-  //const eyeOffsetMul = normV(viewpoint.center)/500 * 0.16 + 0.85
+  ////////////////////////////////////////////////
+/*
+  const eyeOffsetMul = normV(viewpoint.center)/500 * 0.16 + 0.85
 
-  /* const dir = subV2(participantProps.mousePosition, participantProps.position)
+  const dir = subV2(participantProps.mousePosition, participantProps.position)
+  //const dir = subV2(mousePos, participantProps.position)
   const eyeDist = 0.4
   const eyeOffsets:[[number, number], [number, number]]
     = [[eyeDist * outerRadius, - eyeOffsetMul*outerRadius],
-      [-eyeDist * outerRadius, - eyeOffsetMul*outerRadius]] */
- // const dirs = eyeOffsets.map(offset => subV2(dir, rotateVector2DByDegree(participantProps.orientation, offset)))
-  /* const eyeballsGlobal = dirs.map((dir) => {
+      [-eyeDist * outerRadius, - eyeOffsetMul*outerRadius]]
+  const dirs = eyeOffsets.map(offset => subV2(dir, rotateVector2DByDegree(participantProps.orientation, offset)))
+  const eyeballsGlobal = dirs.map((dir) => {
     const norm = normV(dir)
     const dist = Math.log(norm < 1 ? 1 : norm) * 0.3
     const limit = 0.1 * outerRadius
     const offset = dist > limit ? limit : dist
 
     return mulV2(offset / norm, dir)
-  }) */
-  //const eyeballs = eyeballsGlobal.map(g => addV2([0, -0.04 * outerRadius],
-                                                 //rotateVector2DByDegree(-participantProps.orientation, g)))
-  /* function onClickEye(ev: React.MouseEvent | React.TouchEvent | React.PointerEvent){
+  })
+  const eyeballs = eyeballsGlobal.map(g => addV2([0, -0.04 * outerRadius],
+                                                 rotateVector2DByDegree(-participantProps.orientation, g)))
+  function onClickEye(ev: React.MouseEvent | React.TouchEvent | React.PointerEvent){
     if (props.participant.id === props.stores.participants.localId){
       ev.stopPropagation()
       ev.preventDefault()
@@ -262,7 +335,11 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     onMouseDown: onClickEye,
     onTouchStart: onClickEye,
     onPointerDown: onClickEye,
-  } */
+  }
+ */
+  ///////////////////////////////////////////////////////////////
+
+  //console.log(-participantProps.orientation, " orientation")
 
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
   const audioMeter = audioMeterSteps.map(step => (audioLevel > step && inZone !== 'close') ?
@@ -312,7 +389,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             </g>
             : // Frog type (two eyes) avatar
             <g style={{pointerEvents: 'fill'}} >
-              {/* {isLocal ?
+
+
+              {/*
+              {isLocal ?
                 <circle r={outerRadius} cy={svgCenter} cx={svgCenter} fill="none" stroke={textColor} />
                 : undefined}
               <circle {...eyeClick} r={0.35 * outerRadius} cy={svgCenter + eyeOffsets[0][1]}
@@ -330,7 +410,11 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
                   cx={svgCenter + eyeOffsets[0][0] +  eyeballs[0][0]} fill="black" />
                 <circle {...eyeClick} r={0.14 * outerRadius} cy={svgCenter + eyeOffsets[1][1] + eyeballs[1][1]}
                   cx={svgCenter + eyeOffsets[1][0] +  eyeballs[1][0]} fill="black" />
-              </>} */}
+              </>}
+              */}
+
+
+
             </g>
           }
         </svg>
@@ -349,6 +433,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}
             {!micMuted && onStage ? <Icon className={classes.icon} icon={megaphoneIcon} color="gold" /> : undefined }
             {props.isPlayback ? <PlayArrowIcon className={classes.icon} htmlColor="#0C0" /> : undefined}
+            {/* <img src={_pingIcon !== false ? PingIcon : undefined} className={_pingIcon !== false ? classes.PingLocation : classes.PingLocationHide} /> */}
+            {/* <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', height: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: ((participantProps.mousePosition[1] - participantProps.position[1]) - 50), left: ((participantProps.mousePosition[0] - participantProps.position[0]) + 17), whiteSpace: 'pre',} : {display:'none'}} /> */}
+            <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
           </div>
         </Tooltip>
       </div>

@@ -16,9 +16,12 @@ import {getContextMenuStatus, MouseOrTouch, getContentLocked} from '../ShareLaye
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import {Tooltip} from '@material-ui/core'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
+//import PingIcon from '@images/whoo-screen_pointer.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
+import { getRndPingStatus } from '../ShareLayer/RndContent'
+
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -126,6 +129,28 @@ const useStyles = makeStyles({
       background: '#9e886c',
       ...buttonStyle
     }),
+
+    PingLocation: (props:StyleProps) => ({
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: (props.mem.pingY - 25),
+      left: (props.mem.pingX - 17),
+      //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+      whiteSpace: 'pre',
+    }),
+
+    PingLocationHide: (props:StyleProps) => ({
+      display: 'none',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: (props.mem.pingY - 25),
+      left: (props.mem.pingX - 17),
+      //transform: `rotate(${props.props.stores.map.rotation}deg)`,
+      whiteSpace: 'pre',
+    }),
 })
 
 const buttonStyle = {
@@ -174,6 +199,12 @@ class BaseMember{
   zoomY = 0
   moveX = 0
   moveY = 0
+
+  clickStatus = ''
+  userAngle = 0
+  clickEnter = false
+  pingX = 0
+  pingY = 0
 }
 
 let _menuCanvas = false
@@ -181,8 +212,15 @@ export function getMenuStatus():boolean {
   return _menuCanvas
 }
 
+let pingEnable:boolean = false
+export function getBasePingStatus():boolean {
+  return pingEnable
+}
+
+
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
+
   const matrix = useObserver(() => map.matrix)
   const container = useRef<HTMLDivElement>(null)
   const outer = useRef<HTMLDivElement>(null)
@@ -273,6 +311,59 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     }, TIMER_INTERVAL) //  move to mouse position
   } */
 
+
+  function hindleClickStatus() {
+    //console.log(mem.clickStatus, " onClick")
+
+    if(mem.clickStatus === 'single') {
+      if(mem.clickEnter) {return}
+      if(pingLocation) {return}
+      pingEnable = false
+      participants.local.pingIcon = false
+      //participants.local.cursorMove = false
+      setPingLocation(false)
+      const moveTimer = setTimeout(() => {
+        clearTimeout(moveTimer)
+        function moveParticipant(move: boolean) {
+          //const local = participants.local
+          //const diff = subV2(map.mouseOnMap, local.pose.position)
+          const diff = subV2([mem.moveX, mem.moveY], props.stores.participants.local.pose.position)
+          if (normV(diff) > PARTICIPANT_SIZE / 10) {
+            const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+            props.stores.participants.local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+            if (move) {
+              props.stores.participants.local.pose.position = addV2(props.stores.participants.local.pose.position, dir)
+            }
+            props.stores.participants.local.savePhysicsToStorage(false)
+            const TIMER_INTERVAL = move ? 0 : 0
+              setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+          }
+        }
+        moveParticipant(false)
+      }, 0)
+    } else {
+      //console.log('double click action goes here and play sound')
+      //mem.userAngle = props.stores.participants.loca
+      if(pingLocation) {return}
+      if(getRndPingStatus()) {return}
+      participants.local.pingIcon = true
+      //participants.local.cursorMove = true
+      let audio = new Audio("sound/beep.mp3")
+      audio.play()
+      pingEnable = true
+      setPingLocation(true)
+      const hidePinIcon = setTimeout(() =>{
+        clearTimeout(hidePinIcon)
+        mem.clickStatus = ''
+        participants.local.pingIcon = false
+        //participants.local.cursorMove = false
+        pingEnable = false
+        setPingLocation(false)
+      }, 3000)
+    }
+  }
+
+
   const bind = useGesture(
     {
       onDragStart: ({buttons, xy}) => {
@@ -290,6 +381,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
         if(showUploadOption) {return}
+
 
         //  console.log('Base StartDrag:')
         if (buttons === MOUSE_LEFT) {
@@ -313,11 +405,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           ////////////////////////////////////////////////
 
 
-
-
           const downTimer = setTimeout(() => {
             clearTimeout(downTimer)
             if(itemLocked) {return}
+
             if(mem.mouseDown && showUploadOption === false) {
               //console.log("Open Context Menu")
               mem.zoomX = xy[0]
@@ -380,8 +471,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let _dialogStatus:boolean = isDialogOpen()
         if(_dialogStatus) {return}
 
+
+
+
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
-          const local = participants.local
+          //const local = participants.local
           const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
           for (const [i] of remotes.entries()) {
             let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
@@ -392,8 +486,31 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
               return
             }
           }
-          setTimeout(() => {
+
+        //console.log(event?.detail, " DETAILS")
+        //////////////////////////////////////////////////////////////
+        if (event?.detail === 1) {
+          mem.clickStatus = 'single'
+        } else if (event?.detail === 2) {
+          mem.clickStatus = "double"
+          mem.pingX = xy[0]
+          mem.pingY = xy[1]
+        }
+
+        mem.clickEnter = true
+        const timer = setTimeout(() => {
+          clearTimeout(timer);
+          if(mem.clickEnter) {
+            mem.clickEnter = false
+            hindleClickStatus()
+          }
+        }, 250)
+       ////////////////////////////////////////////////////////
+          /* const moveTimer = setTimeout(() => {
+            clearTimeout(moveTimer)
+
             function moveParticipant(move: boolean) {
+
                 //const local = participants.local
                 //const diff = subV2(map.mouseOnMap, local.pose.position)
 
@@ -408,11 +525,13 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
                   }
                   local.savePhysicsToStorage(false)
                   const TIMER_INTERVAL = move ? 0 : 0
-                  setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+                  if(event?.detail === 1) {
+                    setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
+                  }
                 }
             }
             moveParticipant(false)
-          },  0)
+          }, 0) */
         }
 
 
@@ -458,7 +577,12 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onMove:({xy}) => {
         mem.zoomX = xy[0]
         mem.zoomY = xy[1]
-        map.setMouse(xy)
+
+        //console.log(participants.local.trackStates.pingIcon, " moving")
+
+        if(participants.local.trackStates.pingIcon === false) {
+          map.setMouse(xy)
+        }
         if(showMenu) {return}
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
@@ -582,8 +706,19 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     mem,
   }
 
+  //console.log(props.stores.map.mouseOnMap, " m on m")
+
+
   const [showMenu, setShowMenu] = useState(false)
   const [showUploadOption, setShowUploadOption] = useState(false)
+
+  const [pingLocation, setPingLocation] = useState(false)
+
+  //const _pingIcon = useObserver(()=> participants.local.pingIcon)
+
+  //console.log("AAAA - ", _pingIcon)
+
+
   const classes = useStyles(styleProps)
 
   function stop(ev:MouseOrTouch|React.PointerEvent) {
@@ -596,6 +731,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setShowMenu(false)
   }
 
+  //console.log(pingLocation, " --LI-- ", _pingIcon, " =========== ", mem.clickStatus)
+
   return (
     <div className={classes.root} ref={outer} {...bind()}>
       <ResizeObserver onResize = { onResizeOuter } />
@@ -604,6 +741,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             {props.children}
         </div>
       </div>
+
       {/* Add Context Menu */}
       <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
       <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''} >
@@ -614,6 +752,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         </Tooltip>
       <div className={classes.dashedCircle}></div>
       </div>
+      {/* <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
+        <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>
+      </div> */}
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={mem.contentX} cordY={mem.contentY} origin={'contextmenu'} _type={'menu'}/>
     </div>
   )

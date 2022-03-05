@@ -79,6 +79,18 @@ const useStyles = makeStyles({
     fontSize: '20px',
     textShadow: '1px 1px #000, -1px 1px #cdcdcd, -1px -1px #cdcdcd, 1px -1px #cdcdcd' // '1px 2px 2px #000000' //
   },
+  tapBroadcastText: {
+    display: 'block',
+    width:'265px',
+    position:'relative',
+    top: '-20px',
+    left:'-10px',
+    textAlign:'center',
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: '20px',
+    textShadow: '1px 1px #000, -1px 1px #cdcdcd, -1px -1px #cdcdcd, 1px -1px #cdcdcd' // '1px 2px 2px #000000' //
+  },
   hidetapBroadcast:{
     display: 'none',
   },
@@ -167,10 +179,11 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //const rgbRemote = (participants.remote.get(remotes[userIndex])?.getColorRGB())
 
-
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
+
+
 
     if(remote.tracks.avatarStream !== undefined) {
       //return remote.tracks.avatarStream
@@ -187,6 +200,8 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   //const [toggleUser, setToggleUser] = React.useState<string>(ids[ids.length-1])
   //console.log(toggleUser, " toggleUser")
+
+
 
 const [streamUser, setStreamUser] = React.useState(ids)
 let result:any = []
@@ -257,6 +272,8 @@ function comparer(otherArray:string[]){
   //console.log(startStream, " video on")
 
   //console.log(localStream, " ---- ", startStream)
+
+  //console.log(participants.local.muteVideo, " LOCAL ---- ", participants.remote.get(ids[0])?.muteVideo, " ---- REMOTE")
 
 
   //if(startStresm)
@@ -342,7 +359,8 @@ function comparer(otherArray:string[]){
       /* if(localStream || ids.length === 0 || videoButtonStatus === false) { */
       var dispText = ''
       //console.log(liveTimer, " liveTimer")
-      dispText = "GOING LIVE IN " + (4-liveTimer) + "..."
+      //dispText = "GOING LIVE IN " + (4-liveTimer) + "..."
+      dispText = "GOING LIVE..."
       if(videoButtonStatus === false) {
         dispText = "STREAM OFF"
       } else {
@@ -533,7 +551,7 @@ function comparer(otherArray:string[]){
 
        {/*  <FabMain size={250} className={((localStream !== false || startStream !== false || ids.length > 0  || videoButtonStatus)) ? classes.fabActive : classes.fab} */}
 
-        <FabMain size={250} color={(dispText === "STREAM OFF" ? 'default' : 'default')} className={((localStream !== false || startStream !== false || videoButtonStatus)) ? classes.fabActive : classes.fab}
+        <FabMain size={250} /* color={(dispText === "STREAM OFF" ? 'default' : 'default')} */ className={((localStream !== false || startStream !== false /* || videoButtonStatus */)) ? classes.fabActive : classes.fab}
 
         onClick = { () => {
           /* console.log("on Vid Click") */
@@ -556,8 +574,10 @@ function comparer(otherArray:string[]){
           TAP TO GO LIVE
         </div>
         {/* <div style={stream === undefined ? {width:'240px', height:'240px', top:'14px', left:'-148px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div> */}
-        <div style={(stream === undefined && localStream) || dispText === "STREAM OFF" ? {width:'240px', height:'243px', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div>
-        <p style={{position:'absolute', color:(dispText === "STREAM OFF" ? 'red' : 'white'), top:'110px', width:'270px', textAlign:'center'}}>{dispText}</p>
+        {/* <div style={(stream === undefined && localStream) || dispText === "STREAM OFF" ? {width:'240px', height:'243px', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div>*/}
+        {/* <p style={{position:'absolute', color:(dispText === "STREAM OFF" ? 'red' : 'white'), top:'110px', width:'270px', textAlign:'center'}}>{dispText}</p> */}
+        {/* <p className={dispText === "STREAM OFF" ? classes.hidetapBroadcast : classes.tapBroadcast}>{dispText}</p> */}
+        <p className={dispText === "STREAM OFF" ? classes.hidetapBroadcast : classes.tapBroadcastText}>{dispText}</p>
       </Collapse>
     </div >
     }}</Observer>

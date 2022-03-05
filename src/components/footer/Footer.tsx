@@ -125,7 +125,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
   // For Video Stream
   //const [vidStream, setVidStream] = React.useState<boolean>(false)
-  const [toggleIcon, setToggleIcon] = React.useState<boolean>(false)
+  //const [toggleIcon, setToggleIcon] = React.useState<boolean>(false)
 
   //console.log(props.stores.roomInfo.password, " pass")
 
@@ -648,9 +648,8 @@ function comparer(otherArray:string[]){
           {micMenuItems}
         </Menu>
 
-       {/*  <FabWithTooltip size={fabSize} color={mute.muteV ? 'secondary' : 'secondary'} aria-label="camera" */}
-        <FabWithTooltip size={fabSize} color={(toggleIcon === false && mute.muteV) ? 'primary' : 'secondary'} aria-label="camera"
-
+        {/* <FabWithTooltip size={fabSize} color={(toggleIcon === false && mute.muteV) ? 'primary' : 'secondary'} aria-label="camera" */}
+        <FabWithTooltip size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
           onClick = { () => {
             //if(inzone !== undefined) {
               member.upTime = new Date().getSeconds()
@@ -691,12 +690,12 @@ function comparer(otherArray:string[]){
                   // mute all remote videos
                   connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
 
-
                   participants.local.muteVideo = !mute.muteV
                   participants.local.saveMediaSettingsToStorage()
 
                   buttonClickStatus = true
-                  setToggleIcon(true)
+
+                  //setToggleIcon(true)
 
 
                 //setVidStream(false)

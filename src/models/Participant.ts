@@ -80,7 +80,7 @@ export interface TrackStates{
   speakerMuted: boolean,
   headphone: boolean,
   emoticon: string,
-  //videoOn: string,
+  pingIcon: boolean,
 }
 export interface Physics {
   located: boolean            //  located on map or not
