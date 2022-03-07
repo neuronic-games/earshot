@@ -96,9 +96,13 @@ const useStyles = makeStyles({
   },
   fab:{
     display:'none',
+    opacity: 0,
+    transition: 'opacity 0.3s ease-out',
   },
   fabActive: {
     display:'block',
+    opacity: 1,
+    transition: 'opacity 0.3s ease-out'
   },
   vidicon:{
     display: 'none',
@@ -106,6 +110,8 @@ const useStyles = makeStyles({
     position:'relative',
     backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
     transform: 'rotateY(180deg)',
+    //opacity: 0,
+    //transition: 'opacity 0.3s ease-out',
     right: 0,
     ...buttonStyle,
   },
@@ -116,6 +122,8 @@ const useStyles = makeStyles({
     alignItems:'center',
     backgroundColor: 'black', //'#9e886c', //  '#ef4623' : '#9e886c',
     transform: 'rotateY(180deg)',
+    //opacity: 1,
+    //transition: 'opacity 0.3s ease-out',
     right: 0,
     ...buttonStyle,
   },
@@ -305,7 +313,7 @@ function comparer(otherArray:string[]){
   //const [toggleStream, setToggleStream] = React.useState<boolean>((stream !== undefined) ? true : false)
   const [toggleStream, setToggleStream] = React.useState<boolean>((localStream !== false || startStream !== false) ? true : false)
 
-  //const [toggleUI, setToggleUI] = React.useState<boolean>(true)
+  const [toggleUI, setToggleUI] = React.useState<boolean>(true)
 
   //const [toggleBreadCast, setToggleBreadCast] = React.useState<boolean>(false)
 
@@ -347,6 +355,7 @@ function comparer(otherArray:string[]){
 
   //console.log("CHECK STATUS --- ", vStatus)
 
+  //console.log(videoButtonStatus, " click status")
 
 
   //if(localStream || startStream) {
@@ -360,32 +369,51 @@ function comparer(otherArray:string[]){
       var dispText = ''
       //console.log(liveTimer, " liveTimer")
       //dispText = "GOING LIVE IN " + (4-liveTimer) + "..."
+      //console.log("RECONNEC")
       dispText = "GOING LIVE..."
       if(videoButtonStatus === false) {
         dispText = "STREAM OFF"
       } else {
         if(localStream) {
-          setTimeout (() => {
-            let nTime = liveTimer
-            //if(nTime <= 6) {
-              nTime += 1
-              //console.log(nTime, " nTime")
-              setLiveTimer(nTime)
+          /* setTimeout (() => {
+              let nTime = liveTimer
+              //if(nTime <= 6) {
+                nTime += 1
+                //console.log(nTime, " nTime")
+                setLiveTimer(nTime)
 
-            //}
-            //console.log(nTime, " nTime")
-            //dispText = "GOING LIVE... " + liveTimer
-        },500)
+              //}
+              //console.log(nTime, " nTime")
+              //dispText = "GOING LIVE... " + liveTimer
+          },500) */
 
         /* // Reset Timer
         if(liveTimer >= 4) {
           setLiveTimer(1)
         } */
+        if(toggleUI) {
+          setToggleUI(false)
+        }
 
         } else if(startStream) {
           dispText = "RECONNECTING..."
         } else {
           dispText = "STREAM OFF"
+          //console.log(liveTimer, " in off")
+          if(toggleUI === false) {
+            setTimeout (() => {
+              let nTime = liveTimer
+              if(nTime <= 8) {
+                nTime += 1
+                setLiveTimer(nTime)
+              }
+            },500)
+            if(liveTimer >= 6) {
+              //console.log("timer off")
+              setLiveTimer(1)
+              setToggleUI(true)
+            }
+          }
         }
       }
     } else {
@@ -551,7 +579,7 @@ function comparer(otherArray:string[]){
 
        {/*  <FabMain size={250} className={((localStream !== false || startStream !== false || ids.length > 0  || videoButtonStatus)) ? classes.fabActive : classes.fab} */}
 
-        <FabMain size={250} /* color={(dispText === "STREAM OFF" ? 'default' : 'default')} */ className={((localStream !== false || startStream !== false /* || videoButtonStatus */)) ? classes.fabActive : classes.fab}
+        <FabMain size={250} /* color={(dispText === "STREAM OFF" ? 'default' : 'default')} */ className={((localStream !== false || startStream !== false || toggleUI === false /* || videoButtonStatus */)) ? classes.fabActive : classes.fab}
 
         onClick = { () => {
           /* console.log("on Vid Click") */
@@ -565,6 +593,11 @@ function comparer(otherArray:string[]){
           </div>
         </FabMain>
         {/* </MuiThemeProvider> */}
+
+        <div style={toggleUI === false && stream === undefined ? {width:'240px', height:'243px', borderRadius: '50%',top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black',/*  display:'block', */ /* transform: 'opacity(1)',  */opacity: 1, transition: 'opacity 0.3s ease-out'} : {/* display:'none',  */width:'240px', height:'243px', borderRadius: '50%', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', /* transform: 'opacity(0)',  */ opacity: 0, transition: 'opacity 0.3s ease-out'}}>
+          <p style={dispText === 'GOING LIVE...' || stream !== undefined ? {display:'none'} : {display:'block', position:'absolute', color:'red', top:'235px', width:'250px', textAlign:'center', fontSize:'20px', fontWeight:'bold', /* textShadow: '1px 1px #ff0000, -1px 1px #ff0000, -1px -1px #ff0000, 1px -1px #ff0000' */}}>RECONNECTING...</p>
+        </div>
+
         <div style={{height:'50px', width:'150px', textAlign:'center', position:'relative', left:'-66px',
           verticalAlign:'middle', display:'flex', flexDirection:'row', whiteSpace:'nowrap', marginTop: '-50px', color:'white', overflow:'hidden'}}>
             <img style={{position:'relative', display: dispText !== "STREAM OFF" ? 'block' : 'none', width:'25px', height:'25px', marginTop:'0px', marginLeft: '35px', backgroundColor:localStream ? rgb2Color(rgb) : (rgbR !== undefined ? rgb2Color(rgbR) : undefined), borderRadius: '50%'}} src={localStream ? participants.local.information.avatarSrc : participants.remote.get(remotes[userIndex])?.information.avatarSrc}  alt=''/>
@@ -574,9 +607,12 @@ function comparer(otherArray:string[]){
           TAP TO GO LIVE
         </div>
         {/* <div style={stream === undefined ? {width:'240px', height:'240px', top:'14px', left:'-148px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div> */}
-        {/* <div style={(stream === undefined && localStream) || dispText === "STREAM OFF" ? {width:'240px', height:'243px', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div>*/}
+        {/* <div style={(stream === undefined && localStream) || dispText === "STREAM OFF" ? {width:'240px', height:'243px', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', borderRadius:'50%', display:'block'} : {display:'none'}}></div> */}
         {/* <p style={{position:'absolute', color:(dispText === "STREAM OFF" ? 'red' : 'white'), top:'110px', width:'270px', textAlign:'center'}}>{dispText}</p> */}
         {/* <p className={dispText === "STREAM OFF" ? classes.hidetapBroadcast : classes.tapBroadcast}>{dispText}</p> */}
+
+
+
         <p className={dispText === "STREAM OFF" ? classes.hidetapBroadcast : classes.tapBroadcastText}>{dispText}</p>
       </Collapse>
     </div >

@@ -10,7 +10,7 @@ import pinOffIcon from '@images/whoo-screen_btn-lock.png'
 import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
-import PingIcon from '@images/whoo-screen_pointer.png'
+//import PingIcon from '@images/whoo-screen_pointer.png'
 
 import settings from '@models/api/Settings'
 import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
@@ -151,7 +151,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
-  const _pingIcon = useObserver(()=> participants.local.pingIcon)
+  //const _pingIcon = useObserver(()=> participants.local.pingIcon)
 
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
@@ -485,7 +485,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
       member.downXPos = Number(diff[0])
-      map.setMouse(xy)
+      if(participants.local.trackStates.pingIcon === false) {
+        map.setMouse(xy)
+      }
     },
 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
@@ -890,9 +892,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         {theContent}
       </Rnd> : ''}
-      <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
+      {/* <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
         <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>
-      </div>
+      </div> */}
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} _type={'menu'}/>
     </div >
   )

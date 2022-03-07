@@ -688,12 +688,15 @@ function comparer(otherArray:string[]){
 
 
                   // mute all remote videos
+
                   connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
 
                   participants.local.muteVideo = !mute.muteV
                   participants.local.saveMediaSettingsToStorage()
 
+
                   buttonClickStatus = true
+
 
                   //setToggleIcon(true)
 
