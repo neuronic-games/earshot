@@ -27,6 +27,7 @@ import badConnIcon from '@images/whoo-screen_sym-slow.png'
 
 import PingIcon from '@images/whoo-screen_pointer.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+import { rgb2Color } from '@models/utils'
 
 
 
@@ -181,6 +182,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     /* const rname = useObserver(() => (props.stores.roomInfo.roomProps.get('roomDetails')))
     console.log(rname, " STORES") */
 
+    const rgb = participant.getColorRGB()
+
     //console.log("CHECKING")
 
   //let _name = userName()
@@ -222,6 +225,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     props.stores.participants.local.saveInformationToStorage(true)
   } */
 
+  //console.log(mapData.visibleArea())
+
 
 
   const participantProps = useObserver(() => ({
@@ -245,6 +250,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 ///////////////////
   //const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
 ///////////////////
+//const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
+//console.log(viewpoint, "view point")
 
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
@@ -261,6 +268,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //const _pingY = useObserver(() => participant.trackStates.pingY)
 
   //const isSetIconPos = useObserver(()=> props.stores.participants.local.cursorMove)
+
+
 
   //console.log("AAAA - ", _pingIcon1)
 
@@ -279,8 +288,18 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //if(_pingIcon)
   //if(xPos === 0) {
 
+
   let xPos = ((participantProps.mousePosition[0] - participantProps.position[0]) + 12)
   let yPos = ((participantProps.mousePosition[1] - participantProps.position[1]) - 55)
+
+  /* if(_pingIcon) {
+    //console.log(mapData.visibleArea()[0], " --- ", yPos)
+    if(mapData.visibleArea()[0] < yPos && mapData.visibleArea()[1] > xPos && mapData.visibleArea()[3] < xPos && mapData.visibleArea()[2] > yPos) {
+      console.log("Inside Visible")
+    } else {
+      console.log("outside visible")
+    }
+  } */
 
   //}
   // }
@@ -435,7 +454,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             {props.isPlayback ? <PlayArrowIcon className={classes.icon} htmlColor="#0C0" /> : undefined}
             {/* <img src={_pingIcon !== false ? PingIcon : undefined} className={_pingIcon !== false ? classes.PingLocation : classes.PingLocationHide} /> */}
             {/* <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', height: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: ((participantProps.mousePosition[1] - participantProps.position[1]) - 50), left: ((participantProps.mousePosition[0] - participantProps.position[0]) + 17), whiteSpace: 'pre',} : {display:'none'}} /> */}
-            <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
+            <div>
+              <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
+              <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
+            </div>
           </div>
         </Tooltip>
       </div>

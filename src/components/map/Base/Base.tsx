@@ -314,7 +314,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
-
     if(mem.clickStatus === 'single') {
       if(mem.clickEnter) {return}
       if(pingLocation) {return}
