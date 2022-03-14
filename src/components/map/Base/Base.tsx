@@ -20,7 +20,7 @@ import UploadShare from '@images/whoo-screen_btn-add-63.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
-import { getRndPingStatus } from '../ShareLayer/RndContent'
+//import { getRndPingStatus } from '../ShareLayer/RndContent'
 
 
 //  utility
@@ -205,7 +205,10 @@ class BaseMember{
   clickEnter = false
   pingX = 0
   pingY = 0
+  hidePinIcon = 0
+
 }
+
 
 let _menuCanvas = false
 export function getMenuStatus():boolean {
@@ -314,13 +317,31 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
+
+    /* mem.clickStatus = ''
+    participants.local.pingIcon = false
+    participants.local.pingX = 0
+    participants.local.pingY = 0
+    //participants.local.cursorMove = false
+    pingEnable = false
+    setPingLocation(false) */
+
+
+
+
     if(mem.clickStatus === 'single') {
       if(mem.clickEnter) {return}
-      if(pingLocation) {return}
+      //if(pingLocation) {return}
+
+      if(pingLocation) {}
+
       pingEnable = false
       participants.local.pingIcon = false
+      participants.local.pingX = 0
+      participants.local.pingY = 0
       //participants.local.cursorMove = false
       setPingLocation(false)
+
       const moveTimer = setTimeout(() => {
         clearTimeout(moveTimer)
         function moveParticipant(move: boolean) {
@@ -343,18 +364,26 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     } else {
       //console.log('double click action goes here and play sound')
       //mem.userAngle = props.stores.participants.loca
-      if(pingLocation) {return}
-      if(getRndPingStatus()) {return}
+      clearTimeout(mem.hidePinIcon)
+      /////////////////////////////
+      //if(pingLocation) {return}
+     // if(getRndPingStatus()) {return}
+      ////////////////////////////////
+      participants.local.pingX = mem.pingX
+      participants.local.pingY = mem.pingY
       participants.local.pingIcon = true
       //participants.local.cursorMove = true
       let audio = new Audio("sound/beep.mp3")
       audio.play()
       pingEnable = true
       setPingLocation(true)
-      const hidePinIcon = setTimeout(() =>{
-        clearTimeout(hidePinIcon)
+      mem.hidePinIcon = window.setTimeout(() =>{
+        clearTimeout(mem.hidePinIcon)
+        //if(!pingLocation) {return}
         mem.clickStatus = ''
         participants.local.pingIcon = false
+        participants.local.pingX = 0
+        participants.local.pingY = 0
         //participants.local.cursorMove = false
         pingEnable = false
         setPingLocation(false)
@@ -366,6 +395,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
   const bind = useGesture(
     {
       onDragStart: ({buttons, xy}) => {
+
         document.body.focus()
         mem.dragging = true
         mem.mouseDown = true
@@ -425,6 +455,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         }
       },
       onDrag: ({down, delta, xy, buttons}) => {
+
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
 
@@ -462,6 +493,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         }
       },
       onDragEnd: ({event, xy}) => {
+
+
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
         mem.upTime = new Date().getSeconds()
@@ -469,8 +502,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         let _dialogStatus:boolean = isDialogOpen()
         if(_dialogStatus) {return}
-
-
 
 
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
@@ -488,16 +519,34 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         //console.log(event?.detail, " DETAILS")
         //////////////////////////////////////////////////////////////
+
+
+        /* const diff = subV2(map.mouseOnMap, participants.local.pose.position)
+        const dir = mulV2(normV(diff) / normV(diff), diff)
+        console.log(addV2(props.stores.participants.local.pose.position, dir), " Base ") */
+        //console.log(map.mouseOnMap[0], " Base ", map.mouseOnMap[1])
+
+        //console.log(participants.local.mouse.position[0] - participants.local.pose.position[0], " Base F ", participants.local.mouse.position[1]-participants.local.pose.position[1])
+
         if (event?.detail === 1) {
           mem.clickStatus = 'single'
         } else if (event?.detail === 2) {
           mem.clickStatus = "double"
-          mem.pingX = xy[0]
-          mem.pingY = xy[1]
+
+         /*  mem.pingX = xy[0]
+          mem.pingY = xy[1] */
+          mem.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+          mem.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+
+          /* const diff = subV2(map.mouseOnMap, local.pose.position)
+          const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+          props.stores.participants.local.pose.position = addV2(props.stores.participants.local.pose.position, dir) */
         }
+
 
         mem.clickEnter = true
         const timer = setTimeout(() => {
+
           clearTimeout(timer);
           if(mem.clickEnter) {
             mem.clickEnter = false
@@ -579,12 +628,13 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         //console.log(participants.local.trackStates.pingIcon, " moving")
 
-        if(participants.local.trackStates.pingIcon === false) {
-          map.setMouse(xy)
-        }
+        //if(participants.local.trackStates.pingIcon === false) {
+        map.setMouse(xy)
+        //}
         if(showMenu) {return}
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
+
       onTouchStart:(ev) => {
         map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
@@ -730,7 +780,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setShowMenu(false)
   }
 
-  //console.log(pingLocation, " --LI-- ", _pingIcon, " =========== ", mem.clickStatus)
+  //console.log(pingLocation, " pL")
 
   return (
     <div className={classes.root} ref={outer} {...bind()}>

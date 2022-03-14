@@ -33,6 +33,8 @@ export class TrackStates implements Store<ITrackStates>{
   @observable headphone = false
   @observable emoticon = ''
   @observable pingIcon = false
+  @observable pingX = 0
+  @observable pingY = 0
 
   constructor() {
     makeObservable(this)

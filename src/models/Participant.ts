@@ -81,6 +81,8 @@ export interface TrackStates{
   headphone: boolean,
   emoticon: string,
   pingIcon: boolean,
+  pingX: number,
+  pingY: number,
 }
 export interface Physics {
   located: boolean            //  located on map or not

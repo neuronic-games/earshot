@@ -5,6 +5,7 @@ import {Icon} from '@iconify/react'
 import {Tooltip} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import HeadsetIcon from '@material-ui/icons/HeadsetMic'
+import PingLocIcon from '@material-ui/icons/PlayArrow'
 import MicOffIcon from '@material-ui/icons/MicOff'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
@@ -149,6 +150,13 @@ const useStyles = makeStyles({
     whiteSpace: 'pre',
   }), */
 
+  pingLocIcon: (props:StyleProps) => ({
+    position: 'absolute',
+    transform: `rotate(${props.orientation}deg)`,
+    width: '200px',
+    height: '200px'
+  }),
+
 })
 
 
@@ -264,12 +272,13 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   let yPos = -1 */
 
   const _pingIcon = useObserver(() => participant.trackStates.pingIcon)
+  const _pingX = useObserver(() => participant.trackStates.pingX)
+  const _pingY = useObserver(() => participant.trackStates.pingY)
+
   //const _pingCursor = useObserver(() => participant.trackStates.cursorMove)
   //const _pingY = useObserver(() => participant.trackStates.pingY)
 
   //const isSetIconPos = useObserver(()=> props.stores.participants.local.cursorMove)
-
-
 
   //console.log("AAAA - ", _pingIcon1)
 
@@ -289,8 +298,18 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //if(xPos === 0) {
 
 
-  let xPos = ((participantProps.mousePosition[0] - participantProps.position[0]) + 12)
-  let yPos = ((participantProps.mousePosition[1] - participantProps.position[1]) - 55)
+  /* let xPos = ((participantProps.mousePosition[0] - participantProps.position[0]) + 12)
+  let yPos = ((participantProps.mousePosition[1] - participantProps.position[1]) - 55) */
+
+  /*
+  // If DIV
+  let xPos = ((_pingX) + 14)
+  let yPos = ((_pingY) - 80)
+ */
+
+  let xPos = ((_pingX) + 14)
+  let yPos = ((_pingY) - 55)
+
 
   /* if(_pingIcon) {
     //console.log(mapData.visibleArea()[0], " --- ", yPos)
@@ -359,6 +378,12 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   ///////////////////////////////////////////////////////////////
 
   //console.log(-participantProps.orientation, " orientation")
+
+  //const rad = (Math.atan2(participantProps.mousePosition[1] - participantProps.position[1], participantProps.mousePosition[0] - participantProps.position[0]))
+  const rad = (Math.atan2(_pingY, _pingX))
+
+
+  //console.log(rotateVector2DByDegree(-participantProps.orientation))
 
   const audioMeterSteps = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
   const audioMeter = audioMeterSteps.map(step => (audioLevel > step && inZone !== 'close') ?
@@ -454,9 +479,17 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             {props.isPlayback ? <PlayArrowIcon className={classes.icon} htmlColor="#0C0" /> : undefined}
             {/* <img src={_pingIcon !== false ? PingIcon : undefined} className={_pingIcon !== false ? classes.PingLocation : classes.PingLocationHide} /> */}
             {/* <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', height: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: ((participantProps.mousePosition[1] - participantProps.position[1]) - 50), left: ((participantProps.mousePosition[0] - participantProps.position[0]) + 17), whiteSpace: 'pre',} : {display:'none'}} /> */}
+           {/*  <div style={{position: 'absolute', left: '-10px', top:'0px', width:0, height:0, borderTop: '25px solid transparent', borderLeft: '100px solid #555', borderBottom: '25px solid transparent', transform: `rotate(${rad}rad)`}}> */}
+            <div style={{position:'absolute', left: '-30px', width:'120px', height:'120px', /* zIndex:-999999, */ top:'-30px', transform: `rotate(${rad}rad)`, transformOrigin:'center'}}>
+             {/*  <div style={{position:'absolute', left:'62px', top:'15px', width:'30px', height:'30px', backgroundColor:'yellow'}}></div> */}
+              {/* <PingLocIcon style={{left: '-60px', zIndex:-999999, top:'-60px', position:'absolute', width:'180px', height:'180px', transform: `rotate(${rad}rad)`}} color="primary"> </PingLocIcon> */}
+              <div style={_pingIcon ? {display:'block', position:'absolute', left:'93px', top:'45px', width:'30px', height:'30px', overflow:'hidden'} : {display:'none'}}>
+              <PingLocIcon style={{left: '-120px', zIndex:-999999, top:'-75px', position:'absolute', width:'180px', height:'180px', color:rgb2Color(rgb)}} /* color="secondary" */ />
+              </div>
+            </div>
             <div>
               <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
-              <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
+              <img style={_pingIcon !== false ? {backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}  : {display:'none'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
             </div>
           </div>
         </Tooltip>

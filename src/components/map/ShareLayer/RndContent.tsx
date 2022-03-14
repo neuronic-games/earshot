@@ -30,7 +30,7 @@ import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
-import { getBasePingStatus } from '../Base'
+//import { getBasePingStatus } from '../Base'
 
 const MOUSE_RIGHT = 2
 const BORDER_TIMER_DELAY = 1 * 1000 // For 1 secs
@@ -86,6 +86,7 @@ class RndContentMember{
   pingX = 0
   pingY = 0
   isMoved = false
+  hidePinIcon = 0
 }
 
 let contextMenuStatus:boolean = false
@@ -152,6 +153,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
   //const _pingIcon = useObserver(()=> participants.local.pingIcon)
+
+  //console.log(pingLocation, " PL")
 
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
@@ -334,10 +337,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     //console.log(mem.clickStatus, " onClick")
     if(member.clickStatus === 'single') {
       if(member.clickEnter) {return}
-      if(pingLocation) {return}
-      if(member.isMoved) {return}
+     // if(pingLocation) {return}
+     // if(member.isMoved) {return}
+     if(pingLocation) {}
       pingEnable = false
       participants.local.pingIcon = false
+      participants.local.pingX = 0
+      participants.local.pingY = 0
       setPingLocation(false)
       const moveTimer = setTimeout(() =>{
         clearTimeout(moveTimer)
@@ -366,18 +372,27 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     } else {
       //console.log('double click action goes here and play sound')
       //mem.userAngle = props.stores.participants.loca
-      if(pingLocation) {return}
-      if(getBasePingStatus()) {return}
+      ///////////////////////////////////
+     /*  if(pingLocation) {return}
+      if(getBasePingStatus()) {return} */
+      ///////////////////////////////////
+
+      clearTimeout(member.hidePinIcon)
 
       let audio = new Audio("sound/beep.mp3")
       audio.play()
       pingEnable = true
       setPingLocation(true)
+      participants.local.pingX = member.pingX
+      participants.local.pingY = member.pingY
       participants.local.pingIcon = true
-      const hidePinIcon = setTimeout(() => {
-        clearTimeout(hidePinIcon)
+
+      member.hidePinIcon = window.setTimeout(() => {
+        clearTimeout(member.hidePinIcon)
         member.clickStatus = ''
         participants.local.pingIcon = false
+        participants.local.pingX = 0
+        participants.local.pingY = 0
         pingEnable = false
         setPingLocation(false)
       }, 3000)
@@ -462,8 +477,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.clickStatus = 'single'
       } else if (event?.detail === 2) {
         member.clickStatus = "double"
-        member.pingX = map.mouseOnMap[0]
-        member.pingY = map.mouseOnMap[1]
+        /* member.pingX = map.mouseOnMap[0]
+        member.pingY = map.mouseOnMap[1] */
+        member.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+        member.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
       }
 
       member.clickEnter = true
@@ -485,9 +502,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
       member.downXPos = Number(diff[0])
-      if(participants.local.trackStates.pingIcon === false) {
+      //if(participants.local.trackStates.pingIcon === false) {
         map.setMouse(xy)
-      }
+      //}
     },
 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },

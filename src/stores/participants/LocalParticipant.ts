@@ -37,6 +37,8 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   @observable useStereoAudio = false  //  will be override by url switch
   @observable emoticon = ''  //  for emoticon
   @observable pingIcon = false  //  for ping status
+  @observable pingX = 0  //  for ping location X
+  @observable pingY = 0  //  for ping location y
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
   @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
@@ -58,6 +60,8 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       headphone: this.useStereoAudio,
       emoticon: this.emoticon,
       pingIcon: this.pingIcon,
+      pingX: this.pingX,
+      pingY: this.pingY,
     }
   }
   get info():LocalInformation { return this.information as LocalInformation}
@@ -76,6 +80,8 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     //  console.debug('URL cameraOn', urlParameters.cameraOn)
     this.emoticon = '' // for emoticon
     this.pingIcon = false // for video status
+    this.pingX = 0 // for ping X
+    this.pingY = 0 // for ping y
 
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()
