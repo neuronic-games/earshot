@@ -101,6 +101,8 @@ export const jaTranslate = {
   ctEndEditYoutube: '再生位置を同期',
   ctProximity: '位置/サイズを固定する',
   ctUnProximity: '位置/サイズを可変にする',
+  ctStopWatchOn: '位置/サイズを可変にする',
+  ctStopWatchOff: '位置/サイズを可変にする',
   ctUploadZone: '不透明',
   ctEditYoutube: '同期しない',
   ctMoveTop: '一番上に移動',

@@ -30,6 +30,9 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   shareType: '',
   showTitle: false,
   contentDesc: '',
+  showStopWatch: false,
+  stopWatchToggle: false,
+  stopWatchReset: false,
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -54,6 +57,9 @@ class SharedContentImp implements ISharedContent {
   shareType!: string
   showTitle!: boolean
   contentDesc!: string
+  showStopWatch!: boolean
+  stopWatchToggle!: boolean
+  stopWatchReset!: boolean
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -462,7 +468,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,
+  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -473,7 +479,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)

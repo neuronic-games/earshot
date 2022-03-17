@@ -44,6 +44,9 @@ export interface SharedContentData extends SharedContentInfoData {
   zone?: ZoneType                 //  is this a audio zone is the zone closed or open?
   playback?: boolean              //  is playback or normal content
   showTitle:boolean               // for showing the title
+  showStopWatch:boolean           // for showing stop watch
+  stopWatchToggle:boolean         // storing stop watch time toggle
+  stopWatchReset:boolean          // Reset the stopwatch
 }
 
 export interface ISharedContent extends MapObject, SharedContentData, SharedContentId {

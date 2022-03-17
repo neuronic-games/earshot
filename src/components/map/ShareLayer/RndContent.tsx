@@ -12,6 +12,9 @@ import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
 //import PingIcon from '@images/whoo-screen_pointer.png'
 
+import StopWatchOnIcon from '@material-ui/icons/Timer'
+import StopWatchOffIcon from '@material-ui/icons/Timer'
+
 import settings from '@models/api/Settings'
 import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
 import {t} from '@models/locales'
@@ -59,8 +62,11 @@ interface StyleProps{
   _title:boolean,
   pingX: number,
   pingY: number,
-
+  /* _stopWatch:boolean,
+  showStopWatch:boolean, */
 }
+
+
 class RndContentMember{
   buttons = 0
   dragCanceled = false
@@ -87,6 +93,10 @@ class RndContentMember{
   pingY = 0
   isMoved = false
   hidePinIcon = 0
+
+  // Stop watch
+  OnTimerClick = false
+  intervalStep = 0
 }
 
 let contextMenuStatus:boolean = false
@@ -149,10 +159,23 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [showUploadOption, setShowUploadOption] = useState(false)
   const [showBorder, setShowBorder] = useState(false)
 
+  // For Stop Watch
+  //const [showStopWatch, setShowStopWatch] = useState(false)
+  //props.content.stopWatchToggle = false
+  const stopWatchToggle = useObserver(() => props.content.stopWatchToggle)
+  const stopWatchReset = useObserver(() => props.content.stopWatchReset)
+  const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
+  const [time, setTime] = useState(0);
+
 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
   //const _pingIcon = useObserver(()=> participants.local.pingIcon)
+
+
+
+  //console.log(stopWatchToggle, " stopWatchDisplayTime")
+
 
   //console.log(pingLocation, " PL")
 
@@ -164,9 +187,56 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }
   }
 
+  // Timer
+
+/* let intervalTimer = undefined
+  if (showStopWatch && isPaused === false) {
+    intervalTimer = setInterval(() => {
+      setTime((time) => time + 10);
+    }, 10);
+  } else {
+    console.log("isPaused - ", isPaused)
+    clearInterval(intervalTimer);
+  } */
+  //console.log(showStopWatch, " && ", isPaused)
+  /* const timerInterval = setInterval(() => {
+    clearInterval(timerInterval)
+    if(showStopWatch) {
+      //console.log(isPaused, " isPaused")
+      if(isPaused === false) {
+        setTime((time) => time + 10)
+      }
+    }
+  }, 10) */
+
   useEffect(  //  update pose
     ()=> {
       member.dragCanceled = true
+
+      console.log(isPaused, " in Eff ", stopWatchToggle, " ---- ", stopWatchReset)
+
+      // Place timer here
+
+      //let intervalStep = 0
+      //console.log("LAYOUT - ", isPaused, " --- ", stopWatchToggle)
+      if (props.content.showStopWatch && stopWatchToggle === false && stopWatchReset === false) {
+      //if (props.content.showStopWatch &&  stopWatchToggle === false) {
+        member.intervalStep = window.setInterval(() => {
+          setTime((time) => time + 10);
+        }, 10);
+      } else if(stopWatchReset) {
+        setTime(0)
+        clearInterval(member.intervalStep);
+      } else {
+        clearInterval(member.intervalStep);
+      }
+      /* return () => {
+        clearInterval(intervalStep);
+      } */
+
+
+
+
       if(props.content.shareType !== "img") {
         window.clearTimeout(member._timer)
         //member._timer = window.setTimeout( function() {
@@ -183,9 +253,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if (!_.isEqual(pose, props.content.pose)) {
         setPose(_.cloneDeep(props.content.pose))
       }
+
+    return () => {
+      clearInterval(member.intervalStep);
+    };
+
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.content],
+    [props.content, props.content.showStopWatch, isPaused],
   )
 
   function setPoseAndSizeToRnd(){
@@ -197,9 +273,40 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   useLayoutEffect(  //  reflect pose etc. to rnd size
     () => {
       setPoseAndSizeToRnd()
+      //console.log("ENTER in Layout")
+
+      ///////////////////////////////////////////////////
+      // Use Timer here
+      /* const timerInterval = setInterval(() => {
+        //clearInterval(timerInterval)
+        if(showStopWatch) {
+          console.log(isPaused, " isPaused")
+          if(isPaused === false) {
+            setTime((time) => time + 10)
+          } else {
+            clearInterval(timerInterval)
+          }
+        }
+      }, 10) */
+
+      /* let intervalStep = 0
+      //console.log("LAYOUT - ", isPaused, " --- ", stopWatchToggle)
+      if (props.content.showStopWatch && isPaused === false) {
+      //if (props.content.showStopWatch &&  stopWatchToggle === false) {
+        intervalStep = window.setInterval(() => {
+          setTime((time) => time + 10);
+        }, 10);
+      } else {
+        clearInterval(intervalStep);
+      }
+      return () => {
+        clearInterval(intervalStep);
+      } */
+      ////////////////////////////////////////////////////
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pose, size, showTitle, map.rotation],
+    [pose, size, showTitle, map.rotation, props.content.showStopWatch, isPaused],
   )
 
   //  handlers
@@ -242,6 +349,41 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onLeaveIcon()
     setShowUploadOption(true)
   }
+
+  function onClickStopWatch(evt:MouseOrTouch) {
+    console.log("On CLICK")
+    /* if(showStopWatch) {
+      setTime(0)
+      setShowStopWatch(false)
+      setIsPaused(true)
+    } else {
+      setShowStopWatch(true)
+      setIsPaused(false)
+    } */
+    /* stop(evt)
+    props.content.showStopWatch = !props.content.showStopWatch
+    console.log(props.content.showStopWatch, " props.content.showStopWatch")
+    props.updateAndSend(props.content)
+    setIsPaused(!isPaused) */
+    stop(evt)
+    member._down = false
+    //props.content.zone = !props.content.zone
+    if(props.content.showStopWatch) {
+      props.content.showStopWatch = false
+      props.content.stopWatchToggle = true
+      props.content.stopWatchReset = true
+      //setTime(0)
+      setIsPaused(true)
+    } else {
+      props.content.showStopWatch = true
+      props.content.stopWatchToggle = false
+      props.content.stopWatchReset = false
+      setIsPaused(false)
+    }
+    props.updateAndSend(props.content)
+    onLeaveIcon()
+  }
+
   function onClickZone(evt: MouseOrTouch) {
     stop(evt)
     member._down = false
@@ -335,12 +477,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   ////////////////////////////
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
+
     if(member.clickStatus === 'single') {
       if(member.clickEnter) {return}
      // if(pingLocation) {return}
-     // if(member.isMoved) {return}
+     if(member.isMoved) {return}
+     //if(member.OnTimerClick) {return}
      if(pingLocation) {}
       pingEnable = false
+      member.clickStatus = ''
       participants.local.pingIcon = false
       participants.local.pingX = 0
       participants.local.pingY = 0
@@ -369,7 +514,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         }
         moveParticipant(false)
       }, 0)
-    } else {
+    } else if(member.clickStatus === 'double') {
       //console.log('double click action goes here and play sound')
       //mem.userAngle = props.stores.participants.loca
       ///////////////////////////////////
@@ -396,12 +541,37 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         pingEnable = false
         setPingLocation(false)
       }, 3000)
+    } else if(member.clickStatus === 'toggleTimer') {
+      //console.log("toggleTimer")
+      member.clickStatus = ''
+      if(isPaused) {
+        props.content.stopWatchToggle = false
+        props.content.stopWatchReset = false
+        setIsPaused(false)
+      } else {
+        props.content.stopWatchToggle = true
+        props.content.stopWatchReset = false
+        setIsPaused(true)
+      }
+      props.updateAndSend(props.content)
+    } else if(member.clickStatus === "resetTimer") {
+      member.clickStatus = ''
+      setIsPaused(true)
+      //setTime(0)
+      props.content.stopWatchToggle = true
+      props.content.stopWatchReset = true
+      props.updateAndSend(props.content)
     }
   }
   ////////////////////////////
 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
   const isFixed = (props.content.pinned)
+
+
+  //const stopTimeValue = ("0" + Math.floor((time / 3600000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) // + ":" + ("0" + ((time / 10) % 100)).slice(-2)
+  const stopTimeValue = ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) + ":" + ("0" + ((time / 10) % 100)).slice(-2)
+
 
   const handlerForTitle:UserHandlersPartial = {
     onWheel:(evt)=> {
@@ -434,6 +604,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
+      //member.OnTimerClick = false
+
       if(showTitle) {return}
       setDragging(true)
       member.buttons = buttons
@@ -472,20 +644,50 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
       member.buttons = 0
 
+      //console.log(props.content.pose.position[1], " checking Pos", (participants.local.mouse.position[1]))
+
+      //const diff = subV2([member.moveX, member.moveY], participants.local.pose.position)
+      //const dir = mulV2(normV(diff) / normV(diff), diff)
+      //console.log(props.content.size[1], " --- ", addV2(participants.local.pose.position, dir))
+
+      //console.log(props.content.size[1], ' ---- ', (map.mouseOnMap[1] - props.content.pose.position[1]))
+
+      //console.log(props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1]))
+
+      let yCheck = props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1]) //participants.local.mouse.position[1]
+      let xCheck = props.content.size[0] - (props.content.size[0] - (map.mouseOnMap[0] - props.content.pose.position[0]))
+
+      //console.log(xCheck, " xCheck")
+
+      //if(member.OnTimerClick) {return}
       ///////////////////////////////////////////////
       if (event?.detail === 1) {
-        member.clickStatus = 'single'
+        //console.log(member.OnTimerClick , " onTimer")
+        //console.log(member._down, " down")
+        //if(yCheck > -45 && yCheck < - 20) {
+        if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+          member.clickStatus = 'toggleTimer'
+          //console.log("onTimer click")
+        } else {
+          member.clickStatus = 'single'
+        }
       } else if (event?.detail === 2) {
-        member.clickStatus = "double"
-        /* member.pingX = map.mouseOnMap[0]
-        member.pingY = map.mouseOnMap[1] */
-        member.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
-        member.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+        //if(yCheck > -45 && yCheck < - 20) {
+        if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+          member.clickStatus = 'resetTimer'
+        } else {
+          member.clickStatus = "double"
+          /* member.pingX = map.mouseOnMap[0]
+          member.pingY = map.mouseOnMap[1] */
+          member.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+          member.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+        }
       }
 
       member.clickEnter = true
       const timer = setTimeout(() => {
         clearTimeout(timer);
+        //if(member.OnTimerClick) {return}
         if(member.clickEnter) {
           member.clickEnter = false
           hindleClickStatus()
@@ -514,11 +716,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onMouseUp: (arg) => {
       //console.log("Mouse up ", editing, "-", member._down)
       //member._down = false
+
       if(editing) {
         arg.stopPropagation()
       } else {
         //console.log("UPUP")
         if(arg.button > 0) {return}
+
         member.onContent = false
         member.isMoved = false
         member.upTime = new Date().getSeconds()
@@ -583,28 +787,41 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onMouseDown: (arg) => {
       //console.log(arg.button, " button")
+      //console.log("onMouseDown -- Checking Double Click")
+
       if(editing) {
         arg.stopPropagation()
       } else {
         if(arg.button > 0) {return}
+        //if(member.OnTimerClick) {return}
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
         member.moveX = map.mouseOnMap[0]
         member.moveY = map.mouseOnMap[1]
         window.clearTimeout(member._timer)
-        //console.log("Click")
+        //console.log("Click")ḷ̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥    ṁ
         const _mTimer = setTimeout(function() {
           clearTimeout(_mTimer)
           //console.log("Enter timer")
           //if(props.content.ownerName === participants.local.information.name) {
+
+            //let yCheck = props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1])
+            //console.log(yCheck, " IN")
+
             if(member._down && showTitle === false) {
-              const diff = subV2(map.mouseOnMap, pose.position)
-              member.downPos = Number(diff[1])
-              member.downXPos = Number(diff[0])
-              contextMenuStatus = true
-              setShowTitle(true)
-              //setEditing(false)
+              /* if(yCheck > 5 && yCheck < 35) {
+                member.clickStatus = 'resetTimer'
+                member.clickEnter = false
+                hindleClickStatus()
+              } else { */
+                const diff = subV2(map.mouseOnMap, pose.position)
+                member.downPos = Number(diff[1])
+                member.downXPos = Number(diff[0])
+                contextMenuStatus = true
+                setShowTitle(true)
+                //setEditing(false)
+              //}
             }
           //}
         },500)
@@ -631,6 +848,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     }, (_delay * 1000))
   }
+
+  //function startStopWatch(_bool:boolean) {
+    //console.log("Timer start : ", _bool, " --- " , isPaused)
+ // }
 
   const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
@@ -697,7 +918,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     setSize(newSize)
   }
 
-
   const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
@@ -722,8 +942,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         <Content {...props}/>
         <div className={classes.nameContainer}>{props.content.name}</div>
+        <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
         <div className={showBorder ? classes.dashed : undefined}></div>
-
       </div>
 
       <div className={classes.titlePosition} {...gestureForTitle() /* title can be placed out of Rnd */}>
@@ -839,6 +1059,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
           </Tooltip>
+
+          <Tooltip placement="bottom" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
+            <div className={classes.stopWatch} onMouseUp={onClickStopWatch}
+              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                {props.content.showStopWatch ? <StopWatchOffIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                <StopWatchOnIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                }
+            </div>
+          </Tooltip>
+
           {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
             <div className={classes.uploadImage} onMouseUp={onClickUploadImage}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
@@ -1201,8 +1431,11 @@ const useStyles = makeStyles({
 
       /* top: props.props.content.shareType === 'img' ? 50 : 77,
       left: props.props.content.shareType === 'img' ? 60 : 60, */
-      top: 99, //77,
-      left: 79, //60,
+     /*  top: 99, //77,
+      left: 79, //60, */
+
+      top: 128, //77,
+      left: 86, //60,
 
 
       whiteSpace: 'pre',
@@ -1228,8 +1461,12 @@ const useStyles = makeStyles({
 
       /* top: 27,
       left: props.props.content.shareType === 'img' ? 117 : 82, */
-      top: 52, //27,
-      left: 94, //82,
+
+     /*  top: 52, //27,
+      left: 94, //82, */
+
+      top: 78, //27,
+      left: 82, //82,
 
       whiteSpace: 'pre',
       cursor: 'default',
@@ -1258,8 +1495,12 @@ const useStyles = makeStyles({
 
       /* top: props.props.content.shareType === 'img' ? 50 : 77,
       left: props.props.content.shareType === 'img' ? 240 : 258, */
-      top: 102, //77,
-      left: 237, //258,
+
+     /*  top: 102, //77,
+      left: 237, //258, */
+
+      top: 127, //77,
+      left: 230, //258,
 
       //transform: "rotate(90deg)",
       background: '#9e886c',
@@ -1273,6 +1514,8 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
+      /* top: 172,
+      left: 138, */
       top: 175,
       left: 160,
       whiteSpace: 'pre',
@@ -1281,6 +1524,31 @@ const useStyles = makeStyles({
       ...buttonStyle,
     } : {display:'none'}
   ),
+
+
+  stopWatch: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+
+      /* top: 170,
+      left: 185, */
+
+      top: 36,
+      left: 110,
+
+      whiteSpace: 'pre',
+      cursor: 'default',
+
+      //...buttonStyle,
+      background:  props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
+      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+    } : {display:'none'}
+  ),
+
+
   uploadImage: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
@@ -1314,8 +1582,13 @@ const useStyles = makeStyles({
 
      /*  top: props.props.content.shareType === 'img' ? 11 : 0,
       left: props.props.content.shareType === 'img' ? 97 : 134, */
-      top: 22, //0,
-      left: 134,
+
+
+      /* top: 22, //0,
+      left: 134, */
+
+      top: 18, //0,
+      left: 158,
 
 
       whiteSpace: 'pre',
@@ -1339,8 +1612,12 @@ const useStyles = makeStyles({
       //left: '185px',
       /* top: 0,
       left: props.props.content.shareType === 'img' ? 150 : 186, */
-      top: 22, //0,
-      left: 186,
+
+      /* top: 22, //0,
+      left: 186, */
+
+      top: 35, //0,
+      left: 206,
 
       whiteSpace: 'pre',
       cursor: 'default',
@@ -1404,8 +1681,12 @@ const useStyles = makeStyles({
     //left: props.props.content.shareType === 'img' ? 213 : 233,
     /* top: props.props.content.shareType === 'img' ? 11 : 27,
     left: props.props.content.shareType === 'img' ? 203 : 233, */
-    top: 53, //27,
-    left: 225, //233,
+
+    /* top: 53, //27,
+    left: 225, //233, */
+
+    top: 78, //27,
+    left: 234, //233,
 
 
     right:0,
@@ -1436,6 +1717,26 @@ const useStyles = makeStyles({
     alignContent: 'center',
     position:'relative',
     bottom: 5,
+  }),
+
+  stopWatchTitle: (props: StyleProps) => ({
+    display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._stopWatch) ? 'block' : 'none',
+    fontWeight: 'bold',
+    fontSize: '1.2em',
+    width : '5em', //'40%', //"70%",
+    height: '20px',
+    //marginLeft : (100 - (40))/2 + "%",
+    marginLeft : 5, //((props.size[0]))/200 + "%",
+    marginBottom: 5,
+    //marginTop: -(props.size[1] + 38),
+    padding:5,
+    backgroundColor: '#EEDC82', //'#F8DE7E', //'#7ececc',
+    textAlign: 'center',
+    borderRadius: 2,
+    overflow:'hidden',
+    alignContent: 'center',
+    position:'absolute',
+    bottom: 0,
   }),
 
   PingLocation: (props:StyleProps) => ({

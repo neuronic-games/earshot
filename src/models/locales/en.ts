@@ -95,6 +95,8 @@ export const enTranslate = {
   ctUnProximity: 'Disable Chat Zone',
   ctEdit: 'Start editing (No view sync)',
   ctUploadZone: 'Upload and share',
+  ctStopWatchOn: 'Start zone stopwatch',
+  ctStopWatchOff: 'Stop zone stopwatch',
   ctEndEdit: 'End editing (Sync view)',
   ctEditIframe: 'Browse page (No sync)',
   ctEndEditIframe: 'End browse (No sync)',
