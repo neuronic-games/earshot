@@ -7,7 +7,9 @@ import React from 'react'
 import {MemoedLocalParticipant as LocalParticipant} from './LocalParticipant'
 import {MouseCursor} from './MouseCursor'
 import {PlaybackParticipant} from './PlaybackParticipant'
-import {RemoteParticipant} from './RemoteParticipant'
+import {RemoteParticipant} from './RemoteParticipant' // , checkIsRemoteMoved, resetIsRemoteMoved
+
+
 
 interface LineProps {
   start: [number, number]
@@ -38,8 +40,6 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
-
-
     return remote.physics.located
   }))
   const localId = useObserver(() => store.localId)
@@ -51,9 +51,15 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
     () => Array.from(store.yarnPhones).map((rid) => {
       const start = store.local.pose.position
       const remote = store.remote.get(rid)
+      /////////////////////////////////////
+      /* console.log(checkIsRemoteMoved(), " in line")
+      if(checkIsRemoteMoved()) {
+        resetIsRemoteMoved()
+        return undefined
+      } */
+      ////////////////////////////////////
       if (!remote) { return undefined }
       const end = remote.pose.position
-
       return <Line start={start} end={end} key={rid} remote={rid} stores={props.stores}/>
     }),
   )

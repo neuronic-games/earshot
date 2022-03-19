@@ -16,7 +16,7 @@ import {LocalParticipant} from '@stores/participants/LocalParticipant'
 import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
 import {useObserver} from 'mobx-react-lite'
-import React from 'react'
+import React, { useState } from 'react'
 import {SignalQualityIcon} from './SignalQuality'
 // Image
 import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
@@ -252,6 +252,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const headphone = useObserver(() => participant.trackStates.headphone)
   const onStage = useObserver(() => participant.physics.onStage)
 
+
   //const mousePos = useObserver(() => props.stores.map.mouseOnMap)
   //console.log(mousePos, " mousePos")
 
@@ -274,6 +275,31 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const _pingIcon = useObserver(() => participant.trackStates.pingIcon)
   const _pingX = useObserver(() => participant.trackStates.pingX)
   const _pingY = useObserver(() => participant.trackStates.pingY)
+
+  //const soundLocalBase = useObserver(() => props.stores.participants.local.soundLocalizationBase)
+
+
+//console.log(soundLocalBase, " soundLocalBase")
+
+  const [togglePingSound, setTogglePingSound] = useState(false)
+  const [pingXY, setPingXY] = useState([0,0])
+
+  if(_pingIcon && (pingXY[0] !== _pingX || pingXY[1] !== _pingY)) {
+    setTogglePingSound(false)
+  }
+
+  let xPos = ((_pingX) + 14)
+  let yPos = ((_pingY) - 55)
+
+  if(_pingIcon && togglePingSound === false) {
+    playToggleIcon()
+    //let audio = new Audio("sound/beep.mp3")
+    //audio.play()
+    setPingXY([_pingX, _pingY])
+    setTogglePingSound(true)
+  } else if(_pingIcon === false && togglePingSound) {
+    setTogglePingSound(false)
+  }
 
   //const _pingCursor = useObserver(() => participant.trackStates.cursorMove)
   //const _pingY = useObserver(() => participant.trackStates.pingY)
@@ -306,9 +332,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   let xPos = ((_pingX) + 14)
   let yPos = ((_pingY) - 80)
  */
-
-  let xPos = ((_pingX) + 14)
-  let yPos = ((_pingY) - 55)
+/////////////////////////////////////////////////
+  /* let xPos = ((_pingX) + 14)
+  let yPos = ((_pingY) - 55) */
+/////////////////////////////////////////////////
 
 
   /* if(_pingIcon) {
@@ -323,6 +350,35 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //}
   // }
  //}
+
+ function playToggleIcon() {
+    let xClick = participantProps.mousePosition[0]
+    let xAvatar = props.stores.participants.local.pose.position[0]
+    //console.log(xClick, " ----- ", xAvatar)
+    const URL = 'sound/beep.mp3';
+    const context = new AudioContext();
+    window.fetch(URL)
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => context.decodeAudioData(arrayBuffer))
+    .then(audioBuffer => {
+      const source = context.createBufferSource();
+      source.buffer = audioBuffer;
+      let panNode = context.createStereoPanner();
+      if(xClick > (xAvatar + 10) /* && soundLocalBase === "avatar" */) {
+        //console.log("RIGHT")
+        panNode.pan.value = 1
+      } else if(xClick < (xAvatar - 10) /* && soundLocalBase === "avatar" */) {
+        //console.log("LEFT")
+        panNode.pan.value = -1
+      } else {
+        //console.log("NORMAL")
+        panNode.pan.value = 0
+      }
+      source.connect(panNode);
+      panNode.connect(context.destination);
+      source.start();
+    });
+ }
 
 
   const classes = useStyles({
@@ -473,7 +529,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             {iconMeter}
             <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
             <SignalQualityIcon className={classes.signalIcon} quality={participant.quality?.connectionQuality} />
-            {(_connQuality !== undefined && _connQuality < 90) ? <img src={badConnIcon} className={classes.conIcon}  alt='' /> : undefined}
+            {(_connQuality !== undefined && _connQuality < 70) ? <img src={badConnIcon} className={classes.conIcon}  alt='' /> : undefined}
             {headphone ? <HeadsetIcon className={classes.icon} htmlColor="rgba(0, 0, 0, 0.3)" /> : undefined}
             {speakerMuted ? <SpeakerOffIcon className={classes.icon} color="secondary" /> :
               (micMuted ? <MicOffIcon className={classes.icon} color="secondary" /> : undefined)}
@@ -491,14 +547,12 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
               <PingLocIcon style={{left: '-120px', zIndex:-999999, top:'-75px', position:'absolute', width:'180px', height:'180px', color:rgb2Color(rgb)}}/>
               </div>
             </div> */}
-
-
-            <div>
-              <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
-              <img style={_pingIcon !== false ? {backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}  : {display:'none'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
-            </div>
           </div>
         </Tooltip>
+        <div>
+          <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
+          <img style={_pingIcon !== false ? {backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}  : {display:'none'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
+        </div>
       </div>
     </div>
   )

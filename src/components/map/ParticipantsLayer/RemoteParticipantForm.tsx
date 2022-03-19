@@ -15,6 +15,8 @@ import contents from '@stores/sharedContents/SharedContents'
 import React from 'react'
 import {SignalQualityButton} from './SignalQuality'
 
+
+
 export interface RemoteParticipantFormProps extends PopoverProps, BMProps{
   close: () => void,
   participant?: RemoteParticipant

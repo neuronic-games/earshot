@@ -191,7 +191,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
 
-
+    //console.log(remote.showVideo, " cheking mute video ", remote.tracks.avatarStream)
 
     if(remote.tracks.avatarStream !== undefined) {
       //return remote.tracks.avatarStream

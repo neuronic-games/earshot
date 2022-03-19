@@ -164,7 +164,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //props.content.stopWatchToggle = false
   const stopWatchToggle = useObserver(() => props.content.stopWatchToggle)
   const stopWatchReset = useObserver(() => props.content.stopWatchReset)
-  const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
+  //const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
   const [time, setTime] = useState(0);
 
 
@@ -213,23 +213,38 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     ()=> {
       member.dragCanceled = true
 
-      console.log(isPaused, " in Eff ", stopWatchToggle, " ---- ", stopWatchReset)
+      //console.log(isPaused, " in Eff ", stopWatchToggle, " ---- ", stopWatchReset)
 
       // Place timer here
-
+      //////////////////////////////////////////////////////////////////////////////////////////////
+      // Working Code
       //let intervalStep = 0
       //console.log("LAYOUT - ", isPaused, " --- ", stopWatchToggle)
       if (props.content.showStopWatch && stopWatchToggle === false && stopWatchReset === false) {
       //if (props.content.showStopWatch &&  stopWatchToggle === false) {
+        // +global.setInterval()
         member.intervalStep = window.setInterval(() => {
           setTime((time) => time + 10);
         }, 10);
       } else if(stopWatchReset) {
         setTime(0)
-        clearInterval(member.intervalStep);
+        window.clearInterval(member.intervalStep);
       } else {
-        clearInterval(member.intervalStep);
+        window.clearInterval(member.intervalStep);
       }
+      //////////////////////////////////////////////////////////////////////////////////////////////'
+      //let intervalStep: NodeJS.Timeout | null = null;
+      /* member.intervalStep = +global.setInterval(() => {
+        if (props.content.showStopWatch && stopWatchToggle === false && stopWatchReset === false) {
+          setTime((time) => time + 10);
+        } else if(stopWatchReset) {
+          setTime(0)
+          clearInterval(member.intervalStep);
+        } else {
+          clearInterval(member.intervalStep);
+        }
+      }, 10); */
+      //////////////////////////////////////////////////////////////////////////////////////////////
       /* return () => {
         clearInterval(intervalStep);
       } */
@@ -261,7 +276,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [props.content, props.content.showStopWatch, isPaused],
+    [props.content, props.content.showStopWatch, props.content.stopWatchToggle],
   )
 
   function setPoseAndSizeToRnd(){
@@ -306,7 +321,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pose, size, showTitle, map.rotation, props.content.showStopWatch, isPaused],
+    [pose, size, showTitle, map.rotation],
   )
 
   //  handlers
@@ -373,12 +388,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       props.content.stopWatchToggle = true
       props.content.stopWatchReset = true
       //setTime(0)
-      setIsPaused(true)
+      //setIsPaused(true)
     } else {
       props.content.showStopWatch = true
       props.content.stopWatchToggle = false
       props.content.stopWatchReset = false
-      setIsPaused(false)
+      //setIsPaused(false)
     }
     props.updateAndSend(props.content)
     onLeaveIcon()
@@ -522,10 +537,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if(getBasePingStatus()) {return} */
       ///////////////////////////////////
 
-      clearTimeout(member.hidePinIcon)
+      window.clearTimeout(member.hidePinIcon)
 
-      let audio = new Audio("sound/beep.mp3")
-      audio.play()
+      //let audio = new Audio("sound/beep.mp3")
+      //audio.play()
+
+
       pingEnable = true
       setPingLocation(true)
       participants.local.pingX = member.pingX
@@ -533,7 +550,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       participants.local.pingIcon = true
 
       member.hidePinIcon = window.setTimeout(() => {
-        clearTimeout(member.hidePinIcon)
+        window.clearTimeout(member.hidePinIcon)
         member.clickStatus = ''
         participants.local.pingIcon = false
         participants.local.pingX = 0
@@ -544,19 +561,20 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     } else if(member.clickStatus === 'toggleTimer') {
       //console.log("toggleTimer")
       member.clickStatus = ''
-      if(isPaused) {
+      //if(isPaused) {
+      if(props.content.stopWatchToggle) {
         props.content.stopWatchToggle = false
         props.content.stopWatchReset = false
-        setIsPaused(false)
+        //setIsPaused(false)
       } else {
         props.content.stopWatchToggle = true
         props.content.stopWatchReset = false
-        setIsPaused(true)
+        //setIsPaused(true)
       }
       props.updateAndSend(props.content)
     } else if(member.clickStatus === "resetTimer") {
       member.clickStatus = ''
-      setIsPaused(true)
+      //setIsPaused(true)
       //setTime(0)
       props.content.stopWatchToggle = true
       props.content.stopWatchReset = true

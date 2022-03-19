@@ -1,6 +1,7 @@
 import {MAP_SIZE} from '@components/Constants'
 import {MoreButton, moreButtonControl, MoreButtonMember} from '@components/utils/MoreButton'
 import {makeStyles} from '@material-ui/core/styles'
+//import { connection } from '@models/api'
 import {addV2, assert, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
@@ -49,6 +50,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const map = props.stores.map
   const participants = props.stores.participants
   const participant = participants.local
+
+  //console.log(connection.conference._jitsiConference?.isModerator(), " isHost")
 
   // Showing default Avatar
   if(participant.information.avatarSrc === '') {

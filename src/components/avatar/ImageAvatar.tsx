@@ -79,7 +79,7 @@ export const RawImageAvatar: React.FC<ImageAvatarProps> = (props: ImageAvatarPro
       <Avatar className={classes.textAvatar} >
         <div style={{height:size, width:size, textAlign:'center',
           verticalAlign:'middle', display:'table-cell', whiteSpace:'nowrap'}}>
-        {initial}</div></Avatar>
+        {'initial'}</div></Avatar>
     }
   }</Observer>
 }

@@ -364,7 +364,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     } else {
       //console.log('double click action goes here and play sound')
       //mem.userAngle = props.stores.participants.loca
-      clearTimeout(mem.hidePinIcon)
+      window.clearTimeout(mem.hidePinIcon)
       /////////////////////////////
       //if(pingLocation) {return}
      // if(getRndPingStatus()) {return}
@@ -373,12 +373,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       participants.local.pingY = mem.pingY
       participants.local.pingIcon = true
       //participants.local.cursorMove = true
-      let audio = new Audio("sound/beep.mp3")
-      audio.play()
+
+      //let audio = new Audio("sound/beep.mp3")
+      //audio.play()
+
+
       pingEnable = true
       setPingLocation(true)
       mem.hidePinIcon = window.setTimeout(() =>{
-        clearTimeout(mem.hidePinIcon)
+        window.clearTimeout(mem.hidePinIcon)
         //if(!pingLocation) {return}
         mem.clickStatus = ''
         participants.local.pingIcon = false
