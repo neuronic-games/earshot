@@ -7,7 +7,7 @@ import React from 'react'
 import {MemoedLocalParticipant as LocalParticipant} from './LocalParticipant'
 import {MouseCursor} from './MouseCursor'
 import {PlaybackParticipant} from './PlaybackParticipant'
-import {RemoteParticipant} from './RemoteParticipant' // , checkIsRemoteMoved, resetIsRemoteMoved
+import {RemoteParticipant, checkIsRemoteMoved, resetIsRemoteMoved} from './RemoteParticipant' // , checkIsRemoteMoved, resetIsRemoteMoved
 
 
 
@@ -52,11 +52,11 @@ export const ParticipantsLayer: React.FC<MapProps> = (props) => {
       const start = store.local.pose.position
       const remote = store.remote.get(rid)
       /////////////////////////////////////
-      /* console.log(checkIsRemoteMoved(), " in line")
+      //console.log(checkIsRemoteMoved(), " in line")
       if(checkIsRemoteMoved()) {
         resetIsRemoteMoved()
         return undefined
-      } */
+      }
       ////////////////////////////////////
       if (!remote) { return undefined }
       const end = remote.pose.position

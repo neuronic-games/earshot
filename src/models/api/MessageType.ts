@@ -30,6 +30,7 @@ export const InstantMessageType = {
   MUTE_AUDIO: 'm_mute_audio',                   //  boolean, ask to mute audio
   RELOAD_BROWSER: 'm_reload',                   //  not used, ask to reload browser
   KICK: 'm_kick',                               //  reason:string
+  UPDATE_POSE: 'm_update',                      // Update position
 }
 export type InstantMessageKeys = keyof typeof InstantMessageType
 export const InstantMessageTypes = new Set(Object.values(InstantMessageType))

@@ -192,8 +192,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       onDrag(state)
     }
     const rv = scrollMap()
-    //  console.log(`onTimer: drag:${state.dragging} again:${rv}`)
-
+    //console.log(`onTimer: drag:${state.dragging} again:${rv}`)
     return rv
   }
   const onDrag = (state:DragState<HTMLDivElement>) => {
@@ -222,8 +221,6 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   // Disable when dialog is open
   //KeyHandlerPlain(onKeyTimer, 33, keycodesUse, keycodesUse, () => (map.keyInputUsers.size === 0))
   //////////////////////////////////////////////////////////////////////////////
-
-
 
 
   //  pointer drag
@@ -261,6 +258,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const [showMore, setShowMore] = React.useState(false)
   const [showConfig, setShowConfig] = React.useState(false)
   const moreControl = moreButtonControl(setShowMore, member)
+  //const [movedAvatar, setMovedAvater] = React.useState(false)
+
   function onClose() {
     setShowConfig(false)
     map.keyInputUsers.delete('LocalParticipantConfig')
@@ -269,13 +268,43 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     setShowConfig(true)
     map.keyInputUsers.add('LocalParticipantConfig')
   }
+
+  /* const remoteDetails = useObserver(() => ({
+    remoteID: participant.trackStates.remoteID,
+    remoteX: participant.trackStates.remoteX,
+    remoteY: participant.trackStates.remoteY,
+  }))
+
+  console.log(remoteDetails.remoteID, " Remote ID") */
+
+
+
+
+  /* console.log(movedAvatar)
+  if(movedAvatar === false) {
+    console.log("move to pos")
+    let delta = subV2([600, 100], map.toWindow(participant!.pose.position))
+    if (participants.local.thirdPersonView) {
+      const localDelta = map.rotateFromWindow(delta)  // transform.rotateG2L(delta)
+      participant!.pose.position = addV2(participant!.pose.position, localDelta)
+    }
+    setMovedAvater(true)
+    //const rv = scrollMap()
+    //console.log(`onTimer: drag:${state.dragging} again:${rv}`)
+    //return rv
+    setTimeout(() =>{
+      setMovedAvater(false)
+    }, 3000)
+  } */
+
+
   const ref = useRef<HTMLButtonElement>(null)
 
   //  Mouse and touch operations ----------------------------------------------
 
 
   return (
-    <div ref={drag.target} {...drag} {...moreControl}>
+    <div /* ref={drag.target} {...drag} */ {...moreControl}>
     <Participant {...props} isLocal={true}
       onContextMenu={(ev) => {
         ev.preventDefault()

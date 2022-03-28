@@ -366,7 +366,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   function onClickStopWatch(evt:MouseOrTouch) {
-    console.log("On CLICK")
+    //console.log("On CLICK")
     /* if(showStopWatch) {
       setTime(0)
       setShowStopWatch(false)
@@ -413,7 +413,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
     }
     props.updateAndSend(props.content)
-
     onLeaveIcon()
   }
   /* function onClickCopy(evt: MouseOrTouch){
@@ -1078,7 +1077,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             </div>
           </Tooltip>
 
-          <Tooltip placement="bottom" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
+          <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
             <div className={classes.stopWatch} onMouseUp={onClickStopWatch}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
                 {props.content.showStopWatch ? <StopWatchOffIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
@@ -1339,6 +1338,7 @@ const useStyles = makeStyles({
       left: 'auto',
       bottom: 'auto',
       transform: 'scale(0)',
+
       //top: '200px',
       //backgroundColor: 'red',
       backgroundColor: 'transparent',
@@ -1722,9 +1722,9 @@ const useStyles = makeStyles({
     display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
     fontSize: '1.2em',
-    width : props.props.content.name.length * 5 + "%", //"70%",
+    width : props.props.content.name.length * 15 + 'px', //"70%",
     height: '20',
-    marginLeft : (100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
+    marginLeft : ((props.size[0]) - (props.props.content.name.length * 15))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
     marginBottom: 5,
     marginTop: -(props.size[1] + 38),
     padding:5,
@@ -1741,11 +1741,11 @@ const useStyles = makeStyles({
     display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._stopWatch) ? 'block' : 'none',
     fontWeight: 'bold',
     fontSize: '1.2em',
-    width : '5em', //'40%', //"70%",
+    width : '90px', //'40%', //"70%",
     height: '20px',
     //marginLeft : (100 - (40))/2 + "%",
-    marginLeft : 5, //((props.size[0]))/200 + "%",
-    marginBottom: 5,
+    marginLeft : '5px', //((props.size[0]) - 100)/2 + 'px', //5, //((props.size[0]))/200 + "%",
+    marginBottom: '5px',
     //marginTop: -(props.size[1] + 38),
     padding:5,
     backgroundColor: '#EEDC82', //'#F8DE7E', //'#7ececc',

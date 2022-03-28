@@ -326,9 +326,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     pingEnable = false
     setPingLocation(false) */
 
-
-
-
     if(mem.clickStatus === 'single') {
       if(mem.clickEnter) {return}
       //if(pingLocation) {return}
@@ -459,6 +456,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
       onDrag: ({down, delta, xy, buttons}) => {
 
+
+
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
 
@@ -496,8 +495,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         }
       },
       onDragEnd: ({event, xy}) => {
-
-
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
         mem.upTime = new Date().getSeconds()

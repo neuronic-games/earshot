@@ -36,6 +36,12 @@ export class TrackStates implements Store<ITrackStates>{
   @observable pingX = 0
   @observable pingY = 0
 
+  // For Remote movement
+  @observable remoteID = ''
+  @observable remoteX = 0
+  @observable remoteY = 0
+
+
   constructor() {
     makeObservable(this)
   }

@@ -39,6 +39,11 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   @observable pingIcon = false  //  for ping status
   @observable pingX = 0  //  for ping location X
   @observable pingY = 0  //  for ping location y
+
+  @observable remoteID = ''  //  for remote movement
+  @observable remoteX = 0  //  for remote movement
+  @observable remoteY = 0  //  for remote movement
+
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
   @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
@@ -62,6 +67,10 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       pingIcon: this.pingIcon,
       pingX: this.pingX,
       pingY: this.pingY,
+      remoteID: this.remoteID,
+      remoteX: this.remoteX,
+      remoteY: this.remoteY,
+
     }
   }
   get info():LocalInformation { return this.information as LocalInformation}
@@ -82,6 +91,11 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     this.pingIcon = false // for video status
     this.pingX = 0 // for ping X
     this.pingY = 0 // for ping y
+
+    this.remoteID = '' // for remote Id
+    this.remoteX = 0 // for remote X
+    this.remoteY = 0 // for remote Id
+
 
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()

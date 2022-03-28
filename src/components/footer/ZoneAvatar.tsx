@@ -190,9 +190,7 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
   const store = props.stores.participants
   const ids = useObserver(() => Array.from(store.remote.keys()).filter((id) => {
     const remote = store.find(id)!
-
     //console.log(remote.showVideo, " cheking mute video ", remote.tracks.avatarStream)
-
     if(remote.tracks.avatarStream !== undefined) {
       //return remote.tracks.avatarStream
       //if(remote.id !== activeStreamUser) {
@@ -223,7 +221,7 @@ if(ids.length !== streamUser.length) {
   }else {
     result = onlyInA.concat(onlyInB)
   }
-  console.log(ids, "---", result)
+  //console.log(ids, "---", result)
   setStreamUser(result)
 }
 

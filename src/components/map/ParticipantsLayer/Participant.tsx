@@ -28,7 +28,7 @@ import badConnIcon from '@images/whoo-screen_sym-slow.png'
 
 import PingIcon from '@images/whoo-screen_pointer.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
-import { rgb2Color } from '@models/utils'
+import { rgb2Color} from '@models/utils' // subV2
 
 
 
@@ -181,6 +181,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 //  const participants = useStore()
   const participant = props.participant
 
+
+  //console.log(props.isLocal, " AAAA ")
+
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
 
   //console.log(participant.quality?.connectionQuality, " quality")
@@ -235,8 +238,6 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   //console.log(mapData.visibleArea())
 
-
-
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
     orientation: participant.pose.orientation,
@@ -256,6 +257,13 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   //const mousePos = useObserver(() => props.stores.map.mouseOnMap)
   //console.log(mousePos, " mousePos")
 
+  //console.log(participantProps.position[0], " XXX ", mapData.fromWindow(participantProps.position))
+
+  //const diff = subV2(mapData.fromWindow(participantProps.position), participantProps.position)
+  //console.log(diff, " DIFF")
+
+  //const leftPos = participantProps.position[0]
+
 ///////////////////
   //const viewpoint = useObserver(() => ({center:participant.viewpoint.center, height:participant.viewpoint.height}))
 ///////////////////
@@ -268,6 +276,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
 
   //const vCon = useObserver(() => participant.muteVideo)
+//if(participant.information.name === "Alam") {
+  //console.log(participant.information.name, " name ", participantProps.position[0])
+//}
 
   /* let xPos = -1
   let yPos = -1 */
@@ -277,9 +288,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const _pingY = useObserver(() => participant.trackStates.pingY)
 
   //const soundLocalBase = useObserver(() => props.stores.participants.local.soundLocalizationBase)
-
-
-//console.log(soundLocalBase, " soundLocalBase")
+  //console.log(soundLocalBase, " soundLocalBase")
 
   const [togglePingSound, setTogglePingSound] = useState(false)
   const [pingXY, setPingXY] = useState([0,0])
@@ -394,6 +403,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   //const shadowOffset = Math.sqrt(viewpoint.height) / 2.5 - 4
   //const shadowScale = 1 + (shadowOffset/200)
+
+  //console.log("set Pos : ", participantProps.position)
 
 
 
@@ -549,10 +560,16 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
             </div> */}
           </div>
         </Tooltip>
+
         <div>
           <img src={_pingIcon !== false ? PingIcon : undefined} style={_pingIcon !== false ? {display: 'block', width: TITLE_HEIGHT,position:'relative', textAlign: 'center', top: (yPos), left: (xPos), whiteSpace: 'pre'} : {display:'none'}} alt='' />
           <img style={_pingIcon !== false ? {backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', display: 'block', width: (TITLE_HEIGHT - 4), textAlign: 'center', top: (yPos - 48), left: (xPos+1.5), whiteSpace: 'pre'}  : {display:'none'}} src={_pingIcon !== false ? participant.information.avatarSrc : undefined} alt='' />
         </div>
+          {/*
+        <div style={(props.participant.information.name === "Mumtaz") ? {display:'block'} : {display: 'none'}}>
+          <span style={{width:'150px', height: 'auto', backgroundColor:'#c0c0c0', color:'#fff', textAlign:'center', borderRadius:'5px', padding:'5px 5px 5px 5px', position:'absolute', zIndex:1,  left:(diff[0] + 580) + 'px', borderWidth: '5px', top:'70px'}}>* Hi Alam <br/> Move your avatar away from Loud zone <br/> -- Mumtaz</span>
+        </div>
+        */}
       </div>
     </div>
   )

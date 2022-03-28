@@ -83,6 +83,9 @@ export interface TrackStates{
   pingIcon: boolean,
   pingX: number,
   pingY: number,
+  remoteID: string,
+  remoteX: number,
+  remoteY: number,
 }
 export interface Physics {
   located: boolean            //  located on map or not

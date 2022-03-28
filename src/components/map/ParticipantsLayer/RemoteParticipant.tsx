@@ -13,6 +13,9 @@ import {addV2, assert, mulV2, subV2} from '@models/utils'
 import {DragHandler, DragState} from '../../utils/DragHandler'
 import {MAP_SIZE} from '@components/Constants'
 import React, {useEffect} from 'react'
+import { MessageType } from '@models/api/MessageType'
+
+
 
 const AVATAR_SPEED_LIMIT = 50
 const MAP_SPEED_LIMIT = 600
@@ -59,6 +62,8 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   const [showMore, setShowMore] = React.useState(false)
   const moreControl = moreButtonControl(setShowMore, member)
 
+
+
   ////////////////////////////////////////////////////////////////////
   //const [showConfig, setShowConfig] = React.useState(false)
   ////////////////////////////////////////////////////////////////////
@@ -74,6 +79,12 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   //const participants = props.stores.participants
   const participant = props.participant
   assert(props.participant.id === participant.id)
+  //const [pose, setPose] = React.useState(participant!.pose.position)
+
+  //const storeParticipant = props.stores.participants.find(participant.id)
+
+  //console.log(storeParticipant?.pose.position, " posistion")
+
 ////////////////////////////////////////////////////////////////////
 
 
@@ -106,30 +117,63 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   const moveParticipant = (state: DragState<HTMLDivElement>) => {
     if(isHost === false) {return}
 
+    //console.log(participant!.information.name, " ----- ", participant!.pose)
     //  move local participant
+
     let delta = subV2(state.xy, map.toWindow(participant!.pose.position))
     const norm = Math.sqrt(delta[0] * delta[0] + delta[1] * delta[1])
     if (norm > AVATAR_SPEED_LIMIT) {
       delta = mulV2(AVATAR_SPEED_LIMIT / norm, delta)
     }
 
-    if (participants.local.thirdPersonView) {
-      const localDelta = map.rotateFromWindow(delta)  // transform.rotateG2L(delta)
-      participant!.pose.position = addV2(participant!.pose.position, localDelta)
+    //if (participants.local.thirdPersonView) {
+      const remoteDelta = map.rotateFromWindow(delta)  // transform.rotateG2L(delta)
+
+      participant!.pose.position = addV2(participant!.pose.position, remoteDelta)
+
+      //storeParticipant!.pose.position = addV2(storeParticipant!.pose.position, remoteDelta)
+
       const SMOOTHRATIO = 0.8
       if (!member.smoothedDelta) { member.smoothedDelta = [delta[0], delta[1]] }
-      member.smoothedDelta = addV2(mulV2(1 - SMOOTHRATIO, localDelta), mulV2(SMOOTHRATIO, member.smoothedDelta))
+      member.smoothedDelta = addV2(mulV2(1 - SMOOTHRATIO, remoteDelta), mulV2(SMOOTHRATIO, member.smoothedDelta))
       const dir = Math.atan2(member.smoothedDelta[0], -member.smoothedDelta[1]) * HALF_DEGREE / Math.PI
       let diff = dir - participant!.pose.orientation
       if (diff < -HALF_DEGREE) { diff += WHOLE_DEGREE }
       if (diff > HALF_DEGREE) { diff -= WHOLE_DEGREE }
       const ROTATION_SPEED = 0.2
       participant!.pose.orientation += diff * ROTATION_SPEED
-    } else {
-      participant!.pose.position = addV2(map.rotateFromWindow(delta), //    transform.rotateG2L(delta),
-                                         participant!.pose.position)
-    }
+
+      /////////////////////////////////////////////////////////////////////////////////////////
+      //Object.assign(participant!.pose.position, [100, 200])
+      /* participant.trackStates.remoteID = participant!.id
+      participant.trackStates.remoteX = participant!.pose.position[0]
+      participant.trackStates.remoteY = participant!.pose.position[1] */
+      // To Send Message to Conference
+      //setPose(Object.assign({}, participant!.pose.position))
+      //participant!.pose
+    //} else {
+      //participant!.pose.position = addV2(map.rotateFromWindow(delta), //    transform.rotateG2L(delta),
+                                         //participant!.pose.position)
+      //console.log('2 change')
+    //}
+    //participant.setPhysics({pose: participant.pose.position})
     //participants.savePhysicsToStorage(false)
+
+    //participant.setPhysics({})
+    //Object.assign({}, participant.pose)
+    //participant.pose = Object.assign({}, participant.pose)
+    //setPose(Object.assign({}, participant.pose))
+    //Object.assign({}, participant!.pose)
+    //connection.conference.sendMessage(MessageType.PARTICIPANT_POSE, participant.id)
+    //////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    // New Message Type
+    // Create message type that receive partipant id, and its dragged position and update it accordingly
+    //connection.conference.sendMessage(MessageType.UPDATE_POSE, participant.id, participant!.pose.position)
+    connection.conference.sendMessage(MessageType.UPDATE_POSE, participant.id)
+
   }
 
   const scrollMap = () => {
@@ -178,12 +222,12 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
     //console.log(state.event?.type, " state.dragging")
 
     //console.log(isMoved, " check is moved")
-    if (state.dragging) {
-    //if(state.event?.type === 'pointermove') {
+    //if (state.dragging) {
+    if(state.event?.type === 'pointermove') {
       //isMoved = true
       onDrag(state)
-    //} else {
-      //isMoved = false
+    } else {
+      isMoved = false
     }
     const rv = scrollMap()
     //  console.log(`onTimer: drag:${state.dragging} again:${rv}`)
@@ -206,7 +250,7 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   ////////////////////////////////////////////////////////////////////
 
   return (
-    <div /* ref={drag.target} {...drag} */ {...moreControl}
+    <div ref={drag.target} {...drag} {...moreControl}
       onClick = {(ev)=>switchYarnPhone(ev, props.participant.id)}
       onContextMenu={(ev) => {ev.preventDefault(); openForm()}}
     >
@@ -225,3 +269,4 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
     </div>
   )
 }
+

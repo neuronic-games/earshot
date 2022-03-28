@@ -360,7 +360,17 @@ export class ConferenceSync{
     }else {
       participants.yarnPhones.delete(from)
     }
+
+    // from : remote
+    //console.log(from, " from ", participants.localId, " ---- ", participants.find(participants.localId)?.information.name)
+    // get local id
+    //const participant = participants.find(participants.localId)
+    //console.log(participant?.pose.position)
+    //const remote = participants.remote.get(from)
+    //console.log(remote?.mouse.position)
+
   }
+
   private onMuteVideo(value: boolean){
     const setting = {} as MediaSettings
     participants.local.loadMediaSettingsFromStorage(setting)
@@ -465,6 +475,11 @@ export class ConferenceSync{
     this.conference.on(MessageType.MUTE_AUDIO, this.onMuteAudio)
     this.conference.on(MessageType.RELOAD_BROWSER, this.onReloadBrower)
 
+    ///////////////////////////////////////////////////////////////////////
+    this.conference.on(MessageType.UPDATE_POSE, (pid:string, reason:string)=>{
+      console.log("Update Pose")
+    })
+    ///////////////////////////////////////////////////////////////////////
     // contents related ---------------------------------------------------------------
     //  main screen track's carrier id
     this.conference.on(PropertyType.MAIN_SCREEN_CARRIER, this.onMainScreenCarrier)
@@ -620,9 +635,11 @@ export class ConferenceSync{
   }
   // tslint:disable-next-line: cyclomatic-complexity
   onBmMessage(msgs: BMMessage[]){
+    //console.log(msgs.t, " from BMRelay")
     syncLog(`Receive ${msgs.length} relayed messages.`)
     for(const msg of msgs){
       recorder.recordMessage(msg)
+      //console.log(msg.t, " in BmRelay")
       switch(msg.t){
         case MessageType.ROOM_PROP: this.onRoomProp(...(JSON.parse(msg.v) as [string, string])); break
         case MessageType.REQUEST_TO: this.sendAllAboutMe(false); break
@@ -651,6 +668,7 @@ export class ConferenceSync{
         case PropertyType.PARTICIPANT_POSE: this.onParticipantPose(msg.p, JSON.parse(msg.v)); break
         case PropertyType.PARTICIPANT_TRACKSTATES: this.onParticipantTrackState(msg.p, JSON.parse(msg.v)); break
         case PropertyType.PARTICIPANT_VIEWPOINT: this.onParticipantViewpoint(msg.p, JSON.parse(msg.v)); break
+
         default:
           console.log(`Unhandled message type ${msg.t} from ${msg.p}`)
           break

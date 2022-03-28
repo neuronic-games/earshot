@@ -75,6 +75,7 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
           }else{
             participants.yarnPhones.add(props.participant.id)
           }
+
           closeConfig({}, 'enter')
         }}>
           {props.participant && participants.yarnPhones.has(props.participant.id) ?
