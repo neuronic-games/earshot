@@ -47,6 +47,7 @@ export interface SharedContentData extends SharedContentInfoData {
   showStopWatch:boolean           // for showing stop watch
   stopWatchToggle:boolean         // storing stop watch time toggle
   stopWatchReset:boolean          // Reset the stopwatch
+  scaleRotateToggle:boolean       // for scaling and rotation
 }
 
 export interface ISharedContent extends MapObject, SharedContentData, SharedContentId {

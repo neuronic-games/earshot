@@ -93,6 +93,8 @@ export const enTranslate = {
   ctUnpin: 'Unlock position and size',
   ctProximity: 'Enable Chat Zone',
   ctUnProximity: 'Disable Chat Zone',
+  ctScaleRotate: 'Enable Scale and Rotate',
+  ctUnScaleRotate: 'Disable Scale and Rotate',
   ctEdit: 'Start editing (No view sync)',
   ctUploadZone: 'Upload and share',
   ctStopWatchOn: 'Start zone stopwatch',
@@ -158,5 +160,9 @@ export const enTranslate = {
   videoLimit: 'Limit on the number of video streams',
   audioLimit: 'Limit on the number of audio streams',
   connectionStatus: 'Connection Status',
+  deleteMsg: 'Are you sure you want to delete this item?',
+  deleteYes: 'YES',
+  deleteNo: 'NO',
+  deleteAlert: 'ALERT',
 }
 export type EnKeyList = keyof typeof enTranslate

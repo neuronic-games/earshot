@@ -1,4 +1,4 @@
-import {Tooltip} from '@material-ui/core'
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Tooltip, Zoom} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {CreateCSSProperties} from '@material-ui/core/styles/withStyles'
 import proximityIcon from '@images/whoo-screen_btn-earshot.png'
@@ -14,6 +14,9 @@ import UploadShare from '@images/whoo-screen_btn-add-63.png'
 
 import StopWatchOnIcon from '@material-ui/icons/Timer'
 import StopWatchOffIcon from '@material-ui/icons/Timer'
+import RotateRightIcon from '@material-ui/icons/RotateRight'
+import AspectRatioIcon from '@material-ui/icons/AspectRatio';
+
 
 import settings from '@models/api/Settings'
 import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
@@ -33,7 +36,10 @@ import {ISharedContentProps} from './SharedContent'
 import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
-//import { getBasePingStatus } from '../Base'
+/* import { getBasePingStatus } from '../Base' */
+
+
+
 
 const MOUSE_RIGHT = 2
 const BORDER_TIMER_DELAY = 1 * 1000 // For 1 secs
@@ -97,6 +103,11 @@ class RndContentMember{
   // Stop watch
   OnTimerClick = false
   intervalStep = 0
+
+  // zIndex
+  _zIndex = 0
+  _clickX = 0
+  _clickY = 0
 }
 
 let contextMenuStatus:boolean = false
@@ -112,6 +123,18 @@ let pingEnable:boolean = false
 export function getRndPingStatus():boolean {
   return pingEnable
 }
+
+let _contentDialogOpen = false
+export function getContentDialogStatus() : boolean {
+  return _contentDialogOpen
+}
+
+let _contentDeleteDialogOpen = false
+export function getContentDeleteDialogStatus() : boolean {
+  return _contentDeleteDialogOpen
+}
+
+
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
@@ -159,11 +182,22 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [showUploadOption, setShowUploadOption] = useState(false)
   const [showBorder, setShowBorder] = useState(false)
 
+  // For Delete confirm dialog
+  const [showDelete, setShowDelete] = useState(false)
+  //const [showHandler, setShowHandler] = useState(false)
+  const [showOnRotation, setShowOnRotation] = useState(false)
+
+  _contentDialogOpen = showUploadOption
+ // _contentDeleteDialogOpen = showDelete
+
   // For Stop Watch
   //const [showStopWatch, setShowStopWatch] = useState(false)
   //props.content.stopWatchToggle = false
   const stopWatchToggle = useObserver(() => props.content.stopWatchToggle)
   const stopWatchReset = useObserver(() => props.content.stopWatchReset)
+
+  const showHandler = useObserver(() => props.content.scaleRotateToggle)
+
   //const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
   const [time, setTime] = useState(0);
 
@@ -173,8 +207,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //const _pingIcon = useObserver(()=> participants.local.pingIcon)
 
 
-
   //console.log(stopWatchToggle, " stopWatchDisplayTime")
+  //console.log(editing, " PS")
 
 
   //console.log(pingLocation, " PL")
@@ -279,11 +313,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     [props.content, props.content.showStopWatch, props.content.stopWatchToggle],
   )
 
+
+
   function setPoseAndSizeToRnd(){
     if (rnd.current) { rnd.current.resizable.orientation = pose.orientation + map.rotation }
     const titleHeight = showTitle ? TITLE_HEIGHT : 0
     rnd.current?.updatePosition({x:pose.position[0], y:pose.position[1] - titleHeight})
     rnd.current?.updateSize({width:size[0], height:size[1] + titleHeight})
+
+    //console.log("pos changed")
+    //setShowHandler(false)
   }
   useLayoutEffect(  //  reflect pose etc. to rnd size
     () => {
@@ -335,9 +374,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   } */
   function onClickClose(evt: MouseOrTouch) {
     stop(evt)
-    props.onClose?.call(null, evt)
+    //props.onClose?.call(null, evt)
     onLeaveIcon()
+    setShowDelete(true)
   }
+
+
   /* function onClickEdit(evt: MouseOrTouch) {
     stop(evt)
     setEditing(!editing)
@@ -363,6 +405,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   function onClickUploadZone(evt: MouseOrTouch) {
     onLeaveIcon()
     setShowUploadOption(true)
+  }
+
+  function onClickScaleRotate(evt: MouseOrTouch) {
+    stop(evt)
+    props.content.scaleRotateToggle = !props.content.scaleRotateToggle
+    props.updateAndSend(props.content)
+    if(showOnRotation) {
+      setShowOnRotation(false)
+    }
+    onLeaveIcon()
   }
 
   function onClickStopWatch(evt:MouseOrTouch) {
@@ -450,12 +502,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     showHideTimer(1)
   }
+
   function updateHandler() {
     if (JSON.stringify(pose) !== JSON.stringify(props.content.pose) ||
       JSON.stringify(size) !== JSON.stringify(props.content.size)) {
       props.content.size = [...size] //  Must be new object to compare the pose or size object.
       props.content.pose = {...pose} //  Must be new object to compare the pose or size object.
       props.updateAndSend(props.content)
+      //console.log("pos changed")
+      //setShowHandler(false)
+      setShowOnRotation(false)
     }
   }
 
@@ -464,7 +520,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     if (member.dragCanceled){ return }
     const ROTATION_IN_DEGREE = 360
     const ROTATION_STEP = 15
-    if (buttons === MOUSE_RIGHT) {
+    //if (buttons === MOUSE_RIGHT) {
+      //console.log(showOnRotation, " >showOnRotation")
+      if (buttons === 1 && showOnRotation) {
       setPreciseOrientation((preciseOrientation + delta[0] + delta[1]) % ROTATION_IN_DEGREE)
       let newOri
       if (event?.shiftKey || event?.ctrlKey) {
@@ -496,6 +554,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if(member.clickEnter) {return}
      // if(pingLocation) {return}
      if(member.isMoved) {return}
+     if(showDelete) {return}
      //if(member.OnTimerClick) {return}
      if(pingLocation) {}
       pingEnable = false
@@ -589,7 +648,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //const stopTimeValue = ("0" + Math.floor((time / 3600000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) // + ":" + ("0" + ((time / 10) % 100)).slice(-2)
   const stopTimeValue = ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) + ":" + ("0" + ((time / 10) % 100)).slice(-2)
 
-
   const handlerForTitle:UserHandlersPartial = {
     onWheel:(evt)=> {
       if(member._down) {
@@ -613,6 +671,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(isLocaked, " rnd")
       if (isFixed) { return }
       if(showTitle) {return}
+      //if(showDelete) {return}
       event?.stopPropagation()
       if (down) {
         //  event?.preventDefault()
@@ -645,7 +704,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       } else {
         showHideTimer(1)
       }
+
       if(showTitle) {return}
+
+
+
+      //setShowOnRotation(false)
 
       setDragging(false)
 
@@ -741,6 +805,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         if(arg.button > 0) {return}
 
         member.onContent = false
+
+
         member.isMoved = false
         member.upTime = new Date().getSeconds()
         let diffTime = member.upTime - member.downTime
@@ -748,7 +814,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         if(diffTime < 2 && String(Object(arg.target).tagName) === "DIV" && showTitle === false) {
           if(member._down === false || showTitle) return
 
-
+          /* if(showHandler) {
+            setShowHandler(false)
+          } else {
+            setShowHandler(true)
+          } */
 
           /* setTimeout(() =>{
             function moveParticipant(move:boolean) {
@@ -793,12 +863,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onMouseOver: (arg) => {
       //member._down = true
-      //console.log(Object(arg.target).id , " target")
+      //console.log(arg, " target over")
+
       member._item = String(Object(arg.target).tagName)
       window.clearTimeout(member._timer)
     },
     onMouseOut: (arg) => {
       //console.log(Object(arg.target).id , " target")
+
+      //console.log(arg, " target out")
+
       member.onContent = false
       isLocaked = false
     },
@@ -817,7 +891,25 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         member.moveX = map.mouseOnMap[0]
         member.moveY = map.mouseOnMap[1]
         window.clearTimeout(member._timer)
-        //console.log("Click")ḷ̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥l̥    ṁ
+        //console.log("Click")
+
+        //console.log(arg)
+
+        member._clickX = arg.clientX
+        member._clickY = arg.clientY
+
+        // Storing zIndex
+        member._zIndex = Number(props.content.zIndex)
+
+        //if(showOnRotation) {return}
+
+        //if(showHandler) {
+          //setShowHandler(false)
+        //} else {
+          //setShowHandler(true)
+        //}
+
+
         const _mTimer = setTimeout(function() {
           clearTimeout(_mTimer)
           //console.log("Enter timer")
@@ -832,12 +924,22 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 member.clickEnter = false
                 hindleClickStatus()
               } else { */
+                //console.log("Checking the Zindex --- ", props.content.zIndex)
+
+                // Remove the edit controls
+                //setShowHandler(false)
+
                 const diff = subV2(map.mouseOnMap, pose.position)
                 member.downPos = Number(diff[1])
                 member.downXPos = Number(diff[0])
                 contextMenuStatus = true
                 setShowTitle(true)
                 //setEditing(false)
+                //setTimeout(()=>{
+                  /* stop(arg)
+                  moveContentToTop(props.content)
+                  props.updateAndSend(props.content) */
+                //}, 100)
               //}
             }
           //}
@@ -862,6 +964,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       clearTimeout(_mTimer)
       contextMenuStatus = false
       setShowTitle(false)
+
+      /* console.log(member._zIndex, " ------ ", props.content.zIndex, " ----- ", _delay)
+      if(_delay === 1) {return}
+      if(member._zIndex === Number(props.content.zIndex)) {return}
+      moveContentToIndex(props.content, member._zIndex)
+      props.updateAndSend(props.content) */
 
     }, (_delay * 1000))
   }
@@ -898,7 +1006,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     //  console.log(`dragcancel:${member.dragCanceled}`)
     if (member.dragCanceled) {
       setPoseAndSizeToRnd()
-
       return
     }
 
@@ -961,122 +1068,151 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
         <div className={showBorder ? classes.dashed : undefined}></div>
+
+
+{/* {showHandler ? */}
+<div style={{position:'absolute', width:size[0], height:size[1], top:0, left:0}}
+        /* onMouseEnter={()=>{
+          //console.log("onRot")
+          setShowHandler(true)
+        }}
+        onMouseOut={()=>{
+          //console.log("onRot")
+          setShowHandler(false)
+        }} */
+      >
+        { showHandler ?
+        <div>
+        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:'-6px', top:'-6px', backgroundColor:'white'}}></div>
+        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:(size[0] - 8), top:'-6px', backgroundColor:'white'}}></div>
+        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:(size[0] - 8) + 'px', top:(size[1] - 8) + 'px', backgroundColor:'white'}}
+          /* onMouseOut={()=>{
+            console.log("still over")
+          }} */
+          >
+        </div>
+        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:'-6px', top:(size[1] - 8) + 'px', backgroundColor:'white'}}></div>
+
+        <div style={{width:'50px', height:'50px', /* border:'2px dashed  #FF000050', */ position:'absolute', left: (size[0]/2) - 15, top:(size[1]/2) - 25, backgroundColor:'#B3470080', borderRadius:'50%'}}
+          onMouseDown={()=>{
+            setShowOnRotation(true)
+          }}
+          onMouseUp={()=>{
+            setShowOnRotation(false)
+          }}
+        >
+        <RotateRightIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white', position:'absolute', left:'8px', top:'8px'}} />
+        </div>
+
+        {/* <div style={{position:'absolute', width:size[0] + 40, height:size[1] + 40, top:-20, left:-20, backgroundColor:'#FFFF0030'}}
+          onMouseOut={(evt)=>{
+            console.log("on out")
+          }}
+          >
+        </div> */}
+
+        </div>
+        : ''}
+      </div>
+      {/*  : ''} */}
+
+
+
       </div>
 
       <div className={classes.titlePosition} {...gestureForTitle() /* title can be placed out of Rnd */}>
 
-        <div className={classes.titleContainer}
+      <div className={classes.titleContainer}
            onMouseLeave = {() => {
             //console.log("out from title - ", member.onContent)
             //member._item = "DIV"
             //clearTimeout(member._timer)
             //showHideTimer()
           }}
-            /* onMouseEnter = {() => { if (props.autoHideTitle) { setShowTitle(true) } }}
-            onMouseLeave = {() => {
-              if (props.autoHideTitle && !editing && props.content.pinned) { setShowTitle(false) } }}
-            onTouchStart = {() => {
-              if (props.autoHideTitle) {
-                if (!showTitle) {
-                  setShowTitle(true)
-                }else if (props.content.pinned) {
-                  setShowTitle(false)
-                }
-              }
-            }} */
             onContextMenu = {() => {
               setShowForm(true)
               map.keyInputUsers.add('contentForm')
             }}
             >
+              <SharedContentForm open={showForm} {...props} close={onCloseForm}
+            anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
+          />
+            </div>
 
-          {/* <div className={classes.type}>
-            {contentTypeIcons(props.content.type, TITLE_HEIGHT, TITLE_HEIGHT*1.1)}
-          </div> */}
+            {/* Dialog for deleting content confirmation */}
+        {/* {showDelete ? */}
+        <Dialog open={showDelete} onClose={() => setShowDelete(false)} onExited={() => setShowDelete(false)}
+        keepMounted
+        style={{zIndex:9999}}
+        >
+          <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle>
+          <DialogContent style={{userSelect: 'none'}}>
+            {t('deleteMsg')}
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'#7ececc'}}
+            onClick={(ev) => {
+              setShowDelete(false)
+              //_contentDeleteDialogOpen = false
+            }}>{t('deleteNo')}</Button>
+            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'#7ececc'}}
+            onClick={(ev) => {
+              setShowDelete(false)
+              //_contentDeleteDialogOpen = false
+              //stop(ev)
+              props.onClose?.call(null, ev)
+            }}>{t('deleteYes')}</Button>
+          </DialogActions>
+        </Dialog>
+      {/*   : ''} */}
+
+
+      {/* <div className={classes.titleContainer}
+           onMouseLeave = {() => {
+            //console.log("out from title - ", member.onContent)
+            //member._item = "DIV"
+            //clearTimeout(member._timer)
+            //showHideTimer()
+          }}
+            onContextMenu = {() => {
+              setShowForm(true)
+              map.keyInputUsers.add('contentForm')
+            }}
+            >
           <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
           <div className={classes.pin} onMouseUp={onClickPin} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-            {/* <Icon icon={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT*1.1} /> */}
             <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
           </div></Tooltip>
-         {/*  <Tooltip placement="top" title={editButtonTip(editing, props.content)} >
-            <div className={classes.edit} onMouseUp={onClickEdit} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-             {
-              editing ? <DoneIcon style={{fontSize:TITLE_HEIGHT, color:'white'}} />
-                : <EditIcon style={{fontSize:TITLE_HEIGHT, color:'white'}} />}
-            </div>
-          </Tooltip> */}
-          {/* {props.content.pinned ? undefined : */}
             <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
               <div className={classes.moveTopButton} onMouseUp={onClickMoveToTop}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {/* <FlipToFrontIcon /> */}
                   <img src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
-                  </div></Tooltip>{/* } */}
-         {/*  {props.content.pinned ? undefined : */}
+                  </div></Tooltip>
             <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
               <div className={classes.moveBottomButton} onMouseUp={onClickMoveToBottom}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {/* <FlipToBackIcon /> */}
                   <img src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
-                </div></Tooltip>{/* } */}
-
-          {/*(props.content.pinned || !canContentBeAWallpaper(props.content)) ? undefined :
-            <div className={classes.titleButton} onClick={onClickWallpaper}
-              onTouchStart={stop}>
-                <Tooltip placement="top" title={isContentWallpaper(props.content) ?
-                  t('ctUnWallpaper') : t('ctWallpaper')}>
-                  <div><WallpaperIcon />{isContentWallpaper(props.content) ?
-                    <CloseRoundedIcon style={{marginLeft:'-1em'}} /> : undefined }</div>
-                </Tooltip>
-                  </div> */}
-          {/* <Tooltip placement="top" title={t('ctCopyToClipboard')} >
-            <div className={classes.copyClipButton} onMouseUp={onClickCopy}
-              onTouchStart={stop}>
-                <Icon icon={clipboardCopy} height={TITLE_HEIGHT}/>
-            </div>
-          </Tooltip> */}
-          {/* {isContentMaximizable(props.content) ?
-            <Tooltip placement="top" title={zoomed ? t('ctUnMaximize') : t('ctMaximize')} >
-              <div className={classes.titleButton} onClick={onClickMaximize}
-                onTouchStart={stop}>
-                  <Icon icon={zoomed ? minimizeIcon: maximizeIcon} height={TITLE_HEIGHT}/>
-              </div>
-            </Tooltip> : undefined} */}
-
-           {/*  {props.content.shareType === "img" ? undefined : */}
+                </div></Tooltip>
           <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
           <div className={classes.prox} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
             <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>
           </Tooltip>
-         {/*  } */}
-
           <div className={classes.titleButton} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} ref={formRef}>
-              {/* <MoreHorizIcon /> */}
               <img src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>
           <SharedContentForm open={showForm} {...props} close={onCloseForm}
             anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
           />
-
-          {/* <div className={classes.note} onMouseUp={onClickShare} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-
-          </div> */}
-         {/*  {props.content.pinned ? undefined : */}
             <div className={classes.close} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-              {/* <CloseRoundedIcon /> */}
               <img src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
-            </div>{/* } */}
-
-
+            </div>
           <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
             <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                {/* <Icon icon={windowArrowUp} style={{width:32, height:32, color:'white'}} /> */}
                 <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
           </Tooltip>
-
           <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
             <div className={classes.stopWatch} onMouseUp={onClickStopWatch}
               onTouchStart={stop} onMouseLeave={onLeaveIcon}>
@@ -1085,52 +1221,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                 }
             </div>
           </Tooltip>
+          <div className={showTitle ? classes.dashedCircle : undefined}></div>
+        </div> */}
 
-          {/* <Tooltip placement="bottom" title={member._down ? t('ctUploadImage') : ''} >
-            <div className={classes.uploadImage} onMouseUp={onClickUploadImage}
-              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                <ImageIcon style={{color:'white'}} />
-            </div>
-          </Tooltip> */}
 
-          <div className={showTitle ? classes.dashedCircle : undefined}
-            /* onMouseEnter = {() => {
-              member.onContext = true
-            }} */
-            /* onMouseLeave = {() => {
-              member.onContext = false
-              if(member.onContent === false && member.onContext === false) {
-                member._down = false
-              member._item = "DIV"
-              window.clearTimeout(member._timer)
-                showHideTimer(0)
-              } */
-              /* window.setTimeout( function() {
-              member._down = false
-              member._item = "DIV"
-              window.clearTimeout(member._timer)
-              showHideTimer(0)
-              },100) */
-            //  }
-            //}
-          ></div>
-        </div>
       </div>
-      {/* <div className={classes.content} ref={contentRef}
-        onFocus={()=>{
-          if (doseContentEditingUseKeyinput(props.content) && editing){
-            map.keyInputUsers.add(props.content.id)
-          }
-        }}
-        onBlur={()=>{
-          if (doseContentEditingUseKeyinput(props.content) && editing){
-            map.keyInputUsers.delete(props.content.id)
-          }
-        }}
-      >
-        <Content {...props}/>
-        <div className={showBorder ? classes.dashed : undefined}></div>
-      </div> */}
+
     </div>
   //  console.log('Rnd rendered.')
 
@@ -1142,17 +1238,18 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         evt.stopPropagation()
         evt.preventDefault()
       }
-    }>
+      }>
 
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
       {props.content.shareType !== 'roomimg' ?
-      <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : resizeEnable}
+      <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : (showHandler ? resizeEnable : resizeDisable)}
         disableDragging={isFixed} ref={rnd}
         /* disableDragging={showTitle} ref={rnd} */
         /* disableDragging={false} ref={rnd} */
         onResizeStart = {onResizeStart}
         onResize = {onResize}
         onResizeStop = {onResizeStop}
+
       >
         {theContent}
       </Rnd> : ''}
@@ -1160,6 +1257,176 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>
       </div> */}
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={pose.position[0] + member.downXPos} cordY={pose.position[1] + member.downPos} origin={'contextmenu'} _type={'menu'}/>
+
+     {/*  {showTitle ? */}
+      <Dialog open={showTitle} onClose={() => setShowTitle(false)} onExited={() => setShowTitle(false)}
+      keepMounted
+        PaperProps={{
+          style: {
+            backgroundColor: 'transparent',
+            position:'absolute',
+            boxShadow: 'none',
+            overflow:'hidden',
+            //width:'600px',
+            //height: '500px',
+            //left: props.content.pose.position[0] - props.stores.map.mouseOnMap[0],
+            //top:props.stores.map.mouseOnMap[1],
+            left: Number(member._clickX) - 207,
+            top: Number(member._clickY) - 170,
+            zIndex:999,
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogContent style={showTitle ? {transform:'scale(1.1)', transition:'0s ease-out'} : {transform:'scale(0)', transition:'0s ease-out'}}>
+        {/* <Zoom in={showTitle} style={{ transitionDelay: showTitle ? '0ms' : '0ms' }}> */}
+        <Zoom in={showTitle} style={{ transition: showTitle ? '500ms' : '0ms' }}>
+          <div className={classes.titleContainer_dialog}
+              onMouseLeave = {() => {
+                //console.log("out from title - ", member.onContent)
+                //member._item = "DIV"
+                //clearTimeout(member._timer)
+                //showHideTimer()
+              }}
+                onContextMenu = {() => {
+                  //setShowForm(true)
+                  //map.keyInputUsers.add('contentForm')
+                }}
+            >
+            <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
+            <div className={classes.pin_dialog} onMouseUp={onClickPin} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
+            </div></Tooltip>
+              <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
+                <div className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop}
+                  onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                    <img src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                    </div></Tooltip>
+              <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
+                <div className={classes.moveBottomButton_dialog} onMouseUp={onClickMoveToBottom}
+                  onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                    <img src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                  </div></Tooltip>
+            <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
+            <div className={classes.prox_dialog} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+            </Tooltip>
+            <div className={classes.titleButton_dialog} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} ref={formRef}>
+                <img src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+            {/* <SharedContentForm open={showForm} {...props} close={onCloseForm}
+              anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
+            /> */}
+              <div className={classes.close_dialog} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                <img src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+              </div>
+            <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
+              <div className={classes.uploadZone_dialog} onMouseUp={onClickUploadZone}
+                onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                  <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+              </div>
+            </Tooltip>
+            <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
+              <div className={classes.stopWatch_dialog} onMouseUp={onClickStopWatch}
+                onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                  {props.content.showStopWatch ? <StopWatchOffIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  <StopWatchOnIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                  }
+              </div>
+            </Tooltip>
+            <Tooltip placement="top" title={member._down ? (props.content.scaleRotateToggle ? t('ctUnScaleRotate') : t('ctScaleRotate')) : ''} >
+              <div className={classes.scaleRotate_dialog} onMouseUp={onClickScaleRotate}
+                onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                  {props.content.scaleRotateToggle ? <AspectRatioIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  <AspectRatioIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                  }
+              </div>
+            </Tooltip>
+
+            <div className={showTitle ? classes.dashedCircle_dialog : undefined}></div>
+          </div>
+          </Zoom>
+        </DialogContent>
+        </Dialog>
+        {/* : '' } */}
+
+
+
+      {/* <Dialog open={showTitle}
+        PaperProps={{
+          style: {
+            backgroundColor: 'transparent',
+            position:'absolute',
+            boxShadow: 'none',
+            overflow:'hidden',
+            //width:'600px',
+            //height: '500px',
+            //left: props.content.pose.position[0] - props.stores.map.mouseOnMap[0],
+            //top:props.stores.map.mouseOnMap[1],
+            left: Number(member._clickX) - 200,
+            top: Number(member._clickY) - 170,
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogContent>
+          <div className={classes.titleContainer_dialog}>
+          <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
+            <div className={classes.pin_dialog} onMouseUp={onClickPin} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
+            </div>
+          </Tooltip>
+
+            <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
+            <div className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+          </Tooltip>
+
+          <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
+            <div className={classes.moveBottomButton_dialog} onMouseUp={onClickMoveToBottom} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+          </Tooltip>
+
+          <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
+            <div className={classes.prox_dialog} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+          </Tooltip>
+
+         <div className={classes.titleButton_dialog} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} ref={formRef}>
+              <img src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+          </div>
+          <SharedContentForm open={showForm} {...props} close={onCloseForm}
+            anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}/>
+          <div className={classes.close_dialog} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+            <img src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+          </div>
+
+          <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
+            <div className={classes.uploadZone_dialog} onMouseUp={onClickUploadZone}
+              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            </div>
+          </Tooltip>
+
+          <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
+            <div className={classes.stopWatch_dialog} onMouseUp={onClickStopWatch}
+              onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+                {props.content.showStopWatch ? <StopWatchOffIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                <StopWatchOnIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                }
+            </div>
+          </Tooltip>
+
+          <div className={showTitle ? classes.dashedCircle_dialog : undefined}></div>
+          </div>
+        </DialogContent>
+        </Dialog> */}
+
+
     </div >
   )
 }
@@ -1271,7 +1538,7 @@ const useStyles = makeStyles({
   }),
 
   dashed:(props: StyleProps) => ({
-    position: 'relative',
+    position: (props.props.content.showTitle ? 'absolute' : 'relative'),
     width:(props.size[0] + 8),
     height:(props.size[1] + 8),
     borderWidth:2,
@@ -1325,6 +1592,51 @@ const useStyles = makeStyles({
     zIndex: -9999,
   }),
 
+  dashedCircle_dialog: (props: StyleProps) => ({
+    position: 'relative',
+    width:220,
+    height:220,
+    borderWidth:2,
+    borderStyle: 'solid',
+    borderColor:'#9e886c',
+    borderRadius:'50%',
+    opacity: 0.4,
+    top: 15,
+    left: 35,
+    //backgroundColor: 'transparent',
+    background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
+    zIndex: -9999,
+  }),
+
+
+  titleContainer_dialog: (props:StyleProps) => {
+    const rv:CreateCSSProperties = {
+      display: 'flex',
+      width:'300px',
+      height:'250px',
+      backgroundColor:'transparent',
+      position:'relative',
+      //transform: 'scale(0)',
+      //transition: '0.3s ease-out',
+      cursor: 'default',
+    }
+    if (!props.showTitle) {
+      rv['display'] = 'flex'
+      rv['position'] = 'relative'
+      rv['bottom'] = 'auto'
+      rv['top'] = 'auto'
+      rv['left'] = 'auto'
+      //rv['transform'] = 'scale(0)'
+    } else {
+      rv['display'] = 'flex'
+      rv['position'] = 'relative'
+      rv['bottom'] = 'auto'
+      // Scale Accordingly
+      //rv['transform'] = 'scale(1)'
+      }
+    return rv
+  },
+
   titleContainer: (props:StyleProps) => {
     const rv:CreateCSSProperties = {
       display: 'flex',
@@ -1373,8 +1685,12 @@ const useStyles = makeStyles({
       } else {
         lPos = 400 - (1 * zoomValue)
       }
+      //rv['top'] = (props.downPos - ((tPos/2))) // 165
+      //rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - ((lPos/2))) // 380
+
       rv['top'] = (props.downPos - ((tPos/2))) // 165
       rv['left'] = props.props.content.shareType === 'img' ? (props.downXPos - (360/2)) : (props.downXPos - ((lPos/2))) // 380
+
       // Scale Accordingly
       rv['transform'] = 'scale('+zoomRatio+')'
       }
@@ -1463,6 +1779,22 @@ const useStyles = makeStyles({
       ...props.pinned ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
     } : {display:'none'}
   ),
+
+  pin_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 150, //128,
+      left: 47, //38,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: props.pinned ? '#ef4623' : '#9e886c',
+      ...props.pinned ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+    } : {display:'none'}
+  ),
+
   prox: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
@@ -1495,6 +1827,22 @@ const useStyles = makeStyles({
       ...props.props.content.zone === "close" ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
     } : {display:'none'}
   ),
+
+  prox_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      top: 100, //76,
+      left: 34, //37,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
+      ...props.props.content.zone === "close" ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+    } : {display:'none'}
+  ),
+
+
   titleButton: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
@@ -1526,6 +1874,21 @@ const useStyles = makeStyles({
     } : {display:'none'}
   ),
 
+  titleButton_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      textAlign: 'center',
+      whiteSpace: 'pre',
+      position:'absolute',
+      cursor: 'default',
+      top: 150, //128,
+      left: 195, //205,
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
   uploadZone: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
@@ -1536,6 +1899,21 @@ const useStyles = makeStyles({
       left: 138, */
       top: 175,
       left: 160,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
+  uploadZone_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 190,
+      left: 125,
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',
@@ -1565,6 +1943,37 @@ const useStyles = makeStyles({
       ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
     } : {display:'none'}
   ),
+
+  stopWatch_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 52, //33,
+      left: 50, //68,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background:  props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
+      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+    } : {display:'none'}
+  ),
+
+  scaleRotate_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: props.props.onShare ? 'none' : 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 20, //33,
+      left: 92, //68,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background:  props.props.content.scaleRotateToggle ? '#ef4623' : '#9e886c',
+      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+    } : {display:'none'}
+  ),
+
 
 
   uploadImage: (props:StyleProps) => (
@@ -1616,6 +2025,22 @@ const useStyles = makeStyles({
       ...buttonStyle,
     } : {display:'none'}
   ),
+
+  moveTopButton_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 18, //14,
+      left: 148, //120,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
   moveBottomButton: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
@@ -1640,6 +2065,21 @@ const useStyles = makeStyles({
       whiteSpace: 'pre',
       cursor: 'default',
       //transform: "rotate(45deg)",
+      background: '#9e886c',
+      ...buttonStyle,
+    } : {display:'none'}
+  ),
+
+  moveBottomButton_dialog: (props:StyleProps) => (
+    props.showTitle ? {
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 49, //32,
+      left: 192, //174,
+      whiteSpace: 'pre',
+      cursor: 'default',
       background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
@@ -1718,13 +2158,29 @@ const useStyles = makeStyles({
     ...buttonStyle,
   }),
 
+  close_dialog: (props: StyleProps) => ({
+    visibility: props.showTitle ? 'visible' : 'hidden',
+    position:'absolute',
+    textAlign: 'left',
+    top: 100, //76,
+    left: 209, //205,
+    right:0,
+    margin:0,
+    padding:0,
+    height: TITLE_HEIGHT,
+    borderRadius: '0 0.5em 0 0',
+    cursor: 'default',
+    background: '#9e886c',
+    ...buttonStyle,
+  }),
+
   nameContainer: (props: StyleProps) => ({
     display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
     fontSize: '1.2em',
-    width : props.props.content.name.length * 15 + 'px', //"70%",
+    width : props.props.content.name.length * 12 + 'px', //"70%",
     height: '20',
-    marginLeft : ((props.size[0]) - (props.props.content.name.length * 15))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
+    marginLeft : ((props.size[0]) - (props.props.content.name.length * 12))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
     marginBottom: 5,
     marginTop: -(props.size[1] + 38),
     padding:5,
@@ -1781,12 +2237,12 @@ const useStyles = makeStyles({
 })
 
 const resizeEnable = {
-  bottom: true,
+  bottom: false,
   bottomLeft: true,
   bottomRight: true,
-  left: true,
-  right: true,
-  top: true,
+  left: false,
+  right: false,
+  top: false,
   topLeft: true,
   topRight:true,
 }

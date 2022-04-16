@@ -250,7 +250,7 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   ////////////////////////////////////////////////////////////////////
 
   return (
-    <div ref={drag.target} {...drag} {...moreControl}
+    <div /* ref={drag.target} {...drag} */ {...moreControl}
       onClick = {(ev)=>switchYarnPhone(ev, props.participant.id)}
       onContextMenu={(ev) => {ev.preventDefault(); openForm()}}
     >

@@ -12,8 +12,9 @@ import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 
-import {getContextMenuStatus, MouseOrTouch, getContentLocked} from '../ShareLayer/RndContent'
+import {getContextMenuStatus, MouseOrTouch, getContentLocked, getContentDialogStatus/* , getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
+
 import {Tooltip} from '@material-ui/core'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
 //import PingIcon from '@images/whoo-screen_pointer.png'
@@ -21,6 +22,8 @@ import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
 //import { getRndPingStatus } from '../ShareLayer/RndContent'
+
+
 
 
 //  utility
@@ -221,6 +224,7 @@ export function getBasePingStatus():boolean {
 }
 
 
+
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
 
@@ -326,6 +330,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     pingEnable = false
     setPingLocation(false) */
 
+    let _contentDialogStatus:boolean = getContentDialogStatus()
+    //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+    if(_contentDialogStatus) {return}
+    //if(_contentDeleteDeleteDialogOpen) {return}
+
     if(mem.clickStatus === 'single') {
       if(mem.clickEnter) {return}
       //if(pingLocation) {return}
@@ -408,8 +417,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         //console.log("locked -- ", itemLocked)
 
+        //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
 
         if(showUploadOption) {return}
+        //if(_contentDeleteDeleteDialogOpen) {return}
+
 
 
         //  console.log('Base StartDrag:')
@@ -461,8 +473,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
 
+        //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+
         if(_menuStatus) {return}
         if(showMenu) {return}
+       // if(_contentDeleteDeleteDialogOpen) {return}
 
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
@@ -498,9 +513,13 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
         mem.upTime = new Date().getSeconds()
-        let timeDiff = mem.upTime - mem.downTime;
+        let timeDiff = mem.upTime - mem.downTime
 
         let _dialogStatus:boolean = isDialogOpen()
+
+
+        //console.log(_dialogStatus, " dialog status")
+
         if(_dialogStatus) {return}
 
 

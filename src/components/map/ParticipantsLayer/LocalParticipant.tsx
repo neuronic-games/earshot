@@ -304,7 +304,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
 
   return (
-    <div /* ref={drag.target} {...drag} */ {...moreControl}>
+    <div ref={drag.target} {...drag} {...moreControl}>
     <Participant {...props} isLocal={true}
       onContextMenu={(ev) => {
         ev.preventDefault()

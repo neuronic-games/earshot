@@ -33,6 +33,7 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   showStopWatch: false,
   stopWatchToggle: false,
   stopWatchReset: false,
+  scaleRotateToggle: false,
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -60,6 +61,7 @@ class SharedContentImp implements ISharedContent {
   showStopWatch!: boolean
   stopWatchToggle!: boolean
   stopWatchReset!: boolean
+  scaleRotateToggle!: boolean
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -468,7 +470,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,
+  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -479,7 +481,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)
@@ -636,6 +638,11 @@ export function moveContentToTop(c: SharedContentImp) {
     c.zorder = Math.floor(Date.now() / TIME_RESOLUTION_IN_MS)
   }
 }
+
+/* export function moveContentToIndex(c: SharedContentImp, _zIndex:number) {
+    c.zorder = Math.floor(_zIndex)
+} */
+
 //  change zorder to the bottom.
 export function moveContentToBottom(c: SharedContentImp) {
   if (isContentWallpaper(c)){

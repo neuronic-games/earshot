@@ -101,6 +101,8 @@ export const jaTranslate = {
   ctEndEditYoutube: '再生位置を同期',
   ctProximity: '位置/サイズを固定する',
   ctUnProximity: '位置/サイズを可変にする',
+  ctScaleRotate: '位置/サイズを可変にする',
+  ctUnScaleRotate: '位置/サイズを可変にする',
   ctStopWatchOn: '位置/サイズを可変にする',
   ctStopWatchOff: '位置/サイズを可変にする',
   ctUploadZone: '不透明',
@@ -155,5 +157,9 @@ export const jaTranslate = {
   videoLimit: '映像ストリーム数の上限',
   audioLimit: '音声ストリーム数の上限',
   connectionStatus: '通信状態',
+  deleteMsg: '映像ストリーム数の上限',
+  deleteYes: '通信状態',
+  deleteNo: '通信状態',
+  deleteAlert: '通信状態',
 }
 export type JaKeyList = keyof typeof jaTranslate
