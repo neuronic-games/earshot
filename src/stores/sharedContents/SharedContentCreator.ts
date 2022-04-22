@@ -192,6 +192,7 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
   const pasted = createContent()
   pasted.type = 'text'
   pasted.noFrame = true
+  //pasted.pinned = true
   const textMessage = {
     message,
     pid: participants.localId,
@@ -287,6 +288,10 @@ export function createContentOfImageUrl(url: string, map: MapData,
       pasted.contentDesc = String(desc?.toString())
 
       pasted.noFrame = true
+
+      pasted.pinned = true
+
+      //console.log(pasted.pinned, " pinned")
 
       pasted.url = url
       /* const max = size[0] > size[1] ? size[0] : size[1]

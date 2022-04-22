@@ -5,8 +5,10 @@ import proximityIcon from '@images/whoo-screen_btn-earshot.png'
 import proximityOffIcon from '@images/whoo-screen_btn-earshot.png'
 import MoreIcon from '@images/whoo-screen_btn-more.png'
 import CloseIcon from '@images/whoo-screen_btn-delete.png'
-import pinIcon from '@images/whoo-screen_btn-lock.png'
-import pinOffIcon from '@images/whoo-screen_btn-lock.png'
+
+/* import pinIcon from '@images/whoo-screen_btn-lock.png'
+import pinOffIcon from '@images/whoo-screen_btn-lock.png' */
+
 import FlipToBackIcon from '@images/whoo-screen_btn-back.png'
 import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
@@ -37,6 +39,8 @@ import {SharedContentForm} from './SharedContentForm'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
 /* import { getBasePingStatus } from '../Base' */
+import {Icon} from '@iconify/react'
+import crossIcon from '@iconify-icons/fa-solid/expand-arrows-alt'
 
 
 
@@ -108,6 +112,8 @@ class RndContentMember{
   _zIndex = 0
   _clickX = 0
   _clickY = 0
+
+  _checkForRotation = false
 }
 
 let contextMenuStatus:boolean = false
@@ -132,6 +138,11 @@ export function getContentDialogStatus() : boolean {
 let _contentDeleteDialogOpen = false
 export function getContentDeleteDialogStatus() : boolean {
   return _contentDeleteDialogOpen
+}
+
+let _isOnContent = false
+export function isOnContentStatus() : boolean {
+  return _isOnContent
 }
 
 
@@ -248,7 +259,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       member.dragCanceled = true
 
       //console.log(isPaused, " in Eff ", stopWatchToggle, " ---- ", stopWatchReset)
-
       // Place timer here
       //////////////////////////////////////////////////////////////////////////////////////////////
       // Working Code
@@ -283,9 +293,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         clearInterval(intervalStep);
       } */
 
-
-
-
       if(props.content.shareType !== "img") {
         window.clearTimeout(member._timer)
         //member._timer = window.setTimeout( function() {
@@ -304,7 +311,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
 
     return () => {
-      clearInterval(member.intervalStep);
+      //clearInterval(member.intervalStep);
+      window.clearInterval(member.intervalStep)
     };
 
 
@@ -396,12 +404,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     props.updateAndSend(props.content)
     onLeaveIcon()
   }
-  function onClickPin(evt: MouseOrTouch) {
+
+  /* function onClickPin(evt: MouseOrTouch) {
     stop(evt)
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
     onLeaveIcon()
-  }
+  } */
+
   function onClickUploadZone(evt: MouseOrTouch) {
     onLeaveIcon()
     setShowUploadOption(true)
@@ -410,10 +420,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   function onClickScaleRotate(evt: MouseOrTouch) {
     stop(evt)
     props.content.scaleRotateToggle = !props.content.scaleRotateToggle
+    props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
-    if(showOnRotation) {
+    /* if(showOnRotation) {
       setShowOnRotation(false)
-    }
+    } */
     onLeaveIcon()
   }
 
@@ -511,6 +522,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       props.updateAndSend(props.content)
       //console.log("pos changed")
       //setShowHandler(false)
+
       setShowOnRotation(false)
     }
   }
@@ -520,14 +532,17 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     if (member.dragCanceled){ return }
     const ROTATION_IN_DEGREE = 360
     const ROTATION_STEP = 15
-    //if (buttons === MOUSE_RIGHT) {
+    if (buttons === MOUSE_RIGHT) {
       //console.log(showOnRotation, " >showOnRotation")
-      if (buttons === 1 && showOnRotation) {
+
+      //console.log(delta[0], " --- ", delta[1])
+    //if (buttons === 1 && showOnRotation) {
+    //if (buttons === 1 && props.content.scaleRotateToggle) {
       setPreciseOrientation((preciseOrientation + delta[0] + delta[1]) % ROTATION_IN_DEGREE)
       let newOri
       if (event?.shiftKey || event?.ctrlKey) {
         newOri = preciseOrientation
-      }else {
+      } else {
         newOri = preciseOrientation - preciseOrientation % ROTATION_STEP
       }
       //    mat.translateSelf(...addV2(props.pose.position, mulV(0.5, size)))
@@ -537,7 +552,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                             subV2(rotateVector2DByDegree(pose.orientation - newOri, center), center))
       pose.orientation = newOri
       setPose(Object.assign({}, pose))
-    }else {
+    } else {
       const lv = map.rotateFromWindow(delta)
       const cv = rotateVector2DByDegree(-pose.orientation, lv)
       pose.position = addV2(pose.position, cv)
@@ -556,6 +571,10 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
      if(member.isMoved) {return}
      if(showDelete) {return}
      //if(member.OnTimerClick) {return}
+
+     //console.log(showOnRotation, " onRota icon")
+     if(showOnRotation) {return}
+
      if(pingLocation) {}
       pingEnable = false
       member.clickStatus = ''
@@ -669,10 +688,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //  console.log('onDragTitle:', delta)
       isLocaked = props.content.pinned
       //console.log(isLocaked, " rnd")
+      _isOnContent = true
       if (isFixed) { return }
       if(showTitle) {return}
       //if(showDelete) {return}
       event?.stopPropagation()
+
       if (down) {
         //  event?.preventDefault()
         dragHandler(delta, buttons, event)
@@ -693,8 +714,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onDragEnd: ({event, currentTarget, delta, buttons, xy}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
 
-      //console.log(event?.detail, " DETAILS")
+     //console.log(String(Object(event?.target).nodeName))
 
+     //console.log(member._down, " dragged")
+
+      _isOnContent = false
       isLocaked = false
       member._down = false
       member._item = "DIV"
@@ -705,11 +729,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         showHideTimer(1)
       }
 
+
       if(showTitle) {return}
 
-
+      //_isOnContent = false
 
       //setShowOnRotation(false)
+
 
       setDragging(false)
 
@@ -734,6 +760,25 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(props.content.size[1], ' ---- ', (map.mouseOnMap[1] - props.content.pose.position[1]))
 
       //console.log(props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1]))
+
+      //const diff = subV2(map.mouseOnMap, pose.position)
+      //console.log(diff[1], " ---- ", props.content.size[0]/2, " ==== ", pose.position[0])
+
+      //console.log(props.content.size[0]/2 - diff[0])
+
+
+
+      //console.log(getRect(props.content.pose, props.content.size))
+        //console.log(diff[0], props.content.size[0]/2)
+        //if(diff[0] >= (props.content.size[0]/2 - 25) && diff[0] <= (props.content.size[0]/2 + 25)) {
+
+        if(props.content.scaleRotateToggle && member._checkForRotation) {
+          member._checkForRotation = false
+          RotateContent()
+          updateHandler()
+          return
+        }
+
 
       let yCheck = props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1]) //participants.local.mouse.position[1]
       let xCheck = props.content.size[0] - (props.content.size[0] - (map.mouseOnMap[0] - props.content.pose.position[0]))
@@ -776,10 +821,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }, 250)
 //////////////////////////////////////////
 
+
     },
     onMove:({xy}) => {
       //isLocaked = props.content.pinned
       if(showTitle) {return}
+      //_isOnContent = true
       member.isMoved = true
       //isLocaked = props.content.pinned
       const diff = subV2([xy[0], xy[1]], pose.position)
@@ -806,6 +853,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
         member.onContent = false
 
+        //_isOnContent = true
 
         member.isMoved = false
         member.upTime = new Date().getSeconds()
@@ -857,34 +905,47 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(member.downXPos, " --- ", member.moveXPos)
       if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
         member._down = true
+        member._checkForRotation = true
       } else {
         member._down = false
+        member._checkForRotation = false
       }
     },
     onMouseOver: (arg) => {
       //member._down = true
       //console.log(arg, " target over")
+      _isOnContent = true
 
       member._item = String(Object(arg.target).tagName)
       window.clearTimeout(member._timer)
     },
     onMouseOut: (arg) => {
       //console.log(Object(arg.target).id , " target")
-
-      //console.log(arg, " target out")
-
+      //console.log(showTitle, " target out")
+      if(showTitle) {return}
+      _isOnContent = false
       member.onContent = false
       isLocaked = false
     },
     onMouseDown: (arg) => {
       //console.log(arg.button, " button")
       //console.log("onMouseDown -- Checking Double Click")
-
       if(editing) {
         arg.stopPropagation()
       } else {
         if(arg.button > 0) {return}
         //if(member.OnTimerClick) {return}
+
+        //console.log(String(Object(arg.target).id))
+
+        //console.log(arg.nativeEvent.pageX, pose.position[0])
+        /* const diff = subV2(map.mouseOnMap, pose.position)
+        //console.log(diff[0], props.content.size[0]/2)
+        if(diff[0] >= (props.content.size[0]/2 - 25) && diff[0] <= (props.content.size[0]/2 + 25)) {
+          return
+        } */
+
+        member._checkForRotation = true
         member.onContent = true
         member._down = true
         member.downTime = new Date().getSeconds()
@@ -909,6 +970,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           //setShowHandler(true)
         //}
 
+        //console.log(member._down, " ---- ", showTitle)
+
 
         const _mTimer = setTimeout(function() {
           clearTimeout(_mTimer)
@@ -918,7 +981,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             //let yCheck = props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1])
             //console.log(yCheck, " IN")
 
-            if(member._down && showTitle === false) {
+            //console.log(showOnRotation, " onRota icon")
+
+
+
+            if(member._down && showTitle === false && showOnRotation === false) {
               /* if(yCheck > 5 && yCheck < 35) {
                 member.clickStatus = 'resetTimer'
                 member.clickEnter = false
@@ -949,6 +1016,22 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
+  }
+
+  function RotateContent() {
+    const ROTATION_IN_DEGREE = 360
+    const ROTATION_STEP = 90
+    setPreciseOrientation((preciseOrientation + 0 + 2) % ROTATION_IN_DEGREE)
+    //console.log(pose.orientation, " preciseOrientation")
+    let newOri = pose.orientation + ROTATION_STEP
+    //    mat.translateSelf(...addV2(props.pose.position, mulV(0.5, size)))
+    const CENTER_IN_RATIO = 0.5
+    const center = addV2(pose.position, mulV(CENTER_IN_RATIO, size))
+    pose.position = addV2(pose.position,
+                          subV2(rotateVector2DByDegree(pose.orientation - newOri, center), center))
+    pose.orientation = newOri
+
+    setPose(Object.assign({}, pose))
   }
 
   function showHideBorder() {
@@ -990,6 +1073,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
     member.dragCanceled = false
     evt.stopPropagation(); evt.preventDefault()
+
     setResizeBase(size)
     setResizeBasePos(pose.position)
   }
@@ -1012,34 +1096,49 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     const scale = (extractScaleX(map.matrix) + extractScaleY(map.matrix)) / 2
     const cd:[number, number] = [delta.width / scale, delta.height / scale]
     // console.log('resize dir:', dir, ' delta:', delta, ' d:', d, ' pos:', pos)
-    if (dir === 'left' || dir === 'right') {
+
+   /*  if (dir === 'left' || dir === 'right') {
       cd[1] = 0
     }
     if (dir === 'top' || dir === 'bottom') {
       cd[0] = 0
-    }
+    } */
+
+    console.log(dir, " handler type")
+
     let posChange = false
     const deltaPos: [number, number] = [0, 0]
-    if (dir === 'left' || dir === 'topLeft' || dir === 'bottomLeft') {
-      deltaPos[0] = -cd[0]
+    //if (dir === 'left' || dir === 'topLeft' || dir === 'bottomLeft') {
+    if (dir === 'topLeft' || dir === 'bottomLeft') {
+      console.log("1")
+      deltaPos[0] = -cd[1]
       posChange = posChange || cd[0] !== 0
     }
-    if (dir === 'top' || dir === 'topLeft' || dir === 'topRight') {
+    //if (dir === 'top' || dir === 'topLeft' || dir === 'topRight') {
+    if (dir === 'topLeft' || dir === 'topRight') {
+      console.log('2')
       deltaPos[1] = -cd[1]
       posChange = posChange || cd[1] !== 0
     }
+
     if (posChange) {
       pose.position = addV2(resizeBasePos, deltaPos)
       setPose(Object.assign({}, pose))
       //console.log(`setPose ${pose.position}`)
     }
+
     const newSize = addV2(resizeBase, cd)
-    if (props.content.originalSize[0]) {
-      const ratio = props.content.originalSize[0] / props.content.originalSize[1]
-      if (newSize[0] > ratio * newSize[1]) { newSize[0] = ratio * newSize[1] }
-      if (newSize[0] < ratio * newSize[1]) { newSize[1] = newSize[0] / ratio }
+
+    if(newSize[0] > 80 && newSize[1] > 80) {
+      if (props.content.originalSize[0]) {
+        const ratio = props.content.originalSize[0] / props.content.originalSize[1]
+        if (newSize[0] > ratio * newSize[1]) { newSize[0] = ratio * newSize[1] }
+        if (newSize[0] < ratio * newSize[1]) { newSize[1] = newSize[0] / ratio }
+      }
+      setSize(newSize)
+    } else {
+      updateHandler()
     }
-    setSize(newSize)
   }
 
   const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY})
@@ -1064,14 +1163,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           }
         }}
       >
-        <Content {...props}/>
+        <Content {...props}
+        />
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
         <div className={showBorder ? classes.dashed : undefined}></div>
 
 
 {/* {showHandler ? */}
-<div style={{position:'absolute', width:size[0], height:size[1], top:0, left:0}}
+<div style={{position:'absolute', width:size[0], height:size[1], top:0, left:0/* , backgroundColor:'green' */}}
         /* onMouseEnter={()=>{
           //console.log("onRot")
           setShowHandler(true)
@@ -1083,26 +1183,49 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         { showHandler ?
         <div>
-        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:'-6px', top:'-6px', backgroundColor:'white'}}></div>
-        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:(size[0] - 8), top:'-6px', backgroundColor:'white'}}></div>
-        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:(size[0] - 8) + 'px', top:(size[1] - 8) + 'px', backgroundColor:'white'}}
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-20px', top:'-20px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+          <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'9px', top:'9px'}} />
+        </div>
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 28), top:'-20px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+        <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'8.5px', top:'8px'}} />
+        </div>
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 28) + 'px', top:(size[1] - 28) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}
           /* onMouseOut={()=>{
             console.log("still over")
           }} */
           >
+          <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'8px', top:'9px'}} />
         </div>
-        <div style={{width:'10px', height:'10px', border:'2px dashed  #FF000050', position:'absolute', left:'-6px', top:(size[1] - 8) + 'px', backgroundColor:'white'}}></div>
+        {/* <div style={{width:(size[0] + 40), height:(size[1] + 40), position:'absolute', left: '-20px', top:'-20px', backgroundColor:'#D4D4D480', alignItems:'center' }}>
+        </div> */}
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-20px', top:(size[1] - 26) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+          <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'9px', top:'9px'}} />
+        </div>
 
-        <div style={{width:'50px', height:'50px', /* border:'2px dashed  #FF000050', */ position:'absolute', left: (size[0]/2) - 15, top:(size[1]/2) - 25, backgroundColor:'#B3470080', borderRadius:'50%'}}
-          onMouseDown={()=>{
+        <div style={{width:'40px', height:'40px', /* border:'2px dashed  #FF000050', */ position:'absolute', left: (size[0]/2 - 20)/* (size[0]/2) - 15 */, top:(size[1]/2) - 20, backgroundColor:'#9e886c', borderRadius:'50%'}}
+          /* onMouseDown={(evt)=>{
+            console.log("down")
+            setShowOnRotation(true)
+            //dragHandler([0, 0], 1, evt)
+          }}
+          onMouseUp={(evt)=>{
+            console.log("up")
+            setShowOnRotation(false)
+          }} */
+          /* onMouseOver={(evt)=>{
+            console.log("on Rot Over")
             setShowOnRotation(true)
           }}
-          onMouseUp={()=>{
+          onMouseOut={(evt)=>{
+            console.log("on Rot out")
             setShowOnRotation(false)
-          }}
+          }} */
+
         >
-        <RotateRightIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white', position:'absolute', left:'8px', top:'8px'}} />
+        <RotateRightIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white', position:'absolute', left:'2px', top:'3px'}} />
         </div>
+
+        {/* <div id='rotate' style={{width:'50px', height:'50px',  position:'absolute', left: (size[0]/2 - 15), top:(size[1]/2) - 25, backgroundColor:'blue', borderRadius:'50%', zIndex:999999}}></div> */}
 
         {/* <div style={{position:'absolute', width:size[0] + 40, height:size[1] + 40, top:-20, left:-20, backgroundColor:'#FFFF0030'}}
           onMouseOut={(evt)=>{
@@ -1143,7 +1266,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         {/* {showDelete ? */}
         <Dialog open={showDelete} onClose={() => setShowDelete(false)} onExited={() => setShowDelete(false)}
         keepMounted
-        style={{zIndex:9999}}
+        style={showDelete ? {zIndex:9999} : {zIndex:-9999}}
         >
           <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle>
           <DialogContent style={{userSelect: 'none'}}>
@@ -1249,7 +1372,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         onResizeStart = {onResizeStart}
         onResize = {onResize}
         onResizeStop = {onResizeStop}
-
+        bounds = {'window'}
       >
         {theContent}
       </Rnd> : ''}
@@ -1273,7 +1396,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             //top:props.stores.map.mouseOnMap[1],
             left: Number(member._clickX) - 207,
             top: Number(member._clickY) - 170,
-            zIndex:999,
+            zIndex: showTitle ? 999 : -999,
           },
         }}
         BackdropProps={{ invisible: true }}
@@ -1293,10 +1416,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
                   //map.keyInputUsers.add('contentForm')
                 }}
             >
-            <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
+
+           {/*  <Tooltip placement="top" title={member._down ? (props.content.pinned ? t('ctUnpin') : t('ctPin')) : ''}>
             <div className={classes.pin_dialog} onMouseUp={onClickPin} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
               <img src={props.content.pinned ? pinIcon : pinOffIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt="" />
-            </div></Tooltip>
+            </div></Tooltip> */}
+
+
               <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
                 <div className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop}
                   onTouchStart={stop} onMouseLeave={onLeaveIcon}>
@@ -1833,8 +1959,8 @@ const useStyles = makeStyles({
       display: props.props.onShare ? 'none' : 'block',
       height: TITLE_HEIGHT,
       position:'absolute',
-      top: 100, //76,
-      left: 34, //37,
+      top: 128, //100, //76,
+      left: 38, //34, //37,
       whiteSpace: 'pre',
       cursor: 'default',
       background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
@@ -1882,8 +2008,8 @@ const useStyles = makeStyles({
       whiteSpace: 'pre',
       position:'absolute',
       cursor: 'default',
-      top: 150, //128,
-      left: 195, //205,
+      top: 128, //150, //128,
+      left: 205, //195, //205,
       background: '#9e886c',
       ...buttonStyle,
     } : {display:'none'}
@@ -1950,8 +2076,8 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 52, //33,
-      left: 50, //68,
+      top: 76, //52, //33,
+      left: 37, //50, //68,
       whiteSpace: 'pre',
       cursor: 'default',
       background:  props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
@@ -1965,8 +2091,8 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 20, //33,
-      left: 92, //68,
+      top: 33, //20, //33,
+      left: 68, //92, //68,
       whiteSpace: 'pre',
       cursor: 'default',
       background:  props.props.content.scaleRotateToggle ? '#ef4623' : '#9e886c',
@@ -2032,8 +2158,8 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 18, //14,
-      left: 148, //120,
+      top: 14, //18, //14,
+      left: 120, //148, //120,
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',
@@ -2076,8 +2202,8 @@ const useStyles = makeStyles({
       height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
-      top: 49, //32,
-      left: 192, //174,
+      top: 32, //49, //32,
+      left: 174, //192, //174,
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',
@@ -2162,8 +2288,8 @@ const useStyles = makeStyles({
     visibility: props.showTitle ? 'visible' : 'hidden',
     position:'absolute',
     textAlign: 'left',
-    top: 100, //76,
-    left: 209, //205,
+    top: 76, //100, //76,
+    left: 205, //209, //205,
     right:0,
     margin:0,
     padding:0,
@@ -2256,5 +2382,7 @@ const resizeDisable = {
   topLeft: false,
   topRight:false,
 }
+
+
 
 RndContent.displayName = 'RndContent'

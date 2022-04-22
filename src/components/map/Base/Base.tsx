@@ -12,7 +12,7 @@ import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 
-import {getContextMenuStatus, MouseOrTouch, getContentLocked, getContentDialogStatus/* , getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
+import {getContextMenuStatus, MouseOrTouch, getContentLocked, getContentDialogStatus, isOnContentStatus/* , getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 
 import {Tooltip} from '@material-ui/core'
@@ -331,8 +331,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setPingLocation(false) */
 
     let _contentDialogStatus:boolean = getContentDialogStatus()
-    //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
     if(_contentDialogStatus) {return}
+
+    //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+
     //if(_contentDeleteDeleteDialogOpen) {return}
 
     if(mem.clickStatus === 'single') {
@@ -414,14 +416,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.moveY = map.mouseOnMap[1]
 
         let itemLocked = getContentLocked()
+        let _onContent = isOnContentStatus()
 
         //console.log("locked -- ", itemLocked)
-
         //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+        //console.log(_onContent, " >>> _onContent")
 
         if(showUploadOption) {return}
+        if(_onContent) {return}
         //if(_contentDeleteDeleteDialogOpen) {return}
-
 
 
         //  console.log('Base StartDrag:')

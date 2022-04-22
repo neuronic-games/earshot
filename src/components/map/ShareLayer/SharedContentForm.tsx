@@ -9,8 +9,10 @@ import biImageNoFrame from '@iconify/icons-bi/image-alt'
 import roomOpen from '@iconify/icons-fluent/square-hint-24-regular'
 
 import biPlusCircleFill from '@iconify/icons-bi/plus-circle-fill'
-import pinIcon from '@iconify/icons-mdi/pin'
-import pinOffIcon from '@iconify/icons-mdi/pin-off'
+
+/* import pinIcon from '@iconify/icons-mdi/pin'
+import pinOffIcon from '@iconify/icons-mdi/pin-off' */
+
 import {Icon} from '@iconify/react'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -182,12 +184,13 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
              props.updateOnly(props.content)
            }}/>, <Icon icon={biImage} height={TITLE_HEIGHT} />, t('ctTitle'), 'title'),
 
-          Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
+          /* Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
             <Switch color="secondary" checked={props.content?.pinned} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.pinned = checked
               props.updateOnly(props.content)
-            }}/>, <Icon icon={pinIcon} height={TITLE_HEIGHT} />, t('ctPin'), 'pin'),
+            }}/>, <Icon icon={pinIcon} height={TITLE_HEIGHT} />, t('ctPin'), 'pin') ,*/
+
           <Fragment key="edit">{isContentEditable(props.content) ?
             Row(editButtonTip(true, props.content),<DoneIcon />,
             <Switch color="secondary" checked={props.content?.id === contents.editing} onChange={(ev, checked)=>{
