@@ -1097,26 +1097,45 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     const cd:[number, number] = [delta.width / scale, delta.height / scale]
     // console.log('resize dir:', dir, ' delta:', delta, ' d:', d, ' pos:', pos)
 
-   /*  if (dir === 'left' || dir === 'right') {
+    /* if (dir === 'left' || dir === 'right') {
       cd[1] = 0
     }
     if (dir === 'top' || dir === 'bottom') {
       cd[0] = 0
     } */
 
-    console.log(dir, " handler type")
+
 
     let posChange = false
     const deltaPos: [number, number] = [0, 0]
-    //if (dir === 'left' || dir === 'topLeft' || dir === 'bottomLeft') {
-    if (dir === 'topLeft' || dir === 'bottomLeft') {
-      console.log("1")
+
+   /*  if (dir === 'left' || dir === 'topLeft' || dir === 'bottomLeft') {
       deltaPos[0] = -cd[1]
       posChange = posChange || cd[0] !== 0
     }
-    //if (dir === 'top' || dir === 'topLeft' || dir === 'topRight') {
-    if (dir === 'topLeft' || dir === 'topRight') {
-      console.log('2')
+    if (dir === 'top' || dir === 'topLeft' || dir === 'topRight') {
+      deltaPos[1] = -cd[1]
+      posChange = posChange || cd[1] !== 0
+    } */
+
+    /* if (dir === 'left' || dir === 'topLeft' || dir === 'bottomLeft') {
+      deltaPos[0] = -cd[1]
+      posChange = posChange || cd[0] !== 0
+    }
+    if (dir === 'top' || dir === 'topLeft' || dir === 'topRight') {
+      deltaPos[1] = -cd[1]
+      posChange = posChange || cd[1] !== 0
+    } */
+
+    if (dir === 'bottomLeft') {
+      deltaPos[0] = -cd[0]
+      posChange = posChange || cd[0] !== 0
+    } else
+    if (dir === 'topRight') {
+      deltaPos[1] = -cd[1]
+      posChange = posChange || cd[1] !== 0
+    }
+    if (dir === 'topLeft') {
       deltaPos[1] = -cd[1]
       posChange = posChange || cd[1] !== 0
     }
@@ -1167,7 +1186,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         />
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
-        <div className={showBorder ? classes.dashed : undefined}></div>
+        {/* <div className={showBorder ? classes.dashed : undefined}></div> */}
+        <div className={showHandler ? classes.dashed : (showBorder ? classes.dashed : undefined)}></div>
 
 
 {/* {showHandler ? */}
@@ -1183,13 +1203,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       >
         { showHandler ?
         <div>
-        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-20px', top:'-20px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-10px', top:'-10px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
           <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'9px', top:'9px'}} />
         </div>
-        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 28), top:'-20px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 30), top:'-10px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
         <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'8.5px', top:'8px'}} />
         </div>
-        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 28) + 'px', top:(size[1] - 28) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:(size[0] - 30) + 'px', top:(size[1] - 30) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}
           /* onMouseOut={()=>{
             console.log("still over")
           }} */
@@ -1198,7 +1218,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         </div>
         {/* <div style={{width:(size[0] + 40), height:(size[1] + 40), position:'absolute', left: '-20px', top:'-20px', backgroundColor:'#D4D4D480', alignItems:'center' }}>
         </div> */}
-        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-20px', top:(size[1] - 26) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
+        <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-10px', top:(size[1] - 30) + 'px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
           <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'9px', top:'9px'}} />
         </div>
 
@@ -1365,17 +1385,28 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
       {props.content.shareType !== 'roomimg' ?
-      <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : (showHandler ? resizeEnable : resizeDisable)}
+        <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : (showHandler ? resizeEnable : resizeDisable)}
         disableDragging={isFixed} ref={rnd}
-        /* disableDragging={showTitle} ref={rnd} */
-        /* disableDragging={false} ref={rnd} */
+
+       /*  disableDragging={showTitle} ref={rnd}
+        disableDragging={false} ref={rnd} */
+
         onResizeStart = {onResizeStart}
         onResize = {onResize}
         onResizeStop = {onResizeStop}
-        bounds = {'window'}
+        /* bounds = {'body'} */
+
+        resizeHandleStyles={{
+          topLeft: cursorStyles,
+          topRight: cursorStyles,
+          bottomLeft: cursorStyles,
+          bottomRight: cursorStyles,
+        }}
+        dragHandleClassName={classes.cursorStyles}
       >
         {theContent}
       </Rnd> : ''}
+
       {/* <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
         <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>
       </div> */}
@@ -2360,6 +2391,10 @@ const useStyles = makeStyles({
     //transform: `rotate(${props.props.stores.map.rotation}deg)`,
     whiteSpace: 'pre',
   }),
+
+  cursorStyles:{
+    cursor: 'auto',
+  }
 })
 
 const resizeEnable = {
@@ -2383,6 +2418,12 @@ const resizeDisable = {
   topRight:false,
 }
 
-
+const cursorStyles = {
+  width: '40px',
+  height: '40px',
+ /*  backgroundColor: 'red', */
+  borderRadius: '50%',
+  cursor: 'auto',
+}
 
 RndContent.displayName = 'RndContent'
