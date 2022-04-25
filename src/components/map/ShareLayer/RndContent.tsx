@@ -114,6 +114,7 @@ class RndContentMember{
   _clickY = 0
 
   _checkForRotation = false
+  _onContentForEdit = false
 }
 
 let contextMenuStatus:boolean = false
@@ -216,6 +217,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
   //const _pingIcon = useObserver(()=> participants.local.pingIcon)
+
+  //const contentEdit = useObserver(()=> props.stores.contents.pasted.pinned)
+  //console.log(contentEdit, " EDIT")
 
 
   //console.log(stopWatchToggle, " stopWatchDisplayTime")
@@ -365,6 +369,28 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         clearInterval(intervalStep);
       } */
       ////////////////////////////////////////////////////
+      /* window.document.body.addEventListener(
+        'click',
+        (ev) => {
+          // console.log('click called', ev)
+          console.log(member._onContentForEdit, " onContent-", )
+          //ev.preventDefault()
+          //ev.stopPropagation()
+          //console.log("onStage Click")
+
+
+          if(showHandler && showTitle === false && member._onContentForEdit === false) {
+            member._onContentForEdit = true
+            props.content.scaleRotateToggle = !props.content.scaleRotateToggle
+            props.content.pinned = !props.content.pinned
+            props.updateAndSend(props.content)
+            return
+          }
+        },
+        {passive:false},
+      ) */
+
+      ////////////////////////////////////////////////////
 
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -419,6 +445,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   function onClickScaleRotate(evt: MouseOrTouch) {
     stop(evt)
+
     props.content.scaleRotateToggle = !props.content.scaleRotateToggle
     props.content.pinned = !props.content.pinned
     props.updateAndSend(props.content)
@@ -572,6 +599,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
      if(showDelete) {return}
      //if(member.OnTimerClick) {return}
 
+
+
      //console.log(showOnRotation, " onRota icon")
      if(showOnRotation) {return}
 
@@ -719,6 +748,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
      //console.log(member._down, " dragged")
 
       _isOnContent = false
+
+
       isLocaked = false
       member._down = false
       member._item = "DIV"
@@ -735,7 +766,14 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //_isOnContent = false
 
       //setShowOnRotation(false)
+      // Remove All From Edit mode
+      //console.log(member._checkForRotation, " >> member._checkForRotation")
 
+      let isEdit = checkContentsInEdit()
+      if(isEdit && member._checkForRotation) {
+        ExitAllFromEditMode()
+        return
+      }
 
       setDragging(false)
 
@@ -916,6 +954,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(arg, " target over")
       _isOnContent = true
 
+      // new props
+      member._onContentForEdit = true
+
       member._item = String(Object(arg.target).tagName)
       window.clearTimeout(member._timer)
     },
@@ -923,7 +964,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       //console.log(Object(arg.target).id , " target")
       //console.log(showTitle, " target out")
       if(showTitle) {return}
+
+      // use it
       _isOnContent = false
+
+      // new props
+      member._onContentForEdit = false
+
       member.onContent = false
       isLocaked = false
     },
@@ -1016,6 +1063,32 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
     onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
+  }
+
+  function checkContentsInEdit():boolean {
+    let isEdit:boolean = false
+    if(props.stores.contents.all.length > 0) {
+      for(let i:number=0; i<props.stores.contents.all.length; i++) {
+        if(props.stores.contents.all[i].scaleRotateToggle && props.stores.contents.all[i].id !== props.content.id) {
+          isEdit = true
+        }
+      }
+    }
+    return isEdit
+  }
+
+  function ExitAllFromEditMode() {
+    if(props.stores.contents.all.length > 0) {
+      for(let i:number=0; i<props.stores.contents.all.length; i++) {
+        if(props.stores.contents.all[i].scaleRotateToggle && props.stores.contents.all[i].id !== props.content.id) {
+          props.stores.contents.all[i].scaleRotateToggle = !props.stores.contents.all[i].scaleRotateToggle
+        }
+        if(props.stores.contents.all[i].pinned === false && props.stores.contents.all[i].id !== props.content.id) {
+          props.stores.contents.all[i].pinned = true
+        }
+        props.stores.contents.updateByLocal(props.stores.contents.all[i])
+      }
+    }
   }
 
   function RotateContent() {
@@ -1187,7 +1260,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
         {/* <div className={showBorder ? classes.dashed : undefined}></div> */}
-        <div className={showHandler ? classes.dashed : (showBorder ? classes.dashed : undefined)}></div>
+        <div className={(showHandler && showTitle === false) ? classes.dashed : (showBorder ? classes.dashed : undefined)}></div>
 
 
 {/* {showHandler ? */}
@@ -1201,7 +1274,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           setShowHandler(false)
         }} */
       >
-        { showHandler ?
+        { (showHandler && showTitle === false) ?
         <div>
         <div style={{width:'40px', height:'40px'/* , border:'2px dashed  #FF000050' */, position:'absolute', left:'-10px', top:'-10px', backgroundColor:'#9e886c', borderRadius:'50%'}}>
           <Icon icon={crossIcon} style={{width:TITLE_HEIGHT/1.5, height:TITLE_HEIGHT/1.5, color:'white', position:'absolute', left:'9px', top:'9px'}} />
@@ -2421,7 +2494,8 @@ const resizeDisable = {
 const cursorStyles = {
   width: '40px',
   height: '40px',
- /*  backgroundColor: 'red', */
+  /* backgroundColor: 'red', */
+  color: 'white',
   borderRadius: '50%',
   cursor: 'auto',
 }

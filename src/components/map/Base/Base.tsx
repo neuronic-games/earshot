@@ -318,6 +318,31 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     }, TIMER_INTERVAL) //  move to mouse position
   } */
 
+  function checkContentsInEdit():boolean {
+    let isEdit:boolean = false
+    if(props.stores.contents.all.length > 0) {
+      for(let i:number=0; i<props.stores.contents.all.length; i++) {
+        if(props.stores.contents.all[i].scaleRotateToggle) {
+          isEdit = true
+        }
+      }
+    }
+    return isEdit
+  }
+
+  function ExitAllFromEditMode() {
+    if(props.stores.contents.all.length > 0) {
+      for(let i:number=0; i<props.stores.contents.all.length; i++) {
+        if(props.stores.contents.all[i].scaleRotateToggle) {
+          props.stores.contents.all[i].scaleRotateToggle = !props.stores.contents.all[i].scaleRotateToggle
+        }
+        if(props.stores.contents.all[i].pinned === false) {
+          props.stores.contents.all[i].pinned = true
+        }
+        props.stores.contents.updateByLocal(props.stores.contents.all[i])
+      }
+    }
+  }
 
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
@@ -337,11 +362,22 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
     //if(_contentDeleteDeleteDialogOpen) {return}
 
+
+
     if(mem.clickStatus === 'single') {
       if(mem.clickEnter) {return}
       //if(pingLocation) {return}
 
       if(pingLocation) {}
+
+
+      // Removing all edit mode
+      let isEdit = checkContentsInEdit()
+      if(isEdit) {
+        ExitAllFromEditMode()
+        return
+      }
+
 
       pingEnable = false
       participants.local.pingIcon = false
@@ -522,6 +558,16 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
         //console.log(_dialogStatus, " dialog status")
+
+
+
+        //props.stores.contents.removeAllContents()
+        //console.log(props.stores.contents.all[0].scaleRotateToggle)
+
+
+
+
+        //console.log()
 
         if(_dialogStatus) {return}
 

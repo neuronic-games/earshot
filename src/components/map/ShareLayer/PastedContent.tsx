@@ -78,6 +78,7 @@ export const PastedContent: React.FC<BMProps> = (props:BMProps) => {
         },
         {passive:false},
       )
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
