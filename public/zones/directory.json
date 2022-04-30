@@ -1,0 +1,14 @@
+[
+    {
+      "folder" : "Floors",
+      "url": "zzones/Floors/Bear Rug - Cyan.png', 'zones/Floors/Bear Rug - Pink.png', 'zones/Floors/Rug - Cyan.png', 'zones/Floors/Rectangle - Yellow.png', 'zones/Floors/Rug - Pink.png', 'zones/Floors/Rug - Purple.png"
+    },
+    {
+      "folder" : "Seats",
+      "url": "zones/Seats/1 Desk Green.png','zones/Seats/2 Chairs Green.png', 'zones/Seats/2 Couch with Bear Rug Pink.png', 'zones/Seats/2 Seats Pink.png', 'zones/Seats/3 Couch with Bear Rug Cyan.png', 'zones/Seats/3 Couches Green.png', 'zones/Seats/4 Conference Table Green.png', 'zones/Seats/4 Couches Orange.png', 'zones/Seats/5 Couches Orange.png', 'zones/Seats/6 Conference Table Green.png', 'zones/Seats/6 Conference Table Pink.png', 'zones/Seats/8 Conference Table Green.png"
+    },
+    {
+      "folder" : "Misc",
+      "url": "zones/Misc/Plant 1.png', 'zones/Misc/Plant 2.png', 'zones/Misc/Plant 3.png"
+    }
+]

@@ -26,6 +26,8 @@ import {ShareDialog} from '@components/footer/share/ShareDialog'
 
 
 
+
+
 //  utility
 function limitScale(currentScale: number, scale: number): number {
   const targetScale = currentScale * scale
@@ -278,6 +280,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       const newMatrix = matrix.translate(-diff[0], -diff[1])
       map.setMatrix(newMatrix)*/
 
+      let _contentDialogStatus:boolean = getContentDialogStatus()
+      if(_contentDialogStatus) {return}
+
       //  zoom map
       let scale = Math.pow(1.2, event.deltaY / 100)
       scale = limitScale(extractScaleX(map.matrix), scale)
@@ -356,6 +361,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setPingLocation(false) */
 
     let _contentDialogStatus:boolean = getContentDialogStatus()
+
     if(_contentDialogStatus) {return}
 
     //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
@@ -458,6 +464,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
         //console.log(_onContent, " >>> _onContent")
 
+        let _dialogStatus:boolean = isDialogOpen()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
+        if(_dialogStatus) {return}
+
         if(showUploadOption) {return}
         if(_onContent) {return}
         //if(_contentDeleteDeleteDialogOpen) {return}
@@ -511,6 +522,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
+
+        let _dialogStatus:boolean = isDialogOpen()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
+        if(_dialogStatus) {return}
 
         //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
 
@@ -568,6 +584,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
         //console.log()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
 
         if(_dialogStatus) {return}
 
@@ -665,6 +683,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         if (memo === undefined) {
           return [d, a]
         }
+
+        let _dialogStatus:boolean = isDialogOpen()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
+        if(_dialogStatus) {return}
 
         const [md, ma] = memo
 

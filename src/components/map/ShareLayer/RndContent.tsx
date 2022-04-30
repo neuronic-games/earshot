@@ -1,4 +1,4 @@
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle, Tooltip, Zoom} from '@material-ui/core'
+import {Button, Dialog, DialogActions, DialogContent, /* DialogTitle, */ Tooltip, Zoom} from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {CreateCSSProperties} from '@material-ui/core/styles/withStyles'
 import proximityIcon from '@images/whoo-screen_btn-earshot.png'
@@ -1360,18 +1360,19 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         <Dialog open={showDelete} onClose={() => setShowDelete(false)} onExited={() => setShowDelete(false)}
         keepMounted
         style={showDelete ? {zIndex:9999} : {zIndex:-9999}}
+        BackdropProps={{ invisible: true }}
         >
-          <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle>
-          <DialogContent style={{userSelect: 'none'}}>
+          {/* <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle> */}
+          <DialogContent style={{userSelect: 'none', fontSize:'25px', fontWeight:'bold'}}>
             {t('deleteMsg')}
           </DialogContent>
           <DialogActions>
-            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'#7ececc'}}
+            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'orange', height:'40px', fontSize:'20px', fontWeight:'bold'}}
             onClick={(ev) => {
               setShowDelete(false)
               //_contentDeleteDialogOpen = false
             }}>{t('deleteNo')}</Button>
-            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'#7ececc'}}
+            <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'#7ececc', height:'40px', fontSize:'20px', fontWeight:'bold'}}
             onClick={(ev) => {
               setShowDelete(false)
               //_contentDeleteDialogOpen = false

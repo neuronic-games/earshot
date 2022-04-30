@@ -160,9 +160,9 @@ export const enTranslate = {
   videoLimit: 'Limit on the number of video streams',
   audioLimit: 'Limit on the number of audio streams',
   connectionStatus: 'Connection Status',
-  deleteMsg: 'Are you sure you want to delete this item?',
-  deleteYes: 'YES',
-  deleteNo: 'NO',
+  deleteMsg: 'Remove this zone?',
+  deleteYes: 'Remove',
+  deleteNo: "Don't Remove",
   deleteAlert: 'ALERT',
 }
 export type EnKeyList = keyof typeof enTranslate
