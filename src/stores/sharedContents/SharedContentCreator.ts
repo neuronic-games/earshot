@@ -289,7 +289,9 @@ export function createContentOfImageUrl(url: string, map: MapData,
 
       pasted.noFrame = true
 
-      pasted.pinned = true
+      // For EDIT Mode
+      //pasted.pinned = true
+      pasted.scaleRotateToggle = true
 
       //console.log(pasted.pinned, " pinned")
 
