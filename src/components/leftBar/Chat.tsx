@@ -4,7 +4,7 @@ import { textToLinkedText } from '@components/utils/Text'
 import {Tooltip} from '@material-ui/core'
 import IconButton from '@material-ui/core/IconButton'
 import TextField from '@material-ui/core/TextField'
-import SendIcon from '@material-ui/icons/Send'
+/* import SendIcon from '@material-ui/icons/Send' */
 import {connection} from '@models/api/ConnectionDefs'
 import {MessageType} from '@models/api/MessageType'
 import {t} from '@models/locales'
@@ -15,6 +15,8 @@ import React from 'react'
 import {BMProps} from '../utils'
 import {styleForList} from '../utils/styles'
 import {TextLineStyle} from './LeftBar'
+
+import btnGo from '@images/go.png'
 
 const colorMapBlack: { [key in ChatMessageType]: string } = {
   text: 'black',
@@ -33,15 +35,24 @@ const colorMapWhite: { [key in ChatMessageType]: string } = {
 
 
 export const ChatLine: React.FC<BMProps & TextLineStyle &{message: ChatMessage}> = (props) => {
-  const scale = props.message.type === 'log' || props.message.type === 'callTo' ? 0.6 : 1
+  /* const scale = props.message.type === 'log' || props.message.type === 'callTo' ? 0.6 : 1 */
+  const scale = props.message.type === 'log' || props.message.type === 'callTo' ? 1 : 1
   const lineHeight = props.lineHeight * scale
   const fontSize = props.fontSize * scale
   const {roomInfo, participants, map} = props.stores
 
+  //console.log(props.message.text.split(" ")[1])
+
+  const textColor = (props.message.text.split(" ")[1] === 'joined.' ? 'green' : (props.message.text.split(" ")[1] === 'Left.' ? 'red' : ''))
+
+
   return <Observer>{() => {
     const timestamp = formatTimestamp(props.message.timestamp)    //  make formated timestamp for tooltip
     const colorMap = isDarkColor(roomInfo.backgroundFill) ? colorMapWhite : colorMapBlack
-    const backColor = isDarkColor(roomInfo.backgroundFill) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)'
+    /* const backColor = isDarkColor(roomInfo.backgroundFill) ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.3)' */
+    const backColor = isDarkColor(roomInfo.backgroundFill) ? 'rgba(0, 0, 0, 1)' : 'rgba(255, 255, 255, 1)'
+
+    const localUser = props.message.pid === participants.localId
 
     return <Tooltip title={
       props.message.type==='private' ?
@@ -49,19 +60,39 @@ export const ChatLine: React.FC<BMProps & TextLineStyle &{message: ChatMessage}>
         {name:props.message.name})}<br/>{timestamp}</>
         : <>{props.message.name}<br/>{timestamp}</>
       } placement="right">
-      <div style={{display:'flex', wordWrap:'break-word', marginTop:2, fontSize, backgroundColor:backColor}}>
+      {localUser ?
+      <div style={{display:'flex', overflowY:'auto', overflowX:'hidden', wordWrap:'break-word', marginTop:2, marginLeft:10, fontSize, padding:'5px', /* backgroundColor:backColor,  */alignItems:'flex-end', justifyContent:'flex-start'}}>
         <span style={{marginRight:'0.3em'}} onClick={()=>{
           const from = participants.find(props.message.pid)
           if (from) { map.focusOn(from) }
         }}>
           <ImageAvatar name={props.message.name} colors={props.message.colors}
-            avatarSrc={props.message.avatarUrl} size={lineHeight} border={true}
+            avatarSrc={props.message.avatarUrl} size={lineHeight*1.7} border={true}
           />
         </span>
-        <span style={{color:colorMap[props.message.type]}}>
+        <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:backColor, border:'1px solid #ffffff', padding:'10px', marginTop:'-5px', marginLeft:'15px', borderRadius:'15px', minWidth:'20%', maxWidth:'62%', userSelect:'none'}}>
           {textToLinkedText(props.message.text)}
+          <div style={{color:colorMap[props.message.type], backgroundColor:backColor, border:'1px solid #ffff00', padding:'5px', marginTop:'-17px', marginLeft:'-17px', borderRadius:'1px', borderTop:'0px solid #ffffff', borderRight:'0px solid #ffffff', borderBottom:'1px solid #ffffff', borderLeft:'1px solid #ffffff', width:'5px', height:'5px', content:'', transform:'rotate(45deg)'}}
+          /* style={{content: "", position: 'relative', left: '-25px', top: '-10px', width: 0, height: 0, borderTop: '13px solid transparent', borderRight: '20px solid white', borderBottom: '1px solid transparent'}} */>
+          </div>
         </span>
     </div>
+    : <div style={{display:'flex', overflowY:'auto', overflowX:'hidden', wordWrap:'break-word', marginTop:2, marginLeft:10, marginRight:0, fontSize, padding:'5px', /* backgroundColor:backColor,  */alignItems:'flex-end', justifyContent:'flex-end'}}>
+    <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:'#B3E1EA', border:'1px solid #B3E1EA', padding:'10px', marginTop:'-5px', marginLeft:'15px', marginRight:'15px', borderRadius:'12px', minWidth:'20%', maxWidth:'62%', userSelect:'none'}}>
+      {textToLinkedText(props.message.text)}
+      <div style={{color:colorMap[props.message.type], backgroundColor:'#B3E1EA', border:'1px solid #B3E1EA', padding:'5px', marginTop:'-17px', marginLeft:'101%', /* marginRight:'15px', */ borderRadius:'1px', borderTop:'0px solid #B3E1EA', borderRight:'0px solid #B3E1EA', borderBottom:'1px solid #B3E1EA', borderLeft:'1px solid #B3E1EA', width:'5px', height:'5px', content:'', transform:'rotate(45deg)'}}>
+      </div>
+    </span>
+    <span style={{marginRight:'0.3em'}} onClick={()=>{
+      const from = participants.find(props.message.pid)
+      if (from) { map.focusOn(from) }
+    }}>
+
+      <ImageAvatar name={props.message.name} colors={props.message.colors}
+        avatarSrc={props.message.avatarUrl} size={lineHeight*1.7} border={true}
+      />
+    </span>
+</div> }
    </Tooltip>
   }}</Observer>
 }
@@ -90,17 +121,18 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
 
   return <div className={classes.container}
     style={{height:'100%', display:'flex', flexDirection: 'column-reverse',
-    overflowY:'auto', overflowX:'clip', whiteSpace: 'pre-line'}} >
+    overflowY:'auto', overflowX:'hidden',/* overflowX:'clip',  */whiteSpace: 'pre-line'}} >
     <form noValidate autoComplete="off">
       <Tooltip title={t('cmSend')} placement="right">
-        <div style={{position:'relative', top:26, marginTop:-26, textAlign:'right', zIndex:1000}}>
+        <div style={{position:'relative', top:15, /* marginTop:-26,  */textAlign:'right'/* , zIndex:1000 */}}>
           <IconButton size={'small'} onClick={()=>{
             const nameTo = chat.sendTo ?
               participants?.find(chat.sendTo)?.information?.name : undefined
             sendChatMessage(text, nameTo ? chat.sendTo : '', props)
             setText('')
           }}>
-            <SendIcon color="primary" />
+           {/*  <SendIcon color="primary" /> */}
+            <img style={{width:'2.8em', position:'relative', bottom:'0px', right:'5px'}} src={btnGo} draggable={false} alt="" />
           </IconButton>
         </div>
       </Tooltip>
@@ -108,10 +140,10 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
         const nameTo = chat.sendTo ? participants?.find(chat.sendTo)?.information?.name : undefined
         const textColor = isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black'
 
-        return <TextField label={nameTo ? t('cmToName', {name: nameTo}) : t('cmToAll')} multiline={true} value={text}
-          style={{width:'100%', userSelect:'none'}} size={props.lineHeight > 20 ? 'medium' : 'small'}
-          InputProps={{style:{color:textColor}}}
-          InputLabelProps={{style:{color:textColor}}}
+        return <TextField variant='outlined' label={''/* nameTo ? t('cmToName', {name: nameTo}) : t('cmToAll') */} multiline={true} value={text} rowsMax={2}
+          style={{width:'78%', userSelect:'none', marginTop:'-38px', marginLeft:'12px',/* , border:'1px solid yellow', bottom:'20px' */}} size={props.lineHeight > 20 ? 'medium' : 'small'}
+          InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'5px', height:'50px'}}}
+          InputLabelProps={{style:{color:'black'}}}
           onFocus={()=>{map.keyInputUsers.add('chat')}}
           onBlur={()=>{map.keyInputUsers.delete('chat')}}
           onKeyDown={(ev)=>{

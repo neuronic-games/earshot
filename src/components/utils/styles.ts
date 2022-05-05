@@ -21,26 +21,29 @@ export const styleCommon = makeStyles({
 
 export const styleForSplit = makeStyles({
   resizerVertical: {
-    background: '#000',
+    background: '#0f5c81',
     zIndex: 1,
     boxSizing: 'border-box',
     backgroundClip: 'padding-box',
     width: 11,
     margin: '0 -10px 0 0',
-    borderLeft: '1px solid gray',
+    borderLeft: '0px solid white'/* '1px solid gray' */,
     borderRight: 'transparent 10px solid',
     cursor: 'col-resize',
   },
   resizerHorizontal: {
-    background: 'gray',
+    background: '#85AEE060'/* 'gray' */,
     zIndex: 1,
     boxSizing: 'border-box',
     backgroundClip: 'padding-box',
     height: 10.5,
+    width: '80%',
+    marginLeft: '10%',
     margin: '-5px 0 -5px 0',
     borderTop: '5px transparent solid',
     borderBottom: '5px transparent solid',
     cursor: 'row-resize',
+    textAlign: 'center',
   },
 })
 
@@ -54,7 +57,7 @@ export const styleForList = makeStyles({
     width:'100%',
   },
   title: (props: ListLineProps) => ({
-    fontSize: props.fontSize * 0.8,
+    fontSize: props.fontSize, /* 0.8, */
     justifyContent: 'start',
     justifyItems: 'start',
     alignItems: 'center',
@@ -62,6 +65,7 @@ export const styleForList = makeStyles({
     userDrag: 'none',
     whiteSpace: 'nowrap',
     width: '100%',
+
   }),
   outer: {
     display: 'flex',

@@ -4,7 +4,7 @@ import {useGesture} from 'react-use-gesture'
 import {BMProps} from '../utils'
 import {styleForSplit} from '../utils/styles'
 import {ChatInBar} from './Chat'
-import {ContentList} from './ContentList'
+/* import {ContentList} from './ContentList' */
 import {ParticipantList} from './ParticipantList'
 
 export interface TextLineStyle {
@@ -62,13 +62,13 @@ export const LeftBar: React.FC<BMProps> = (props) => {
 
   return (
     <div {...bind()}>
-      <SplitPane split="horizontal" defaultSize="80%" resizerClassName = {classes.resizerHorizontal}
+      <SplitPane split="horizontal" /* defaultSize="80%" */ defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} >
-        <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
-          paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} >
+       {/*  <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
+          paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} > */}
           <ParticipantList {...props} {...textLineStyle} />
-          <ContentList {...props}  {...textLineStyle} />
-        </SplitPane >
+         {/*  <ContentList {...props}  {...textLineStyle} /> */}
+       {/*  </SplitPane > */}
         <ChatInBar {...props}  {...textLineStyle} />
       </SplitPane >
     </div>

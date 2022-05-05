@@ -8,7 +8,7 @@ import IconButton from '@material-ui/core/IconButton'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 import {getColorOfParticipant} from '@models/Participant'
-import {isDarkColor} from '@models/utils'
+/* import {isDarkColor} from '@models/utils' */
 import {ParticipantBase} from '@stores/participants/ParticipantBase'
 import {autorun} from 'mobx'
 import {useObserver} from 'mobx-react-lite'
@@ -16,6 +16,12 @@ import React from 'react'
 import {styleForList} from '../utils/styles'
 import {TextLineStyle} from './LeftBar'
 import {StatusDialog} from './StatusDialog'
+import goodConnIcon from '@images/earshot_icon_quality_3.png'
+import averageConnIcon from '@images/earshot_icon_quality_2.png'
+import badConnIcon from '@images/earshot_icon_quality_1.png'
+
+
+
 
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
@@ -31,6 +37,24 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
   const ref = React.useRef<HTMLButtonElement>(null)
   const {lineHeight, ...propsForForm} = props
   //  console.log(`PColor pid:${props.participant.id} colors:${colors}`, props.participant)
+
+  const _connQuality = useObserver(() => props.participant.quality?.connectionQuality)
+  const zoneName = useObserver(() => {
+    let abc = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
+    for(let [i] of abc.entries()) {
+
+      if(props.stores.participants.remote.get(abc[i])?.closedZone !== undefined) {
+        if(props.stores.participants.remote.get(abc[i])?.id === props.participant.id && props.stores.participants.remote.get(abc[i])?.closedZone?.name !== '') {
+          return ' (' + props.stores.participants.remote.get(abc[i])?.closedZone?.name + ')'
+        }
+      } else {
+        return ''
+      }
+    }
+  })
+
+  const localZone = useObserver(() => (props.stores.participants.local.zone?.name !== undefined && props.stores.participants.local.zone?.name !== '') ? ' ('+props.stores.participants.local.zone?.name+')' : '')
+
   function onClick(){
     if (props.participant.physics.located){
       map.focusOn(props.participant)
@@ -68,15 +92,19 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
 
   return <>
     <Tooltip title={`${props.participant.information.name} (${props.participant.id})`} placement="right">
-      <div className={classes.outer} style={{margin:'1px 0 1px 0'}}>
+      <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 5px 10px'}}>
         <IconButton style={{margin:0, padding:0}} onClick={onClick} onContextMenu={onContextMenu}>
-          <ImageAvatar border={true} colors={colors} size={size} name={name} avatarSrc={avatarSrc} />
+          <ImageAvatar border={true} colors={colors} /* size={size} */ size={size * 2} name={name} avatarSrc={avatarSrc} />
         </IconButton>
-        <Button variant="contained" className={classes.line} ref={ref}
-          style={{backgroundColor:colors[0], color:colors[1], textTransform:'none'}}
+        <Button /* variant="contained" */ className={classes.line} ref={ref}
+          style={{/* backgroundColor:colors[0],  */color:colors[1], textTransform:'none', marginLeft:'10px', marginTop: '10px', fontWeight: 'bold'}}
           onClick={onClick} onContextMenu={onContextMenu}>
             {name}
+            <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px'/* , fontSize:'15px' */}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>
         </Button>
+        <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:'25px', marginTop: '2px',}}>
+            {(_connQuality !== undefined && _connQuality > 80) ? <img width={'40px'} height={'40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={'40px'} height={'40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={'40px'} height={'40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
+        </div>
       </div>
     </Tooltip>
     {props.participant.id === props.stores.participants.localId ?
@@ -96,11 +124,11 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
 export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string, remoteIds: string[]}> = (props) => {
   const [showStat, setShowStat] = React.useState(false)
   const participants = props.stores.participants
-  const roomInfo = props.stores.roomInfo
+  /* const roomInfo = props.stores.roomInfo */
   const classes = styleForList({height: props.lineHeight, fontSize: props.fontSize})
   const {localId, remoteIds, lineHeight, fontSize, ...statusProps} = props
   const lineProps = {lineHeight, fontSize, ...statusProps}
-  const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black')
+  //const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black')
 
   remoteIds.sort((a, b) => {
     const pa = participants.remote.get(a)
@@ -121,9 +149,10 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
 
   return (
     <div className={classes.container} >
-      <div className={classes.title} style={{color:textColor}} ref={ref}
+      <div className={classes.title} style={{color:'#FFFFFF90'/* textColor */, marginLeft: '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold'}} ref={ref}
         onClick={()=>{setShowStat(true)}}
-      >{(participants.remote.size + 1).toString()} in {connection.conference.name}</div>
+     /*  >{(participants.remote.size + 1).toString()} in {connection.conference.name}</div> */
+     >{connection.conference.name} ({(participants.remote.size + 1).toString()})</div>
       <StatusDialog open={showStat}
         close={()=>{setShowStat(false)}} {...statusProps} anchorEl={ref.current}/>
       {localElement}{remoteElements}

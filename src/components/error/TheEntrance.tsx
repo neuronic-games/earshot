@@ -432,7 +432,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.5</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.6</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -450,12 +450,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
       <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
-        <img style={{width:'30em'}} src={bgCircle}
+        <img style={{width:'30em', userSelect:'none'}} draggable={false} src={bgCircle}
         alt="" />
       </div>
 
       <div style={active ? {position: 'relative', top: '-25em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25em', width: '100%', textAlign:'center'}}>
-        <img style={{width:'10em'}} src={peopleLogin} alt="" />
+        <img style={{width:'10em', userSelect:'none'}} src={peopleLogin} draggable={false} alt="" />
       </div>
       <br />
       <Box mt={1}>
@@ -487,12 +487,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
           {t('EnterTheVenue')}
         </Button> */}
         {/* <img style={{width:'4em'}} src={btnGo} onClick={() => onClose(true)} alt="" /> */}
-        <img style={{width:'4em'}} src={btnGo} onClick={() => onErrorClose()} alt="" />
+        <img style={{width:'4em', userSelect:'none'}} src={btnGo} draggable={false} onClick={() => onErrorClose()} alt="" />
       </div>
       </Box>
       <Box mt={7}>
       <div style={active ? {position: 'relative', top: '8.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
-        <img style={{width:'8em'}} src={logo_es} alt="" />
+        <img style={{width:'8em', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
       </div>
       </Box>
 

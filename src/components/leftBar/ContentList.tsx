@@ -42,8 +42,8 @@ export const ContentLine: React.FC<BMProps & TextLineStyle &
 
     return <>
       <Tooltip title={<>{props.content.name}<br />{props.content.ownerName}</>} placement="right">
-        <Button ref={ref} variant="contained" className={classes.line}
-          style={{backgroundColor:colors[0], color:colors[1], margin: '1px 0 1px 0', textTransform:'none'}}
+        <Button ref={ref} /* variant="contained" */ className={classes.line}
+          style={{/* backgroundColor:colors[0],  */color:colors[1], margin: '1px 0 1px 10px', textTransform:'none'}}
           onClick={() => {
             const found = contents.find(props.content.id)
             if (found){
