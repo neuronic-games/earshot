@@ -97,7 +97,7 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
           <ImageAvatar border={true} colors={colors} /* size={size} */ size={size * 2} name={name} avatarSrc={avatarSrc} />
         </IconButton>
         <Button /* variant="contained" */ className={classes.line} ref={ref}
-          style={{/* backgroundColor:colors[0],  */color:colors[1], textTransform:'none', marginLeft:'10px', marginTop: '10px', fontWeight: 'bold'}}
+          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '10px', fontWeight: 'bold'}}
           onClick={onClick} onContextMenu={onContextMenu}>
             {name}
             <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px'/* , fontSize:'15px' */}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>

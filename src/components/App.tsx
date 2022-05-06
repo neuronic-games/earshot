@@ -47,6 +47,8 @@ export const App: React.FC<{}> = () => {
 
   const [showIntro, setShowIntro] = useState<Boolean>(true)
 
+  //console.log(showIntro, " showIntro")
+
 
   // to display image and desc
   let roomImgPath:string = ""
@@ -128,7 +130,7 @@ export const App: React.FC<{}> = () => {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: '#0f5c81'/* '#5f7ca020' */} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: '#0f5c81'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
           minSize={0} defaultSize={able === true ? "77%"/* "85%" */ : "100%"}>
 
           <Fragment>
@@ -147,8 +149,8 @@ export const App: React.FC<{}> = () => {
                 }
                }}
              >
-               <img src={tabCollapse} style={{width:50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:'0px', userSelect:'none' }} draggable={false} alt='' />
-                <img src={able ? tabChatActive : tabChat} style={{width:50, height:50, color:'white', position:'absolute', top:'2px', left:'5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none'}} draggable={false} alt='' />
+               <img src={tabCollapse} style={{width:50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:'0px', userSelect:'none', zIndex:showIntro ? 0 : 9}} draggable={false} alt='' />
+                <img src={able ? tabChatActive : tabChat} style={{width:50, height:50, color:'white', position:'absolute', top:'2px', left:'5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -160,7 +162,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div onClick={StartMeeting} style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.6.6</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.6.7</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:'1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms', width: '50%', marginLeft:'25%'} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

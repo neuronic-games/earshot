@@ -43,7 +43,7 @@ export const ChatLine: React.FC<BMProps & TextLineStyle &{message: ChatMessage}>
 
   //console.log(props.message.text.split(" ")[1])
 
-  const textColor = (props.message.text.split(" ")[1] === 'joined.' ? 'green' : (props.message.text.split(" ")[1] === 'Left.' ? 'red' : ''))
+  const textColor = (props.message.text.split(" ")[1] === 'joined.' ? 'green' : (props.message.text.split(" ")[1] === 'Left.' ? 'red' : 'black'))
 
 
   return <Observer>{() => {
@@ -141,7 +141,7 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
         const textColor = isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black'
 
         return <TextField variant='outlined' label={''/* nameTo ? t('cmToName', {name: nameTo}) : t('cmToAll') */} multiline={true} value={text} rowsMax={2}
-          style={{width:'78%', userSelect:'none', marginTop:'-38px', marginLeft:'12px',/* , border:'1px solid yellow', bottom:'20px' */}} size={props.lineHeight > 20 ? 'medium' : 'small'}
+          style={{width:'76%', userSelect:'none', marginTop:'-38px', marginLeft:'15px', right:'3px'/* , border:'1px solid yellow', bottom:'20px' */}} size={props.lineHeight > 20 ? 'medium' : 'small'}
           InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'5px', height:'50px'}}}
           InputLabelProps={{style:{color:'black'}}}
           onFocus={()=>{map.keyInputUsers.add('chat')}}
