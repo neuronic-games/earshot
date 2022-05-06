@@ -1,7 +1,7 @@
 import {BMProps} from '@components/utils'
 //import usageEn from '@images/usage.en.png'
 //import usageJa from '@images/usage.ja.png'
-import bgCircle from '@images/circle_bg.png'
+import bgCircle from '@images/whoo-screen_chat.png'
 import peopleLogin from '@images/people_login.png'
 import btnGo from '@images/go.png'
 import logo_es from '@images/logo.png'
@@ -432,7 +432,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.7</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.8</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -449,7 +449,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '2em', width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '3em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '3em' /* '2em' */, width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '4em', width: '100%', textAlign:'center'}}>
         <img style={{width:'30em', userSelect:'none'}} draggable={false} src={bgCircle}
         alt="" />
       </div>

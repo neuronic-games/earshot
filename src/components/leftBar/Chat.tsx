@@ -132,7 +132,7 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
             setText('')
           }}>
            {/*  <SendIcon color="primary" /> */}
-            <img style={{width:'2.8em', position:'relative', bottom:'0px', right:'5px'}} src={btnGo} draggable={false} alt="" />
+            <img style={{width:'2.8em', position:'relative', bottom:'1px'/* , right:'3px' */}} src={btnGo} draggable={false} alt="" />
           </IconButton>
         </div>
       </Tooltip>
@@ -141,20 +141,27 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
         const textColor = isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black'
 
         return <TextField variant='outlined' label={''/* nameTo ? t('cmToName', {name: nameTo}) : t('cmToAll') */} multiline={true} value={text} rowsMax={2}
-          style={{width:'76%', userSelect:'none', marginTop:'-38px', marginLeft:'15px', right:'3px'/* , border:'1px solid yellow', bottom:'20px' */}} size={props.lineHeight > 20 ? 'medium' : 'small'}
-          InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'5px', height:'50px'}}}
+          style={{width:'80%', minWidth:'30%', userSelect:'none', marginTop:'-38px', marginLeft:'12px', right:'3px'/* , border:'1px solid yellow', bottom:'20px' */}} /* size={props.lineHeight > 20 ? 'medium' : 'small'}
+ */          InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'5px', height:'50px'}}}
           InputLabelProps={{style:{color:'black'}}}
           onFocus={()=>{map.keyInputUsers.add('chat')}}
           onBlur={()=>{map.keyInputUsers.delete('chat')}}
           onKeyDown={(ev)=>{
-            //  console.log(`key = ${ev.key}`, ev)
+            //console.log(`key = ${ev.key}`, ev)
+
             if (ev.key === 'Escape' || ev.key === 'Esc'){ //  Esc key
               chat.sendTo = ''
             }
           }}
           onKeyPress={(ev)=>{
+            //console.log(ev.ctrlKey, " key ", ev.keyCode)
             //  if (ev.key === 'Enter'){  }
-            if (ev.key === '\n'){ //  CTRL + Enter
+            /* if (ev.key === '\n'){ //  CTRL + Enter
+              sendChatMessage(text, nameTo ? chat.sendTo : '', props)
+              setText('')
+            } */
+
+            if(ev.ctrlKey && (ev.keyCode === 0 || ev.keyCode === 76)) {
               sendChatMessage(text, nameTo ? chat.sendTo : '', props)
               setText('')
             }

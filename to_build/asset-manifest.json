@@ -1,18 +1,19 @@
 {
   "files": {
-    "main.js": "./static/js/main.b40dfad6.chunk.js",
-    "main.js.map": "./static/js/main.b40dfad6.chunk.js.map",
+    "main.js": "./static/js/main.d351f283.chunk.js",
+    "main.js.map": "./static/js/main.d351f283.chunk.js.map",
     "runtime-main.js": "./static/js/runtime-main.f90090fb.js",
     "runtime-main.js.map": "./static/js/runtime-main.f90090fb.js.map",
     "static/js/2.ac049180.chunk.js": "./static/js/2.ac049180.chunk.js",
     "static/js/2.ac049180.chunk.js.map": "./static/js/2.ac049180.chunk.js.map",
     "index.html": "./index.html",
     "static/js/2.ac049180.chunk.js.LICENSE.txt": "./static/js/2.ac049180.chunk.js.LICENSE.txt",
-    "static/media/people_login.db1eab64.png": "./static/media/people_login.db1eab64.png"
+    "static/media/people_login.db1eab64.png": "./static/media/people_login.db1eab64.png",
+    "static/media/whoo-screen_chat.52e62a85.png": "./static/media/whoo-screen_chat.52e62a85.png"
   },
   "entrypoints": [
     "static/js/runtime-main.f90090fb.js",
     "static/js/2.ac049180.chunk.js",
-    "static/js/main.b40dfad6.chunk.js"
+    "static/js/main.d351f283.chunk.js"
   ]
 }
