@@ -63,7 +63,7 @@ export const LeftBar: React.FC<BMProps> = (props) => {
   return (
     <div {...bind()}>
       <SplitPane split="horizontal" /* defaultSize="80%" */ defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
-        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} >
+        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
        {/*  <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} > */}
           <ParticipantList {...props} {...textLineStyle} />

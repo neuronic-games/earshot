@@ -71,6 +71,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             }}
             textLabel = "Text"
             multiline = {true}
+            type={step}
           />
       case 'iframe':
         return <TextInput stores={props.stores}
@@ -82,6 +83,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
             }}
             textLabel = "URL"
             multiline = {false}
+            type={step}
           />
       case 'image':
         return <ImageInput setStep={setStep} stores={props.stores} type={step} xCord={cordX} yCord={cordY} from={origin}/>

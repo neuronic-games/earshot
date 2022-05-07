@@ -70,7 +70,7 @@ export const ChatLine: React.FC<BMProps & TextLineStyle &{message: ChatMessage}>
             avatarSrc={props.message.avatarUrl} size={lineHeight*1.7} border={true}
           />
         </span>
-        <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:backColor, border:'1px solid #ffffff', padding:'10px', marginTop:'-5px', marginLeft:'15px', borderRadius:'15px', minWidth:'20%', maxWidth:'62%', userSelect:'none'}}>
+        <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:backColor, border:'1px solid #ffffff', padding:'10px', marginTop:'-5px', marginLeft:'15px', borderRadius:'15px', minWidth:'10%', maxWidth:'62%', userSelect:'none'}}>
           {textToLinkedText(props.message.text)}
           <div style={{color:colorMap[props.message.type], backgroundColor:backColor, border:'1px solid #ffff00', padding:'5px', marginTop:'-17px', marginLeft:'-17px', borderRadius:'1px', borderTop:'0px solid #ffffff', borderRight:'0px solid #ffffff', borderBottom:'1px solid #ffffff', borderLeft:'1px solid #ffffff', width:'5px', height:'5px', content:'', transform:'rotate(45deg)'}}
           /* style={{content: "", position: 'relative', left: '-25px', top: '-10px', width: 0, height: 0, borderTop: '13px solid transparent', borderRight: '20px solid white', borderBottom: '1px solid transparent'}} */>
@@ -78,7 +78,7 @@ export const ChatLine: React.FC<BMProps & TextLineStyle &{message: ChatMessage}>
         </span>
     </div>
     : <div style={{display:'flex', overflowY:'auto', overflowX:'hidden', wordWrap:'break-word', marginTop:2, marginLeft:10, marginRight:0, fontSize, padding:'5px', /* backgroundColor:backColor,  */alignItems:'flex-end', justifyContent:'flex-end'}}>
-    <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:'#B3E1EA', border:'1px solid #B3E1EA', padding:'10px', marginTop:'-5px', marginLeft:'15px', marginRight:'15px', borderRadius:'12px', minWidth:'20%', maxWidth:'62%', userSelect:'none'}}>
+    <span style={{/* color:colorMap[props.message.type] */color:textColor, backgroundColor:'#B3E1EA', border:'1px solid #B3E1EA', padding:'10px', marginTop:'-5px', marginLeft:'15px', marginRight:'15px', borderRadius:'12px', minWidth:'10%', maxWidth:'62%', userSelect:'none'}}>
       {textToLinkedText(props.message.text)}
       <div style={{color:colorMap[props.message.type], backgroundColor:'#B3E1EA', border:'1px solid #B3E1EA', padding:'5px', marginTop:'-17px', marginLeft:'101%', /* marginRight:'15px', */ borderRadius:'1px', borderTop:'0px solid #B3E1EA', borderRight:'0px solid #B3E1EA', borderBottom:'1px solid #B3E1EA', borderLeft:'1px solid #B3E1EA', width:'5px', height:'5px', content:'', transform:'rotate(45deg)'}}>
       </div>
@@ -121,7 +121,7 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
 
   return <div className={classes.container}
     style={{height:'100%', display:'flex', flexDirection: 'column-reverse',
-    overflowY:'auto', overflowX:'hidden',/* overflowX:'clip',  */whiteSpace: 'pre-line'}} >
+    overflowY:'auto', overflowX:'hidden',/* overflowX:'clip',  */whiteSpace: 'pre-line', resize:'horizontal', minWidth:'290px'}} >
     <form noValidate autoComplete="off">
       <Tooltip title={t('cmSend')} placement="right">
         <div style={{position:'relative', top:15, /* marginTop:-26,  */textAlign:'right'/* , zIndex:1000 */}}>
@@ -132,7 +132,9 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
             setText('')
           }}>
            {/*  <SendIcon color="primary" /> */}
-            <img style={{width:'2.8em', position:'relative', bottom:'1px'/* , right:'3px' */}} src={btnGo} draggable={false} alt="" />
+
+            <img style={{width:'2.9em', /* position:'relative',  */bottom:'1px'/* , right:'3px' */, position:'relative' , left:'1px'}} src={btnGo} draggable={false} alt="" />
+
           </IconButton>
         </div>
       </Tooltip>
@@ -141,8 +143,8 @@ export const ChatInBar: React.FC<BMProps&TextLineStyle>  = (props) => {
         const textColor = isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black'
 
         return <TextField variant='outlined' label={''/* nameTo ? t('cmToName', {name: nameTo}) : t('cmToAll') */} multiline={true} value={text} rowsMax={2}
-          style={{width:'80%', minWidth:'30%', userSelect:'none', marginTop:'-38px', marginLeft:'12px', right:'3px'/* , border:'1px solid yellow', bottom:'20px' */}} /* size={props.lineHeight > 20 ? 'medium' : 'small'}
- */          InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'5px', height:'50px'}}}
+          style={{width:'77%', minWidth:'30%', userSelect:'none', marginTop:'-38px', marginLeft:'15px', right:'3px'/* , border:'1px solid yellow', bottom:'20px' */, resize:'horizontal'}} /* size={props.lineHeight > 20 ? 'medium' : 'small'}
+ */          InputProps={{style:{color:textColor, backgroundColor: 'white', borderRadius:'8px', height:'50px'}}}
           InputLabelProps={{style:{color:'black'}}}
           onFocus={()=>{map.keyInputUsers.add('chat')}}
           onBlur={()=>{map.keyInputUsers.delete('chat')}}

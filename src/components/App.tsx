@@ -120,9 +120,9 @@ export const App: React.FC<{}> = () => {
   }
   // FF00FF
 
-  function StartMeeting() {
+  /* function StartMeeting() {
     setShowIntro(false)
-  }
+  } */
 
   return <Observer>{()=>{
     return <div ref={refDiv} className={classes.back} style={{backgroundColor: '#0f5c81'/* '#5f7ca020' */ /* rgb2Color(roomInfo.backgroundFill) */}}>
@@ -157,12 +157,12 @@ export const App: React.FC<{}> = () => {
             <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
 
           </Fragment>
-          <div style={{display: (able === true ? "block" : "none")}}>
+          <div style={{display: (able === true ? "block" : "none"), minWidth:'280px', width:'100%', maxWidth:'280px'}}>
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
-        <div onClick={StartMeeting} style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.6.8</p>
+        <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.6.9</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:'1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms', width: '50%', marginLeft:'25%'} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

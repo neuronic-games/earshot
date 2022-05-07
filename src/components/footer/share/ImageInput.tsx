@@ -11,6 +11,7 @@ import { getSelectedImage } from './Input'
 
 
 
+
 const useStyles = makeStyles({
   preview: {
     width: '100%',
@@ -73,6 +74,8 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
           }
         }}
         value={files}
-        inputField={field} />
+        inputField={field}
+        type={props.type}
+        />
   )
 }

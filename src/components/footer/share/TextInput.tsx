@@ -8,12 +8,14 @@ interface TextInputProps extends DialogPageProps{
   textLabel?: string
   defaultValue?: string
   multiline?: boolean
+  type: string
 }
 
 export const TextInput: React.FC<TextInputProps> = (props) => {
   const {
     textLabel,
     defaultValue,
+    type,
     ...remainProps
   } = props
   const {setStep, onFinishInput} = props
@@ -32,7 +34,7 @@ export const TextInput: React.FC<TextInputProps> = (props) => {
   )
 
   return (
-    <Input value={value} inputField={field} {...remainProps}/>
+    <Input value={value} inputField={field} {...remainProps} type={type}/>
   )
 }
 TextInput.displayName = 'TextInput'

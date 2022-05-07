@@ -57,6 +57,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   if(participant.information.avatarSrc === '') {
     var _rnd = Math.ceil(Math.random() * (AVATARS.length-1))
     participant.information.avatarSrc = AVATARS[_rnd]
+
+    participant.sendInformation()
     participant.saveInformationToStorage(true)
   }
 

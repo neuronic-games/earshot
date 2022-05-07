@@ -76,6 +76,7 @@ export function getSelectedImage() : string {
 interface InputProps<T> extends DialogPageProps{
   inputField: JSX.Element
   value: T
+  type: string
   onFinishInput: (text: T) => void
 }
 
@@ -91,6 +92,8 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
   const [pageIndex, setPageIndex] = useState(0)
 
   const [active, setActive] = useState(-1)
+
+  //console.log(props.type, " props")
 
   ///////////////////////////////////////////////////////////
   /* const [data,setData]=useState('');
@@ -238,6 +241,7 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
 
   return (
     <div className={classes.mainContainer} /* style={{display: 'flex', height: '100%', width:'100%'}} */>
+      {props.type === 'zoneimage' ?
       <div className={classes.menuContainer} /* style={{position:'relative', top:'12px', width:'100px', height:'100px'}} */>
         <div className={pageIndex === 0 ? classes.avticeButtons : classes.deavticeButtons} onClick = {() => {EnableThis(0)}}>Upoad</div>
         <div className={pageIndex === 1 ? classes.avticeButtons : classes.deavticeButtons} onClick = {() => {EnableThis(1)}}>Floor</div>
@@ -246,14 +250,15 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
 
         {/* <div className={pageIndex === 0 ? classes.avticeButtons : classes.deavticeButtons} onClick = {() => {EnableThis(0)}}>Upoad</div>
         {menuList} */}
-      </div>
+      </div> : ''}
 
     <List>
+
     {pageIndex === 0 ?
-      <ListItem style={{minWidth:'470px', height:'320px'}}>
+      <ListItem style={props.type === 'zoneimage' ? {minWidth:'470px', height:'320px'} : {minWidth:'540px', height:'320px'} }>
         {inputField}
       </ListItem>
-      : pageIndex === 1 ?
+      : pageIndex === 1 && props.type === 'zoneimage' ?
       <ListItem style={{minWidth:'470px'}}>
         <div className={classes.galleryMain}>
         <div className={classes.gallery}>
@@ -261,14 +266,14 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
         </div>
       </div>
       </ListItem>
-      : pageIndex === 2 ?
+      : pageIndex === 2 && props.type === 'zoneimage' ?
       <ListItem style={{minWidth:'470px'}}>
         <div className={classes.galleryMain}>
         <div className={classes.gallery}>
           {chairsItems}
         </div>
       </div>
-      </ListItem> : pageIndex === 3 ?
+      </ListItem> : pageIndex === 3 && props.type === 'zoneimage' ?
       <ListItem style={{minWidth:'470px'}}>
         <div className={classes.galleryMain}>
         <div className={classes.gallery}>

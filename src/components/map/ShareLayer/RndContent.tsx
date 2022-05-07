@@ -497,9 +497,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       props.content.zone = "close"
     } else {
       if(props.content.shareType === "img") {
-        props.content.zone = undefined
-      } else {
-        props.content.zone = "open"
+          if(props.content.zone === undefined) {
+            props.content.zone = "close"
+          } else {
+            props.content.zone = undefined
+          }
+        } else {
+          props.content.zone = "open"
       }
     }
     props.updateAndSend(props.content)

@@ -366,11 +366,60 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       mapData.setCommittedMatrix(changeMatrix)
 
       // Position Avatar at center of stage
+      // Default Setting
       mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
-
+      const _timerUserPlace = setTimeout(() =>{
+        clearTimeout(_timerUserPlace)
+        placeUserAtBlank()
+      }, 3000)
       onClose(true)
     },100)
+
+  }
+
+
+  function placeUserAtBlank() {
+    let found:boolean = false
+    let randX:number = 0
+    let randY:number = 0
+    const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+    if(remotes.length > 0) {
+      for (const [i] of remotes.entries()) {
+        let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
+        let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
+        randX = Number(Math.random() * mapData.screenSize[0]) + 60
+        randY = Number(Math.random() * mapData.screenSize[1]) + 60
+        /* mapData.setMouse([randX, randY])
+        let mouseX = mapData.mouseOnMap[0]
+        let mouseY = mapData.mouseOnMap[1] */
+        if(randX >= (remoteX-60) && randX <= (remoteX+60) && randY >= (remoteY-60) && randY <= (remoteY+60)) {
+          placeUserAtBlank()
+          return
+        } else {
+          if(remoteX >= -60 && remoteX <=60 && remoteY >= -60 && remoteY <= 60) {
+            found = true
+           /*  mapData.setMouse([randX, randY])
+            participants.local.pose.position = Object.assign({}, mapData.mouseOnMap) */
+          } else {
+
+            /* mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+            participants.local.pose.position = Object.assign({}, mapData.mouseOnMap) */
+          }
+        }
+      }
+    } else {
+      mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+    }
+
+    if(found) {
+      mapData.setMouse([randX, randY])
+      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+    } else {
+      mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+    }
 
   }
 
@@ -432,7 +481,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.8</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.9</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

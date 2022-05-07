@@ -1,8 +1,8 @@
 import {BMProps} from '@components/utils'
 import bxWindowClose from '@iconify-icons/bx/bx-window-close'
 import clipboardPaste from '@iconify/icons-fluent/clipboard-arrow-right-24-regular'
-import whiteboard24Regular from '@iconify/icons-fluent/whiteboard-24-regular'
-import cursorDefaultOutline from '@iconify/icons-mdi/cursor-default-outline'
+/* import whiteboard24Regular from '@iconify/icons-fluent/whiteboard-24-regular'
+import cursorDefaultOutline from '@iconify/icons-mdi/cursor-default-outline' */
 import {Icon} from '@iconify/react'
 import Collapse from '@material-ui/core/Collapse'
 import Divider from '@material-ui/core/Divider'
@@ -12,7 +12,7 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
-import CameraAltIcon from '@material-ui/icons/CameraAlt'
+/* import CameraAltIcon from '@material-ui/icons/CameraAlt' */
 import ExpandLess from '@material-ui/icons/ExpandLess'
 import ExpandMore from '@material-ui/icons/ExpandMore'
 //import DownloadIcon from '@material-ui/icons/GetApp'
@@ -256,11 +256,11 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
       <ShareDialogItem
         key="shareText" text={t('shareText')} icon={<SubjectIcon />} onClick={createText}
       />
-      <ShareDialogItem
+      {/* <ShareDialogItem
         tip = {t('shareWhiteboardTip')}
         key="shareWhiteboard" text={t('shareWhiteboard')} icon={<Icon icon={whiteboard24Regular} style={{fontSize:'1.5rem'}} />}
          onClick={createWhiteboard}
-      />
+      /> */}
 
       <Divider />
       <Divider />
@@ -269,7 +269,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
         key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon />} onClick={() => setStep('zoneimage')}
       />
        <Divider />
-      <ShareDialogItem
+      {/* <ShareDialogItem
         tip = {t('shareMouseTip')}
         key="shareMouse"
         icon={<Icon icon={cursorDefaultOutline} style={{fontSize:'1.5rem'}}/>}
@@ -281,7 +281,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
       />
       <ShareDialogItem key="shareCamera" text={t('shareCamera')} icon={<CameraAltIcon />}
         onClick={() => setStep('camera')}
-      />
+      /> */}
       <ShareDialogItem
         tip = {t('shareScreenContentTip')}
         key="shareScreenContent"
