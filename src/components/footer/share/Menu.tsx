@@ -1,39 +1,39 @@
 import {BMProps} from '@components/utils'
-import bxWindowClose from '@iconify-icons/bx/bx-window-close'
-import clipboardPaste from '@iconify/icons-fluent/clipboard-arrow-right-24-regular'
+/* import bxWindowClose from '@iconify-icons/bx/bx-window-close' */
+/* import clipboardPaste from '@iconify/icons-fluent/clipboard-arrow-right-24-regular' */
 /* import whiteboard24Regular from '@iconify/icons-fluent/whiteboard-24-regular'
 import cursorDefaultOutline from '@iconify/icons-mdi/cursor-default-outline' */
-import {Icon} from '@iconify/react'
-import Collapse from '@material-ui/core/Collapse'
+/* import {Icon} from '@iconify/react'
+import Collapse from '@material-ui/core/Collapse' */
 import Divider from '@material-ui/core/Divider'
 import FormControl from '@material-ui/core/FormControl'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
+/* import ListItem from '@material-ui/core/ListItem' */
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 /* import CameraAltIcon from '@material-ui/icons/CameraAlt' */
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
+/* import ExpandLess from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore' */
 //import DownloadIcon from '@material-ui/icons/GetApp'
-import HttpIcon from '@material-ui/icons/Http'
+/* import HttpIcon from '@material-ui/icons/Http' */
 import ImageIcon from '@material-ui/icons/Image'
 //import InsertDriveFileTwoTone from '@material-ui/icons/InsertDriveFileTwoTone';
 //import UploadIcon from '@material-ui/icons/Publish'
 import ScreenShareIcon from '@material-ui/icons/ScreenShare'
-import StopScreenShareIcon from '@material-ui/icons/StopScreenShare'
+/* import StopScreenShareIcon from '@material-ui/icons/StopScreenShare' */
 import SubjectIcon from '@material-ui/icons/Subject'
 import {initOptions} from '@models/api/Connection'
 import {connection} from '@models/api/ConnectionDefs'
-import {ISharedContent} from '@models/ISharedContent'
+/* import {ISharedContent} from '@models/ISharedContent' */
 import {useTranslation} from '@models/locales'
 import {assert} from '@models/utils'
-import {createContent, createContentFromText, createContentOfIframe,
+import {/* createContent,  */createContentFromText, createContentOfIframe,
   createContentOfTextOnly,
-  createContentOfVideo, extractContentData} from '@stores/sharedContents/SharedContentCreator' // createContentOfText, , extractContentDatas
+  createContentOfVideo/* , extractContentData */} from '@stores/sharedContents/SharedContentCreator' // createContentOfText, , extractContentDatas
 import {SharedContents} from '@stores/sharedContents/SharedContents'
 import JitsiMeetJS, {JitsiLocalTrack} from 'lib-jitsi-meet'
-import {isArray} from 'lodash'
+/* import {isArray} from 'lodash' */
 import {Observer, useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 import {CameraSelectorMember} from './CameraSelector'
@@ -79,7 +79,7 @@ function downloadItems(contents:SharedContents) {
     window.URL.revokeObjectURL(url)
   },         0)
 }
-function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
+/* function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
   const files = ev.currentTarget?.files
   if (files && files.length) {
     files[0].text().then((text) => {
@@ -96,7 +96,7 @@ function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedCo
       }
     })
   }
-}
+} */
 
 interface ShareMenuProps extends DialogPageProps, BMProps {
   cameras: CameraSelectorMember
@@ -110,7 +110,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
     {main: contents.tracks.localMains.size, contents: contents.tracks.localContents.size}))
   const showMouse = useObserver(() => participants.local.mouse.show)
   const fileInput = useRef<HTMLInputElement>(null)
-  const [openMore, setOpenMore] = React.useState(false)
+  /* const [openMore, setOpenMore] = React.useState(false) */
 
   //  for CameraSelector
   function updateDevices() {
@@ -240,11 +240,11 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
 
   return (
     <List>
-      <ShareDialogItem
+      {/* <ShareDialogItem
         tip = {t('sharePasteTip')}
         key="paste" text={t('sharePaste')} icon={<Icon icon={clipboardPaste} style={{fontSize:'1.5rem'}} />}
          onClick={createFromClipboard}
-      />
+      /> */}
       <ShareDialogItem
         tip = {t('shareImageTip')}
         key="shareImage" text={t('shareImage')} icon={<ImageIcon />} onClick={() => setStep('image')}
@@ -262,13 +262,13 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
          onClick={createWhiteboard}
       /> */}
 
-      <Divider />
+      {/* <Divider />
       <Divider />
       <ShareDialogItem
         tip = {t('shareImageTip')}
         key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon />} onClick={() => setStep('zoneimage')}
       />
-       <Divider />
+       <Divider /> */}
       {/* <ShareDialogItem
         tip = {t('shareMouseTip')}
         key="shareMouse"
@@ -307,7 +307,16 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
           }</Observer>
         </FormControl>}
       />
-      {contents.tracks.localContents.size ?
+
+      <Divider />
+      <Divider />
+      <ShareDialogItem
+        tip = {t('shareImageTip')}
+        key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon />} onClick={() => setStep('zoneimage')}
+      />
+       <Divider />
+
+      {/* {contents.tracks.localContents.size ?
         <div style={{paddingLeft:'1em'}}><ShareDialogItem dense key = "stopScreen"
           icon={<Icon icon={bxWindowClose} style={{fontSize:'1.5rem'}}/>}
           text={t('stopScreen')}
@@ -324,9 +333,9 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
             importItems(ev, contents, participants.local.information.name)
           }
         }
-      />
-      <Collapse in={openMore} timeout="auto" unmountOnExit>
-        <div style={{paddingLeft:'1em'}}>
+      /> */}
+     {/*  <Collapse in={openMore} timeout="auto" unmountOnExit> */}
+        {/* <div style={{paddingLeft:'1em'}}>
           <ShareDialogItem
             tip = {t('shareIframeTip')}
             key="shareIframe" text={t('shareIframe')} icon={<HttpIcon />} onClick={() => setStep('iframe')}
@@ -336,7 +345,10 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
             icon={sharing.main ? <StopScreenShareIcon /> : <ScreenShareIcon />}
             text={sharing.main ? t('stopScreenBackground') : t('shareScreenBackground')}
             onClick={screenAsBackgrouond}
-          />
+          /> */}
+
+
+
           {/* <Divider />
           <ShareDialogItem
             key="shareImport" text={t('shareImport')} icon={<UploadIcon />} onClick={importFile}
@@ -345,8 +357,11 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
           <ShareDialogItem
             key="shareDownload" text={t('shareDownload')} icon={<DownloadIcon />} onClick={downloadFile}
           /> */}
-        </div>
-      </Collapse>
+
+
+
+        {/* </div>*/}
+      {/* </Collapse> */}
     </List>
   )
 }

@@ -191,6 +191,7 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
   //console.log(xCord, " --- ", yCord, " : ", from)
   const pasted = createContent()
   pasted.type = 'text'
+  pasted.shareType = 'text'
   pasted.noFrame = true
   //pasted.pinned = true
   const textMessage = {

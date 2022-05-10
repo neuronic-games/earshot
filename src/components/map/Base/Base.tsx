@@ -519,6 +519,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onDrag: ({down, delta, xy, buttons}) => {
 
 
+       // console.log(map)
+
 
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()

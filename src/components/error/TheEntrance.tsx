@@ -367,8 +367,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
       // Position Avatar at center of stage
       // Default Setting
-      mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
-      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+      /* mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
+      participants.local.pose.position = Object.assign({}, mapData.mouseOnMap) */
+
       const _timerUserPlace = setTimeout(() =>{
         clearTimeout(_timerUserPlace)
         placeUserAtBlank()
@@ -416,6 +417,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     if(found) {
       mapData.setMouse([randX, randY])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
+
+      // Place user at the center Location of their own canvas
+      mapData.focusOn(participants.local)
+
     } else {
       mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
@@ -481,7 +486,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.6.9</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.7.0</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

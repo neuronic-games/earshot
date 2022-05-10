@@ -213,6 +213,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
   const [time, setTime] = useState(0);
 
+  // Delte Message
+  const _msgTitle = (props.content.shareType === 'img' ? ' Image?' : (props.content.shareType === 'zoneimg' ? ' Chat Zone?' : ' Text?'))
+
 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
@@ -1264,7 +1267,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         <div className={classes.nameContainer}>{props.content.name}</div>
         <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
         {/* <div className={showBorder ? classes.dashed : undefined}></div> */}
-        <div className={(showHandler && showTitle === false) ? classes.dashed : (showBorder ? classes.dashed : undefined)}></div>
+        <div className={(showHandler && showTitle === false) ? classes.dashedInEdit : (showBorder && (props.content.zone === 'close') ? classes.dashed : undefined)}></div>
 
 
 {/* {showHandler ? */}
@@ -1368,7 +1371,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         >
           {/* <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle> */}
           <DialogContent style={{userSelect: 'none', fontSize:'25px', fontWeight:'bold'}}>
-            {t('deleteMsg')}
+            {/* props.content.shareType === 'img' ? t('deleteImageMsg') : (props.content.shareType === 'zoneimg' ? t('deleteZoneMsg') : (props.content.shareType === 'text' ? t('deleteTextMsg') : '')) */
+            t('deleteMsg') + _msgTitle
+            }
           </DialogContent>
           <DialogActions>
             <Button variant="contained" /* color="secondary" */ style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'orange', height:'40px', fontSize:'20px', fontWeight:'bold'}}
@@ -1783,6 +1788,19 @@ const useStyles = makeStyles({
     top: (props.props.content.showTitle ? '-5px' : ((-(props.size[1])) - 6) + "px"),
     left: '-6px',
   }),
+
+  dashedInEdit:(props: StyleProps) => ({
+    position: (props.props.content.showTitle ? 'absolute' : 'relative'),
+    width:(props.size[0] + 8),
+    height:(props.size[1] + 8),
+    borderWidth:2,
+    borderStyle: 'dashed',
+    borderColor:'#9e886c',
+    borderRadius:0,
+    top: (props.props.content.showTitle ? '-5px' : ((-(props.size[1])) - 6) + "px"),
+    left: '-6px',
+  }),
+
 
   titlePosition: (props:StyleProps) => (
     props.showTitle ?
