@@ -24,11 +24,11 @@ import {YouTube} from './YouTube'
 export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
   if (width < 0) { width = size }
   const icons = {
-    img: <PhotoIcon style={{fontSize:size, width}} />,
-    text:<SubjectIcon style={{fontSize:size, width}} />,
+    img: <PhotoIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
+    text:<SubjectIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
     iframe: <HttpIcon style={{fontSize:size, width}} />,
     youtube: <YouTubeIcon style={{fontSize:size, width}} />,
-    screen: <ScreenShareIcon style={{fontSize:size, width}} />,
+    screen: <ScreenShareIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
     gdrive: <span style={{width, height:size}}><Icon icon={GoogleDriveIcon} height={size} /></span>,
     whiteboard: <span style={{width, height:size}}><Icon icon={whiteboard24Regular} height={size} /></span>,
     camera: <CameraAltIcon style={{fontSize:size, width}} />,

@@ -40,12 +40,11 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
 
   const _connQuality = useObserver(() => props.participant.quality?.connectionQuality)
   const zoneName = useObserver(() => {
-    let abc = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
-    for(let [i] of abc.entries()) {
-
-      if(props.stores.participants.remote.get(abc[i])?.closedZone !== undefined) {
-        if(props.stores.participants.remote.get(abc[i])?.id === props.participant.id && props.stores.participants.remote.get(abc[i])?.closedZone?.name !== '') {
-          return ' (' + props.stores.participants.remote.get(abc[i])?.closedZone?.name + ')'
+    let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
+    for(let [i] of remotes.entries()) {
+      if(props.stores.participants.remote.get(remotes[i])?.closedZone !== undefined) {
+        if(props.stores.participants.remote.get(remotes[i])?.id === props.participant.id && props.stores.participants.remote.get(remotes[i])?.closedZone?.name !== '') {
+          return ' (' + props.stores.participants.remote.get(remotes[i])?.closedZone?.name + ')'
         }
       } else {
         return ''
@@ -92,12 +91,12 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
 
   return <>
     <Tooltip title={`${props.participant.information.name} (${props.participant.id})`} placement="right">
-      <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 5px 10px'}}>
-        <IconButton style={{margin:0, padding:0}} onClick={onClick} onContextMenu={onContextMenu}>
+      <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 1px 10px'}}>
+        <IconButton style={{margin:0, padding:0, marginTop: '5px', marginLeft:'5px'}} onClick={onClick} onContextMenu={onContextMenu}>
           <ImageAvatar border={true} colors={colors} /* size={size} */ size={size * 2} name={name} avatarSrc={avatarSrc} />
         </IconButton>
         <Button /* variant="contained" */ className={classes.line} ref={ref}
-          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '10px', fontWeight: 'bold'}}
+          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '5px', fontWeight: 'bold'}}
           onClick={onClick} onContextMenu={onContextMenu}>
             {name}
             <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px'/* , fontSize:'15px' */}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>

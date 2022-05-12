@@ -1,14 +1,19 @@
 import {MAP_SIZE} from '@components/Constants'
 import {MoreButton, moreButtonControl, MoreButtonMember} from '@components/utils/MoreButton'
+/* import { Tooltip } from '@material-ui/core' */
 import {makeStyles} from '@material-ui/core/styles'
 //import { connection } from '@models/api'
 import {addV2, assert, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
 import {useObserver} from 'mobx-react-lite'
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef/* , useState */} from 'react'
 import {DragHandler, DragState} from '../../utils/DragHandler'
 //import {KeyHandlerPlain} from '../../utils/KeyHandler'
 import {LocalParticipantForm} from './LocalParticipantForm'
 import {Participant, ParticipantProps} from './Participant'
+
+import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+//import { MouseOrTouch } from '../ShareLayer/RndContent'
+//import MoreIcon from '@images/whoo-screen_btn-more.png'
 
 //import { isDialogOpen } from '@components/footer/share/ShareDialog'
 
@@ -29,6 +34,7 @@ type LocalParticipantProps = ParticipantProps
 interface StyleProps {
   position: [number, number],
   size: number,
+  mem:LocalMember,
 }
 
 const useStyles = makeStyles({
@@ -40,7 +46,124 @@ const useStyles = makeStyles({
     top: props.position[1] - props.size * 0.8,
     opacity:'0',
   }),
+
+  hideMenuContainer: (props:StyleProps) => ({
+    display: 'flex',
+    position: 'relative',
+    width: 350,
+    height: 250,
+    overflow: 'hidden',
+    userSelect: 'none',
+    userDrag: 'none',
+    //top: (props.mem.zoomY) - 125,
+    //left: (props.mem.zoomX) - 170,
+    bottom: 'auto',
+    transform: 'scale(0)',
+    backgroundColor: 'transparent',
+    transition: '0s ease-out',
+    cursor: 'default',
+  }),
+  showMenuContainer: (props:StyleProps) => ({
+    display: 'flex',
+    position: 'relative',
+    width: 350,
+    height: 250,
+    overflow: 'hidden',
+    userSelect: 'none',
+    userDrag: 'none',
+    top: (props.mem.zoomY) - 125,
+    left: (props.mem.zoomX) - 170,
+    bottom: 'auto',
+    transform: 'scale(1.2)',
+    backgroundColor: 'transparent',
+    transition: '0.3s ease-out',
+    transitionDelay: '0.1s',
+    cursor: 'default',
+  }),
+
+  dashedCircle: (props: StyleProps) => ({
+    position: 'relative',
+    width:200,
+    height:200,
+    borderWidth:2,
+    borderStyle: 'solid',
+    borderColor:'#9e886c',
+    borderRadius:'50%',
+    opacity: 0.4,
+    /* top: 20,
+    left: -20, */
+    top: 25,
+    left: 65,
+    background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
+    zIndex: -9999,
+  }),
+
+  moreInfo: (props:StyleProps) => ({
+      display: 'block',
+      height: TITLE_HEIGHT,
+      position:'absolute',
+      textAlign: 'center',
+      top: 180,
+      left: 145,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: '#9e886c',
+      ...buttonStyle
+    }),
 })
+
+const buttonStyle = {
+  '&': {
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
+
+    //border: '2px solid #9e886c',
+    //backgroundColor: 'white',
+  },
+
+  '&:hover': {
+    backgroundColor: 'black', //'rosybrown',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+  '&:active': {
+    //backgroundColor: 'firebrick',
+    margin: '5px',
+    padding: '3px',
+    borderRadius: '50%',
+  },
+}
+
+class LocalMember{
+  prebThirdPersonView = false
+  mouseDown = false
+  dragging = false
+
+  // New values
+  upTime = 0
+  downTime = 0
+  downXpos = 0
+  downYpos = 0
+  upXpos = 0
+  upYpos = 0
+  contentX = 0
+  contentY = 0
+  zoomX = 0
+  zoomY = 0
+  moveX = 0
+  moveY = 0
+
+  clickStatus = ''
+  userAngle = 0
+  clickEnter = false
+  pingX = 0
+  pingY = 0
+  hidePinIcon = 0
+}
 
 interface LocalParticipantMember extends MoreButtonMember{
   smoothedDelta: [number, number]
@@ -52,6 +175,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const participant = participants.local
 
   //console.log(connection.conference._jitsiConference?.isModerator(), " isHost")
+
+  const memRef = useRef<LocalMember>(new LocalMember())
+  const mem = memRef.current
 
   // Showing default Avatar
   if(participant.information.avatarSrc === '') {
@@ -254,6 +380,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const styleProps = useObserver(() => ({
     position: participant.pose.position,
     size: props.size,
+    mem: mem,
   }))
   const [color] = participant ? participant.getColor() : ['white', 'black']
   const classes = useStyles(styleProps)
@@ -261,6 +388,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const [showConfig, setShowConfig] = React.useState(false)
   const moreControl = moreButtonControl(setShowMore, member)
   //const [movedAvatar, setMovedAvater] = React.useState(false)
+
+  //const [showMenu, setShowMenu] = useState(false)
 
   function onClose() {
     setShowConfig(false)
@@ -302,6 +431,16 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   const ref = useRef<HTMLButtonElement>(null)
 
+  /* function stop(ev:MouseOrTouch|React.PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
+  } */
+
+  /* function onClickMoreInfo(evt: MouseOrTouch) {
+    setShowMenu(false)
+    setShowConfig(true)
+  } */
+
   //  Mouse and touch operations ----------------------------------------------
 
 
@@ -320,6 +459,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       anchorEl={ref.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
       anchorReference = "anchorEl"
     />
+
+      {/* Add Context Menu */}
+      {/* <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
+
+          <div className={classes.moreInfo} onMouseUp={onClickMoreInfo}
+            onTouchStart={stop}>
+              <img src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+          </div>
+      <div className={classes.dashedCircle}></div>
+      </div> */}
+
+
     </div>
   )
 }

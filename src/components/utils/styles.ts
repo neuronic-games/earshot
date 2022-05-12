@@ -83,7 +83,7 @@ export const styleForList = makeStyles({
     userDrag: 'none',
     whiteSpace: 'nowrap',
     fontSize: props.fontSize,
-    height: props.height,
+    height: "props.height",
     width: '100%',
     padding: 0,
   }),

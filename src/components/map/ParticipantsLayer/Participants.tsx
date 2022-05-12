@@ -30,6 +30,9 @@ const Line: React.FC<LineProps> = (props) => {
   const [anim, setAnim] = useState(false)
 
   //console.log(props.stores.participants.yarnPhones.size)
+
+
+
   if(props.stores.participants.yarnPhones.size > 0) {
     const _timer = setTimeout(() => {
       clearTimeout(_timer)

@@ -26,6 +26,8 @@ import symClapIcon from '@images/whoo-screen_sym-clap.png'
 import symHandIcon from '@images/whoo-screen_sym-hand.png'
 import badConnIcon from '@images/whoo-screen_sym-slow.png'
 
+import zoneGlowIcon from '@images/earshot_icon_avatar_glow.png'
+
 import PingIcon from '@images/whoo-screen_pointer.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import { rgb2Color} from '@models/utils' // subV2
@@ -67,6 +69,28 @@ const useStyles = makeStyles({
     left: `-${props.size * HALF}px`,
     top: `-${props.size * HALF}px`,
   }),
+
+  avatarGlow: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 3 ,
+    height: props.size * 3,
+    left: props.size * -1,
+    top: props.size * -1,
+    opacity: 1,
+    pointerEvents: 'none',
+    transition: 'all 0.3 ease-in'
+  }),
+  avatarGlowEffect: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 3 ,
+    height: props.size * 3,
+    left: props.size * -1,
+    top: props.size * -1,
+    opacity: 0.6,
+    pointerEvents: 'none',
+    transition: 'all 0.3 ease-in'
+  }),
+
   icon: (props: StyleProps) => ({
     position: 'absolute',
     width: props.size * 0.4 ,
@@ -182,6 +206,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const participant = props.participant
 
 
+
+
+
   //console.log(props.isLocal, " AAAA ")
 
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
@@ -274,6 +301,37 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const _icons = useObserver(() => participant.trackStates.emoticon)
   const _connQuality = useObserver(() => participant.quality?.connectionQuality)
 
+  //const inZoneLocal = useObserver(() => props.participant.inLo)
+
+
+
+  //console.log(participant.id, " ---- ", props.stores.participants.localId)
+
+  /* const remotes = Array.from(props.stores.participants.remote.values())
+  console.log(remotes[0].closedZone?.id, " localzone ", props.stores.participants.local.zone?.id)
+
+  const showGlow =  */
+
+  const zoneId = useObserver(() => {
+    let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
+    for(let [i] of remotes.entries()) {
+      if(props.stores.participants.remote.get(remotes[i])?.closedZone !== undefined) {
+        if(props.stores.participants.remote.get(remotes[i])?.id === participant.id && props.stores.participants.remote.get(remotes[i])?.closedZone?.id !== '') {
+          return props.stores.participants.remote.get(remotes[i])?.closedZone?.id
+        }
+      } else {
+        return undefined
+      }
+    }
+  })
+
+  const localZoneId = useObserver(() => (props.stores.participants.local.zone?.id !== undefined && props.stores.participants.local.zone?.id !== '') ? props.stores.participants.local.zone?.id : undefined)
+
+
+  //console.log(zoneId, " ---- " , localZoneId)
+
+
+
 
   //const vCon = useObserver(() => participant.muteVideo)
 //if(participant.information.name === "Alam") {
@@ -293,6 +351,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const [togglePingSound, setTogglePingSound] = useState(false)
   const [pingXY, setPingXY] = useState([0,0])
 
+  const [anim, setAnim] = useState(false)
+
   if(_pingIcon && (pingXY[0] !== _pingX || pingXY[1] !== _pingY)) {
     setTogglePingSound(false)
   }
@@ -308,6 +368,17 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     setTogglePingSound(true)
   } else if(_pingIcon === false && togglePingSound) {
     setTogglePingSound(false)
+  }
+
+  if(zoneId === localZoneId) {
+    const _timer = setTimeout(() => {
+      clearTimeout(_timer)
+      if(anim === false) {
+        setAnim(true)
+      } else {
+        setAnim(false)
+      }
+    }, 500)
   }
 
   //const _pingCursor = useObserver(() => participant.trackStates.cursorMove)
@@ -536,6 +607,9 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
         style = {{transform: `rotate(${-mapData.rotation}deg)`}} >
         <Tooltip title={name}>
           <div>
+            { (inZone === 'close' && (participant.id !== props.stores.participants.localId) && zoneId === localZoneId) ?
+            <img src={zoneGlowIcon} className={anim ? classes.avatarGlow : classes.avatarGlowEffect} draggable={false} alt='' />
+            : '' }
             <Avatar {...props} />
             {iconMeter}
             <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />

@@ -23,12 +23,25 @@ import { getLoginClick} from './error/TheEntrance' // getRoomName
 
 /* import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'; */
 /* import iconCollapse from '@images/earshot_icon_btn_collapse.png' */
-import tabCollapse from '@images/earshot_icon_tab.png'
+import tabCollapseChat from '@images/earshot_icon_tab.png'
+import tabCollapseContent from '@images/earshot_icon_tab_content.png'
+
 import tabChat from '@images/earshot_icon_btn-chat.png'
-import tabChatActive from '@images/earshot_icon_btn-chat_active.png'
+import tabChatActive from '@images/earshot_icon_btn-chat.png'
+
+import tabContent from '@images/earshot_icon_btn-note.png'
+import tabContentActive from '@images/earshot_icon_btn-note.png'
 
 
+let _able:Boolean = false
+export function getAbleStatus():Boolean {
+  return _able
+}
 
+let _menuType:string = ''
+export function getSelectedMenuType() :string {
+  return _menuType
+}
 
 
 export const App: React.FC<{}> = () => {
@@ -46,6 +59,8 @@ export const App: React.FC<{}> = () => {
   const [able, setAble] = useState<Boolean>(false)
 
   const [showIntro, setShowIntro] = useState<Boolean>(true)
+
+  const [menuType, setMenuType] = useState('chat')
 
   //console.log(showIntro, " showIntro")
 
@@ -66,7 +81,8 @@ export const App: React.FC<{}> = () => {
 
   const _roomName = sessionStorage.getItem("room") //getRoomName()
 
-
+  _able = able
+  _menuType = menuType
 
   //console.log("CALLLEEEED- ", loginStatus)
   useEffect(() => {
@@ -130,7 +146,7 @@ export const App: React.FC<{}> = () => {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: '#0f5c81'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : '#8b5e3c'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
           minSize={0} defaultSize={able === true ? "77%"/* "85%" */ : "100%"}>
 
           <Fragment>
@@ -138,20 +154,45 @@ export const App: React.FC<{}> = () => {
             <Observer>{() => <Map transparent={sharedContentsStore.tracks.mainStream !== undefined
              || DEBUG_VIDEO} stores={stores} />
             }</Observer>
+
+
              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
                 press = true;
                 if(able === true) {
-                  setAble(false)
+                  if(_menuType === 'chat') {
+                    setAble(false)
+                  }
                 } else
                 if(able === false) {
                   setAble(true)
                 }
+                setMenuType('chat')
                }}
              >
-               <img src={tabCollapse} style={{width:50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:'0px', userSelect:'none', zIndex:showIntro ? 0 : 9}} draggable={false} alt='' />
+               <img src={tabCollapseChat} style={{width:50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:'0px', userSelect:'none', zIndex:showIntro ? 0 : 9}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:50, height:50, color:'white', position:'absolute', top:'2px', left:'5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
+
+             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+              onClick={() => {
+                press = true;
+                if(able === true) {
+                  if(menuType === 'content') {
+                    setAble(false)
+                  }
+                } else
+                if(able === false) {
+                  setAble(true)
+                }
+                setMenuType('content')
+               }}
+             >
+              <img src={tabCollapseContent} style={{width:50, height:'auto', /* color:'white',  */position:'relative', top:'49px', left:'0px', userSelect:'none', zIndex:showIntro ? 0 : 8}} draggable={false} alt='' />
+              <img src={able ? tabContentActive : tabContent} style={{width:50, height:50, color:'white', position:'absolute', top:'52px', left:'5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
+             </div>
+
+
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -162,7 +203,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.7.0</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px'}}>Version 1.7.1</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:'1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms', width: '50%', marginLeft:'25%'} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:'1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

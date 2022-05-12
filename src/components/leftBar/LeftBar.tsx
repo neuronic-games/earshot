@@ -4,8 +4,12 @@ import {useGesture} from 'react-use-gesture'
 import {BMProps} from '../utils'
 import {styleForSplit} from '../utils/styles'
 import {ChatInBar} from './Chat'
-/* import {ContentList} from './ContentList' */
+import {ContentList} from './ContentList'
 import {ParticipantList} from './ParticipantList'
+
+import { getAbleStatus } from '@components/App'
+import { getSelectedMenuType } from '@components/App'
+import { useObserver } from 'mobx-react-lite'
 
 export interface TextLineStyle {
   lineHeight: number
@@ -60,17 +64,29 @@ export const LeftBar: React.FC<BMProps> = (props) => {
   )
 
 
+  const _status = useObserver(() => getAbleStatus())
+  const _menuSelected = useObserver(() => getSelectedMenuType())
+  console.log(_status, " status ", _menuSelected)
+
+
+
   return (
     <div {...bind()}>
+      {_menuSelected === 'chat' ?
       <SplitPane split="horizontal" /* defaultSize="80%" */ defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
-       {/*  <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
+        {/* <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%'}} > */}
           <ParticipantList {...props} {...textLineStyle} />
          {/*  <ContentList {...props}  {...textLineStyle} /> */}
-       {/*  </SplitPane > */}
+        {/* </SplitPane > */}
         <ChatInBar {...props}  {...textLineStyle} />
       </SplitPane >
+      :
+      <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
+        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
+          <ContentList {...props}  {...textLineStyle} />
+      </SplitPane > }
     </div>
   )
 }
