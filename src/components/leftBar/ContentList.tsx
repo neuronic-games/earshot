@@ -18,6 +18,7 @@ import {BMProps} from '../utils'
 import {styleForList} from '../utils/styles'
 import {TextLineStyle} from './LeftBar'
 
+
 function locatedContentOnly(content: ISharedContent|undefined){
   if (isContentOutOfRange(content)){ return undefined }
 
@@ -33,10 +34,7 @@ export const ContentLine: React.FC<BMProps & TextLineStyle &
   const targetContent = locatedContentOnly(props.stores.contents.find(props.content.id))
   const map = props.stores.map
 
-
   const contentInfo = (props.content.shareType === "img") ? 'Image' : (props.content.shareType === 'zoneimg') ? 'Chat Zone' : (props.content.shareType === 'text') ? 'Text' : 'Screen'
-
-
 
   return <Observer>{()=> {
     const typeIcon = contentTypeIcons(props.content.type, props.fontSize)

@@ -11,6 +11,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 //////////////
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
+import {normV, getRelativePose} from '@models/utils'
 /////////////
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
 import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
@@ -31,6 +32,9 @@ import zoneGlowIcon from '@images/earshot_icon_avatar_glow.png'
 import PingIcon from '@images/whoo-screen_pointer.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import { rgb2Color} from '@models/utils' // subV2
+
+
+/* import  { getUserVolume } from '@models/audio/NodeGroup' */
 
 
 
@@ -78,7 +82,8 @@ const useStyles = makeStyles({
     top: props.size * -1,
     opacity: 1,
     pointerEvents: 'none',
-    transition: 'all 0.3 ease-in'
+    transform: "scale(0.5)",
+    transition: '0.5s ease-out'
   }),
   avatarGlowEffect: (props: StyleProps) => ({
     position: 'absolute',
@@ -86,9 +91,10 @@ const useStyles = makeStyles({
     height: props.size * 3,
     left: props.size * -1,
     top: props.size * -1,
-    opacity: 0.6,
+    opacity: 1,
     pointerEvents: 'none',
-    transition: 'all 0.3 ease-in'
+    transform: "scale(1)",
+    transition: '0.5s ease-out'
   }),
 
   icon: (props: StyleProps) => ({
@@ -206,13 +212,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const participant = props.participant
 
 
-
-
-
   //console.log(props.isLocal, " AAAA ")
-
   //console.log(connection.conference._jitsiConference?.isModerator(), " isModerator")
-
   //console.log(participant.quality?.connectionQuality, " quality")
 
   //if(props.stores.participants.localId != '') {return}
@@ -312,6 +313,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   const showGlow =  */
 
+  // For Chat Zone only
   const zoneId = useObserver(() => {
     let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
     for(let [i] of remotes.entries()) {
@@ -325,14 +327,66 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     }
   })
 
+  // For Chat Zone only
   const localZoneId = useObserver(() => (props.stores.participants.local.zone?.id !== undefined && props.stores.participants.local.zone?.id !== '') ? props.stores.participants.local.zone?.id : undefined)
 
+  //const localDist = useObserver(() => (props.stores.participants.local.pose.position))
+  //const localPos = normV(localDist)
+  //console.log(localPos, " localPos")
 
+  // For Proximity Zone only
+
+  const proxCords = useObserver(() => {
+    let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
+    let remoteDist:number = 0
+    const localPos = props.stores.participants.local.pose
+    for(let [i] of remotes.entries()) {
+
+      if(props.stores.participants.remote.get(remotes[i])?.id === participant.id && props.stores.participants.remote.get(remotes[i])?.closedZone?.id === undefined) {
+        //return props.stores.participants.remote.get(remotes[i])?.pose
+
+        //console.log(normV(Object(props.stores.participants.remote.get(remotes[i])).pose.position), " --AA-- ", normV(props.stores.participants.local.pose.position))
+        if(Object(props.stores.participants.remote.get(remotes[i])).pose.position !== undefined) {
+          //remoteDist = normV(Object(props.stores.participants.remote.get(remotes[i])).pose.position)
+          let posDiff = getRelativePose(localPos, Object(props.stores.participants.remote.get(remotes[i])).pose)
+          //console.log(normV(posAct.position), " pos Act")
+          remoteDist = normV(posDiff.position)
+          //return remoteDist
+        }
+        //let distance = Math.max(localPos - remoteDist)
+        //console.log(localPos, " VOL 300 ", remoteDist)
+        //const mul = ((dist * dist) / (this.pannerNode.refDistance * this.pannerNode.refDistance) + this.pannerNode.refDistance - 1) / (dist ? dist : 1)
+        // this.distance = mul * dist
+        // volume = Math.pow(Math.max(this.distance, this.pannerNode.refDistance) / this.pannerNode.refDistance, - this.pannerNode.rolloffFactor)
+        //return props.stores.participants.remote.get(remotes[i])?.pose
+        return remoteDist
+      }
+    }
+  })
+
+
+
+   // For Proximity Zone only
+  /*  const localProxCode = useObserver(() => {
+     //console.log(props.stores.participants.local.zone?.id)
+        let actualLocalLoc:number = 0
+        if(props.stores.participants.local.pose.position !== undefined) {
+          actualLocalLoc = props.stores.participants.local.pose.position)
+        }
+        return actualLocalLoc
+    }) */
+
+    /* const localProxCode = useObserver(() => {
+
+    })
+ */
+
+
+
+   //console.log(proxCords)
+    //const userVol = useObserver(() => getUserVolume())
+   //console.log(userVol, " userVolume")
   //console.log(zoneId, " ---- " , localZoneId)
-
-
-
-
   //const vCon = useObserver(() => participant.muteVideo)
 //if(participant.information.name === "Alam") {
   //console.log(participant.information.name, " name ", participantProps.position[0])
@@ -609,7 +663,11 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
           <div>
             { (inZone === 'close' && (participant.id !== props.stores.participants.localId) && zoneId === localZoneId) ?
             <img src={zoneGlowIcon} className={anim ? classes.avatarGlow : classes.avatarGlowEffect} draggable={false} alt='' />
-            : '' }
+            /* : (proxCords !== undefined && proxCords.position[0] >= (Object(localProxCode)?.position[0] - 80) && proxCords.position[0] <= (Object(localProxCode)?.position[0] + 80) && proxCords.position[1] >= (Object(localProxCode)?.position[1] - 80) && proxCords.position[1] <= (Object(localProxCode)?.position[0] + 80) &&
+            ((participant.id !== props.stores.participants.localId)))
+             ?  <img src={zoneGlowIcon} className={anim ? classes.avatarGlow : classes.avatarGlowEffect} draggable={false} alt='' />*/ :  (proxCords !== undefined && proxCords < 360 &&
+            ((participant.id !== props.stores.participants.localId)) && localZoneId === undefined)
+            ?  <img src={zoneGlowIcon} className={anim ? classes.avatarGlow : classes.avatarGlowEffect} draggable={false} alt='' /> : ''}
             <Avatar {...props} />
             {iconMeter}
             <img src={_icons === 'smile' ? symSmileIcon : (_icons === "hand" ? symHandIcon : (_icons === "clap" ? symClapIcon : undefined))} className={_icons === '' ? classes.iconEmoticonNone : classes.iconEmoticon}  alt='' />
