@@ -2,12 +2,15 @@ import {Pose2DMap} from '@models/utils/coordinates'
 import {MapObject} from './MapObject'
 const MAXIMIZABLE_IMAGE_MIN_WIDTH = 200
 
+
 export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
   'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' |  ''
+
 
 export interface SharedContentInfoData {
   name: string                    //  name or title of the content.
   ownerName: string               //  name of the initial owner
+  ownerURL: string                //  url of the initial owner
   color:number[]                  //  color in the left var
   textColor:number[]              //  textColor in the left var
   type: ContentType               //  content type ('img', etc)
@@ -20,12 +23,11 @@ export interface SharedContentId{
 export interface SharedContentInfo extends SharedContentInfoData, SharedContentId{
 }
 export function isEqualSharedContentInfo(a:SharedContentInfo, b:SharedContentInfo){
-  return a.name === b.name && a.ownerName === b.ownerName
+  return a.name === b.name && a.ownerName === b.ownerName && a.ownerURL === b.ownerURL
     && a.color.toString() === b.color.toString() && a.textColor.toString() === b.textColor.toString() && a.contentDesc === b.contentDesc
 }
 export function extractSharedContentInfo(c: SharedContentInfo){
-  const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName,
-    color:c.color, textColor: c.textColor, type: c.type,shareType: c.shareType,contentDesc: c.contentDesc}
+  const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName, ownerURL: c.ownerURL, color:c.color, textColor: c.textColor, type: c.type, shareType: c.shareType, contentDesc: c.contentDesc}
 
   return rv
 }

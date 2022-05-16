@@ -8,6 +8,7 @@ import {Input} from './Input'
 import {Step} from './Step'
 import {makeStyles} from '@material-ui/styles'
 import { getSelectedImage } from './Input'
+import { ResetSelectedImage } from './Input'
 
 
 
@@ -68,9 +69,9 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
                 imageContent => sharedContents.shareContent(imageContent))
             })
           } else {
-
             createContentOfImageUrl(getSelectedImage(), map, [0, 0], props.type, props.xCord, props.yCord, props.from, '').then(
               imageContent => sharedContents.shareContent(imageContent))
+            ResetSelectedImage()
           }
         }}
         value={files}

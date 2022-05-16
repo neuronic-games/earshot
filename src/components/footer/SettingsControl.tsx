@@ -53,7 +53,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     setShow(true)
   }
 
-  function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string) {
+  function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string, url:string) {
     const files = ev.currentTarget?.files
     if (files && files.length) {
       files[0].text().then((text) => {
@@ -65,6 +65,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
             //console.log(item, " --- item")
 
             item.ownerName = name
+            item.ownerURL = url
             const content = extractContentData(item as ISharedContent)
             if (content.type === 'screen' || content.type === 'camera') { return }
             const newContent = createContent()
@@ -85,6 +86,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     let contentAll = contents.all
     for(var i:number=0; i < contentAll.length; i++) {
       contentAll[i].ownerName = ""
+      contentAll[i].ownerURL = ""
     }
 
 
@@ -143,7 +145,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
       onChange={
         (ev) => {
-          importItems(ev, contents, participants.local.information.name)
+          importItems(ev, contents, participants.local.information.name, participants.local.information.avatarSrc)
         }
       }
     />

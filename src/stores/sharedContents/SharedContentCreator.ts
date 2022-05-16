@@ -18,6 +18,7 @@ import { Step } from '@components/footer/share/Step'
 export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefaultValue, {
   name: '',
   ownerName: '',
+  ownerURL: '',
   color: [],
   textColor: [],
   type: '' as ContentType,
@@ -43,6 +44,7 @@ export function makeThemContents(them: ISharedContent[]) {
 class SharedContentImp implements ISharedContent {
   name!: string
   ownerName!: string
+  ownerURL!: string
   color!: number[]
   textColor!: number[]
   type!: ContentType
@@ -72,6 +74,7 @@ export function createContent() {
   content.ownerName = participants.local.information.name
   content.color = participants.local.information.color
   content.textColor = participants.local.information.textColor
+  content.ownerURL = participants.local.information.avatarSrc
   content.zorder = Date.now()
 
   return content
@@ -476,7 +479,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 }
 
 const extractData = extract<SharedContentData>({
-  zorder: true, name: true, ownerName: true, color: true, textColor:true,
+  zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
   noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
 })
@@ -487,7 +490,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
   return cs.map(extractContentData)
 }
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
-  zorder: true, name: true, ownerName: true, color: true, textColor:true,
+  zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
   pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
 })

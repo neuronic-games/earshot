@@ -73,6 +73,10 @@ export function getSelectedImage() : string {
   return selectedImage
 }
 
+export function ResetSelectedImage() {
+  selectedImage = ''
+}
+
 interface InputProps<T> extends DialogPageProps{
   inputField: JSX.Element
   value: T

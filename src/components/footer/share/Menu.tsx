@@ -60,6 +60,7 @@ function downloadItems(contents:SharedContents) {
   let contentAll = contents.all
   for(var i:number=0; i < contentAll.length; i++) {
     contentAll[i].ownerName = ""
+    contentAll[i].ownerURL = ""
   }
 
   const content = JSON.stringify(contentAll)
@@ -165,6 +166,7 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
     startCapture(props).then((tracks) => {
       if (tracks.length) {
         const content = createContentOfVideo(tracks, map, 'screen', Object(props).cordX, Object(props).cordY, Object(props).origin)
+        content.shareType = 'screen'
         contents.shareContent(content)
         assert(content.id)
         contents.tracks.addLocalContent(content.id, tracks)
