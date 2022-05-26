@@ -125,3 +125,5 @@ export function getColorOfParticipant(information: BaseInformation) {
 
   return colors
 }
+
+

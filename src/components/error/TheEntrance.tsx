@@ -48,15 +48,11 @@ export function getRoomName(): string {
 }
 
 
-
 export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
   const savedRoom = sessionStorage.getItem('room')
   const [active, setActive] = useState(false)
-
-
-
 
 /*
   // Get Store values
@@ -75,10 +71,16 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   const mapData = props.stores.map
   let roomURL = String(urlParameters.room).split("_");
+  //console.log(window.location.href.indexOf('u'), " Index")
+  //console.log(window.location.href.split('?')[1].split("&")[0].split('=')[1], " >>> roomURL")
+
+
+  //console.log(roomURL.length, " ----- ", urlParameters.room)
+
+
+
   let num = (Number(roomURL?.length) - 1)
-
   //console.log(urlParameters.room, " room")
-
   let concatURL = ''
 
   if(Number(roomURL?.length) > 1) {
@@ -91,7 +93,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   //const [room, setRoom] = useState(savedRoom ? savedRoom : '')
   //console.log(roomURL[num], " room- ", savedRoom, name, participants.local.information.name)
 
-  const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : savedRoom ? savedRoom : '')
+  //const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : savedRoom ? savedRoom : '')
+  const [room, setRoom] = useState(urlParameters.room ? roomURL[num] : '')
 
   //console.log(urlParameters, " --- ")
   //console.log(room, " room")
@@ -110,9 +113,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   //const rgb = participants.local.getColorRGB()
 
-
-
-
   /* // Get Store values
   const roomDetails = sessionStorage.getItem('room')
   let details: Object|undefined = undefined
@@ -129,19 +129,13 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const roomInStore = detailsStore
 
   //console.log(savedRoom, " --- ", room, " ====== ", props.stores.roomInfo.roomDetails) */
-
   // Showing Room Image and its values
   /* let roomImage = 'https://i.gyazo.com/eced85aecb2b5242dad432ad5eb83766.jpg'
   let roomDesc = 'This is my desc test' */
-
   /* let roomImage = ''
   let roomDesc = '' */
-
   //const contentsAll = useObserver(() => (props.stores.contents))
   //console.log(contentsAll.all, " AAAAA")
-
-
-
   /* contentsAll.all.filter(item => item.shareType==="roomimg").map(content => (
     roomImage = content.url
   ))
@@ -168,9 +162,33 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   console.log("IIIIIIIIIIIII - ", roomInStore) */
   //console.log(savedRoom, " --- ", room)
 
+  /**
+   *
+   * @param _name
+   */
+  function setUserNameFromWeb(_name:string) {
+    setName(_name)
+    let roomNameIndex = window.location.href.indexOf('&room=')
+    //console.log(roomNameIndex, " ---- ROOM FROM ")
+    if(roomNameIndex !== -1) {
+      onErrorClose()
+    }
+  }
+
   useEffect(() => {
+    // New Changes for Website
+    // User
+    let userNameIndex = window.location.href.indexOf('?u=')
+    //console.log(userNameIndex, " >>userNameIndex")
+    if(userNameIndex !== -1) {
+      let uName = window.location.href.split('?')[1].split("&")[0].split('=')[1]
+      /* setName(uName)
+      onErrorClose() */
+      setUserNameFromWeb(uName)
+    }
     const onKeyDown = (e: KeyboardEvent) => {
       if(e.key === "Enter") {
+        window.removeEventListener('keydown', onKeyDown)
         onErrorClose()
       }
     }
@@ -179,6 +197,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       return
     }
     const intr = setTimeout(() => {
+        clearTimeout(intr)
         setPlaceholder(passedPlaceholder.slice(0, placeholderIndex));
         if (placeholderIndex + 1 > passedPlaceholder.length) {
           clearTimeout(intr)
@@ -198,6 +217,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     }
   },);
 
+  /**
+   *
+   * @param save
+   */
   const onClose = (save: boolean) => {
     //console.log(sessionStorage.getItem("room"), " Stored name ", room)
 
@@ -323,11 +346,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //if(active) {return}
 
 
-
-
     setActive(true)
-
-
 
 
     //console.log("called- Error")
@@ -426,8 +445,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
     }
 
-
-
   }
 
   /* const onKeyPress = (ev:React.KeyboardEvent) => {
@@ -437,6 +454,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       onClose(false)
     }
   } */
+
+
+
 
   const {t, i18n} = useTranslation()
 
@@ -486,9 +506,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         </Button>
       </Box>
     </DialogContent> */}
-    <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
+    <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.7.4</p>
+      <p style={{textAlign:'right', color: 'white'}}>Version 1.7.5</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
