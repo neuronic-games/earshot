@@ -10,8 +10,7 @@ import {makeStyles} from '@material-ui/styles'
 import TextField from '@material-ui/core/TextField'
 import contents from '@stores/sharedContents/SharedContents'
 import DeleteIcon from '@material-ui/icons/Delete'
-
-
+import { isSmartphone } from '@models/utils'
 
 const useStyles = makeStyles({
   preview: {
@@ -19,6 +18,9 @@ const useStyles = makeStyles({
     height: '100%',
     top: '-20em',
   },
+  dropZoneTitle: {
+    fontSize:isSmartphone() ? '2em' : '1em'
+  }
 })
 
 interface SettingImageInputProps extends DialogPageProps{
@@ -64,6 +66,7 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
       ]}
       clearOnUnmount={false}
       dropzoneText={t('imageDropzoneText')}
+      dropzoneParagraphClass={classes.dropZoneTitle}
       onChange={setFiles}
       filesLimit = {1}
       previewGridProps={{container: { spacing: 1, direction: 'row' }}}
@@ -86,6 +89,8 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
   return (
     <div>
     <TextField label={t('meetingDesc')} multiline={true} rowsMax={4} defaultValue={descText}
+    InputProps={{ style: { fontSize:isSmartphone() ? '2.2em' : '1em' } }}
+    InputLabelProps={{ style: { fontSize:isSmartphone() ? '2.2em' : '1em' } }}
     style={{position:'relative', marginLeft:15, width:'94%', marginTop:'-10px', fontWeight:'bold'}}
     onChange={event => {
       setDesc(event.target.value)
@@ -93,7 +98,7 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
     }}/>
     <div style={uploadedPath !== '' ? {position:'absolute', height:'90px', top:'20px', right:'20px', overflow:'hidden', display:'block'} : {display:'none'}}>
       <img style={{height:'60px', position:'relative'}} src={uploadedPath} alt=''/>
-        <DeleteIcon style={{position:'relative', left:'0px', width:'35', height:'35'}} color='secondary' onClick={onDeleteClick}/>
+        <DeleteIcon style={{position:'relative', left:isSmartphone() ? '10px' : '0px', width:isSmartphone() ? '60' : '35', height:isSmartphone() ? '60' : '35'}} color='secondary' onClick={onDeleteClick}/>
     </div>
     <div>
 

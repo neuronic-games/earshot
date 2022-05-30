@@ -132,7 +132,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         map.setMouse([ev.clientX, ev.clientY])
       }}
     >
-    <DialogTitle id="simple-dialog-title" style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
+    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
       {title}</DialogTitle>
     <DialogContent>{page}</DialogContent>
   </Dialog>

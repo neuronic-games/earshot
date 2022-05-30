@@ -12,6 +12,7 @@ import SubjectIcon from '@material-ui/icons/Subject'
 import YouTubeIcon from '@material-ui/icons/YouTube'
 import {ContentType, ISharedContent} from '@models/ISharedContent'
 import {t} from '@models/locales'
+import { isSmartphone } from '@models/utils'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
 import {GDrive} from './GDrive'
@@ -24,11 +25,11 @@ import {YouTube} from './YouTube'
 export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
   if (width < 0) { width = size }
   const icons = {
-    img: <PhotoIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
-    text:<SubjectIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
+    img: <PhotoIcon style={isSmartphone() ? {fontSize:size, width: '70px', height:'70px'} : {fontSize:size, width: '40px', height:'40px'}} />,
+    text:<SubjectIcon /* style={{fontSize:size, width: '40px', height:'40px'}} */ style={isSmartphone() ? {fontSize:size, width: '70px', height:'70px'} : {fontSize:size, width: '40px', height:'40px'}} />,
     iframe: <HttpIcon style={{fontSize:size, width}} />,
     youtube: <YouTubeIcon style={{fontSize:size, width}} />,
-    screen: <ScreenShareIcon style={{fontSize:size, width: '40px', height:'40px'}} />,
+    screen: <ScreenShareIcon /* style={{fontSize:size, width: '40px', height:'40px'}} */ style={isSmartphone() ? {fontSize:size, width: '70px', height:'70px'} : {fontSize:size, width: '40px', height:'40px'}} />,
     gdrive: <span style={{width, height:size}}><Icon icon={GoogleDriveIcon} height={size} /></span>,
     whiteboard: <span style={{width, height:size}}><Icon icon={whiteboard24Regular} height={size} /></span>,
     camera: <CameraAltIcon style={{fontSize:size, width}} />,

@@ -4,6 +4,7 @@ import ListItem from '@material-ui/core/ListItem'
 import React from 'react'
 import {DialogPageProps} from './DialogPage'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { isSmartphone } from '@models/utils'
 
 const theme = createMuiTheme({
   palette: {
@@ -35,6 +36,7 @@ export function SettingInput<T>(props: SettingInputProps<T>) {  // tslint: disab
       <ListItem>
       <MuiThemeProvider theme={theme}>
         <Button
+        style={{fontSize:isSmartphone() ? '2em' : '1em'}}
           variant="contained"
           color="primary"
           onClick={() => {

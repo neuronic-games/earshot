@@ -35,7 +35,7 @@ export interface LocalParticipantFormProps extends BMProps{
 const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
 height: isSmartphone() ? '2em' : '1.5em'}
 const tfDivStyle = {height: isSmartphone() ? '4em' : '3em'}
-const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em'}
+const tfLStyle = {fontSize: isSmartphone() ? '2em' : '1em'}
 const iStyle = {fontSize: isSmartphone() ? '2.5rem' : '1rem'}
 
 export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props: LocalParticipantFormProps) => {
@@ -98,15 +98,16 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
 
         return  <>
           <TextField label={t('YourName')} multiline={false} value={local.information.name} style={tfDivStyle}
-            inputProps={{style: tfIStyle, autoFocus:true}} InputLabelProps={{style: tfLStyle}}
+            inputProps={{style: tfIStyle, autoFocus:true}}
+            InputLabelProps={{style: tfLStyle}}
             onChange={event => {local.information.name = event.target.value}}
             onKeyPress={onKeyPress} fullWidth={true}
           />
           <Box mt={3}>
-            <div style={{fontSize:12}}>{t('lsColor')}</div>
+            <div style={{fontSize:isSmartphone() ? '2em' : 12}}>{t('lsColor')}</div>
             <Box ml={2}>
               <Button variant="contained"
-                style={{backgroundColor:rgb2Color(rgb), color:textColor, textTransform:'none'}}
+                style={{backgroundColor:rgb2Color(rgb), color:textColor, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
                 onClick={()=>{setShowColorPicker(true)}} ref={colorButton}>
                 {t('lsColorAvatar')}</Button>
               <Popover open={showColorPicker} onClose={()=>{setShowColorPicker(false)}}
@@ -119,7 +120,7 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
                   />
               </Popover>
               <Button variant="contained"
-                style={{color:rgb2Color(textRgb), backgroundColor:backColor, marginLeft:15, textTransform:'none'}}
+                style={{color:rgb2Color(textRgb), backgroundColor:backColor, marginLeft:15, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
                 onClick={()=>{setShowTextColorPicker(true)}} ref={textColorButton}>
                 {t('lsColorText')}</Button>
               <Popover open={showTextColorPicker} anchorOrigin={{vertical:'bottom', horizontal:'right'}}
@@ -131,17 +132,17 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
                   }}
                 />
               </Popover>
-              <Button variant="contained" style={{marginLeft:15, textTransform:'none'}}
+              <Button variant="contained" style={{marginLeft:15, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
                 onClick={()=>{local.information.color=[]; local.information.textColor=[]}} >
                 {t('lsAutoColor')}</Button>
             </Box>
           </Box>
           <Box mt={3}>
-            <div style={{fontSize:12}}>{t('lsImage')}</div>
+            <div style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('lsImage')}</div>
             <Box mt={-1} ml={2}>
               <form key="information" onSubmit = {uploadAvatarSrc}
                 style={{lineHeight:'2em', fontSize: isSmartphone() ? '2.5em' : '1em'}}>
-                <div style={{fontSize:12, marginTop:8}}>{t('lsImageFile')}</div>
+                <div style={{fontSize:isSmartphone() ? '1em' : 12, marginTop:8}}>{t('lsImageFile')}</div>
                 {local.information.avatarSrc ? <>
                   <img src={local.information.avatarSrc} style={{height:'1.5em', verticalAlign:'middle'}} alt="avatar"/>
                   <input style={iStyle} type="submit" onClick={clearAvatarSrc} value="✕" /> &nbsp;
@@ -161,10 +162,10 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
           </Box>
           <MuiThemeProvider theme={theme}>
           <Box mt={3}>
-            <div style={{fontSize:12}}>{t('lsNotification')}</div>
-            <Box mt={-1} ml={2}>
+            <div style={{fontSize:isSmartphone() ? '2em' : 12}}>{t('lsNotification')}</div>
+            <Box mt={isSmartphone() ? 1 : -1} ml={isSmartphone() ? 37 : 2} style={{transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}>
             <FormControlLabel control={
-              <Checkbox color="secondary" checked={local.information.notifyCall}
+              <Checkbox color="secondary" style={{fontSize:isSmartphone() ? '2em' : '1em'}} checked={local.information.notifyCall}
               onChange={(ev)=>{local.information.notifyCall = ev.target.checked}} />
               } label={t('lsNotifyCall')} />
             <FormControlLabel control={
@@ -186,13 +187,13 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
       </Observer>
       <MuiThemeProvider theme={theme}>
       <Box mt={4} mb={3}>
-        <Button variant="contained" color="primary" style={{textTransform:'none'}}
+        <Button variant="contained" color="primary" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={()=>{
             closeConfig({}, 'enter')
           }}>{t('btSave')}</Button>
-        <Button variant="contained" color="secondary" style={{marginLeft:15, textTransform:'none'}}
+        <Button variant="contained" color="secondary" style={{marginLeft:15, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={()=>{ local.loadInformationFromStorage()}}>{t('btCancel')}</Button>
-        <Button variant="contained" style={{marginLeft:15, textTransform:'none'}}
+        <Button variant="contained" style={{marginLeft:15, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={()=>{
             map.focusOn(local)
           }}>{t('ctFocus')}</Button>

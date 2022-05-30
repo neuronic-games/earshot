@@ -11,7 +11,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 //////////////
 //import {addV2, mulV2, normV, rotateVector2DByDegree, subV2} from '@models/utils'
-import {normV, getRelativePose} from '@models/utils'
+import {normV, getRelativePose, isSmartphone} from '@models/utils'
 /////////////
 import {LocalParticipant} from '@stores/participants/LocalParticipant'
 import { PlaybackParticipant } from '@stores/participants/PlaybackParticipant'
@@ -659,7 +659,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       </div>
       <div className={classes.avatar}
         style = {{transform: `rotate(${-mapData.rotation}deg)`}} >
-        <Tooltip title={name}>
+        <Tooltip title={<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{name}</span>}>
           <div>
             { (inZone === 'close' && (participant.id !== props.stores.participants.localId) && zoneId === localZoneId) ?
             <img src={zoneGlowIcon} className={anim ? classes.avatarGlow : classes.avatarGlowEffect} draggable={false} alt='' />

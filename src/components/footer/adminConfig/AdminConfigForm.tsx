@@ -6,7 +6,7 @@ import TextField from '@material-ui/core/TextField'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 import {BlobHeader, player, recorder} from '@models/api/Recorder'
-import {isDarkColor, rgb2Color} from '@models/utils'
+import {isDarkColor, isSmartphone, rgb2Color} from '@models/utils'
 import {RoomInfo} from '@stores/RoomInfo'
 import contents from '@stores/sharedContents/SharedContents'
 import {Observer} from 'mobx-react-lite'
@@ -55,9 +55,11 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
       <Box mt={2} mb={2}>
         <TextField autoFocus={false} label="Admin password" type="password" style={{marginTop:-12}}
           value={roomInfo?.password} onChange={(ev)=>{ roomInfo.password=ev.currentTarget.value}}
-          onKeyPress={(ev)=>onKeyPress(ev, roomInfo)}/>
+          onKeyPress={(ev)=>onKeyPress(ev, roomInfo)}
+          InputProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }}
+          InputLabelProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }} />
         &emsp;
-        <Button variant="contained" color="primary" style={{textTransform:'none'}} onClick={() => {
+        <Button variant="contained" color="primary" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}} onClick={() => {
           let pass = roomInfo.roomProps.get('password')
           if (!pass){ pass = '' }
           roomInfo.passMatched = roomInfo?.password === pass
@@ -67,8 +69,10 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
       <Box mt={2} mb={2}>
         <TextField label="New password to update" type="text" style={{marginTop:-12}}
           value={roomInfo?.newPassword} onChange={(ev)=>{roomInfo.newPassword=ev.currentTarget.value}}
+          InputProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }}
+          InputLabelProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }}
         />&emsp;
-        <Button variant="contained" color={btnColor} disabled={!roomInfo.passMatched} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} disabled={!roomInfo.passMatched} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={() => {
             if (roomInfo.passMatched){
               connection.conference.setRoomProp('password', roomInfo.newPassword)
@@ -76,31 +80,31 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
           }}> Update password </Button>&emsp;
       </Box>
       <Box mt={2}>
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) { connection.conference.sendMessage(MessageType.MUTE_VIDEO, true) }
         }}> Mute all videos </Button> &nbsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) { connection.conference.sendMessage(MessageType.MUTE_VIDEO, false) }
         }}> Show all videos </Button>&emsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) { connection.conference.sendMessage(MessageType.MUTE_AUDIO, true) }
         }}> Mute all mics </Button>&nbsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', marginTop:isSmartphone() ? '0.5em' : '0em', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) { connection.conference.sendMessage(MessageType.MUTE_AUDIO, false) }
         }}> Switch on all mics </Button>
       </Box>
       <Box mt={2}>
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) {
             contents.removeAllContents()
           }
         }}> Remove all Contents </Button>&emsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
             if (roomInfo.passMatched){
               const ids = new Set(contents.roomContentsInfo.keys())
@@ -108,11 +112,14 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
               contents.all.filter(c => c.ownerName === clearName).forEach(c => contents.removeByLocal(c.id))
             }
         }}> Clear contents by user name </Button> &thinsp;
-        <TextField label="name" type="text" style={{marginTop:-12}}
-            value={clearName} onChange={(ev)=>{setClearName(ev.currentTarget.value)}} />
+        <TextField label="name" type="text" style={{marginTop:isSmartphone() ? 10 : -12}}
+            value={clearName} onChange={(ev)=>{setClearName(ev.currentTarget.value)}}
+            InputProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }}
+            InputLabelProps={{ style: { fontSize:isSmartphone() ? '2em' : '1em' } }}
+             />
       </Box>
       <Box mt={2}>
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) {
             connection.conference.sendMessageViaJitsi(MessageType.RELOAD_BROWSER, {})
@@ -124,8 +131,8 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
 
         <Button variant="contained" disabled={!roomInfo.passMatched}
           style={roomInfo.passMatched ?
-            {backgroundColor:rgb2Color(roomInfo.backgroundFill), color:textForFill, textTransform:'none'}
-            : {textTransform:'none'} }
+            {backgroundColor:rgb2Color(roomInfo.backgroundFill), color:textForFill, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}
+            : {textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'} }
           onClick={()=>{if (roomInfo.passMatched){ setShowFillPicker(true) }}} ref={fillButton}>
           Back color</Button>
         <Popover open={showFillPicker}
@@ -145,8 +152,8 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
         &nbsp;
         <Button variant="contained" disabled={!roomInfo.passMatched}
           style={roomInfo.passMatched ?
-            {backgroundColor:rgb2Color(roomInfo.backgroundColor), color:textForColor, textTransform:'none'}
-            : {textTransform:'none'} }
+            {backgroundColor:rgb2Color(roomInfo.backgroundColor), color:textForColor, textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}
+            : {textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'} }
           onClick={()=>{if (roomInfo.passMatched){ setShowColorPicker(true)} }} ref={colorButton}>
           Pattern color</Button>
         <Popover open={showColorPicker}
@@ -163,7 +170,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
             }}
           />
         </Popover>&nbsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
           if (roomInfo.passMatched) {
             roomInfo.backgroundFill = roomInfo.defaultBackgroundFill
@@ -172,7 +179,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
             connection.conference.setRoomProp('backgroundColor', JSON.stringify(roomInfo.backgroundColor))
           }
         }}> Default </Button>&emsp;
-        <Button variant="contained" color={btnColor} style={{textTransform:'none'}}
+        <Button variant="contained" color={btnColor} style={{textTransform:'none', marginTop:isSmartphone() ? '0.5em' : '0em', fontSize:isSmartphone() ? '2em' : '1em'}}
           disabled={!roomInfo.passMatched} onClick={() => {
             participants.local.recording = !participants.local.recording
             if (participants.local.recording){
@@ -196,7 +203,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
             }
           }}>{participants.local.recording ? 'Stop Recorder' : 'Start Recorder'}</Button>&nbsp;
         {downloadLink ? <><a href={downloadLink} download="BMRecord.bin">Download</a>&nbsp;</> : undefined}
-        <input type="file" accept="application/octet-stream" ref={fileToPlay} style={{display:'none'}}
+        <input type="file" accept="application/octet-stream" ref={fileToPlay} style={{display:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onChange={ (ev) => {
             const files = ev.currentTarget?.files
             if (files && files.length) {
@@ -206,7 +213,7 @@ export const AdminConfigForm: React.FC<AdminConfigFormProps> = (props: AdminConf
               })
             }
           }}  />
-        <Button variant="contained" color='primary' style={{textTransform:'none'}}
+        <Button variant="contained" color='primary' style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={() => {
             fileToPlay.current?.click()
           }}>Play</Button>

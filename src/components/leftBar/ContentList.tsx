@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import DoneIcon from '@material-ui/icons/CheckCircle'
 import {isContentOutOfRange, ISharedContent, SharedContentInfo} from '@models/ISharedContent'
 import {useTranslation} from '@models/locales'
-import {findReverseColorRGB, findTextColorRGB, getRandomColor, getRandomColorRGB, rgb2Color} from '@models/utils'
+import {findReverseColorRGB, findTextColorRGB, getRandomColor, getRandomColorRGB, isSmartphone, rgb2Color} from '@models/utils'
 /* import {isDarkColor} from '@models/utils' */
 import {ParticipantBase} from '@stores/participants/ParticipantBase'
 import contents from '@stores/sharedContents/SharedContents'
@@ -188,16 +188,16 @@ export const ContentLine: React.FC<BMProps & TextLineStyle &
             }
           }}
         >{typeIcon}
-        <div style={{position:'relative', color:'#FFFFFF', left:'5px', display:'flex'}}>
+        <div style={{position:'relative', color:'#FFFFFF', left:'5px', display:'flex', fontSize:isSmartphone() ? '2em' : '1em'}}>
         {/* {String(props.content.shareType.charAt(0).toUpperCase() + String(props.content.shareType.slice(1)))} */}
         {contentInfo}
-        <div style={{position:'relative', left:'5px', color:'#F7A76B'/* '#EDA741' */}}>
+        <div style={{position:'relative', left:'5px', color:'#F7A76B', /* fontSize:isSmartphone() ? '2em' : '1em' *//* '#EDA741' */}}>
         {props.content.name !== '' ?' (' + props.content.name + ')' : ''}
         </div>
         </div>
         {userName !== '' ?
-        <div style={{position:'absolute', width:'100%', right:'20px', textAlign:'right'/* '#EDA741' */}}>
-        <ImageAvatar border={true} colors={colorsIcon} size={30} name={userName !== undefined ? userName : ''} avatarSrc={userAvatar !== undefined ? userAvatar : ''} />
+        <div style={{position:'absolute', width:'100%', right:isSmartphone() ? '25px' : '20px', textAlign:'right'/* '#EDA741' */}}>
+        <ImageAvatar border={true} colors={colorsIcon} size={isSmartphone() ? 60 : 30} name={userName !== undefined ? userName : ''} avatarSrc={userAvatar !== undefined ? userAvatar : ''} />
         </div> : ''}
         </Button>
       </Tooltip>
@@ -246,7 +246,7 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
   /* const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black') */
 
   return <div className={classes.container} >
-    <div className={classes.title} style={{color:'#FFFFFF90', marginLeft: '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold'}} /* style={{color:textColor}} */>{t('Contents')} ({(props.stores.contents.all.length).toString()})
+    <div className={classes.title} style={{color:'#FFFFFF90', marginLeft:isSmartphone() ? '10px':'8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2em' : '1em'}} /* style={{color:textColor}} */>{t('Contents')} ({(props.stores.contents.all.length).toString()})
       {editing ? <Button variant="contained" size="small" color="secondary"
         style={{marginLeft:4, padding:3, height:'1.4em', fontSize:'0.8'}}
         onClick={()=>{ contents.setEditing('')}}>

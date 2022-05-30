@@ -8,6 +8,7 @@ import Popover, { PopoverProps } from '@material-ui/core/Popover'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 import {t} from '@models/locales'
+import { isSmartphone } from '@models/utils'
 import chat from '@stores/Chat'
 import participants from '@stores/participants/Participants'
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
@@ -54,20 +55,22 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
 
   return <Popover {...popoverProps} onClose={closeConfig}>
     <DialogTitle>
-      {props.participant?.information.name}
+      <span  style={{fontSize: isSmartphone() ? '2em' : '1em'}}>
+        {props.participant?.information.name}
+      </span>
       <span style={{float:'right'}}>
         <SignalQualityButton open={props.open} stats={props.participant?.quality} /></span>
     </DialogTitle>
-    <DialogContent>
+    <DialogContent style={{minWidth:isSmartphone() ? 393 : 200}}>
       <Box mb={2}>
-      <Button variant="contained" style={{textTransform:'none'}}
+      <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
           onClick={()=>{
             closeConfig({}, 'enter')
             props.participant?.call()
           }}>{t('rsCall')}</Button>
       </Box>
       <Box mb={2}>
-      <Button variant="contained" style={{textTransform:'none'}}
+      <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
         onClick={()=>{
           if (!props.participant) { return }
           if (participants.yarnPhones.has(props.participant.id)){
@@ -82,7 +85,7 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
             t('rsCutYarnPhone') : t('rsConnectYarnPhone')}</Button>
       </Box>
       <Box mb={2}>
-      <Button variant="contained" style={{textTransform:'none'}}
+      <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
         onClick={()=>{
           if (!props.participant) { return }
           chat.sendTo = props.participant.id
@@ -91,7 +94,7 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
           {t('rsChatTo', {name: props.participant?.information.name})}</Button>
       </Box>
       <Box mb={2}>
-      <Button variant="contained" style={{textTransform:'none'}}
+      <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
       onClick={()=>{
         if (!props.participant) { return }
         props.stores.map.focusOn(props.participant)

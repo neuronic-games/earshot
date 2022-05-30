@@ -8,7 +8,17 @@ import {useState} from 'react'
 import {BMProps} from '../utils'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
+import { makeStyles } from '@material-ui/core/styles'
+import { isSmartphone } from '@models/utils'
+
+
 declare const config:any             //  from ../../config.js included from index.html
+
+const useStyles = makeStyles({
+  divText: {
+    fontSize: isSmartphone() ? '2em' : "1em"
+  }
+})
 
 const theme = createMuiTheme({
   palette: {
@@ -42,6 +52,8 @@ export const StatusDialog: React.FC<StatusDialogProps> = (props: StatusDialogPro
   const [update,setUpdate] = useState<boolean>(false)
   status.open = props.open === true
   status.update = update
+
+  const classes = useStyles()
 
   function updateStatus(){
     const chatRoom = connection.conference._jitsiConference?.room
@@ -130,8 +142,8 @@ export const StatusDialog: React.FC<StatusDialogProps> = (props: StatusDialogPro
   const codecs = Array.from(codecSet)
 
   return <Popper {...poperProps}>
-    <Paper style={{background:'rgba(255,255,255,0.6)', padding:'0.4em'}}>
-      <div style={{overflowY:'auto'}}>
+    <Paper style={{background:'rgba(255,255,255,0.6)', padding:'0.4em', marginTop: isSmartphone() ? '13em' : 0}}>
+      <div style={{overflowY:'auto'}} className={classes.divText}>
         <strong>Servers</strong><br />
         {status.sessions.length === 0 ? <div>No WebRTC</div> :
         status.sessions.map((sess, idx) => <div key={idx}>
@@ -147,7 +159,7 @@ export const StatusDialog: React.FC<StatusDialogProps> = (props: StatusDialogPro
         {/*<div> Quality: {JSON.stringify(stat)}</div>*/}
       </div>
       <MuiThemeProvider theme={theme}>
-      <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em'}}
+      <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em', fontSize:isSmartphone() ? '2em' : '1em'}}
         onClick={close}
         > Close </Button>
       </MuiThemeProvider>

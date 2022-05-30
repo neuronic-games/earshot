@@ -10,11 +10,16 @@ import CheckBoxIcon from '@material-ui/icons/Done';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import { makeStyles } from '@material-ui/core/styles'
 import {useObserver} from 'mobx-react-lite'
+import { isSmartphone } from '@models/utils'
+import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles({
   root: {
     padding: 2,
   },
+  formControlLabel: {
+    fontSize: isSmartphone() ? '2.5em' : "1em"
+  }
 })
 
 export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
@@ -25,7 +30,7 @@ export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
   const videoBroadcastSwitch = <Observer>{ () =>
     <Checkbox
       icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent" />}
-      checkedIcon={<CheckBoxIcon htmlColor="black" />}
+      checkedIcon={<CheckBoxIcon style={{fontSize:isSmartphone() ? '2em' : '1em'}}  htmlColor="black" />}
       className={classes.root}
       checked={!local.muteVideo} name="broadcastVideo"
       onChange={() => {
@@ -37,7 +42,7 @@ export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
   const videoBroadcastSpeakSwitch = <Observer>{ () =>
     <Checkbox
       icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent" />}
-      checkedIcon={<CheckBoxIcon htmlColor="black" />}
+      checkedIcon={<CheckBoxIcon style={{fontSize:isSmartphone() ? '2em' : '1em'}}  htmlColor="black" />}
       className={classes.root}
       checked={false} name="broadcastSpeakVideo"
       onChange={() => {
@@ -52,12 +57,12 @@ export const BroadcastVideoControl: React.FC<BMProps> = (props: BMProps) => {
     <div style={{width:'150%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
     <FormControlLabel style={{position:'relative', top:'5px', left: '-25px'}}
       control={videoBroadcastSwitch}
-      label={t('broadcastMyVideo')}
+      label={<Typography className={classes.formControlLabel}>{t('broadcastMyVideo')}</Typography>}
     />
     <div style={{width:'130%', height:'1.5px', backgroundColor:'#ffffff', marginLeft:'-40px'}}></div>
     <FormControlLabel style={{position:'relative', top:'5px', left: '-25px'}}
       control={videoBroadcastSpeakSwitch}
-      label={t('broadcastMySpeakVideo')}
+      label={<Typography className={classes.formControlLabel}>{t('broadcastMySpeakVideo')}</Typography>}
     />
 
   </Container>

@@ -30,6 +30,7 @@ import React, {useEffect, useRef} from 'react'
 /* import {AdminConfigForm} from './adminConfig/AdminConfigForm' */
 /* import {BroadcastControl} from './BroadcastControl' */
 import {FabMain} from './FabEx'
+import {isSmartphone} from '@models/utils'
 
 /* import {ShareButton} from './share/ShareButton'
 import {StereoAudioSwitch} from './StereoAudioSwitch' */
@@ -46,8 +47,8 @@ const buttonStyle = {
   '&': {
     margin: '5px',
     borderRadius: '50%',
-    width: '45px',
-    height: '45px',
+    width: isSmartphone() ? '100px' : '45px',
+    height: isSmartphone() ? '90px' : '45px',
     textAlign: 'center',
   },
 }
@@ -397,35 +398,35 @@ export const Emoticons: React.FC<BMProps&{height?:number}> = (props) => {
           <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-4px'}} alt='' />
         </div> */}
 
-        <FabMain size={45}
+        <FabMain size={isSmartphone() ? 100 : 45}
           onClick = { () => {
             toggleSmileButton()
           }}
         >
           {toggleSmile ? <div className={classes.emoticonActive}>
-            <img src={smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            <img src={smileIcon} style={{width:iconSize, height:iconSize, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div>
             : <div className={classes.emoticon}>
-            <img src={smileIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+            <img src={smileIcon} style={{width:55, height:55, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div> }
         </FabMain>
-        <FabMain size={45}
+        <FabMain size={isSmartphone() ? 100 : 45}
           onClick = { () => {
             toggleClapButton()
           }}
         >
           {toggleClap ? <div className={classes.emoticonActive}>
-            <img src={clapIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            <img src={clapIcon} style={{width:iconSize, height:iconSize, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div>
             : <div className={classes.emoticon}>
-            <img src={clapIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+            <img src={clapIcon} style={{width:55, height:55, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div> }
         </FabMain>
-        <FabMain size={45}
+        <FabMain size={isSmartphone() ? 100 : 45}
           onClick = { () => {
             toggleHandButton()
           }}
         >
           {toggleHand ? <div className={classes.emoticonActive}>
-            <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div>
+            <img src={handIcon} style={{width:iconSize, height:iconSize, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div>
             : <div className={classes.emoticon}>
-            <img src={handIcon} style={{width:55, height:55, position:'relative', top:'-5px', left:'-5px'}} alt=""/></div> }
+            <img src={handIcon} style={{width:55, height:55, position:'relative', top:isSmartphone() ? '17px' : '-5px', left:isSmartphone() ? '0px' : '-5px', transform : isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div> }
         </FabMain>
 
         {/* <FabMain size={45} onClick={toggleSmileButton}

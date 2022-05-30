@@ -19,6 +19,7 @@ import {StatusDialog} from './StatusDialog'
 import goodConnIcon from '@images/earshot_icon_quality_3.png'
 import averageConnIcon from '@images/earshot_icon_quality_2.png'
 import badConnIcon from '@images/earshot_icon_quality_1.png'
+import {isSmartphone} from '@models/utils'
 
 
 
@@ -90,19 +91,19 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
   }
 
   return <>
-    <Tooltip title={`${props.participant.information.name} (${props.participant.id})`} placement="right">
+    <Tooltip title={<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{`${props.participant.information.name} (${props.participant.id})`}</span>} placement="right">
       <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 1px 10px'}}>
-        <IconButton style={{margin:0, padding:0, marginTop: '5px', marginLeft:'5px'}} onClick={onClick} onContextMenu={onContextMenu}>
-          <ImageAvatar border={true} colors={colors} /* size={size} */ size={size * 2} name={name} avatarSrc={avatarSrc} />
+        <IconButton style={{margin:0, padding:0, marginTop: '5px', marginLeft:isSmartphone() ? '10px' : '5px'}} onClick={onClick} onContextMenu={onContextMenu}>
+          <ImageAvatar border={true} colors={colors} /* size={size} */ size={(isSmartphone() ? (size * 3.2) : (size * 2))} name={name} avatarSrc={avatarSrc} />
         </IconButton>
         <Button /* variant="contained" */ className={classes.line} ref={ref}
-          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '5px', fontWeight: 'bold'}}
+          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '5px', fontWeight: 'bold', fontSize: isSmartphone() ? '2em' : '1em'}}
           onClick={onClick} onContextMenu={onContextMenu}>
             {name}
-            <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px'/* , fontSize:'15px' */}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>
+            <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px', fontSize:isSmartphone() ? '1.5em' : '1em'}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>
         </Button>
-        <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:'25px', marginTop: '2px',}}>
-            {(_connQuality !== undefined && _connQuality > 80) ? <img width={'40px'} height={'40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={'40px'} height={'40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={'40px'} height={'40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
+        <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:isSmartphone() ? '50px' : '25px', marginTop: '2px',}}>
+            {(_connQuality !== undefined && _connQuality > 80) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
         </div>
       </div>
     </Tooltip>
@@ -148,7 +149,7 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
 
   return (
     <div className={classes.container} >
-      <div className={classes.title} style={{color:'#FFFFFF90'/* textColor */, marginLeft: '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold'}} ref={ref}
+      <div className={classes.title} style={{color:'#FFFFFF90'/* textColor */, marginLeft: isSmartphone() ? '14px' : '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2em' : '1em'}} ref={ref}
         onClick={()=>{setShowStat(true)}}
      /*  >{(participants.remote.size + 1).toString()} in {connection.conference.name}</div> */
      >{connection.conference.name} ({(participants.remote.size + 1).toString()})</div>

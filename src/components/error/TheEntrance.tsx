@@ -380,7 +380,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     //window.setTimeout(function() {
       clearTimeout(cTimer)
       // Here
-      const changeMatrix = (new DOMMatrix()).scaleSelf(1, 1, 1)
+      let scaleVal = isSmartphone() ? [2,2,2] : [1,1,1]
+
+      const changeMatrix = (new DOMMatrix()).scaleSelf(scaleVal[0], scaleVal[1], scaleVal[2])
       mapData.setMatrix(changeMatrix)
       mapData.setCommittedMatrix(changeMatrix)
 
@@ -440,6 +442,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       // Place user at the center Location of their own canvas
       mapData.focusOn(participants.local)
 
+
     } else {
       mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
@@ -467,10 +470,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em'}
   const tfDivStyle = {height: isSmartphone() ? '4em' : '3em'} */
 
-  const tfIStyle = {fontSize: isSmartphone() ? '2em' : '1em',
-    height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px', width:'15em'}
-  const tfLStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.5em 0 0.2em 0', marginLeft:'-7em'}
-  const tfLNStyle = {fontSize: isSmartphone() ? '1em' : '1em',color: 'white', padding:'0.2em 0 0.2em 0', marginLeft:'-10.5em'}
+  const tfIStyle = {fontSize: isSmartphone() ? '2.5em' : '1em',
+    height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px', width: isSmartphone() ? '14.5em' : '15em'}
+  const tfLStyle = {fontSize: isSmartphone() ? '1.2em' : '1em',color: 'white', padding:'0.5em 0 0.2em 0', marginLeft:'-7em'}
+  const tfLNStyle = {fontSize: isSmartphone() ? '1.2em' : '1em',color: 'white', padding:'0.2em 0 0.2em 0', marginLeft:'-10.5em'}
   //const tfDivStyle = {height: isSmartphone() ? '4em' : '3em', padding: '3px 0 0 0', width: '15em'}
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
@@ -508,7 +511,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white'}}>Version 1.7.5</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 1.7.6</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -525,7 +528,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       <div style={active ? {position: 'relative', width:'100em', display:'none'} : {position: 'relative', width:'100em', display:'block'}}/>
       {/* <img style={{position: 'relative', left: '21em', width:'30em', display:'block'}} src={bgCircle}
         alt="" /> */}
-      <div style={active ? {position: 'relative', top: '3em' /* '2em' */, width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out'} : {position: 'relative', top: '4em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: '3em' /* '2em' */, width: '100%', textAlign:'center', opacity:'0', transform: "scale(0.10)", transition: '0.3s ease-out', left: isSmartphone() ? "-0.5em" : '0em'} : {position: 'relative', top: '4em', width: '100%', textAlign:'center', left: isSmartphone() ? "-0.5em" : '0em'}}>
         <img style={{width:'30em', userSelect:'none'}} draggable={false} src={bgCircle}
         alt="" />
       </div>
@@ -557,7 +560,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={2}>
-      <div style={active ? {position: 'relative', top: '-25em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top: '-25em', width: '100%', textAlign:'center'}}>
+      <div style={active ? {position: 'relative', top: isSmartphone() ? '-25.5em' : '-25em', width: '100%', textAlign:'center', display:'none'} : {position: 'relative', top:isSmartphone() ? '-25.5em' : '-25em', width: '100%', textAlign:'center'}}>
         {/* <Button variant="contained" color="primary" onClick={() => onClose(true)}
           style={{fontSize:isSmartphone() ? '1.25em' : '1em'}}>
           {t('EnterTheVenue')}
@@ -567,8 +570,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </div>
       </Box>
       <Box mt={7}>
-      <div style={active ? {position: 'relative', top: '8.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: '-24em', width: '100%', textAlign:'center'}}>
-        <img style={{width:'8em', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
+      <div style={active ? {position: 'relative', top: isSmartphone() ? '8.6em' : '8.5em', width: '100%', height: '100%', textAlign:'center', display:'block'} : {position: 'relative', top: isSmartphone() ? '-23em' : '-24em', width: '100%', textAlign:'center'}}>
+        <img style={{width:isSmartphone() ? '9.5em' : '8em', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
       </div>
       </Box>
 

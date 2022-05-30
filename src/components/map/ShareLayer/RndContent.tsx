@@ -23,7 +23,7 @@ import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import settings from '@models/api/Settings'
 import {doseContentEditingUseKeyinput, isContentEditable, ISharedContent} from '@models/ISharedContent' // , isContentMaximizable
 import {t} from '@models/locales'
-import {Pose2DMap} from '@models/utils'
+import {isSmartphone, Pose2DMap} from '@models/utils'
 import {addV2, extractScaleX, extractScaleY, mulV, rotateVector2DByDegree, subV2, normV, mulV2} from '@models/utils'
 import {moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator' // copyContentToClipboard,
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
@@ -41,6 +41,7 @@ import {ShareDialog} from '@components/footer/share/ShareDialog'
 /* import { getBasePingStatus } from '../Base' */
 import {Icon} from '@iconify/react'
 import crossIcon from '@iconify-icons/fa-solid/expand-arrows-alt'
+
 
 
 
@@ -1366,7 +1367,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         {/* {showDelete ? */}
         <Dialog open={showDelete} onClose={() => setShowDelete(false)} onExited={() => setShowDelete(false)}
         keepMounted
-        style={showDelete ? {zIndex:9999} : {zIndex:-9999}}
+        style={showDelete ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}
         BackdropProps={{ invisible: true }}
         >
           {/* <DialogTitle style={{backgroundColor:'#B34700', height:'17px', position:'relative', top:'-13px', color:'white'}}>{t('deleteAlert')}</DialogTitle> */}
@@ -1511,6 +1512,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
             left: Number(member._clickX) - 207,
             top: Number(member._clickY) - 170,
             zIndex: showTitle ? 999 : -999,
+            transform: isSmartphone() ? 'scale(2.5)' : 'scale(1)',
           },
         }}
         BackdropProps={{ invisible: true }}

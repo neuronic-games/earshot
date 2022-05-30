@@ -14,7 +14,20 @@ import {SharedContents} from '@stores/sharedContents/SharedContents'
 import {ConnectionQualityStats} from 'lib-jitsi-meet/JitsiConference'
 import React from 'react'
 
+import { makeStyles } from '@material-ui/core/styles'
+import { isSmartphone } from '@models/utils'
+import { Typography } from '@material-ui/core'
+
 declare const config:any             //  from ../../config.js included from index.html
+
+const useStyles = makeStyles({
+  formControlLabel: {
+    fontSize: isSmartphone() ? '2.2em' : "1em"
+  },
+  divText: {
+    fontSize: isSmartphone() ? '2em' : "1em"
+  }
+})
 
 
 export interface ConnectionQualityDialogProps{
@@ -48,6 +61,8 @@ export const ConnectionQualityDialog: React.FC<ConnectionQualityDialogProps>
   }
   const {t} = useTranslation()
 
+  const classes = useStyles()
+
   let messageServer = ''
   if (props.isLocal){
     if (connection.conference.bmRelaySocket?.readyState === WebSocket.OPEN) {
@@ -65,25 +80,26 @@ export const ConnectionQualityDialog: React.FC<ConnectionQualityDialogProps>
 
   return <Popover open={props.open} anchorEl={props.anchorEl} >
     <DialogTitle>
-      {t('connectionStatus')}
+      {<Typography className={classes.formControlLabel}>{t('connectionStatus')}</Typography>}
+     {/*  label={<Typography className={classes.formControlLabel}>{t('broadcastMyVoice')}</Typography>} */}
     </DialogTitle>
     <DialogContent>
     <div style={{overflowY:'auto'}}>
-      <div> Quality:{Math.round((stat?.connectionQuality || 0) * 10) / 10} &nbsp; Loss: ⇑{loss.up}&nbsp; ⇓{loss.down}
+      <div className={classes.divText}> Quality:{Math.round((stat?.connectionQuality || 0) * 10) / 10} &nbsp; Loss: ⇑{loss.up}&nbsp; ⇓{loss.down}
         &nbsp;&nbsp;RTT:{stat?.jvbRTT}
       </div>
       {props.isLocal ?
         !stat.transport || stat.transport.length===0 ? <div>No WebRTC</div> :
-        stat.transport.map((sess, idx) => <div key={idx}>
+        stat.transport.map((sess, idx) => <div key={idx} className={classes.divText}>
           WebRTC: <span>{sess.ip}/{sess.type}<br /></span>
         </div>) : undefined}
-      {props.isLocal ? <div> Message: {messageServer}</div> : undefined}
-      <div> Bitrate (kbps): audio: ⇑{statSum.audio.up}&nbsp; ⇓{statSum.audio.down}
+      {props.isLocal ? <div className={classes.divText}> Message: {messageServer}</div> : undefined}
+      <div className={classes.divText}> Bitrate (kbps): audio: ⇑{statSum.audio.up}&nbsp; ⇓{statSum.audio.down}
       &nbsp;&nbsp; video: ⇑{statSum.video.up}&nbsp; ⇓{statSum.video.down}</div>
       {/*<div> Quality: {JSON.stringify(stat)}</div>*/}
       </div>
     <br />
-    <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em'}}
+    <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em', fontSize:isSmartphone() ? '2em' : '1em'}}
       onClick={(ev) => {
         ev.stopPropagation()
         if (props.onClose){props.onClose()}

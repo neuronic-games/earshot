@@ -8,6 +8,16 @@ import {t} from '@models/locales'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import { isSmartphone } from '@models/utils'
+
+import { makeStyles } from '@material-ui/core/styles'
+import { Typography } from '@material-ui/core'
+
+const useStyles = makeStyles({
+  formControlLabel: {
+    fontSize: isSmartphone() ? '2.5em' : "1em"
+  }
+})
 
 const theme = createMuiTheme({
   palette: {
@@ -23,12 +33,13 @@ interface MySliderProps{
 const MAX = 30
 const MySlider: React.FC<MySliderProps> = (props) => {
   return <Grid container={true} spacing={2}><Slider value={props.value} min={0} max={MAX}
-  track={false} valueLabelDisplay="auto" aria-labelledby="continuous-slider" style={{width:200}}
+  track={false} valueLabelDisplay="auto" aria-labelledby="continuous-slider" style={{width:200, marginLeft:isSmartphone() ? 110 : 0, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}
   onChange={(ev, val) => props.setValue(val as number)} valueLabelFormat={v => v === MAX ? '∞' : v.toString()}
   /></Grid>
 }
 
 export const RemoteTrackLimitControl: React.FC<Stores> = (props:Stores) => {
+  const classes = useStyles()
   const roomInfo = props.roomInfo
   const local = props.participants.local
   const videoLimit = useObserver(() => local.remoteVideoLimit)
@@ -46,14 +57,16 @@ export const RemoteTrackLimitControl: React.FC<Stores> = (props:Stores) => {
   <MuiThemeProvider theme={theme}>
     <FormControlLabel
       control={videoSlider}
-      label={t('videoLimit')}
+     /*  label={t('videoLimit')} */
+      label={<Typography className={classes.formControlLabel}>{t('videoLimit')}</Typography>}
     />
     <FormControlLabel
       control={audioSlider}
-      label={t('audioLimit')}
+     /*  label={t('audioLimit')} */
+     label={<Typography className={classes.formControlLabel}>{t('audioLimit')}</Typography>}
     /><br />
     <Button variant="contained" color={roomInfo.passMatched ? 'primary' : 'default'}
-        style={{textTransform:'none'}} disabled={!roomInfo.passMatched}
+        style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}} disabled={!roomInfo.passMatched}
         onClick = { () => {
           if (roomInfo.passMatched){
             connection.conference.sync.sendTrackLimits('', [local.remoteVideoLimit, local.remoteAudioLimit])

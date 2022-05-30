@@ -11,11 +11,14 @@ import React from 'react'
 import {AfkDialog} from './AfkDialog'
 import {TheEntrance} from './TheEntrance'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
+import {isSmartphone} from '@models/utils'
 
 // Setting default room animated names
 const defaultRoom = {
   room: generateRoomWithoutSeparator()
 }
+
+
 
 export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
 dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom} />)
@@ -25,7 +28,7 @@ export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void
   return <Dialog {...props} open={errorInfo.show()}
     onClose={props.onClose} maxWidth="xl" fullWidth={false} fullScreen={true} >
   {errorInfo.title ?
-    <DialogTitle id="simple-dialog-title">{errorInfo.title}</DialogTitle>
+    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize:isSmartphone() ? '3em' : '1em'}}>{errorInfo.title}</DialogTitle>
     : undefined }
   {props.children}
 </Dialog>
@@ -46,14 +49,14 @@ export const ErrorDialog: React.FC<BMProps> = (props) => {
           return dialogs.get(errorInfo.type)!(props)
         }else{
           return <ErrorDialogFrame onClose={() => { close() }}>
-            <DialogContent>{errorInfo.message}</DialogContent>
+            <DialogContent style={{fontSize:isSmartphone() ? '2.5em' : '1em'}}>{errorInfo.message}</DialogContent>
             {errorInfo.type !== 'retry' ?
               <Box mt={2} mb={2} ml={4}>
-              <Button variant="contained" color="primary" style={{textTransform:'none'}}
+              <Button variant="contained" color="primary" style={{textTransform:'none', fontSize:isSmartphone() ? '2.5em' : '1em'}}
                 onClick={() => { close() }} >
                 {t('emClose')}
               </Button>&nbsp;
-              <Button variant="contained" color="secondary" style={{textTransform:'none'}}
+              <Button variant="contained" color="secondary" style={{textTransform:'none', fontSize:isSmartphone() ? '2.5em' : '1em'}}
                 onClick={() => {
                   errorInfo.supressedTypes.add(errorInfo.type)
                   close()

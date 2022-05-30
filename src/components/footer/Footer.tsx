@@ -35,6 +35,7 @@ import Container from '@material-ui/core/Container'
 //import {connection} from '@models/api/ConnectionDefs' // For checking Host
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
+import { isSmartphone } from '@models/utils'
 
 const theme = createMuiTheme({
   palette: {
@@ -46,8 +47,8 @@ const buttonStyle = {
   '&': {
     margin: '5px',
     borderRadius: '50%',
-    width: '57px',
-    height: '57px',
+    width: isSmartphone() ? '90px' : '57px',
+    height: isSmartphone() ? '90px' : '57px',
     textAlign: 'center',
   },
 }
@@ -96,6 +97,7 @@ const useStyles = makeStyles({
     padding: 0,
     left: 60,
     outline: 'none',
+    minWidth : 530,
     pointerEvents: 'none',
   },
   wrapper:{width:'100%'},
@@ -381,8 +383,8 @@ function comparer(otherArray:string[]){
       /* return <MenuItem key={info.deviceId}
         onClick={() => { close(info.deviceId) }}
         > { (selected ? '✔\u00A0' : '\u2003') + info.label }</MenuItem>  //  \u00A0: NBSP, u2003: EM space. */
-        return <div style={{position:'relative', display:'flex', alignItems:'center', marginLeft:'15px'}}> {selected ? <CheckBoxIcon style={{opacity:'1', position:'absolute', marginLeft:'-10px'}} /> : <CheckBoxIcon style={{opacity:'0', position:'absolute', marginLeft:'-10px'}} />}
-      <MenuItem key={info.deviceId}
+        return <div style={{position:'relative', display:'flex', alignItems:'center', marginLeft:'15px'}}> {selected ? <CheckBoxIcon style={{opacity:'1', position:'absolute', marginLeft:'-10px', fontSize:isSmartphone() ? '3em' : '1.5em'}} /> : <CheckBoxIcon style={{opacity:'0', position:'absolute', marginLeft:'-10px', fontSize:isSmartphone() ? '3em' : '1.5em'}} />}
+      <MenuItem key={info.deviceId} style={{fontSize:isSmartphone() ? '2.5em' : '1em', marginLeft:isSmartphone() ? '0.5em' : '0em'}}
         onClick={() => { close(info.deviceId) }}
         > {info.label }
         </MenuItem></div>  //  \u00A0: NBSP, u2003: EM space.
@@ -391,9 +393,9 @@ function comparer(otherArray:string[]){
     /* const micMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
     const speakerMenuItems:JSX.Element[] = []
     const videoMenuItems:JSX.Element[] = [] */
-    const micMenuItems:JSX.Element[] = [<MenuItem key = {'broadcast'} ><BroadcastControl {...props} /></MenuItem>]
-    const speakerMenuItems:JSX.Element[] = [<MenuItem key = {'soundLoc'} ><StereoSwitchControl {...props} /></MenuItem>]
-    const videoMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcastVideo'} ><BroadcastVideoControl {...props} /></MenuItem>]
+    const micMenuItems:JSX.Element[] = [<MenuItem key = {'broadcast'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><BroadcastControl {...props} /></MenuItem>]
+    const speakerMenuItems:JSX.Element[] = [<MenuItem key = {'soundLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><StereoSwitchControl {...props} /></MenuItem>]
+    const videoMenuItems:JSX.Element[] = [<MenuItem  key = {'broadcastVideo'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><BroadcastVideoControl {...props} /></MenuItem>]
 
     const settingsMenuItems:JSX.Element[] = [<MenuItem style={{display:'flex', flexDirection:'column', textAlign:'center', marginLeft:'-35px'}} key = {'settingLoc'} ><SettingsControl {...props} /><Container><ShareDialogItem
   key="settingPreference" text={t('settingPreference')} onClick={openAdmin}
@@ -479,9 +481,9 @@ function comparer(otherArray:string[]){
           }}
         >
           {show ? <div className={show ? classes.moreActive : classes.more}>
-            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/></div>
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:isSmartphone() ? '17px' : '2px', left:'-0.5px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div>
             : <div className={show ? classes.moreActive : classes.more}>
-            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:'2px', left:'-0.5px'}} alt=""/></div> }
+            <img src={MoreIcon} style={{width:55, height:55, position:'relative', top:isSmartphone() ? '17px' : '2px', left:'-0.5px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/></div> }
         </FabMain>
         </div>
       <Collapse in={true} classes={classes}>

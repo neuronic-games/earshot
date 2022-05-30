@@ -14,11 +14,16 @@ import CheckBoxIcon from '@material-ui/icons/Done';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 
 import { makeStyles } from '@material-ui/core/styles'
+import { isSmartphone } from '@models/utils'
+import { Typography } from '@material-ui/core'
 
 const useStyles = makeStyles({
   root: {
     padding: 2,
   },
+  formControlLabel: {
+    fontSize: isSmartphone() ? '2.5em' : "1em"
+  }
 })
 
 export const StereoSwitchControl: React.FC<BMProps> = (props: BMProps) => {
@@ -38,7 +43,7 @@ export const StereoSwitchControl: React.FC<BMProps> = (props: BMProps) => {
   const headsetBroadcastSwitch = <Observer>{ () =>
     <Checkbox
       icon={<CheckBoxOutlineBlankIcon  htmlColor="transparent" />}
-      checkedIcon={<CheckBoxIcon htmlColor="black" />}
+      checkedIcon={<CheckBoxIcon style={{fontSize:isSmartphone() ? '2em' : '1em'}}  htmlColor="black" />}
       className={classes.root} checked={local.useStereoAudio} onChange={() => {
       local.soundLocalizationBase = soundLocalizationBase === 'avatar' ? 'user' : 'avatar'
       switchStereo()
@@ -48,9 +53,9 @@ export const StereoSwitchControl: React.FC<BMProps> = (props: BMProps) => {
 
   return <Container>
     <div style={{width:'130%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
-    <FormControlLabel style={{position:'relative', top:'5px', left: '-25px'}}
+    <FormControlLabel style={{position:'relative', top:'5px', left: '-25px', fontSize:'3em'}}
       control={headsetBroadcastSwitch}
-      label={t('stereoswitch')}
+      label={<Typography className={classes.formControlLabel}>{t('stereoswitch')}</Typography>}
     />
   </Container>
 }
