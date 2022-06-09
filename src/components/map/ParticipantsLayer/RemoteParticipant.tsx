@@ -57,6 +57,11 @@ export function resetIsRemoteMoved() {
   isMoved = false
 }
 
+let onRemoteUser:boolean = false
+export function getOnRemote():boolean {
+  return onRemoteUser
+}
+
 export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   const member = React.useRef<RemoteParticipantMember>({} as RemoteParticipantMember).current
   const [showMore, setShowMore] = React.useState(false)
@@ -252,6 +257,8 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   return (
     <div /* ref={drag.target} {...drag} */ {...moreControl}
       onClick = {(ev)=>switchYarnPhone(ev, props.participant.id)}
+      onTouchStart = {(e)=>onRemoteUser = true}
+      onTouchEnd = {(e)=>onRemoteUser = false}
       onContextMenu={(ev) => {ev.preventDefault(); openForm()}}
     >
       <Participant {...props} isLocal={false}/>

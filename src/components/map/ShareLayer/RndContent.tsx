@@ -116,6 +116,9 @@ class RndContentMember{
 
   _checkForRotation = false
   _onContentForEdit = false
+
+  touchStart = 0
+  touchEnd = 0
 }
 
 let contextMenuStatus:boolean = false
@@ -147,7 +150,8 @@ export function isOnContentStatus() : boolean {
   return _isOnContent
 }
 
-
+// For Double Touch
+let dblTouchTapCount = 0
 
 //  -----------------------------------------------------------------------------------
 //  The RnDContent component
@@ -201,7 +205,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [showOnRotation, setShowOnRotation] = useState(false)
 
   _contentDialogOpen = showUploadOption
- // _contentDeleteDialogOpen = showDelete
+
+
+
+const mDeleteTimer = setTimeout(function() {
+  clearTimeout(mDeleteTimer)
+ _contentDeleteDialogOpen = showDelete
+}, 500)
 
   // For Stop Watch
   //const [showStopWatch, setShowStopWatch] = useState(false)
@@ -716,16 +726,23 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
     },
     onDoubleClick: (evt)=>{
+     // if(evt.type === 'touchend') {return}
       if (isContentEditable(props.content)){
         stop(evt)
         setEditing(!editing)
       }
     },
     onDrag: ({down, delta, event, xy, buttons}) => {
+
+      //if(event?.type === 'touchend') {return}
+
       //  console.log('onDragTitle:', delta)
       isLocaked = props.content.pinned
       //console.log(isLocaked, " rnd")
       _isOnContent = true
+
+      member._down = false
+
       if (isFixed) { return }
       if(showTitle) {return}
       //if(showDelete) {return}
@@ -736,9 +753,15 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         dragHandler(delta, buttons, event)
       }
     },
-    onDragStart: ({event, currentTarget, delta, buttons}) => {   // to detect click
+    onDragStart: ({event, currentTarget, delta, buttons, xy}) => {   // to detect click
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
+
+      //if(event?.type === 'touchend') {return}
       //member.OnTimerClick = false
+
+      if(event?.type === "touchstart") {return}
+
+      _isOnContent = true
 
       if(showTitle) {return}
       setDragging(true)
@@ -747,6 +770,33 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       if (currentTarget instanceof Element && event instanceof PointerEvent){
         currentTarget.setPointerCapture(event?.pointerId)
       }
+
+      //////////////////////////////////////////////
+
+        member._checkForRotation = true
+        member.onContent = true
+        member._down = true
+        member.downTime = new Date().getSeconds()
+        member.moveX = map.mouseOnMap[0]
+        member.moveY = map.mouseOnMap[1]
+        window.clearTimeout(member._timer)
+        member._clickX = xy[0]
+        member._clickY = xy[1]
+        // Storing zIndex
+        member._zIndex = Number(props.content.zIndex)
+        //////////////////////////////////////////////
+        const mMenuTimer =  setTimeout(function() {
+          //console.log("MOVING -- ", member._down, " --- ", _contentDeleteDialogOpen, " IN DRAG ", dblTouchTapCount)
+          clearTimeout(mMenuTimer)
+          if(member._down && showTitle === false && showOnRotation === false && _contentDeleteDialogOpen === false && dblTouchTapCount === 0) {
+            const diff = subV2(map.mouseOnMap, pose.position)
+            member.downPos = Number(diff[1])
+            member.downXPos = Number(diff[0])
+            contextMenuStatus = true
+            setShowTitle(true)
+          }
+        }, 500)
+
     },
     onDragEnd: ({event, currentTarget, delta, buttons, xy}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
@@ -755,6 +805,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
      //console.log(member._down, " dragged")
 
+     //if(event?.type === 'touchend') {return}
+
       _isOnContent = false
 
 
@@ -762,10 +814,13 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       member._down = false
       member._item = "DIV"
       window.clearTimeout(member._timer)
-      if(String(Object(event?.target).nodeName)==="DIV") {
-        showHideTimer(0)
-      } else {
-        showHideTimer(1)
+
+      if(event?.type !== 'touchend') {
+        if(String(Object(event?.target).nodeName)==="DIV") {
+          showHideTimer(0)
+        } else {
+          showHideTimer(1)
+        }
       }
 
 
@@ -871,6 +926,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
     onMove:({xy}) => {
       //isLocaked = props.content.pinned
+
+
       if(showTitle) {return}
       //_isOnContent = true
       member.isMoved = true
@@ -886,10 +943,26 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
 
+    onTouchMove :(e) => {
+      /////////////////////////////////////////////////
+      member.movePos = Number(map.mouseOnMap[1])
+      member.moveXPos = Number(map.mouseOnMap[0])
+      //console.log(member.downXPos, " --- ", member.moveXPos)
+      if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
+        member._down = true
+        member._checkForRotation = true
+      } else {
+        member._down = false
+        member._checkForRotation = false
+      }
+      //////////////////////////////////////////////
+      //console.log(member._down, " in Moving")
+    },
 
     onMouseUp: (arg) => {
       //console.log("Mouse up ", editing, "-", member._down)
       //member._down = false
+      //if(isSmartphone()) {return}
 
       if(editing) {
         arg.stopPropagation()
@@ -944,6 +1017,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     },
 
     onMouseMove: (arg) => {
+      //if(isSmartphone()) {return}
       isLocaked = props.content.pinned
       if(showTitle) {return}
       member.movePos = Number(map.mouseOnMap[1])
@@ -960,6 +1034,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onMouseOver: (arg) => {
       //member._down = true
       //console.log(arg, " target over")
+      //if(isSmartphone()) {return}
       _isOnContent = true
 
       // new props
@@ -971,6 +1046,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onMouseOut: (arg) => {
       //console.log(Object(arg.target).id , " target")
       //console.log(showTitle, " target out")
+      //if(isSmartphone()) {return}
+
       if(showTitle) {return}
 
       // use it
@@ -982,23 +1059,23 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       member.onContent = false
       isLocaked = false
     },
-    onMouseDown: (arg) => {
+    /* onMouseDown: (arg) => {
       //console.log(arg.button, " button")
       //console.log("onMouseDown -- Checking Double Click")
+
+      //if(isSmartphone()) {return}
+
       if(editing) {
         arg.stopPropagation()
       } else {
+
         if(arg.button > 0) {return}
         //if(member.OnTimerClick) {return}
 
         //console.log(String(Object(arg.target).id))
 
         //console.log(arg.nativeEvent.pageX, pose.position[0])
-        /* const diff = subV2(map.mouseOnMap, pose.position)
-        //console.log(diff[0], props.content.size[0]/2)
-        if(diff[0] >= (props.content.size[0]/2 - 25) && diff[0] <= (props.content.size[0]/2 + 25)) {
-          return
-        } */
+
 
         member._checkForRotation = true
         member.onContent = true
@@ -1041,26 +1118,23 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
 
             if(member._down && showTitle === false && showOnRotation === false) {
-              /* if(yCheck > 5 && yCheck < 35) {
-                member.clickStatus = 'resetTimer'
-                member.clickEnter = false
-                hindleClickStatus()
-              } else { */
+
                 //console.log("Checking the Zindex --- ", props.content.zIndex)
 
                 // Remove the edit controls
                 //setShowHandler(false)
 
-                const diff = subV2(map.mouseOnMap, pose.position)
-                member.downPos = Number(diff[1])
-                member.downXPos = Number(diff[0])
-                contextMenuStatus = true
-                setShowTitle(true)
+
+
+                //////////////////////////////////////////////////////
+
+                //////////////////////////////////////////////////////
+
+
+
                 //setEditing(false)
                 //setTimeout(()=>{
-                  /* stop(arg)
-                  moveContentToTop(props.content)
-                  props.updateAndSend(props.content) */
+
                 //}, 100)
               //}
             }
@@ -1068,9 +1142,151 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         },500)
         //showTimer(Number(Object(arg.nativeEvent).layerY), Number(Object(arg.nativeEvent).layerX))
       }
+    }, */
+
+
+    onTouchStart: (arg) => {
+      if(editing) {arg.stopPropagation() }
+
+      //console.log(arg.type, " onTYPE")
+
+      var touch = arg.touches[0];
+      _isOnContent = true
+      if(showTitle) {return}
+      //if(dblTouchTapCount > 0) {return}
+
+      setDragging(true)
+      member.dragCanceled = false
+      /////////////////////////////////////////////
+      // SetMouse Pose with map canvas
+      member.isMoved = true
+      const diff = subV2([touch.clientX, touch.clientY], pose.position)
+      member.downPos = Number(diff[1])
+      member.downXPos = Number(diff[0])
+      map.setMouse([touch.clientX, touch.clientY])
+      //////////////////////////////////////////////
+      //member.touchStart = 0
+      //member.touchEnd = 0
+      //member.touchStart = new Date().getMilliseconds()
+      //////////////////////////////////////////////
+      member._checkForRotation = true
+      member.onContent = true
+      member._down = true
+      member.downTime = new Date().getSeconds()
+      member.moveX = map.mouseOnMap[0]
+      member.moveY = map.mouseOnMap[1]
+      window.clearTimeout(member._timer)
+      member._clickX = touch.clientX
+      member._clickY = touch.clientY
+      // Storing zIndex
+      member._zIndex = Number(props.content.zIndex)
+      //console.log("MOVING INIT -- ", member._down, " --- ", _contentDeleteDialogOpen, " --- ", member.touchEnd)
+      //////////////////////////////////////////////
+      const mMenuTimer =  setTimeout(function() {
+        //console.log("MOVING END -- ", member._down, " --- ", _contentDeleteDialogOpen, " >> ", member.touchEnd)
+        clearTimeout(mMenuTimer)
+
+        //if(dblTouchTapCount === 2) {return}
+
+        if(member._down && showTitle === false && showOnRotation === false && _contentDeleteDialogOpen === false && dblTouchTapCount === 0) {
+          const diff = subV2(map.mouseOnMap, pose.position)
+          member.downPos = Number(diff[1])
+          member.downXPos = Number(diff[0])
+          contextMenuStatus = true
+          setShowTitle(true)
+        }
+      }, 500)
     },
-    onTouchStart: (arg) => { if(editing) {arg.stopPropagation() }},
-    onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} },
+    /* onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} }, */
+    onTouchEnd:(e) => {
+      member._down = false
+      var changedTouch = e.changedTouches[0];
+      var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+
+      //////////////////////////////////////////////
+
+        //console.log(elem?.nodeName)
+        //console.log(elem)
+
+        dblTouchTapCount ++
+        //console.log(dblTouchTapCount, " checking DBLCLick")
+        const dblClick = setTimeout(function () {
+          clearTimeout(dblClick)
+          if(dblTouchTapCount === 2) {
+            //console.log('doubleClick')
+            member.clickStatus = "double"
+            member.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+            member.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+          } else if(dblTouchTapCount === 1) {
+            //console.log("single click")
+          }
+          const resetCounter = setTimeout(function() {
+            clearTimeout(resetCounter)
+            dblTouchTapCount = 0
+          }, 700)
+        }, 250)
+
+        ////////////////////////////////////////////////////////////////////
+        if(elem?.nodeName === "IMG" && elem?.id === "contextUpload") {
+          onLeaveIcon()
+          setShowUploadOption(true)
+        } else if(elem?.nodeName === "IMG" && elem?.id === "contextDelete") {
+          onLeaveIcon()
+          setShowDelete(true)
+        } else if(elem?.nodeName === "IMG" && elem?.id === "contextMore"){
+          onLeaveIcon()
+          map.keyInputUsers.add('contentForm')
+          setShowForm(true)
+
+        } else if(elem?.nodeName === "IMG" && elem?.id === "contextProx") {
+          member._down = false
+          //props.content.zone = !props.content.zone
+          if(props.content.zone === "open"){
+            props.content.zone = "close"
+          } else {
+            if(props.content.shareType === "img") {
+                if(props.content.zone === undefined) {
+                  props.content.zone = "close"
+                } else {
+                  props.content.zone = undefined
+                }
+              } else {
+                props.content.zone = "open"
+            }
+          }
+          props.updateAndSend(props.content)
+          onLeaveIcon()
+        } else if(elem?.nodeName === "IMG" && elem?.id === "contextFlipBack") {
+          moveContentToBottom(props.content)
+          props.updateAndSend(props.content)
+          onLeaveIcon()
+        } else if(elem?.nodeName === "IMG" && elem?.id === "contextFlipFront") {
+          moveContentToTop(props.content)
+          props.updateAndSend(props.content)
+          onLeaveIcon()
+        } else if(elem?.nodeName === "svg" && elem?.id === "contextScaleRotate") {
+          props.content.scaleRotateToggle = !props.content.scaleRotateToggle
+          props.content.pinned = !props.content.pinned
+          props.updateAndSend(props.content)
+          onLeaveIcon()
+        } else if((elem?.nodeName === "svg" || elem?.nodeName === "path" || elem?.nodeName === "svg" || elem?.nodeName === "DIV") && elem?.id === "contextStopWatch") {
+          member._down = false
+          if(props.content.showStopWatch) {
+            props.content.showStopWatch = false
+            props.content.stopWatchToggle = true
+            props.content.stopWatchReset = true
+          } else {
+            props.content.showStopWatch = true
+            props.content.stopWatchToggle = false
+            props.content.stopWatchReset = false
+          }
+          props.updateAndSend(props.content)
+          onLeaveIcon()
+        } else if(elem?.nodeName === "DIV") {
+            showHideTimer(0)
+        }
+      //}
+    },
   }
 
   function checkContentsInEdit():boolean {
@@ -1450,8 +1666,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           </Tooltip>
           <div className={showTitle ? classes.dashedCircle : undefined}></div>
         </div> */}
-
-
       </div>
 
     </div>
@@ -1542,46 +1756,46 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
               <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
                 <div className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop}
                   onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                    <img src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                    <img id='contextFlipFront' src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
                     </div></Tooltip>
               <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
                 <div className={classes.moveBottomButton_dialog} onMouseUp={onClickMoveToBottom}
                   onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                    <img src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                    <img id='contextFlipBack' src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
                   </div></Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
             <div className={classes.prox_dialog} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-              <img src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+              <img id='contextProx' src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
             </Tooltip>
             <div className={classes.titleButton_dialog} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} ref={formRef}>
-                <img src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                <img id='contextMore' src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
             {/* <SharedContentForm open={showForm} {...props} close={onCloseForm}
               anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
             /> */}
               <div className={classes.close_dialog} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                <img src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                <img id='contextDelete' src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
               </div>
             <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
               <div className={classes.uploadZone_dialog} onMouseUp={onClickUploadZone}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                  <img id='contextUpload' src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
               </div>
             </Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
               <div className={classes.stopWatch_dialog} onMouseUp={onClickStopWatch}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {props.content.showStopWatch ? <StopWatchOffIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
-                  <StopWatchOnIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                  {props.content.showStopWatch ? <StopWatchOffIcon id='contextStopWatch' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  <StopWatchOnIcon id='contextStopWatch' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
                   }
               </div>
             </Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.scaleRotateToggle ? t('ctUnScaleRotate') : t('ctScaleRotate')) : ''} >
               <div className={classes.scaleRotate_dialog} onMouseUp={onClickScaleRotate}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {props.content.scaleRotateToggle ? <AspectRatioIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
-                  <AspectRatioIcon style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                  {props.content.scaleRotateToggle ? <AspectRatioIcon id='contextScaleRotate' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  <AspectRatioIcon id='contextScaleRotate' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
                   }
               </div>
             </Tooltip>

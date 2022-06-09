@@ -16,6 +16,8 @@ import VideoOffIcon from '@material-ui/icons/VideocamOff'
 import SpeakerOffIcon from '@material-ui/icons/VolumeOff'
 import SpeakerOnIcon from '@material-ui/icons/VolumeUp' */
 
+//import ExitIcon from '@material-ui/icons/ExitToApp'
+
 import smileIcon from '@images/whoo-screen_btn-smile.png'
 /* import symSmileIcon from '@images/whoo-screen_sym-smile.png' */
 import clapIcon from '@images/whoo-screen_btn-clap.png'

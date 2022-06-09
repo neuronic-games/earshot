@@ -5,8 +5,7 @@ import React, {/*  useEffect,  */useState } from 'react'
 import {DialogPageProps} from './DialogPage'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import {makeStyles} from '@material-ui/styles'
-
-
+import { isSmartphone } from '@models/utils'
 
 
 const theme = createMuiTheme({
@@ -48,18 +47,17 @@ const useStyles = makeStyles({
   deavticeButtons: {
     position:'relative',
     padding:'10px',
-    fontSize:'1em',
+    fontSize:isSmartphone() ? '1.5em' : '1em',
     fontWeight:'bold',
     borderBottom: '2px solid #7ececc',
     color:'#000000',
     cursor: 'pointer',
-
   },
 
   avticeButtons: {
     position:'relative',
     padding:'10px',
-    fontSize:'1em',
+    fontSize:isSmartphone() ? '1.5em' : '1em',
     fontWeight:'bold',
     borderBottom:'2px solid #7ececc',
     color:'#ef4623',
@@ -170,8 +168,6 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
   /* if(Object(data).length > 0) {
     console.log(Object(data).length, " Array Data")
   } */
-
-
 
 
   // For Table
@@ -291,6 +287,7 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
         <Button
           variant="contained"
           color="primary"
+          style={{fontSize: isSmartphone() ? '1.5em' : '1em'}}
           onClick={() => {
             //if(pageIndex === 0) {
               onFinishInput(value)

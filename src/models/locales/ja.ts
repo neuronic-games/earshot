@@ -129,6 +129,7 @@ export const jaTranslate = {
   Save: '保存',
   Clear: 'クリア',
   Cancel: 'キャンセル',
+  Ok: '保存',
   broadcastMyVoice: '声を全員に届ける',
   broadcastMyVideo: '声を全員に届ける',
   broadcastMySpeakVideo: '声を全員に届ける',
@@ -163,6 +164,7 @@ export const jaTranslate = {
   deleteTextMsg: '映像ストリーム数の上限?',
   deleteYes: '通信状態',
   deleteNo: '通信状態',
+  copyClipboard : '通信状態',
   deleteAlert: '通信状態',
 }
 export type JaKeyList = keyof typeof jaTranslate

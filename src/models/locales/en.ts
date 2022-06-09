@@ -132,6 +132,7 @@ export const enTranslate = {
   Save: 'Save',
   Clear: 'Clear',
   Cancel: 'Cancel',
+  Ok: 'Ok',
   broadcastMyVoice: 'Broadcast my voice',
   broadcastMyVideo: 'Broadcast my video',
   broadcastMySpeakVideo: 'Speak & Show',
@@ -166,6 +167,7 @@ export const enTranslate = {
   deleteTextMsg: 'Remove Text?',
   deleteYes: 'Remove',
   deleteNo: "Don't Remove",
+  copyClipboard: 'Meeting address copied to clipboard',
   deleteAlert: 'ALERT',
 }
 export type EnKeyList = keyof typeof enTranslate

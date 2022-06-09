@@ -3,6 +3,7 @@ import {makeStyles} from '@material-ui/core/styles'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {
   crossProduct, extractRotation, extractScaleX,
+  isSmartphone,
   radian2Degree, rotate90ClockWise, rotateVector2D, transformPoint2D, transfromAt, vectorLength,
 } from '@models/utils'
 import {addV2, mulV2, normV, subV2} from '@models/utils/coordinates'
@@ -21,10 +22,8 @@ import UploadShare from '@images/whoo-screen_btn-add-63.png'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
+import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
 //import { getRndPingStatus } from '../ShareLayer/RndContent'
-
-
-
 
 
 
@@ -96,9 +95,9 @@ const useStyles = makeStyles({
     userSelect: 'none',
     userDrag: 'none',
     top: (props.mem.zoomY) - 125,
-    left: (props.mem.zoomX) - 170,
+    left: isSmartphone() ? (props.mem.zoomX) - 160 : (props.mem.zoomX) - 170,
     bottom: 'auto',
-    transform: 'scale(1.2)',
+    transform: isSmartphone() ? 'scale(2.8)' : 'scale(1.2)',
     backgroundColor: 'transparent',
     transition: '0.3s ease-out',
     transitionDelay: '0.1s',
@@ -212,6 +211,9 @@ class BaseMember{
   pingY = 0
   hidePinIcon = 0
 
+  touchStart = 0
+  touchEnd = 0
+
 }
 
 
@@ -225,10 +227,17 @@ export function getBasePingStatus():boolean {
   return pingEnable
 }
 
-
+ // For Double Touch
+ let dblTouchTapCount = 0
 
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
+
+
+  //////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////
+
 
   const matrix = useObserver(() => map.matrix)
   const container = useRef<HTMLDivElement>(null)
@@ -376,7 +385,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
       if(pingLocation) {}
 
-
       // Removing all edit mode
       let isEdit = checkContentsInEdit()
       if(isEdit) {
@@ -460,6 +468,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let itemLocked = getContentLocked()
         let _onContent = isOnContentStatus()
 
+        let _onRemoteUser = getOnRemote()
+
         //console.log("locked -- ", itemLocked)
         //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
         //console.log(_onContent, " >>> _onContent")
@@ -471,11 +481,17 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         if(showUploadOption) {return}
         if(_onContent) {return}
+        if(_onRemoteUser) {return}
+
+        //console.log(_onContent, " onContent")
+
         //if(_contentDeleteDeleteDialogOpen) {return}
+
+        //console.log(buttons, " buttons ", MOUSE_LEFT)
 
 
         //  console.log('Base StartDrag:')
-        if (buttons === MOUSE_LEFT) {
+        if (buttons === MOUSE_LEFT || buttons === 0) {
 
           mem.downTime = new Date().getSeconds()
           mem.downXpos = xy[0]
@@ -520,7 +536,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
        // console.log(map)
-
 
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         let _menuStatus:boolean = getContextMenuStatus()
@@ -578,11 +593,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         //console.log(_dialogStatus, " dialog status")
 
 
-
         //props.stores.contents.removeAllContents()
         //console.log(props.stores.contents.all[0].scaleRotateToggle)
-
-
 
 
         //console.log()
@@ -616,31 +628,38 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         //console.log(participants.local.mouse.position[0] - participants.local.pose.position[0], " Base F ", participants.local.mouse.position[1]-participants.local.pose.position[1])
 
-        if (event?.detail === 1) {
-          mem.clickStatus = 'single'
-        } else if (event?.detail === 2) {
-          mem.clickStatus = "double"
 
-         /*  mem.pingX = xy[0]
-          mem.pingY = xy[1] */
+
+        /* if(event?.type === 'touchend') {
           mem.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
           mem.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+        } */
 
-          /* const diff = subV2(map.mouseOnMap, local.pose.position)
-          const dir = mulV2(normV(diff)/5 / normV(diff), diff)
-          props.stores.participants.local.pose.position = addV2(props.stores.participants.local.pose.position, dir) */
-        }
+        //if(event?.type !== 'touchend') {
 
+          if (event?.detail === 1) {
+            mem.clickStatus = 'single'
+          } else if (event?.detail === 2) {
+            mem.clickStatus = "double"
 
-        mem.clickEnter = true
-        const timer = setTimeout(() => {
-
-          clearTimeout(timer);
-          if(mem.clickEnter) {
-            mem.clickEnter = false
-            hindleClickStatus()
+            mem.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+            mem.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+            /* const diff = subV2(map.mouseOnMap, local.pose.position)
+            const dir = mulV2(normV(diff)/5 / normV(diff), diff)
+            props.stores.participants.local.pose.position = addV2(props.stores.participants.local.pose.position, dir) */
           }
-        }, 250)
+
+          mem.clickEnter = true
+          const timer = setTimeout(() => {
+
+            clearTimeout(timer);
+            if(mem.clickEnter) {
+              mem.clickEnter = false
+              hindleClickStatus()
+            }
+          }, 250)
+       // }
+
        ////////////////////////////////////////////////////////
           /* const moveTimer = setTimeout(() => {
             clearTimeout(moveTimer)
@@ -718,9 +737,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onMove:({xy}) => {
         mem.zoomX = xy[0]
         mem.zoomY = xy[1]
-
         //console.log(participants.local.trackStates.pingIcon, " moving")
-
         //if(participants.local.trackStates.pingIcon === false) {
         map.setMouse(xy)
         //}
@@ -729,9 +746,37 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
 
       onTouchStart:(ev) => {
+        mem.zoomX = ev.touches[0].clientX
+        mem.zoomY = ev.touches[0].clientY
         map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
+
+      onTouchEnd:(e) => {
+        //console.log(e.changedTouches)
+        var changedTouch = e.changedTouches[0];
+        var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+        ///////////////////////////////
+        dblTouchTapCount ++
+        //console.log(dblTouchTapCount, " checking DBLCLick")
+        const dblClick = setTimeout(function () {
+          clearTimeout(dblClick)
+          if(dblTouchTapCount === 2) {
+            //console.log('doubleClick')
+            mem.clickStatus = "double"
+            mem.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
+            mem.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
+          } else if(dblTouchTapCount === 1) {
+            //console.log("single click")
+            //e.preventDefault()
+          }
+          dblTouchTapCount = 0
+        }, 250)
+          if(elem?.nodeName === "IMG" && elem?.id === "menuUpload") {
+            setShowUploadOption(true)
+            setShowMenu(false)
+          }
+      }
     },
     {
       eventOptions:{passive:false}, //  This prevents default zoom by browser when pinch.
@@ -886,10 +931,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
       {/* Add Context Menu */}
       <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
-      <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''} >
+      <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}>
           <div className={classes.uploadZone} onMouseUp={onClickUploadZone}
             onTouchStart={stop} /* onMouseLeave={() => setTimeout(()=>{setShowMenu(false)},100)} */>
-              <img src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+              <img id='menuUpload' src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>
         </Tooltip>
       <div className={classes.dashedCircle}></div>
