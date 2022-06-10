@@ -10,6 +10,7 @@ import { Button, Dialog, DialogActions, DialogContent/* , DialogTitle */ } from 
 import { isSmartphone } from '@models/utils'
 import { useTranslation } from '@models/locales'
 
+
 const theme = createMuiTheme({
   palette: {
     primary: { main: '#bcbec0'},
@@ -56,6 +57,7 @@ export const Header: React.FC<BMProps&{height?:number}> = (props) => {
 
   //const store = props.stores.participants
 
+
   //  Fab state and menu
   const {t} = useTranslation()
   const classes = useStyles()
@@ -66,6 +68,7 @@ export const Header: React.FC<BMProps&{height?:number}> = (props) => {
     return map.screenSize[1] - (map.mouse[1] - map.offset[1]) < 90
   }
   const mouseOnBottom = useObserver(checkMouseOnBottom)
+
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +119,7 @@ export const Header: React.FC<BMProps&{height?:number}> = (props) => {
           <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(270deg)'}} />
         </FabMain>
         </MuiThemeProvider>
-{console.log(show)}
+{/* {console.log(show)} */}
         <Dialog open={true} onClose={() => setShow(false)} onExited={() => setShow(false)}
         keepMounted
         style={show ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}

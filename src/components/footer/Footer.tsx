@@ -36,6 +36,8 @@ import Container from '@material-ui/core/Container'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 import { isSmartphone } from '@models/utils'
+import ExitIcon from '@material-ui/icons/ExitToApp';
+import { Button, Dialog, DialogActions, DialogContent/* , DialogTitle */ } from '@material-ui/core'
 
 const theme = createMuiTheme({
   palette: {
@@ -43,6 +45,7 @@ const theme = createMuiTheme({
     secondary: { main: '#ef4623' }
   }
 });
+
 const buttonStyle = {
   '&': {
     margin: '5px',
@@ -52,6 +55,7 @@ const buttonStyle = {
     textAlign: 'center',
   },
 }
+
 
 const useStyles = makeStyles({
   menu:{
@@ -68,9 +72,26 @@ const useStyles = makeStyles({
     left: 0,
     transition: '0.5s ease-out',
   },
+
+  topMenu:{
+    position: 'absolute',
+    width: '100%',
+    top: -200,
+    opacity: 0,
+    transition: '0.5s ease-out',
+  },
+  topMenuActive:{
+    position: 'absolute',
+    width: '100%',
+    opacity: 1,
+    top: 0,
+    transition: '0.5s ease-out',
+  },
+
   more:{
     display: 'inline-block',
     height: 50,
+    width: 50,
     position:'relative',
     cursor: 'pointer',
     backgroundColor: '#bcbec0', //  '#ef4623' : '#9e886c', bcbec0
@@ -100,6 +121,18 @@ const useStyles = makeStyles({
     minWidth : 530,
     pointerEvents: 'none',
   },
+
+  topContainer:{
+    position: 'absolute',
+    width: '100%',
+    top: 10,
+    padding: 0,
+    left: -50,
+    outline: 'none',
+    minWidth : 530,
+    pointerEvents: 'none',
+  },
+
   wrapper:{width:'100%'},
   wrapperInner:{width:'100%', display:'flex', alignItems:'flex-end'},
 })
@@ -117,10 +150,12 @@ export function getVideoButtonStatus():boolean {
   return buttonClickStatus
 }
 
+
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  showor not
   const [show, setShow] = React.useState<boolean>(false)
+  const [showPop, setShowPop] = React.useState<boolean>(false)
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   const [showShare, setShowShareRaw] = React.useState<boolean>(false)
   const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
@@ -226,7 +261,6 @@ function comparer(otherArray:string[]){
 
   const {t} = useTranslation()
   const classes = useStyles()
-
 
   // for video
   //const vStatus = useObserver(() => participants.local.trackStates.videoOn)
@@ -446,6 +480,15 @@ function comparer(otherArray:string[]){
       setSettingsMenuEl(null)
     }
 
+    function showSharePopMenu() {
+      console.log(showPop, " >>> showPop")
+      if(showPop) {
+        setShowPop(false)
+      } else {
+        setShowPop(true)
+      }
+    }
+
     function showMainMenu() {
       if(show) {
         setShow(false)
@@ -473,7 +516,32 @@ function comparer(otherArray:string[]){
       setShowAdmin(false)
     }
 
-    return <div ref={containerRef} className={classes.container}>
+    return <div>
+
+      <div className={classes.topContainer}>
+
+      <Collapse in={true} classes={classes}>
+        <div className={show ? classes.topMenuActive : classes.topMenu}>
+
+          <FabMain size={fabSize} /* color='primary' */ style={{width: '43%', float: 'left', color:'red'}}
+            onClick = { () => {
+              window.open('https://www.earshot.chat/', '_self')
+            }}>
+              <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(180deg)'}} />
+          </FabMain>
+          <FabMain size={fabSize} /* color='primary' */
+            onClick = { () => {
+              navigator.clipboard.writeText(window.location.href)
+              showSharePopMenu()
+            }}>
+            <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(270deg)'}} />
+          </FabMain>
+        </div>
+      </Collapse>
+
+      </div>
+
+      <div ref={containerRef} className={classes.container}>
       <div style={{position:'relative', left:'-50px', top:'0px'}}>
         <FabMain size={fabSize}
           onClick = { () => {
@@ -817,11 +885,31 @@ function comparer(otherArray:string[]){
         </div>
       </Collapse>
     </div >
+    <MuiThemeProvider theme={theme}>
+    <Dialog open={true} onClose={() => setShowPop(false)} onExited={() => setShowPop(false)}
+        keepMounted
+        style={showPop ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}
+        BackdropProps={{ invisible: true }}
+        >
+          <DialogContent style={{userSelect: 'none', fontSize:isSmartphone() ? '22px' : '20px', fontWeight:'normal'}}>
+            {
+               t('copyClipboard')
+            }
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.1em', marginRight:'0.5em', height:'35px', fontSize:'18px', fontWeight:'normal'}}
+            onClick={(ev) => {
+              setShowPop(false)
+            }}>{t('Ok')}</Button>
+
+          </DialogActions>
+        </Dialog>
+        </MuiThemeProvider>
+    </div>
   },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mute.muteA, mute.muteS, mute.muteV, mute.onStage,
-    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, openSettiong, deviceInfos]
-
+    show, showAdmin, showShare, micMenuEl, speakerMenuEl, videoMenuEl, settingsMenuEl, openSettiong, deviceInfos, showPop]
     )
 }
 Footer.displayName = 'Footer'
