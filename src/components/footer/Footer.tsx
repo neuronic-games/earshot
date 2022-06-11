@@ -28,6 +28,9 @@ import { SettingsControl } from './SettingsControl'
 //import {StereoAudioSwitch} from './StereoAudioSwitch'
 import CheckBoxIcon from '@material-ui/icons/Done'
 import MoreIcon from '@images/whoo-screen_btn-more.png'
+import ExitAppIcon from '@images/earshot_icon_btn-kick.png'
+import ShareAppIcon from '@images/earshot_icon_btn-share.png'
+
 import {ShareDialogItem} from './share/SharedDialogItem'
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 //import { SettingsControl } from './SettingsControl'
@@ -36,7 +39,7 @@ import Container from '@material-ui/core/Container'
 import {connection} from '@models/api'
 import {MessageType} from '@models/api/MessageType'
 import { isSmartphone } from '@models/utils'
-import ExitIcon from '@material-ui/icons/ExitToApp';
+/* import ExitIcon from '@material-ui/icons/ExitToApp'; */
 import { Button, Dialog, DialogActions, DialogContent/* , DialogTitle */ } from '@material-ui/core'
 
 const theme = createMuiTheme({
@@ -70,6 +73,23 @@ const useStyles = makeStyles({
     width: '100%',
     opacity: 1,
     left: 0,
+    transition: '0.5s ease-out',
+  },
+
+  menuTop:{
+    position: 'absolute',
+    width: '100%',
+    left: -200,
+    opacity: 0,
+    top: 0,
+    transition: '0.5s ease-out',
+  },
+  menuActiveTop:{
+    position: 'absolute',
+    width: '100%',
+    opacity: 1,
+    left: 0,
+    top:0,
     transition: '0.5s ease-out',
   },
 
@@ -519,27 +539,33 @@ function comparer(otherArray:string[]){
     return <div>
 
       <div className={classes.topContainer}>
-
       <Collapse in={true} classes={classes}>
-        <div className={show ? classes.topMenuActive : classes.topMenu}>
-
-          <FabMain size={fabSize} /* color='primary' */ style={{width: '43%', float: 'left', color:'red'}}
+        <div className={show ? classes.menuActiveTop : classes.menuTop}>
+          <FabMain size={fabSize} style={{width: '43%', float: 'left'}}
             onClick = { () => {
-              window.open('https://www.earshot.chat/', '_self')
+              window.open('https://www.earshot.chat/meet/', '_self')
             }}>
-              <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(180deg)'}} />
+              {/* <img src={ExitAppIcon} style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(180deg)'}} /> */}
+              <div className={classes.more}>
+                <img src={ExitAppIcon} style={{width:60, height:60, position:'relative', top:isSmartphone() ? '17px' : '0px', left:'-5px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/>
+              </div>
           </FabMain>
-          <FabMain size={fabSize} /* color='primary' */
+          </div>
+          <div className={show ? classes.topMenuActive : classes.topMenu}>
+          <FabMain size={fabSize} /* color='primary' */ style={{width: '52%', float: 'right'}}
             onClick = { () => {
               navigator.clipboard.writeText(window.location.href)
               showSharePopMenu()
             }}>
-            <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(270deg)'}} />
+            {/* <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(270deg)'}} /> */}
+            <div className={classes.more}>
+              <img src={ShareAppIcon} style={{width:60, height:60, position:'relative', top:isSmartphone() ? '10px' : '-3px', left:isSmartphone() ? '1px' : '-1px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}}  alt=""/>
+            </div>
           </FabMain>
         </div>
       </Collapse>
-
       </div>
+
 
       <div ref={containerRef} className={classes.container}>
       <div style={{position:'relative', left:'-50px', top:'0px'}}>

@@ -10,7 +10,6 @@ import sharedContentsStore from '@stores/sharedContents/SharedContents'
 import {Observer, useObserver} from 'mobx-react-lite'
 import React, {Fragment, useRef, useState, useEffect} from 'react'
 import SplitPane from 'react-split-pane'
-/* import {Header} from './footer/Header' */
 import {Footer} from './footer/Footer'
 import {Emoticons} from './footer/Emoticons'
 import {ZoneAvatar} from './footer/ZoneAvatar'
@@ -199,15 +198,13 @@ export const App: React.FC<{}> = () => {
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <Emoticons stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
 
-            {/* <Header stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} /> */}
-
           </Fragment>
           <div style={{display: (able === true ? "block" : "none"), minWidth:'280px', width:'100%', maxWidth:'280px'}}>
             <LeftBar stores={stores}/>
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.7.8</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.7.9</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
