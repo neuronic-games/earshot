@@ -23,6 +23,7 @@ import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
 import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
+import { getOnLocalUser } from '../ParticipantsLayer/LocalParticipant'
 //import { getRndPingStatus } from '../ShareLayer/RndContent'
 
 
@@ -476,12 +477,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
 
         if(showUploadOption) {return}
         if(_onContent) {return}
         if(_onRemoteUser) {return}
+        if(_focusLocalUser) {return}
 
         //console.log(_onContent, " onContent")
 
@@ -542,6 +546,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+        let _onRemoteUser = getOnRemote()
+
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
 
@@ -549,6 +556,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         if(_menuStatus) {return}
         if(showMenu) {return}
+        if(_focusLocalUser) {return}
+        if(_onRemoteUser) {return}
+
        // if(_contentDeleteDeleteDialogOpen) {return}
 
         //  if (map.keyInputUsers.size) { return }

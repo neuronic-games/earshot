@@ -27,7 +27,6 @@ export function SettingInput<T>(props: SettingInputProps<T>) {  // tslint: disab
     inputField,
   } = props
 
-
   return (
     <List>
       <ListItem>

@@ -537,7 +537,6 @@ function comparer(otherArray:string[]){
     }
 
     return <div>
-
       <div className={classes.topContainer}>
       <Collapse in={true} classes={classes}>
         <div className={show ? classes.menuActiveTop : classes.menuTop}>
@@ -545,19 +544,17 @@ function comparer(otherArray:string[]){
             onClick = { () => {
               window.open('https://www.earshot.chat/meet/', '_self')
             }}>
-              {/* <img src={ExitAppIcon} style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(180deg)'}} /> */}
               <div className={classes.more}>
                 <img src={ExitAppIcon} style={{width:60, height:60, position:'relative', top:isSmartphone() ? '17px' : '0px', left:'-5px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/>
               </div>
           </FabMain>
           </div>
           <div className={show ? classes.topMenuActive : classes.topMenu}>
-          <FabMain size={fabSize} /* color='primary' */ style={{width: '52%', float: 'right'}}
+          <FabMain size={fabSize} style={{width: '52%', float: 'right'}}
             onClick = { () => {
               navigator.clipboard.writeText(window.location.href)
               showSharePopMenu()
             }}>
-            {/* <ExitIcon style={{width:iconSize, height:iconSize, color:'white', transform:'rotate(270deg)'}} /> */}
             <div className={classes.more}>
               <img src={ShareAppIcon} style={{width:60, height:60, position:'relative', top:isSmartphone() ? '10px' : '-3px', left:isSmartphone() ? '1px' : '-1px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}}  alt=""/>
             </div>
@@ -914,7 +911,7 @@ function comparer(otherArray:string[]){
     <MuiThemeProvider theme={theme}>
     <Dialog open={true} onClose={() => setShowPop(false)} onExited={() => setShowPop(false)}
         keepMounted
-        style={showPop ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}
+        style={showPop ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)', display:'block'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)', display:'none'}}
         BackdropProps={{ invisible: true }}
         >
           <DialogContent style={{userSelect: 'none', fontSize:isSmartphone() ? '22px' : '20px', fontWeight:'normal'}}>

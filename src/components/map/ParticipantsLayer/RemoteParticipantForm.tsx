@@ -1,20 +1,20 @@
 import {BMProps} from '@components/utils'
-import {TextField} from '@material-ui/core'
+/* import {TextField} from '@material-ui/core'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
 import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogTitle from '@material-ui/core/DialogTitle' */
 import Popover, { PopoverProps } from '@material-ui/core/Popover'
-import {connection} from '@models/api'
-import {MessageType} from '@models/api/MessageType'
-import {t} from '@models/locales'
+/* import {connection} from '@models/api'
+import {MessageType} from '@models/api/MessageType' */
+/* import {t} from '@models/locales'
 import { isSmartphone } from '@models/utils'
 import chat from '@stores/Chat'
-import participants from '@stores/participants/Participants'
+import participants from '@stores/participants/Participants' */
 import {RemoteParticipant} from '@stores/participants/RemoteParticipant'
-import contents from '@stores/sharedContents/SharedContents'
+/* import contents from '@stores/sharedContents/SharedContents' */
 import React from 'react'
-import {SignalQualityButton} from './SignalQuality'
+/* import {SignalQualityButton} from './SignalQuality' */
 
 
 
@@ -24,8 +24,8 @@ export interface RemoteParticipantFormProps extends PopoverProps, BMProps{
 }
 
 export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (props: RemoteParticipantFormProps) => {
-  const roomInfo = props.stores.roomInfo
-  const [kick, setKick] = React.useState<string>('')
+  /* const roomInfo = props.stores.roomInfo */
+  /* const [kick, setKick] = React.useState<string>('')
   const [clear, setClear] = React.useState<string>('')
   function onKeyPressKick(ev:React.KeyboardEvent){
     if (ev.key === 'Enter' && kick === 'kick') {
@@ -43,7 +43,7 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
       participant?.myContents.forEach(c => contents.removeByLocal(c.id))
       props.close()
     }
-  }
+  } */
   function closeConfig(ev:Object, reason:string) {
     if (reason === 'enter' || reason==='backdropClick'){
     }
@@ -53,8 +53,8 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
   const popoverProps = Object.assign({}, props)
   delete (popoverProps as Partial<RemoteParticipantFormProps>).close
 
-  return <Popover {...popoverProps} onClose={closeConfig}>
-    <DialogTitle>
+  return <Popover {...popoverProps} onClose={closeConfig} style={{opacity:0}}>
+    {/* <DialogTitle>
       <span  style={{fontSize: isSmartphone() ? '2em' : '1em'}}>
         {props.participant?.information.name}
       </span>
@@ -115,6 +115,6 @@ export const RemoteParticipantForm: React.FC<RemoteParticipantFormProps> = (prop
          </Box>
         </>
       }
-    </DialogContent>
+    </DialogContent> */}
   </Popover>
 }

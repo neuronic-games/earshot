@@ -3,7 +3,7 @@ import {MoreButton, moreButtonControl, MoreButtonMember} from '@components/utils
 /* import { Tooltip } from '@material-ui/core' */
 import {makeStyles} from '@material-ui/core/styles'
 //import { connection } from '@models/api'
-import {addV2, assert, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
+import {addV2, assert, isSmartphone, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef/* , useState */} from 'react'
 import {DragHandler, DragState} from '../../utils/DragHandler'
@@ -16,6 +16,17 @@ import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 //import MoreIcon from '@images/whoo-screen_btn-more.png'
 
 //import { isDialogOpen } from '@components/footer/share/ShareDialog'
+
+import {/* getContextMenuStatus,  */MouseOrTouch, getContentLocked, getContentDialogStatus, isOnContentStatus/* , getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
+/* import {ShareDialog} from '@components/footer/share/ShareDialog' */
+import {Dialog, DialogContent, Tooltip, Zoom} from '@material-ui/core'
+/* import UploadShare from '@images/whoo-screen_btn-add-63.png' */
+import {useTranslation} from '@models/locales'
+import { useGesture } from 'react-use-gesture'
+import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
+import {isDialogOpen} from "@components/footer/share/ShareDialog"
+import MoreIcon from '@images/whoo-screen_btn-more.png'
+import AvatarGenIcon from '@images/earshot_icon_edit.png'
 
 
 const AVATAR_SPEED_LIMIT = 50
@@ -49,32 +60,32 @@ const useStyles = makeStyles({
 
   hideMenuContainer: (props:StyleProps) => ({
     display: 'flex',
-    position: 'relative',
+    position: 'absolute',
     width: 350,
     height: 250,
     overflow: 'hidden',
     userSelect: 'none',
     userDrag: 'none',
-    //top: (props.mem.zoomY) - 125,
-    //left: (props.mem.zoomX) - 170,
     bottom: 'auto',
-    transform: 'scale(0)',
+    /* transform: 'scale(0)', */
     backgroundColor: 'transparent',
     transition: '0s ease-out',
     cursor: 'default',
   }),
   showMenuContainer: (props:StyleProps) => ({
     display: 'flex',
-    position: 'relative',
+    position: 'absolute',
     width: 350,
     height: 250,
     overflow: 'hidden',
     userSelect: 'none',
     userDrag: 'none',
-    top: (props.mem.zoomY) - 125,
-    left: (props.mem.zoomX) - 170,
+    //top: (props.position[1]) - 130,
+    //left: isSmartphone() ? (props.position[0]) - 160 : (props.position[0]) - 170,
+    top: 0,
+    left: 0,
     bottom: 'auto',
-    transform: 'scale(1.2)',
+   /*  transform: isSmartphone() ? 'scale(2.8)' : 'scale(1.2)', */
     backgroundColor: 'transparent',
     transition: '0.3s ease-out',
     transitionDelay: '0.1s',
@@ -90,12 +101,37 @@ const useStyles = makeStyles({
     borderColor:'#9e886c',
     borderRadius:'50%',
     opacity: 0.4,
-    /* top: 20,
-    left: -20, */
     top: 25,
     left: 65,
     background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
     zIndex: -9999,
+  }),
+
+  moreIcon: (props:StyleProps) => ({
+    display: 'block',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    top: 180,
+    left: 145,
+    whiteSpace: 'pre',
+    cursor: 'default',
+    background: '#9e886c',
+    ...buttonStyle
+  }),
+
+  avatarTool: (props:StyleProps) => ({
+    display: 'block',
+    height: TITLE_HEIGHT,
+    position:'absolute',
+    textAlign: 'center',
+    top: 25,
+    left: 140,
+    whiteSpace: 'pre',
+    cursor: 'default',
+    background: '#9e886c',
+    opacity: 0.2,
+    ...buttonStyle
   }),
 
   moreInfo: (props:StyleProps) => ({
@@ -163,12 +199,23 @@ class LocalMember{
   pingX = 0
   pingY = 0
   hidePinIcon = 0
+
+  // moveLoc
+  cursorX = 0
+  cursorY = 0
 }
 
 interface LocalParticipantMember extends MoreButtonMember{
   smoothedDelta: [number, number]
   scrollAgain: boolean
 }
+
+
+let onLocalUser:boolean = false
+export function getOnLocalUser() : boolean {
+  return onLocalUser;
+}
+
 const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const map = props.stores.map
   const participants = props.stores.participants
@@ -190,7 +237,6 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   assert(props.participant.id === participant.id)
   const member = useRef<LocalParticipantMember>({} as LocalParticipantMember).current
-
 
   const moveParticipant = (state: DragState<HTMLDivElement>) => {
     //  move local participant
@@ -218,6 +264,151 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     }
     participant.savePhysicsToStorage(false)
   }
+
+  ////////////////////////////////////////////////////////////////////////
+  const MOUSE_LEFT = 1
+  //const MOUSE_RIGHT = 2
+  const bind = useGesture(
+    {
+      onDragStart: ({buttons, xy}) => {
+
+        document.body.focus()
+        mem.dragging = true
+        mem.mouseDown = true
+
+        onLocalUser = true
+
+        mem.downTime = new Date().getSeconds()
+        mem.moveX = map.mouseOnMap[0]
+        mem.moveY = map.mouseOnMap[1]
+
+        let itemLocked = getContentLocked()
+        let _onContent = isOnContentStatus()
+
+        let _onRemoteUser = getOnRemote()
+        let _dialogStatus:boolean = isDialogOpen()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
+        if(_dialogStatus) {return}
+
+        //console.log(_onRemoteUser, " onRemoteUser")
+
+        //if(showUploadOption) {return}
+        if(_onContent) {return}
+        if(_onRemoteUser) {return}
+
+        //  console.log('Base StartDrag:')
+        if (buttons === MOUSE_LEFT || buttons === 0) {
+
+          mem.downTime = new Date().getSeconds()
+          mem.downXpos = xy[0]
+          mem.downYpos = xy[1]
+
+          ////////////////////////////////////////////////
+          //const local = participants.local
+          const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+          for (const [i] of remotes.entries()) {
+            let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
+            let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
+            let mouseX = Number(map.mouseOnMap[0])
+            let mouseY = Number(map.mouseOnMap[1])
+            if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
+              return
+            }
+          }
+          ////////////////////////////////////////////////
+          const downTimer = setTimeout(() => {
+            clearTimeout(downTimer)
+            if(itemLocked) {return}
+
+            let diffX = mem.downXpos - mem.cursorX
+            let diffY = mem.downYpos - mem.cursorY
+
+            console.log(diffX, " ---- ", diffY)
+
+            if(mem.mouseDown && diffX === 0 && diffY === 0 /* && showUploadOption === false */) {
+              //console.log("Open Context Menu")
+              mem.zoomX = xy[0]
+              mem.zoomY = xy[1]
+              mem.contentX = map.mouseOnMap[0]
+              mem.contentY = map.mouseOnMap[1]
+              //_menuCanvas = true
+              setShowMenu(true)
+            }
+          }, 500)
+        }
+      },
+      onDrag: ({down, delta, xy, buttons}) => {
+        //console.log('onDrag')
+        mem.cursorX = xy[0]
+        mem.cursorY = xy[1]
+      },
+      onDragEnd: ({event, xy}) => {
+        mem.upXpos = xy[0]
+        mem.upYpos = xy[1]
+        mem.upTime = new Date().getSeconds()
+        let timeDiff = mem.upTime - mem.downTime
+
+        let _dialogStatus:boolean = isDialogOpen()
+
+        //console.log()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        if(_contentDialogStatus) {return}
+
+        if(_dialogStatus) {return}
+
+
+        if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
+          //const local = participants.local
+          const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
+          for (const [i] of remotes.entries()) {
+            let remoteX = Number(participants.remote.get(remotes[i])?.pose.position[0])
+            let remoteY = Number(participants.remote.get(remotes[i])?.pose.position[1])
+            let mouseX = Number(map.mouseOnMap[0])
+            let mouseY = Number(map.mouseOnMap[1])
+            if(mouseX >= (remoteX-30) && mouseX <= (remoteX+30) && mouseY >= (remoteY-30) && mouseY <= (remoteY+30)) {
+              return
+            }
+          }
+        }
+        mem.dragging = false
+        mem.mouseDown = false
+        onLocalUser = false
+        setShowMenu(false)
+      },
+
+      onMove:({xy}) => {
+        mem.zoomX = xy[0]
+        mem.zoomY = xy[1]
+        map.setMouse(xy)
+        if(showMenu) {return}
+        participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
+      },
+
+      onTouchStart:(ev) => {
+        mem.zoomX = ev.touches[0].clientX
+        mem.zoomY = ev.touches[0].clientY
+        onLocalUser = true
+        map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
+        participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
+      },
+
+      onTouchEnd:(e) => {
+        //console.log(e.changedTouches)
+        var changedTouch = e.changedTouches[0];
+
+        var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
+        if(elem?.nodeName === "IMG" && elem?.id === "menuUpload") {
+          //setShowUploadOption(true)
+          setShowMenu(false)
+        }
+        onLocalUser = false
+      }
+    },
+    {
+      eventOptions:{passive:false}, //  This prevents default zoom by browser when pinch.
+    },
+  )
 
   ////////////////////////////////////////////////////////////////////////
   /* const moveParticipantByKey = (keys:Set<string>) => {
@@ -324,8 +515,10 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     return rv
   }
   const onDrag = (state:DragState<HTMLDivElement>) => {
-    //  console.log('participant onDrag')
+    //console.log('participant onDrag')
+    //return
     moveParticipant(state)
+    // Show Form
   }
 
 
@@ -383,11 +576,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     mem: mem,
   }))
   const [color] = participant ? participant.getColor() : ['white', 'black']
+
   const classes = useStyles(styleProps)
+  const {t} = useTranslation()
+
   const [showMore, setShowMore] = React.useState(false)
   const [showConfig, setShowConfig] = React.useState(false)
   const moreControl = moreButtonControl(setShowMore, member)
   //const [movedAvatar, setMovedAvater] = React.useState(false)
+
+
+  const [showMenu, setShowMenu] = React.useState(false)
+  //const [showUploadOption, setShowUploadOption] = React.useState(false)
 
   //const [showMenu, setShowMenu] = useState(false)
 
@@ -398,6 +598,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   function openConfig() {
     setShowConfig(true)
     map.keyInputUsers.add('LocalParticipantConfig')
+
   }
 
   /* const remoteDetails = useObserver(() => ({
@@ -431,6 +632,16 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   const ref = useRef<HTMLButtonElement>(null)
 
+  function stop(ev:MouseOrTouch|React.PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
+  }
+  /* function onClickUploadZone(evt: MouseOrTouch) {
+    //onLeaveIcon()
+    //setShowUploadOption(true)
+    setShowMenu(false)
+  } */
+
   /* function stop(ev:MouseOrTouch|React.PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
@@ -445,20 +656,20 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
 
   return (
-    <div ref={drag.target} {...drag} {...moreControl}>
-    <Participant {...props} isLocal={true}
-      onContextMenu={(ev) => {
-        ev.preventDefault()
-        openConfig()
-      }}
-    />
-    <MoreButton show={showMore} className={classes.more} htmlColor={color} {...moreControl}
-      buttonRef = {ref}
-      onClickMore = {openConfig} />
-    <LocalParticipantForm stores={props.stores} open={showConfig} close={onClose}
-      anchorEl={ref.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
-      anchorReference = "anchorEl"
-    />
+    <div ref={drag.target} /* {...drag}  */{...moreControl} {...bind()} >
+      <Participant {...props} isLocal={true}
+        onContextMenu={(ev) => {
+          ev.preventDefault()
+          openConfig()
+        }}
+      />
+      <MoreButton show={showMore} className={classes.more} htmlColor={color} {...moreControl}
+        buttonRef = {ref}
+        onClickMore = {openConfig} />
+      <LocalParticipantForm stores={props.stores} open={showConfig} close={onClose}
+        anchorEl={ref.current} anchorOrigin={{vertical:'top', horizontal:'left'}}
+        anchorReference = "anchorEl"
+      />
 
       {/* Add Context Menu */}
       {/* <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
@@ -470,7 +681,44 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       <div className={classes.dashedCircle}></div>
       </div> */}
 
-
+      <Dialog open={showMenu} onClose={() => setShowMenu(false)} onExited={() => setShowMenu(false)}
+        keepMounted
+        PaperProps={{
+          style: {
+            backgroundColor: 'transparent',
+            position:'absolute',
+            boxShadow: 'none',
+            overflow:'hidden',
+            width: 350,
+            height: 250,
+            left: Number(mem.downXpos) - 200,
+            top: Number(mem.downYpos) - 160,
+            zIndex: showMenu ? 999 : -999,
+            transform: isSmartphone() ? 'scale(2.5)' : 'scale(1)',
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogContent style={showMenu ? {transform:'scale(1.1)', transition:'0s ease-out'} : {transform:'scale(0)', transition:'0s ease-out'}}>
+        <Zoom in={showMenu} style={{ transition: showMenu ? '500ms' : '0ms' }}>
+          <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
+            {/* <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}> */}
+                <div className={classes.moreIcon} onMouseUp={openConfig}
+                  onTouchStart={stop}>
+                    <img id='contextMore' src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                </div>
+              {/* </Tooltip> */}
+              <Tooltip placement="top" title={showMenu ? t('ctGenerateAvatar') : ''}>
+              <div className={classes.avatarTool} /* onMouseUp={openConfig} */
+                  onTouchStart={stop}>
+                    <img id='avatarGen' src={AvatarGenIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                </div>
+              </Tooltip>
+            <div className={classes.dashedCircle}></div>
+            </div>
+          </Zoom>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
