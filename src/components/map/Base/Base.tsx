@@ -23,7 +23,7 @@ import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 import {t} from '@models/locales'
 import {ShareDialog} from '@components/footer/share/ShareDialog'
 import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
-import { getOnLocalUser } from '../ParticipantsLayer/LocalParticipant'
+import { getAvatarToolStatus, getOnLocalUser } from '../ParticipantsLayer/LocalParticipant'
 //import { getRndPingStatus } from '../ShareLayer/RndContent'
 
 
@@ -291,7 +291,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       map.setMatrix(newMatrix)*/
 
       let _contentDialogStatus:boolean = getContentDialogStatus()
+      let _avatarToolStatus = getAvatarToolStatus()
+
       if(_contentDialogStatus) {return}
+      if(_avatarToolStatus) {return}
 
       //  zoom map
       let scale = Math.pow(1.2, event.deltaY / 100)
@@ -478,6 +481,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
         let _focusLocalUser:boolean = getOnLocalUser()
+        let _avatarToolStatus = getAvatarToolStatus()
 
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
@@ -486,6 +490,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         if(_onContent) {return}
         if(_onRemoteUser) {return}
         if(_focusLocalUser) {return}
+        if(_avatarToolStatus) {return}
 
         //console.log(_onContent, " onContent")
 
@@ -548,6 +553,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let _contentDialogStatus:boolean = getContentDialogStatus()
         let _focusLocalUser:boolean = getOnLocalUser()
         let _onRemoteUser = getOnRemote()
+        let _avatarToolStatus = getAvatarToolStatus()
 
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
@@ -558,6 +564,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         if(showMenu) {return}
         if(_focusLocalUser) {return}
         if(_onRemoteUser) {return}
+        if(_avatarToolStatus) {return}
 
        // if(_contentDeleteDeleteDialogOpen) {return}
 
@@ -609,9 +616,12 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         //console.log()
         let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _avatarToolStatus = getAvatarToolStatus()
+
         if(_contentDialogStatus) {return}
 
         if(_dialogStatus) {return}
+        if(_avatarToolStatus) {return}
 
 
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
@@ -717,8 +727,11 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _avatarToolStatus = getAvatarToolStatus()
+
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
+        if(_avatarToolStatus) {return}
 
         const [md, ma] = memo
 

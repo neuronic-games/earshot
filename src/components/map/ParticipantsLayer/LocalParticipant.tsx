@@ -3,9 +3,10 @@ import {MoreButton, moreButtonControl, MoreButtonMember} from '@components/utils
 /* import { Tooltip } from '@material-ui/core' */
 import {makeStyles} from '@material-ui/core/styles'
 //import { connection } from '@models/api'
-import {addV2, assert, isSmartphone, mulV2, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
+import {addV2, assert, isSmartphone, mulV2, rgb2Color, subV2} from '@models/utils' // ,rotateVector2DByDegree, subV2, transformPoint2D, transfromAt
 import {useObserver} from 'mobx-react-lite'
-import React, {useEffect, useRef/* , useState */} from 'react'
+import React, {useEffect, useRef,/* , useState */
+useState} from 'react'
 import {DragHandler, DragState} from '../../utils/DragHandler'
 //import {KeyHandlerPlain} from '../../utils/KeyHandler'
 import {LocalParticipantForm} from './LocalParticipantForm'
@@ -19,7 +20,7 @@ import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
 
 import {/* getContextMenuStatus,  */MouseOrTouch, getContentLocked, getContentDialogStatus, isOnContentStatus/* , getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
 /* import {ShareDialog} from '@components/footer/share/ShareDialog' */
-import {Dialog, DialogContent, Tooltip, Zoom} from '@material-ui/core'
+import {Button, Dialog, DialogContent, DialogTitle, List, ListItem, Tooltip, Zoom} from '@material-ui/core'
 /* import UploadShare from '@images/whoo-screen_btn-add-63.png' */
 import {useTranslation} from '@models/locales'
 import { useGesture } from 'react-use-gesture'
@@ -27,6 +28,17 @@ import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import MoreIcon from '@images/whoo-screen_btn-more.png'
 import AvatarGenIcon from '@images/earshot_icon_edit.png'
+
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import html2canvas from 'html2canvas'
+
+
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' },
+  },
+});
 
 
 const AVATAR_SPEED_LIMIT = 50
@@ -130,7 +142,7 @@ const useStyles = makeStyles({
     whiteSpace: 'pre',
     cursor: 'default',
     background: '#9e886c',
-    opacity: 0.2,
+    /* opacity: 0.2, */
     ...buttonStyle
   }),
 
@@ -146,6 +158,66 @@ const useStyles = makeStyles({
       background: '#9e886c',
       ...buttonStyle
     }),
+
+    mainContainer: {
+      display: 'flex',
+      height: '100%',
+      width:'100%',
+
+    },
+    menuContainer: {
+      position:'relative',
+      top:'12px',
+      left: '15px',
+      width:'100px',
+      height:'100px',
+    },
+    galleryMain : {
+      width:'100%',
+      height:'100%',
+      minWidth: '440px',
+      minHeight:'245px',
+      border:'2px dashed #00000030',
+      left:'45px',
+      position:'relative'
+    },
+    gallery: {
+      display:'grid',
+      gridTemplateColumns: 'repeat(7, 1fr)',
+      gap:5,
+      overflowY:'scroll',
+      overflowX: 'hidden',
+      height:'334px',
+      alignContent:'flex-start',
+    },
+    galleryList: {
+      display:'grid',
+      gridTemplateColumns: 'repeat(7, 1fr)',
+      gap:5,
+      overflowY:'hidden',
+      overflowX: 'hidden',
+      height:'90px',
+      alignContent:'flex-start',
+    },
+    deavticeButtons: {
+      position:'relative',
+      padding:'10px',
+      fontSize:isSmartphone() ? '1.5em' : '1em',
+      fontWeight:'bold',
+      borderBottom: '2px solid #7ececc',
+      color:'#000000',
+      cursor: 'pointer',
+    },
+
+    avticeButtons: {
+      position:'relative',
+      padding:'10px',
+      fontSize:isSmartphone() ? '1.5em' : '1em',
+      fontWeight:'bold',
+      borderBottom:'2px solid #7ececc',
+      color:'#ef4623',
+      cursor: 'default',
+    }
 })
 
 const buttonStyle = {
@@ -215,6 +287,31 @@ let onLocalUser:boolean = false
 export function getOnLocalUser() : boolean {
   return onLocalUser;
 }
+
+let selectedImage:string = ''
+let selectedGroup = ''
+let selectedSkin = ''
+let selectedHairColor = ''
+let selectedHair = ''
+let selectedHairBack = ''
+let selectedOutfits = ''
+let selectedSpecs = ''
+export function getSelectedImage() : string {
+  return selectedImage
+}
+
+export function ResetSelectedImage() {
+  selectedImage = ''
+}
+
+// Different Avatar Item
+
+
+let isAvatarToolOpen: boolean = false
+export function getAvatarToolStatus() : boolean {
+  return isAvatarToolOpen
+}
+
 
 const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const map = props.stores.map
@@ -288,6 +385,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         let _onRemoteUser = getOnRemote()
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
+
+        let _avatarToolStatus = getAvatarToolStatus()
+
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
 
@@ -296,6 +396,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         //if(showUploadOption) {return}
         if(_onContent) {return}
         if(_onRemoteUser) {return}
+
+        if(_avatarToolStatus) {return}
 
         //  console.log('Base StartDrag:')
         if (buttons === MOUSE_LEFT || buttons === 0) {
@@ -324,7 +426,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
             let diffX = mem.downXpos - mem.cursorX
             let diffY = mem.downYpos - mem.cursorY
 
-            console.log(diffX, " ---- ", diffY)
+            //console.log(diffX, " ---- ", diffY)
 
             if(mem.mouseDown && diffX === 0 && diffY === 0 /* && showUploadOption === false */) {
               //console.log("Open Context Menu")
@@ -589,7 +691,30 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const [showMenu, setShowMenu] = React.useState(false)
   //const [showUploadOption, setShowUploadOption] = React.useState(false)
 
+  const [showTool, setShowTool] = React.useState(false)
+
   //const [showMenu, setShowMenu] = useState(false)
+
+  const rgb = props.participant.getColorRGB()
+
+  isAvatarToolOpen = showTool
+
+
+  const [pageIndex, setPageIndex] = useState(0)
+
+  //const [active, setActive] = useState(-1)
+
+  const [activeOutfit, setActiveOutfit] = useState(-1)
+  const [activeSpecs, setActiveSpecs] = useState(-1)
+
+  const [activeSkin, setActiveSkin] = useState(-1)
+  const [activeHair, setActiveHair] = useState(-1)
+  const [activeGroup, setActiveGroup] = useState(-1)
+
+  const [activeFrontHair, setActiveFrontHair] = useState(-1)
+  const [activeBackHair, setActiveBackHair] = useState(-1)
+
+
 
   function onClose() {
     setShowConfig(false)
@@ -601,6 +726,102 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   }
 
+  function openAvatarTool(ev:MouseOrTouch) {
+    setShowTool(true)
+  }
+
+  function EnableThis(_pageIndex:number) {
+    //console.log(_pageIndex, " pageIndex")
+    selectedImage = ''
+    //setActive(-1)
+    setPageIndex(_pageIndex)
+  }
+
+  function ActiveThis(_itemIndex:number) {
+    let imgArr = images[pageIndex].split(',')
+    selectedImage = imgArr[_itemIndex]
+    //console.log(_itemIndex, " itemsIndex")
+    if(pageIndex === 0) {
+      if(_itemIndex < 7) {
+        selectedGroup = imgArr[_itemIndex]
+        if(activeGroup !== _itemIndex) {
+          setActiveGroup(_itemIndex)
+        } else {
+          selectedGroup = ''
+          setActiveGroup(-1)
+        }
+      }
+      if(_itemIndex >= 7 && _itemIndex < 14) {
+        selectedHairColor = imgArr[_itemIndex].split('/')[2].split('.')[0].split('co_')[1]
+        //console.log(selectedHairColor, " Hair")
+        if(activeHair !== _itemIndex) {
+          setActiveHair(_itemIndex)
+        } else {
+          selectedHairColor = ''
+          setActiveHair(-1)
+        }
+      }
+      if(_itemIndex >= 14 && _itemIndex < 21) {
+        selectedSkin = imgArr[_itemIndex]
+        if(activeSkin !== _itemIndex) {
+          setActiveSkin(_itemIndex)
+        } else {
+          selectedSkin = ''
+          setActiveSkin(-1)
+        }
+      }
+    } else if(pageIndex === 1) {
+      //console.log(imgArr[_itemIndex].split('/')[2].split('.')[0].split('_')[4], "  >>> hair")
+      let hairType = imgArr[_itemIndex].split('/')[2].split('.')[0].split('_')[4]
+      if(hairType === 'f') {
+        selectedHair = imgArr[_itemIndex]
+        if(activeFrontHair !== _itemIndex) {
+          setActiveFrontHair(_itemIndex)
+        } else {
+          selectedHair = ''
+          setActiveFrontHair(-1)
+        }
+      } else if(hairType === 'b') {
+        selectedHairBack = imgArr[_itemIndex]
+        if(activeBackHair !== _itemIndex) {
+          setActiveBackHair(_itemIndex)
+        } else {
+          selectedHairBack = ''
+          setActiveBackHair(-1)
+        }
+      }
+
+      /* if(active !== _itemIndex) {
+        setActive(_itemIndex)
+      } else {
+        if(hairType === 'f') {
+          selectedHair = ''
+        } else if(hairType === 'b') {
+          selectedHairBack = ''
+        }
+        setActive(-1)
+      } */
+
+    } else if(pageIndex === 2) {
+      selectedOutfits = imgArr[_itemIndex]
+      if(activeOutfit !== _itemIndex) {
+        setActiveOutfit(_itemIndex)
+      } else {
+        selectedOutfits = ''
+        setActiveOutfit(-1)
+      }
+    } else if(pageIndex === 3) {
+      selectedSpecs = imgArr[_itemIndex]
+      if(activeSpecs !== _itemIndex) {
+        setActiveSpecs(_itemIndex)
+      } else {
+        selectedSpecs = ''
+        setActiveSpecs(-1)
+      }
+    }
+    //setActive(_itemIndex)
+  }
+
   /* const remoteDetails = useObserver(() => ({
     remoteID: participant.trackStates.remoteID,
     remoteX: participant.trackStates.remoteX,
@@ -610,6 +831,90 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   console.log(remoteDetails.remoteID, " Remote ID") */
 
 
+  // ./avatar/avatar/Colors/es_co_group_0.png,./avatar/avatar/Colors/es_co_group_1.png,./avatar/avatar/Colors/es_co_group_2.png,./avatar/avatar/Colors/es_co_group_3.png,./avatar/avatar/Colors/es_co_group_4.png,./avatar/avatar/Colors/es_co_group_5.png,./avatar/avatar/Colors/es_co_group_6.png,./avatar/avatar/Colors/es_co_hair_0.png,./avatar/avatar/Colors/es_co_hair_1.png,./avatar/avatar/Colors/es_co_hair_2.png,./avatar/avatar/Colors/es_co_hair_3.png,./avatar/avatar/Colors/es_co_hair_4.png,./avatar/avatar/Colors/es_co_hair_5.png,./avatar/avatar/Colors/es_co_hair_6.png,./avatar/avatar/Colors/es_co_skin_0.png,./avatar/avatar/Colors/es_co_skin_1.png,./avatar/avatar/Colors/es_co_skin_2.png,./avatar/avatar/Colors/es_co_skin_3.png,./avatar/avatar/Colors/es_co_skin_4.png,./avatar/avatar/Colors/es_co_skin_5.png,./avatar/avatar/Colors/es_co_skin_6.png,./avatar/avatar/Hair/es_hair_0_0_f.png,./avatar/avatar/Hair/es_hair_0_1_f.png,./avatar/avatar/Hair/es_hair_0_2_f.png,./avatar/avatar/Hair/es_hair_0_3_f.png,./avatar/avatar/Hair/es_hair_0_4_f.png,./avatar/avatar/Hair/es_hair_0_5_f.png,./avatar/avatar/Hair/es_hair_0_6_f.png,./avatar/avatar/Hair/es_hair_1_0_b.png,./avatar/avatar/Hair/es_hair_1_0_f.png,./avatar/avatar/Hair/es_hair_1_1_b.png,./avatar/avatar/Hair/es_hair_1_1_f.png,./avatar/avatar/Hair/es_hair_1_2_b.png,./avatar/avatar/Hair/es_hair_1_2_f.png,./avatar/avatar/Hair/es_hair_1_3_b.png,./avatar/avatar/Hair/es_hair_1_4_b.png,./avatar/avatar/Hair/es_hair_1_4_f.png,./avatar/avatar/Hair/es_hair_1_5_b.png,./avatar/avatar/Hair/es_hair_1_5_f.png,./avatar/avatar/Hair/es_hair_1_6_b.png,./avatar/avatar/Hair/es_hair_1_6_f.png,./avatar/avatar/Hair/es_hair_3_0_f.png,./avatar/avatar/Outfits/es_outfit_0.png,./avatar/avatar/Outfits/es_outfit_1.png,./avatar/avatar/Outfits/es_outfit_2.png,./avatar/avatar/Outfits/es_outfit_3.png,./avatar/avatar/Outfits/es_outfit_4.png,./avatar/avatar/Outfits/es_outfit_5.png,./avatar/avatar/Outfits/es_outfit_6.png,./avatar/avatar/Specs/es_specs_0.png,./avatar/avatar/Specs/es_specs_1.png,
+
+  ///////////////////////////////////////////////////////////
+  const [data,setData] = useState('');
+  const getData=()=>{
+    fetch('folderlist.php?folder=avatar_tool/*/*.png')
+      .then((response) => response.text())
+      .then((response) => setData(response));
+    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5.png,avatar_tool/Colors/es_co_skin_6.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_toolavatar_toolavatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
+    setData(dataStr) */
+  }
+  useEffect(()=>{
+    getData()
+  },[])
+
+  //console.log(data, " data")
+  // format accordingly to folder name
+  const folders : Array<string> = []
+  const images : Array<string> = []
+  let tempArr : string = ''
+  let dataFolderWise = data.split(',')
+
+  for (let i=0; i<dataFolderWise.length-1; i++) {
+    //if(folders.indexOf(dataFolderWise[i].split('./')[1].split('/')[1]) === -1 && dataFolderWise[i].split('./')[1].split('/')[1] !== undefined) {
+      if(folders.indexOf(dataFolderWise[i].split('/')[1]) === -1 && dataFolderWise[i].split('/')[1] !== undefined) {
+      folders.push(dataFolderWise[i].split('/')[1])
+    }
+
+  }
+  for (var j=0; j < folders.length; j++) {
+    for (let i=0; i<dataFolderWise.length-1; i++) {
+    if(folders[j] === dataFolderWise[i].split('/')[1]) {
+      tempArr += (dataFolderWise[i]) + ','
+      //tempArr.push(dataFolderWise[i].split('./')[1])
+    }
+  }
+  // console.log(tempArr, " AAAAA")
+  images.push(tempArr)
+  tempArr = ''
+  }
+
+  //console.log(folders)
+
+  const _ITEMS = []
+  if(images.length > 0 && pageIndex >= 0) {
+    let imgArr = images[pageIndex].split(',')
+    for (let i:number = 0; i < imgArr.length - 1; i++) {
+      if(pageIndex === 1) {
+        if(imgArr[i].indexOf(selectedHairColor) !== -1) {
+          let hairType = imgArr[i].split('/')[2].split('.')[0].split('_')[4]
+          if(hairType === 'f') {
+          _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeFrontHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+          } else if(hairType === 'b') {
+            _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeBackHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+          }
+        }
+      } else if(pageIndex === 2) {
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeOutfit === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+      } else if(pageIndex === 3) {
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSpecs === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+      }
+    }
+  }
+
+  const _ITEMS_SKIN = []
+  const _ITEMS_GROUP = []
+  const _ITEMS_HAIR = []
+  if(images.length > 0 && pageIndex >= 0) {
+    let imgArr = images[pageIndex].split(',')
+    for (let i:number = 0; i < imgArr.length - 1; i++) {
+      //console.log(imgArr[i].indexOf('skin'), " ------ ", imgArr[i])
+      if(imgArr[i].indexOf('skin') !== -1) {
+        _ITEMS_SKIN.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSkin === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+      }
+      if(imgArr[i].indexOf('group') !== -1) {
+        _ITEMS_GROUP.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeGroup === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+      }
+      if(imgArr[i].indexOf('hair') !== -1) {
+        _ITEMS_HAIR.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+      }
+    }
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
 
 
   /* console.log(movedAvatar)
@@ -632,10 +937,150 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   const ref = useRef<HTMLButtonElement>(null)
 
+
+
   function stop(ev:MouseOrTouch|React.PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
   }
+
+
+  function onCloseDialog() {
+    selectedGroup = ''
+    selectedSkin = ''
+    selectedHairColor = ''
+    selectedHair = ''
+    selectedHairBack = ''
+    selectedOutfits = ''
+    selectedSpecs = ''
+
+    setShowTool(false)
+    setActiveGroup(-1)
+    setActiveHair(-1)
+    setActiveSkin(-1)
+    setPageIndex(0)
+    //setActive(-1)
+    setActiveBackHair(-1)
+    setActiveFrontHair(-1)
+    setActiveOutfit(-1)
+    setActiveSpecs(-1)
+  }
+
+  function onApplyChanges() {
+    /* html2canvas(window.document.getElementById('userAvatar')).then(canvas => {
+        document.body.appendChild(canvas)
+    }); */
+
+    //console.log(userContent, " userContent")
+    html2canvas(document.body, { allowTaint: true }).then(function(canvas) {
+      //html2canvas(userContent, { allowTaint: true }).then(function(canvas) {
+      //let dataImg = canvas.toDataURL('image/png');
+      //console.log(dataImg, " >>base64")
+      /* $.ajax({
+       type: "POST",
+       url: 'http://localhost/earshot/saveImage.php',
+       dataType: 'text',
+       cache: false,
+       data: {vals : dataImg},
+       success: function(result) {
+         if (result) {
+             alert(result)
+         }
+       },
+       error: function(error) {
+           alert(error);
+       }
+      }); */
+    })
+  }
+
+  function generateRandomNumber(min:number, max:number) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
+
+
+  function onGenerateRandomAvatar() {
+
+    // For Group, Skin and Hair Color setting
+    let randGroupIndex = generateRandomNumber(0,6)
+    let randSkinIndex = generateRandomNumber(14, 20)
+    let randHairColorIndex = generateRandomNumber(7, 13)
+    let imgArr = images[0].split(',')
+    //if(pageIndex === 0) {
+      if(randGroupIndex < 7) {
+        selectedGroup = imgArr[randGroupIndex]
+        if(activeGroup !== randGroupIndex) {
+          setActiveGroup(randGroupIndex)
+        }
+      }
+    //}
+    if(randHairColorIndex >= 7 && randHairColorIndex < 14) {
+      selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]
+      if(activeHair !== randHairColorIndex) {
+        setActiveHair(randHairColorIndex)
+      }
+    }
+    if(randSkinIndex >= 14 && randSkinIndex < 21) {
+      selectedSkin = imgArr[randSkinIndex]
+      if(activeSkin !== randSkinIndex) {
+        setActiveSkin(randSkinIndex)
+      }
+    }
+  //}
+
+    // Setting Hairs [ Front , Back ]
+    let imgHairArr = images[1].split(',')
+    let frontHairs : Array<string> = []
+    let frontHairIndex : Array<number> = []
+    let backHairs : Array<string> = []
+    let backHairIndex : Array<number> = []
+    frontHairs.splice(0)
+    frontHairIndex.splice(0)
+    backHairs.splice(0)
+    backHairIndex.splice(0)
+    for (let i:number = 0; i < imgHairArr.length - 1; i++) {
+      if(imgHairArr[i].indexOf(selectedHairColor) !== -1) {
+        let hairType = imgHairArr[i].split('/')[2].split('.')[0].split('_')[4]
+        if(hairType === 'f') {
+          frontHairs.push(imgHairArr[i])
+          frontHairIndex.push(i)
+        } else if(hairType === 'b') {
+          backHairs.push(imgHairArr[i])
+          backHairIndex.push(i)
+        }
+      }
+    }
+    if(frontHairs.length > 0) {
+      let randFrontHairIndex = generateRandomNumber(0, frontHairs.length-1)
+      selectedHair = frontHairs[randFrontHairIndex]
+      setActiveFrontHair(frontHairIndex[randFrontHairIndex])
+    } else {
+      selectedHair = ''
+      setActiveFrontHair(-1)
+    }
+    if(backHairs.length > 0) {
+      let randBackHairIndex = generateRandomNumber(0, backHairs.length-1)
+      selectedHairBack = backHairs[randBackHairIndex]
+      setActiveBackHair(backHairIndex[randBackHairIndex])
+    } else {
+      selectedHairBack = ''
+      setActiveBackHair(-1)
+    }
+
+    // Setting OutFits
+    let imgOutfitArr = images[2].split(',')
+    let randOutfitIndex = generateRandomNumber(0, imgOutfitArr.length-2)
+    selectedOutfits = imgOutfitArr[randOutfitIndex]
+    setActiveOutfit(randOutfitIndex)
+
+    // Setting Specs
+    let imgSpecsArr = images[3].split(',')
+    let randSpecsIndex = generateRandomNumber(0, imgSpecsArr.length-2)
+    selectedSpecs = imgSpecsArr[randSpecsIndex]
+    setActiveSpecs(randSpecsIndex)
+  }
+
+
   /* function onClickUploadZone(evt: MouseOrTouch) {
     //onLeaveIcon()
     //setShowUploadOption(true)
@@ -709,7 +1154,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
                 </div>
               {/* </Tooltip> */}
               <Tooltip placement="top" title={showMenu ? t('ctGenerateAvatar') : ''}>
-              <div className={classes.avatarTool} /* onMouseUp={openConfig} */
+              <div className={classes.avatarTool} onMouseUp={openAvatarTool}
                   onTouchStart={stop}>
                     <img id='avatarGen' src={AvatarGenIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
@@ -719,6 +1164,127 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           </Zoom>
         </DialogContent>
       </Dialog>
+
+      {/* Avatar gen tool dialog */}
+      <Dialog open={showTool} onClose={() => onCloseDialog()/* setShowTool(false) */} onExited={() => onCloseDialog()/* setShowTool(false) */} maxWidth="sm" fullWidth={true} fullScreen={false}
+        keepMounted
+        PaperProps={{
+          style: {
+            minWidth: 760,
+            transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
+          },
+        }}
+      >
+      <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize: isSmartphone() ? '2.5em' : '1.2em', fontWeight:'bold'}}>
+        {'Customize My Avatar'}</DialogTitle>
+        <DialogContent>
+          <div className={classes.mainContainer}>
+          <div className={classes.menuContainer} /* style={{position:'relative', top:'12px', width:'100px', height:'100px'}} */>
+            {folders.map((items, index) => {
+              return (
+                <div className={pageIndex === index ? classes.avticeButtons : classes.deavticeButtons} onClick = {() => {EnableThis(index)}}>{items}</div>
+              );
+            })}
+
+          <div id='userAvatar' style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px', marginLeft:'-10px'/* , backgroundColor:'red' */, marginTop:'50px'}}>
+            {selectedGroup !== '' || selectedSkin !== '' ?
+            <div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{display: selectedGroup !== '' ? 'block' : 'none'}} src={selectedGroup} width={'130px'} height={'130px'} alt='' />
+            </div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{display: selectedHairBack !== '' ? 'block' : 'none'}} src={selectedHairBack} width={'130px'} height={'130px'} alt='' />
+            </div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{display: selectedSkin !== '' ? 'block' : 'none'}} src={selectedSkin} width={'130px'} height={'130px'} alt='' />
+            </div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{display: selectedHair !== '' ? 'block' : 'none'}} src={selectedHair} width={'130px'} height={'130px'} alt='' />
+            </div>
+            <div style={{position:'absolute', top:'7px', left:'2px'}}>
+              <img style={{display: selectedOutfits !== '' ? 'block' : 'none'}} src={selectedOutfits} width={'130px'} height={'130px'} alt='' />
+            </div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} alt='' />
+            </div>
+            </div>
+            :
+            <div>
+            <div style={{position:'absolute', top:'10px', left:'2px'}}>
+              <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={props.participant.information.avatarSrc} width={'130px'} height={'130px'} alt='' />
+            </div>
+            </div>
+            }
+          <div style={{position:'absolute', top:'145px', left:'40px', fontSize:isSmartphone() ? '2em' : '1em', fontWeight:'bold', color:'#2279BD'}}>
+           {props.participant.information.name}
+          </div>
+        </div>
+      </div>
+          <List>
+          {pageIndex === 0 ?
+              <ListItem style={{minWidth:'470px', minHeight:'250px'}}>
+                <div className={classes.galleryMain}>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>SKIN</div>
+                  <div className={classes.galleryList}>
+                    {_ITEMS_SKIN}
+                  </div>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>HAIR</div>
+                  <div className={classes.galleryList}>
+                    {_ITEMS_HAIR}
+                  </div>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>GROUP</div>
+                  <div className={classes.galleryList}>
+                    {_ITEMS_GROUP}
+                  </div>
+
+                </div>
+              </ListItem>
+              : <ListItem style={{minWidth:'470px'}}>
+              <div className={classes.galleryMain}>
+                <div className={classes.gallery}>
+                  {_ITEMS}
+                </div>
+              </div>
+            </ListItem>}
+              <ListItem style={{width:'100%'}}>
+              <MuiThemeProvider theme={theme}>
+              <Button
+                  variant="contained"
+                  /* color="primary" */
+                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', backgroundColor:'orange', position:'relative', marginLeft:'75px'}}
+                  onClick={() => {
+                    onCloseDialog()
+                  }}
+                >
+                  Revert
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', position:'relative', marginLeft: '13px'}}
+                  onClick={() => {
+                    onGenerateRandomAvatar()
+                  }}
+                >
+                  Generate Random
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', position:'relative', marginLeft: '13px'}}
+                  onClick={() => {
+                    onApplyChanges()
+                  }}
+                >
+                  Apply Changes
+                </Button>
+                </MuiThemeProvider>
+              </ListItem>
+            </List>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }

@@ -24,6 +24,7 @@
     "customize-cra": "^1.0.0",
     "flatted": "^3.1.1",
     "git": "^0.1.5",
+    "html2canvas": "^1.4.1",
     "i18next": "^19.9.1",
     "i18next-browser-languagedetector": "^6.0.1",
     "jquery": "^3.6.0",
@@ -98,6 +99,6 @@
     "@types/lodash": "^4.14.168",
     "@types/pdfjs-dist": "^2.7.2",
     "import": "^0.0.6",
-    "react-app-rewired": "^2.1.8"
+    "react-app-rewired": "^2.2.1"
   }
 }
