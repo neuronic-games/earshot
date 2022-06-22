@@ -27,7 +27,7 @@ import { useGesture } from 'react-use-gesture'
 import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import MoreIcon from '@images/whoo-screen_btn-more.png'
-import AvatarGenIcon from '@images/earshot_icon_edit.png'
+import AvatarGenIcon from '@images/earshot_icon_edit_avatar.png'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
 import html2canvas from 'html2canvas'
@@ -173,7 +173,7 @@ const useStyles = makeStyles({
       height:'100px',
     },
     galleryMain : {
-      width:'100%',
+      width:'91%',
       height:'100%',
       minWidth: '440px',
       minHeight:'245px',
@@ -183,17 +183,21 @@ const useStyles = makeStyles({
     },
     gallery: {
       display:'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)',
-      gap:5,
-      overflowY:'scroll',
+      position: 'relative',
+      marginLeft: '10px',
+      gridTemplateColumns: 'repeat(7, 0.1fr)',
+      gap:-10,
+      overflowY:'auto',
       overflowX: 'hidden',
       height:'334px',
       alignContent:'flex-start',
     },
     galleryList: {
       display:'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)',
-      gap:5,
+      position: 'relative',
+      marginLeft: '10px',
+      gridTemplateColumns: 'repeat(7, 0.1fr)',
+      gap:-10,
       overflowY:'hidden',
       overflowX: 'hidden',
       height:'90px',
@@ -740,7 +744,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   function ActiveThis(_itemIndex:number) {
     let imgArr = images[pageIndex].split(',')
     selectedImage = imgArr[_itemIndex]
+
     //console.log(_itemIndex, " itemsIndex")
+
     if(pageIndex === 0) {
       if(_itemIndex < 7) {
         selectedGroup = imgArr[_itemIndex]
@@ -751,9 +757,47 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           setActiveGroup(-1)
         }
       }
-      if(_itemIndex >= 7 && _itemIndex < 14) {
+      if(_itemIndex >= 7 && _itemIndex < 15) {
         selectedHairColor = imgArr[_itemIndex].split('/')[2].split('.')[0].split('co_')[1]
         //console.log(selectedHairColor, " Hair")
+
+        if(selectedHair !== '' || selectedHairBack !== '') {
+          //console.log(selectedHair.split('/')[2].split('_')[2], " ---- ", selectedHair.split('/')[2].split('_')[3])
+
+          let swatchNum = selectedHair.split('/')[2].split('_')[2]
+          //let colorSwatchNum = selectedHair.split('/')[2].split('_')[3]
+          let selectedHairIndex = selectedHairColor.split("_")[1]
+          //console.log(swatchNum, " ---- ", colorSwatchNum, " >>>> ", selectedHairIndex)
+          let filterHairsWithSelectedSwatch = swatchNum + "_" + selectedHairIndex
+          //console.log(filterHairsWithSelectedSwatch, " FS")
+          // Update applied hair style based on swatch selected
+          let hairImgArray = images[1].split(',')
+          for(let i = 0; i<hairImgArray.length; i++) {
+            //console.log(hairImgArray[i], " IMG ARR")
+            if(hairImgArray[i].indexOf(filterHairsWithSelectedSwatch) !== -1) {
+              //console.log(hairImgArray[i])
+              let hairType = hairImgArray[i].split('/')[2].split('.')[0].split('_')[4]
+              if(hairType === 'f') {
+                selectedHair = hairImgArray[i]
+                if(activeFrontHair !== i) {
+                  setActiveFrontHair(i)
+                } else {
+                  selectedHair = ''
+                  setActiveFrontHair(-1)
+                }
+              } else if(hairType === 'b') {
+                selectedHairBack = hairImgArray[i]
+                if(activeBackHair !== i) {
+                  setActiveBackHair(i)
+                } else {
+                  selectedHairBack = ''
+                  setActiveBackHair(-1)
+                }
+              }
+            }
+          }
+        }
+
         if(activeHair !== _itemIndex) {
           setActiveHair(_itemIndex)
         } else {
@@ -761,7 +805,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           setActiveHair(-1)
         }
       }
-      if(_itemIndex >= 14 && _itemIndex < 21) {
+      if(_itemIndex >= 15 && _itemIndex < 20) {
         selectedSkin = imgArr[_itemIndex]
         if(activeSkin !== _itemIndex) {
           setActiveSkin(_itemIndex)
@@ -773,7 +817,14 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     } else if(pageIndex === 1) {
       //console.log(imgArr[_itemIndex].split('/')[2].split('.')[0].split('_')[4], "  >>> hair")
       let hairType = imgArr[_itemIndex].split('/')[2].split('.')[0].split('_')[4]
+
+      /* console.log(images.indexOf(imgArr[_itemIndex].split('/')[2].split('_f.')[0] + "_f.png"), " ---- ", images.indexOf(imgArr[_itemIndex].split('/')[2].split('_f.')[0] + "_b.png")) */
+
+      //console.log(imgArr[_itemIndex].split('/')[2].split('_f.')[0], " IMG")
+      //console.log(imgArr.indexOf(String(imgArr[_itemIndex].split('_f.png')[0] + '_b.png')), " Array")
+
       if(hairType === 'f') {
+        let findBack = imgArr.indexOf(String(imgArr[_itemIndex].split('_f.png')[0] + '_b.png'))
         selectedHair = imgArr[_itemIndex]
         if(activeFrontHair !== _itemIndex) {
           setActiveFrontHair(_itemIndex)
@@ -781,13 +832,38 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           selectedHair = ''
           setActiveFrontHair(-1)
         }
+        if(findBack !== -1) {
+          selectedHairBack = imgArr[findBack]
+          if(activeBackHair !== findBack) {
+            setActiveBackHair(findBack)
+          } else {
+            selectedHairBack = ''
+            setActiveBackHair(-1)
+          }
+        } else {
+          selectedHairBack = ''
+          setActiveBackHair(-1)
+        }
       } else if(hairType === 'b') {
+        let findFront = imgArr.indexOf(String(imgArr[_itemIndex].split('_b.png')[0] + '_f.png'))
         selectedHairBack = imgArr[_itemIndex]
         if(activeBackHair !== _itemIndex) {
           setActiveBackHair(_itemIndex)
         } else {
           selectedHairBack = ''
           setActiveBackHair(-1)
+        }
+        if(findFront !== -1) {
+          selectedHair = imgArr[findFront]
+          if(activeFrontHair !== findFront) {
+            setActiveFrontHair(findFront)
+          } else {
+            selectedHair = ''
+            setActiveFrontHair(-1)
+          }
+        } else {
+          selectedHair = ''
+          setActiveFrontHair(-1)
         }
       }
 
@@ -839,7 +915,11 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     fetch('folderlist.php?folder=avatar_tool/*/*.png')
       .then((response) => response.text())
       .then((response) => setData(response));
+
     /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5.png,avatar_tool/Colors/es_co_skin_6.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_toolavatar_toolavatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
+    setData(dataStr) */
+    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_b.png,avatar_tool/Hair/es_hair_0_x.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png," */
+    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_b.png,avatar_tool/Hair/es_hair_0_x.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
     setData(dataStr) */
   }
   useEffect(()=>{
@@ -879,18 +959,20 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     let imgArr = images[pageIndex].split(',')
     for (let i:number = 0; i < imgArr.length - 1; i++) {
       if(pageIndex === 1) {
-        if(imgArr[i].indexOf(selectedHairColor) !== -1) {
+        //console.log(selectedHairColor.split("_")[1], " --- ", imgArr[i].split("_")[4], " ---- ", imgArr[i])
+        //if(imgArr[i].indexOf(selectedHairColor) !== -1 && (selectedHairColor.split("_")[1] === imgArr[i].split("_")[4])) {
+        if((selectedHairColor.split("_")[1] === imgArr[i].split("_")[4])) {
           let hairType = imgArr[i].split('/')[2].split('.')[0].split('_')[4]
           if(hairType === 'f') {
-          _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeFrontHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+          _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeFrontHair === i ? '3px solid #ef4623' : '3px dotted #00000000'/* , borderLeft: activeFrontHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */}} draggable={false} alt='' /></div>)
           } else if(hairType === 'b') {
-            _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeBackHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+            _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeBackHair === i ? '3px solid #ef4623' : '3px dotted #00000000'/* , borderRight: activeBackHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */ /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}<div style={{position:'relative', width:'20px', height:'64px', backgroundColor:'white', top:'-71px', left:'63px', display: activeBackHair === i ? 'block' : 'none'}}></div></div>)
           }
         }
       } else if(pageIndex === 2) {
-        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeOutfit === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeOutfit === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
       } else if(pageIndex === 3) {
-        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSpecs === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSpecs === i ? '3px solid #ef4623' : '3px dotted #00000000'/* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
       }
     }
   }
@@ -903,13 +985,17 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     for (let i:number = 0; i < imgArr.length - 1; i++) {
       //console.log(imgArr[i].indexOf('skin'), " ------ ", imgArr[i])
       if(imgArr[i].indexOf('skin') !== -1) {
-        _ITEMS_SKIN.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSkin === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        if(imgArr[i].indexOf("_x") === -1) {
+          _ITEMS_SKIN.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSkin === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        }
       }
       if(imgArr[i].indexOf('group') !== -1) {
-        _ITEMS_GROUP.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeGroup === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        if(imgArr[i].indexOf('_x') === -1) {
+          _ITEMS_GROUP.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeGroup === i ? '3px solid #ef4623' : '3px dotted #00000000'  /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        }
       }
       if(imgArr[i].indexOf('hair') !== -1) {
-        _ITEMS_HAIR.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeHair === i ? '3px solid #ef4623' : '3px dotted #00000020'}} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS_HAIR.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeHair === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
       }
     }
   }
@@ -1000,12 +1086,14 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
 
   function onGenerateRandomAvatar() {
-
     // For Group, Skin and Hair Color setting
     let randGroupIndex = generateRandomNumber(0,6)
-    let randSkinIndex = generateRandomNumber(14, 20)
-    let randHairColorIndex = generateRandomNumber(7, 13)
+    let randSkinIndex = generateRandomNumber(15, 20)
+    let randHairColorIndex = generateRandomNumber(8, 14)
     let imgArr = images[0].split(',')
+
+    //console.log(randHairColorIndex)
+
     //if(pageIndex === 0) {
       if(randGroupIndex < 7) {
         selectedGroup = imgArr[randGroupIndex]
@@ -1014,13 +1102,13 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         }
       }
     //}
-    if(randHairColorIndex >= 7 && randHairColorIndex < 14) {
+    if(randHairColorIndex >= 7 && randHairColorIndex < 15) {
       selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]
       if(activeHair !== randHairColorIndex) {
         setActiveHair(randHairColorIndex)
       }
     }
-    if(randSkinIndex >= 14 && randSkinIndex < 21) {
+    if(randSkinIndex >= 15 && randSkinIndex < 20) {
       selectedSkin = imgArr[randSkinIndex]
       if(activeSkin !== randSkinIndex) {
         setActiveSkin(randSkinIndex)
@@ -1039,33 +1127,58 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     backHairs.splice(0)
     backHairIndex.splice(0)
     for (let i:number = 0; i < imgHairArr.length - 1; i++) {
-      if(imgHairArr[i].indexOf(selectedHairColor) !== -1) {
-        let hairType = imgHairArr[i].split('/')[2].split('.')[0].split('_')[4]
-        if(hairType === 'f') {
-          frontHairs.push(imgHairArr[i])
-          frontHairIndex.push(i)
-        } else if(hairType === 'b') {
-          backHairs.push(imgHairArr[i])
-          backHairIndex.push(i)
+      //console.log(selectedHairColor.split('_')[1], " ---- ", imgHairArr[i].split("_")[4])
+      //if(imgHairArr[i].indexOf(selectedHairColor) !== -1) {
+        if(imgHairArr.indexOf(selectedHairColor.split('_')[1] + '_' + imgHairArr[i].split("_")[4]) === -1) {
+        if((selectedHairColor.split("_")[1] === imgHairArr[i].split("_")[4])) {
+          let hairType = imgHairArr[i].split('/')[2].split('.')[0].split('_')[4]
+          if(hairType === 'f') {
+            frontHairs.push(imgHairArr[i])
+            frontHairIndex.push(i)
+          } else if(hairType === 'b') {
+            backHairs.push(imgHairArr[i])
+            backHairIndex.push(i)
+          }
         }
       }
     }
     if(frontHairs.length > 0) {
       let randFrontHairIndex = generateRandomNumber(0, frontHairs.length-1)
       selectedHair = frontHairs[randFrontHairIndex]
+      //console.log(frontHairs[randFrontHairIndex])
       setActiveFrontHair(frontHairIndex[randFrontHairIndex])
+      //console.log(frontHairs[randFrontHairIndex].split('/')[2].split('.')[0], " random front")
+      let findBack = imgHairArr.indexOf(String(frontHairs[randFrontHairIndex].split('_f.png')[0] + '_b.png'))
+      //console.log(String(frontHairs[randFrontHairIndex].split('_f.png')[0] + '_b.png'), " BackRandom ", findBack)
+      //console.log(findBack, " findBack")
+      if(findBack !== -1) {
+        selectedHairBack = imgHairArr[findBack]
+        if(activeBackHair !== findBack) {
+          setActiveBackHair(findBack)
+        } else {
+          selectedHairBack = ''
+          setActiveBackHair(-1)
+        }
+      } else {
+        selectedHairBack = ''
+        setActiveBackHair(-1)
+      }
+
     } else {
       selectedHair = ''
       setActiveFrontHair(-1)
+
+      selectedHairBack = ''
+      setActiveBackHair(-1)
     }
-    if(backHairs.length > 0) {
+    /* if(backHairs.length > 0) {
       let randBackHairIndex = generateRandomNumber(0, backHairs.length-1)
       selectedHairBack = backHairs[randBackHairIndex]
       setActiveBackHair(backHairIndex[randBackHairIndex])
     } else {
       selectedHairBack = ''
       setActiveBackHair(-1)
-    }
+    } */
 
     // Setting OutFits
     let imgOutfitArr = images[2].split(',')
@@ -1156,7 +1269,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
               <Tooltip placement="top" title={showMenu ? t('ctGenerateAvatar') : ''}>
               <div className={classes.avatarTool} onMouseUp={openAvatarTool}
                   onTouchStart={stop}>
-                    <img id='avatarGen' src={AvatarGenIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='avatarGen' src={AvatarGenIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1)'}} alt=""/>
                 </div>
               </Tooltip>
             <div className={classes.dashedCircle}></div>
@@ -1189,33 +1302,33 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           <div id='userAvatar' style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px', marginLeft:'-10px'/* , backgroundColor:'red' */, marginTop:'50px'}}>
             {selectedGroup !== '' || selectedSkin !== '' ?
             <div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{display: selectedGroup !== '' ? 'block' : 'none'}} src={selectedGroup} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{display: selectedGroup !== '' ? 'block' : 'none'}} src={selectedGroup} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{display: selectedHairBack !== '' ? 'block' : 'none'}} src={selectedHairBack} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{display: selectedHairBack !== '' ? 'block' : 'none'}} src={selectedHairBack} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{display: selectedSkin !== '' ? 'block' : 'none'}} src={selectedSkin} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{display: selectedSkin !== '' ? 'block' : 'none'}} src={selectedSkin} width={'130px'} height={'130px'}  draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{display: selectedHair !== '' ? 'block' : 'none'}} src={selectedHair} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{display: selectedHair !== '' ? 'block' : 'none'}} src={selectedHair} width={'130px'} height={'130px'}  draggable={false}alt='' />
             </div>
-            <div style={{position:'absolute', top:'7px', left:'2px'}}>
-              <img style={{display: selectedOutfits !== '' ? 'block' : 'none'}} src={selectedOutfits} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'7px', left:'0px'}}>
+              <img style={{display: selectedOutfits !== '' ? 'block' : 'none'}} src={selectedOutfits} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
             </div>
             :
             <div>
-            <div style={{position:'absolute', top:'10px', left:'2px'}}>
-              <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={props.participant.information.avatarSrc} width={'130px'} height={'130px'} alt='' />
+            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+              <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={props.participant.information.avatarSrc} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
             </div>
             }
-          <div style={{position:'absolute', top:'145px', left:'40px', fontSize:isSmartphone() ? '2em' : '1em', fontWeight:'bold', color:'#2279BD'}}>
+          <div style={{position:'absolute', top:'145px', left:'0px', fontSize:isSmartphone() ? '2em' : '1em', fontWeight:'bold', color:'#2279BD', width:'100%', textAlign:'center'}}>
            {props.participant.information.name}
           </div>
         </div>
@@ -1270,8 +1383,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
                 </Button>
                 <Button
                   variant="contained"
-                  color="primary"
-                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', position:'relative', marginLeft: '13px'}}
+                  /* color="primary" */
+                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', backgroundColor:'orange', position:'relative', marginLeft: '13px'}}
                   onClick={() => {
                     onApplyChanges()
                   }}
