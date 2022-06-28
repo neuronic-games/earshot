@@ -51,6 +51,8 @@ const WHOLE_DEGREE = 360
 
 const AVATARS = ["avatar/whoo-avatars_whoo-01.png", "avatar/whoo-avatars_whoo-02.png", "avatar/whoo-avatars_whoo-03.png", "avatar/whoo-avatars_whoo-04.png", "avatar/whoo-avatars_whoo-05.png", "avatar/whoo-avatars_whoo-06.png", "avatar/whoo-avatars_whoo-07.png"]
 
+//let RAND_AVATAR = []
+
 
 type LocalParticipantProps = ParticipantProps
 
@@ -752,10 +754,10 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         selectedGroup = imgArr[_itemIndex]
         if(activeGroup !== _itemIndex) {
           setActiveGroup(_itemIndex)
-        } else {
+        } /* else {
           selectedGroup = ''
           setActiveGroup(-1)
-        }
+        } */
       }
       if(_itemIndex >= 7 && _itemIndex < 15) {
         selectedHairColor = imgArr[_itemIndex].split('/')[2].split('.')[0].split('co_')[1]
@@ -781,18 +783,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
                 selectedHair = hairImgArray[i]
                 if(activeFrontHair !== i) {
                   setActiveFrontHair(i)
-                } else {
+                } /* else {
                   selectedHair = ''
                   setActiveFrontHair(-1)
-                }
+                } */
               } else if(hairType === 'b') {
                 selectedHairBack = hairImgArray[i]
                 if(activeBackHair !== i) {
                   setActiveBackHair(i)
-                } else {
+                } /* else {
                   selectedHairBack = ''
                   setActiveBackHair(-1)
-                }
+                } */
               }
             }
           }
@@ -800,19 +802,19 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
         if(activeHair !== _itemIndex) {
           setActiveHair(_itemIndex)
-        } else {
+        } /* else {
           selectedHairColor = ''
           setActiveHair(-1)
-        }
+        } */
       }
-      if(_itemIndex >= 15 && _itemIndex < 20) {
+      if(_itemIndex >= 15 && _itemIndex < 22) {
         selectedSkin = imgArr[_itemIndex]
         if(activeSkin !== _itemIndex) {
           setActiveSkin(_itemIndex)
-        } else {
+        } /* else {
           selectedSkin = ''
           setActiveSkin(-1)
-        }
+        } */
       }
     } else if(pageIndex === 1) {
       //console.log(imgArr[_itemIndex].split('/')[2].split('.')[0].split('_')[4], "  >>> hair")
@@ -828,18 +830,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         selectedHair = imgArr[_itemIndex]
         if(activeFrontHair !== _itemIndex) {
           setActiveFrontHair(_itemIndex)
-        } else {
+        } /* else {
           selectedHair = ''
           setActiveFrontHair(-1)
-        }
+        } */
         if(findBack !== -1) {
           selectedHairBack = imgArr[findBack]
           if(activeBackHair !== findBack) {
             setActiveBackHair(findBack)
-          } else {
+          } /* else {
             selectedHairBack = ''
             setActiveBackHair(-1)
-          }
+          } */
         } else {
           selectedHairBack = ''
           setActiveBackHair(-1)
@@ -849,18 +851,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         selectedHairBack = imgArr[_itemIndex]
         if(activeBackHair !== _itemIndex) {
           setActiveBackHair(_itemIndex)
-        } else {
+        } /* else {
           selectedHairBack = ''
           setActiveBackHair(-1)
-        }
+        } */
         if(findFront !== -1) {
           selectedHair = imgArr[findFront]
           if(activeFrontHair !== findFront) {
             setActiveFrontHair(findFront)
-          } else {
+          } /* else {
             selectedHair = ''
             setActiveFrontHair(-1)
-          }
+          } */
         } else {
           selectedHair = ''
           setActiveFrontHair(-1)
@@ -882,18 +884,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       selectedOutfits = imgArr[_itemIndex]
       if(activeOutfit !== _itemIndex) {
         setActiveOutfit(_itemIndex)
-      } else {
+      } /* else {
         selectedOutfits = ''
         setActiveOutfit(-1)
-      }
+      } */
     } else if(pageIndex === 3) {
       selectedSpecs = imgArr[_itemIndex]
       if(activeSpecs !== _itemIndex) {
         setActiveSpecs(_itemIndex)
-      } else {
+      } /* else {
         selectedSpecs = ''
         setActiveSpecs(-1)
-      }
+      } */
     }
     //setActive(_itemIndex)
   }
@@ -921,10 +923,23 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_b.png,avatar_tool/Hair/es_hair_0_x.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png," */
     /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_b.png,avatar_tool/Hair/es_hair_0_x.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
     setData(dataStr) */
+
+
   }
   useEffect(()=>{
     getData()
   },[])
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Use this
+  // New function to get the data
+  /* getNewUserAvatarData()
+  function getNewUserAvatarData() {
+    //console.log(data, " details >>> data")
+    // generate Random user
+
+  } */
+  //////////////////////////////////////////////////////////////////////////////
 
   //console.log(data, " data")
   // format accordingly to folder name
@@ -961,18 +976,94 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       if(pageIndex === 1) {
         //console.log(selectedHairColor.split("_")[1], " --- ", imgArr[i].split("_")[4], " ---- ", imgArr[i])
         //if(imgArr[i].indexOf(selectedHairColor) !== -1 && (selectedHairColor.split("_")[1] === imgArr[i].split("_")[4])) {
+
+        //console.log(selectedOutfits, " selectedoutfit")
+
         if((selectedHairColor.split("_")[1] === imgArr[i].split("_")[4])) {
           let hairType = imgArr[i].split('/')[2].split('.')[0].split('_')[4]
           if(hairType === 'f') {
-          _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeFrontHair === i ? '3px solid #ef4623' : '3px dotted #00000000'/* , borderLeft: activeFrontHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */}} draggable={false} alt='' /></div>)
-          } else if(hairType === 'b') {
-            _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeBackHair === i ? '3px solid #ef4623' : '3px dotted #00000000'/* , borderRight: activeBackHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */ /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}<div style={{position:'relative', width:'20px', height:'64px', backgroundColor:'white', top:'-71px', left:'63px', display: activeBackHair === i ? 'block' : 'none'}}></div></div>)
+            let findBack = imgArr.indexOf(String(imgArr[i].split('_f.png')[0] + '_b.png'))
+            _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', borderRadius:'50%', padding:'0px', border:activeFrontHair === i ? '5px solid #ef4623' : '5px dotted #00000000'/* , borderLeft: activeFrontHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */, position:'relative', top:'3px'}} draggable={false} alt='' />
+
+            {/* <div style={{position:'relative', top:'-68px', left:'3px', zIndex:-1, display:findBack !== -1 ?'block' : 'none'}}><img src={findBack !== -1 ? String(imgArr[i].split('_f.png')[0] + '_b.png') : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+            <div style={{position:'relative', top:findBack !== -1 ? '-136px' : '-68px', left:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+            <div style={{position:'relative', top:findBack !== -1 ? '-204px' : '-136px', left:'3px', zIndex:0, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', position:'relative', top:'-2px'}} alt='' /></div>
+
+            <div style={{position:'relative', top:findBack !== -1 ? '-272px' : '-204px', left:'3px', zIndex:1, display:selectedSpecs !== '' ?'block' : 'none'}}><img src={selectedSpecs !== '' ? String(selectedSpecs) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div> */}
+
+            <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:findBack !== -1 ?'block' : 'none'}}><img src={findBack !== -1 ? String(imgArr[i].split('_f.png')[0] + '_b.png') : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+            <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+            <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:0, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', position:'relative', top:'-2px'}} alt='' /></div>
+
+            <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedSpecs !== '' ?'block' : 'none'}}><img src={selectedSpecs !== '' ? String(selectedSpecs) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+
+            {/* <div style={{position:'relative', top:(findBack !== -1 && selectedOutfits === "" && selectedSpecs === "") ? '-204px' : (findBack !== -1 && selectedOutfits !== "" && selectedSpecs === "") ? '-204px' : (findBack !== -1 && selectedOutfits !== "" && selectedSpecs !== "") ? '-274px' : (findBack === -1 && selectedOutfits !== "") ? '-204px' : (findBack !== -1 && selectedOutfits !== "") ? '-272px' : '-136px', left:'3px', zIndex:-4, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div> */}
+
+            <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-4, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+            </div>)
           }
+
+          //else if(hairType === 'bb') {
+          //  _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeBackHair === i ? '3px solid #ef4623' : '3px dotted #00000000'/* , borderRight: activeBackHair === i ? '0px dotted #00000000' : '3px dotted #00000000' */ /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}<div style={{position:'relative', width:'20px', height:'64px', backgroundColor:'white', top:'-71px', left:'63px', display: activeBackHair === i ? 'block' : 'none'}}></div></div>)
+          //}
+
         }
       } else if(pageIndex === 2) {
-        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeOutfit === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeOutfit === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%' /* '3px dotted #00000020' */, position:'relative', top:'3px'}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}
+
+
+
+        {/* <div style={{position:'relative', top:'-68px', left:'3px', zIndex:1, display:selectedHair !== '' ?'block' : 'none'}}><img src={selectedHair !== '' ? String(selectedHair) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:'-136px', left:'3px', zIndex:-1, display:selectedHairBack !== '' ?'block' : 'none'}}><img src={selectedHairBack !== '' ? String(selectedHairBack) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack ? '-204px' : '-136px', left:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack ? '-272px' : '-204px', left:'3px', zIndex:1, display:selectedSpecs !== '' ?'block' : 'none'}}><img src={selectedSpecs !== '' ? String(selectedSpecs) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack !== "" ? '-272px' : '-204px', left:'3px', zIndex:-2, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div> */}
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedHair !== '' ?'block' : 'none'}}><img src={selectedHair !== '' ? String(selectedHair) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedHairBack !== '' ?'block' : 'none'}}><img src={selectedHairBack !== '' ? String(selectedHairBack) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedSpecs !== '' ?'block' : 'none'}}><img src={selectedSpecs !== '' ? String(selectedSpecs) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-2, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        </div>)
       } else if(pageIndex === 3) {
-        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSpecs === i ? '3px solid #ef4623' : '3px dotted #00000000'/* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeSpecs === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%'/* '3px dotted #00000020' */, position:'relative', top:'3px'}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}
+
+        {/* <div style={{position:'relative', top:'-68px', left:'3px', zIndex:1, display:selectedHair !== '' ?'block' : 'none'}}><img src={selectedHair !== '' ? String(selectedHair) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:'-136px', left:'3px', zIndex:-1, display:selectedHairBack !== '' ?'block' : 'none'}}><img src={selectedHairBack !== '' ? String(selectedHairBack) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack ? '-204px' : '-136px', left:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack ? '-272px' : '-204px', left:'3px', zIndex:1, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'relative', top:selectedHairBack !== "" ? '-340px' : '-272px', left:'3px', zIndex:-2, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div> */}
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedHair !== '' ?'block' : 'none'}}><img src={selectedHair !== '' ? String(selectedHair) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedHairBack !== '' ?'block' : 'none'}}><img src={selectedHairBack !== '' ? String(selectedHairBack) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-2, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+
+        </div>)
       }
     }
   }
@@ -985,17 +1076,17 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     for (let i:number = 0; i < imgArr.length - 1; i++) {
       //console.log(imgArr[i].indexOf('skin'), " ------ ", imgArr[i])
       if(imgArr[i].indexOf('skin') !== -1) {
-        if(imgArr[i].indexOf("_x") === -1) {
-          _ITEMS_SKIN.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeSkin === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
-        }
+        //if(imgArr[i].indexOf("_x") === -1) {
+          _ITEMS_SKIN.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeSkin === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        //}
       }
       if(imgArr[i].indexOf('group') !== -1) {
         if(imgArr[i].indexOf('_x') === -1) {
-          _ITEMS_GROUP.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeGroup === i ? '3px solid #ef4623' : '3px dotted #00000000'  /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+          _ITEMS_GROUP.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeGroup === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%'  /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
         }
       }
       if(imgArr[i].indexOf('hair') !== -1) {
-        _ITEMS_HAIR.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', border:activeHair === i ? '3px solid #ef4623' : '3px dotted #00000000' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
+        _ITEMS_HAIR.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeHair === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%' /* '3px dotted #00000020' */}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}</div>)
       }
     }
   }
@@ -1058,6 +1149,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     }); */
 
     //console.log(userContent, " userContent")
+
+
+
     html2canvas(document.body, { allowTaint: true }).then(function(canvas) {
       //html2canvas(userContent, { allowTaint: true }).then(function(canvas) {
       //let dataImg = canvas.toDataURL('image/png');
