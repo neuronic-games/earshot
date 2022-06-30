@@ -1031,7 +1031,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           ElementShift(_ITEMS, 0, _ITEMS.length)
         }
       } else if(pageIndex === 2) {
-        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeOutfit === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%' /* '3px dotted #00000020' */, position:'relative', top:'3px'}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}
+        _ITEMS.push(<div onClick = {() => {ActiveThis(i)}}><img src={encodeURIComponent(imgArr[i])} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeOutfit === i ? '5px solid #ef462300' : '5px dotted #00000000', borderRadius:'50%' /* '3px dotted #00000020' */, position:'relative', top:'1px'}} draggable={false} alt='' />{/* <div style={{textAlign:'center', position:'relative', fontWeight:'bold', marginTop:'-5px'}}>{imgArr[i].split('/')[2].split('.')[0]}</div> */}
 
 
 
@@ -1049,7 +1049,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
         <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedHairBack !== '' ?'block' : 'none'}}><img src={selectedHairBack !== '' ? String(selectedHairBack) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
 
-        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'0px', border:activeOutfit === i ? '5px solid #ef4623' : '5px dotted #00000000', borderRadius:'50%', position:'relative', top:'-3px', left:'-3px'}} alt='' /></div>
 
         <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedSpecs !== '' ?'block' : 'none'}}><img src={selectedSpecs !== '' ? String(selectedSpecs) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
 
@@ -1075,7 +1075,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
         <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-1, display:selectedSkin !== '' ?'block' : 'none'}}><img src={selectedSkin !== '' ? String(selectedSkin) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
 
-        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
+        <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:1, display:selectedOutfits !== '' ?'block' : 'none'}}><img src={selectedOutfits !== '' ? String(selectedOutfits) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px', position:'relative', top:'-2px'}} alt='' /></div>
 
         <div style={{position:'absolute', top:'6px', marginLeft:'3px', zIndex:-2, display:selectedGroup !== '' ?'block' : 'none'}}><img src={selectedGroup !== '' ? String(selectedGroup) : ''} style={{width:'60px', minHeight:'60px', height:'60px', objectFit:'contain', padding:'2px'}} alt='' /></div>
 
