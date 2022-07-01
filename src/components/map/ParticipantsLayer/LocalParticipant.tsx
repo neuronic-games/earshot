@@ -30,7 +30,8 @@ import MoreIcon from '@images/whoo-screen_btn-more.png'
 import AvatarGenIcon from '@images/earshot_icon_edit_avatar.png'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-import html2canvas from 'html2canvas'
+//import html2canvas from 'html2canvas'
+import { toPng } from 'html-to-image'
 
 
 const theme = createMuiTheme({
@@ -49,7 +50,7 @@ const WHOLE_DEGREE = 360
 
 //const HALF = 0.5
 
-const AVATARS = ["avatar/whoo-avatars_whoo-01.png", "avatar/whoo-avatars_whoo-02.png", "avatar/whoo-avatars_whoo-03.png", "avatar/whoo-avatars_whoo-04.png", "avatar/whoo-avatars_whoo-05.png", "avatar/whoo-avatars_whoo-06.png", "avatar/whoo-avatars_whoo-07.png"]
+//const AVATARS = ["avatar/whoo-avatars_whoo-01.png", "avatar/whoo-avatars_whoo-02.png", "avatar/whoo-avatars_whoo-03.png", "avatar/whoo-avatars_whoo-04.png", "avatar/whoo-avatars_whoo-05.png", "avatar/whoo-avatars_whoo-06.png", "avatar/whoo-avatars_whoo-07.png"]
 
 //let RAND_AVATAR = []
 
@@ -330,12 +331,26 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const mem = memRef.current
 
   // Showing default Avatar
+
+
+
   if(participant.information.avatarSrc === '') {
-    var _rnd = Math.ceil(Math.random() * (AVATARS.length-1))
+    /* var _rnd = Math.ceil(Math.random() * (AVATARS.length-1))
     participant.information.avatarSrc = AVATARS[_rnd]
+    participant.sendInformation()
+    participant.saveInformationToStorage(true) */
+  }
+
+  function updateUserAvatar(_path:string) {
+    participant.information.avatarSrc = _path
+
+    // Storing values to localstorage
+    participant.information.randomAvatar = [selectedSkin, selectedHairColor, selectedGroup, selectedHair, selectedOutfits, selectedSpecs]
 
     participant.sendInformation()
     participant.saveInformationToStorage(true)
+
+    onCloseDialog()
   }
 
   assert(props.participant.id === participant.id)
@@ -721,6 +736,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   const [activeBackHair, setActiveBackHair] = useState(-1)
 
 
+  // For Saving data
+  const refAvatar = useRef<HTMLDivElement>(null)
 
   function onClose() {
     setShowConfig(false)
@@ -733,6 +750,10 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   }
 
   function openAvatarTool(ev:MouseOrTouch) {
+    console.log(participant.information.randomAvatar.length)
+    if(data.length > 0 && participant.information.randomAvatar.length > 0) {
+      getNewUserAvatarData()
+    }
     setShowTool(true)
   }
 
@@ -928,16 +949,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     getData()
   },[])
 
-  ////////////////////////////////////////////////////////////////////////////
-  // Use this
-  // New function to get the data
-  /* getNewUserAvatarData()
-  function getNewUserAvatarData() {
-    //console.log(data, " details >>> data")
-    // generate Random user
 
-  } */
-  //////////////////////////////////////////////////////////////////////////////
 
   function ElementShift(arr:any, old_index:number, new_index:number) {
     if (new_index >= arr.length) {
@@ -979,6 +991,104 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   }
 
   //console.log(folders)
+
+////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+  // Use this
+  // New function to get the data
+  /* participant.information.randomAvatar = []
+    participant.sendInformation()
+    participant.saveInformationToStorage(true) */
+
+  const randomAvatarDetails = useObserver(() => props.participant.information.randomAvatar)
+
+
+
+  function getNewUserAvatarData() {
+    //console.log(data, " details >>> data")
+    // Showing selected item from list
+      let imgArr = images[0].split(',')
+      let randSkinIndex = imgArr.indexOf(randomAvatarDetails[0])
+      let randHairColorIndex = imgArr.indexOf('avatar_tool/Colors/es_co_' + randomAvatarDetails[1] + '.png')
+      let randGroupIndex = imgArr.indexOf(randomAvatarDetails[2])
+      let imgArrHairs = images[1].split(',')
+      let imgArrOutFit = images[2].split(',')
+      let randomOutfitIndex = imgArrOutFit.indexOf(randomAvatarDetails[4])
+      let imgArrSpecs = images[3].split(',')
+      let randomSpecsIndex = imgArrSpecs.indexOf(randomAvatarDetails[5])
+      selectedSkin = imgArr[randSkinIndex]
+      if(activeSkin !== randSkinIndex) {
+        setActiveSkin(randSkinIndex)
+      }
+      selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]
+      if(activeHair !== randHairColorIndex) {
+        setActiveHair(randHairColorIndex)
+      }
+      selectedGroup = imgArr[randGroupIndex]
+      if(activeGroup !== randGroupIndex) {
+        setActiveGroup(randGroupIndex)
+      }
+      ///////////////////////////////////////////////////////////
+      let frontHairs : Array<string> = []
+      let frontHairIndex : Array<number> = []
+      let backHairs : Array<string> = []
+      let backHairIndex : Array<number> = []
+      frontHairs.splice(0)
+      frontHairIndex.splice(0)
+      backHairs.splice(0)
+      backHairIndex.splice(0)
+      for (let i:number = 0; i < imgArrHairs.length - 1; i++) {
+          if(imgArrHairs.indexOf(selectedHairColor.split('_')[1] + '_' + imgArrHairs[i].split("_")[4]) === -1) {
+          if((selectedHairColor.split("_")[1] === imgArrHairs[i].split("_")[4]) || imgArrHairs[i].split("_")[4] === "x" ) {
+            let hairType = imgArrHairs[i].split('/')[2].split('.')[0].split('_')[4]
+            if(hairType === 'f') {
+              frontHairs.push(imgArrHairs[i])
+              frontHairIndex.push(i)
+            } else if(hairType === 'b') {
+              backHairs.push(imgArrHairs[i])
+              backHairIndex.push(i)
+            }
+          }
+        }
+      }
+      if(frontHairs.length > 0) {
+        let randomHairIndex = frontHairs.indexOf(randomAvatarDetails[3])
+        selectedHair = frontHairs[randomHairIndex]
+        setActiveFrontHair(frontHairIndex[randomHairIndex])
+        let findBack = imgArrHairs.indexOf(String(frontHairs[randomHairIndex].split('_f.png')[0] + '_b.png'))
+        if(findBack !== -1) {
+          selectedHairBack = imgArrHairs[findBack]
+          if(activeBackHair !== findBack) {
+            setActiveBackHair(findBack)
+          } else {
+            selectedHairBack = ''
+            setActiveBackHair(-1)
+          }
+        } else {
+          selectedHairBack = ''
+          setActiveBackHair(-1)
+        }
+      } else {
+        selectedHair = ''
+        setActiveFrontHair(-1)
+
+        selectedHairBack = ''
+        setActiveBackHair(-1)
+      }
+      ///////////////////////////////////////////////////////////
+
+      selectedOutfits = imgArrOutFit[randomOutfitIndex]
+      if(activeOutfit !== randomOutfitIndex) {
+        setActiveOutfit(randomOutfitIndex)
+      }
+
+      selectedSpecs = imgArrSpecs[randomSpecsIndex]
+      if(activeSpecs !== randomSpecsIndex) {
+        setActiveSpecs(randomSpecsIndex)
+      }
+  }
+  //////////////////////////////////////////////////////////////////////////////
+
 
   const _ITEMS = []
   if(images.length > 0 && pageIndex >= 0) {
@@ -1166,9 +1276,36 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
     //console.log(userContent, " userContent")
 
+    if (refAvatar.current === null) {
+      return
+    }
 
+    toPng(refAvatar.current, { cacheBust: true, })
+      .then((dataUrl) => {
+        //let fileName = "avatar_" + Math.floor((new Date()).getTime() / 1000)
+        /* const link = document.createElement('a')
+        link.download = fileName + '.png'
+        link.href = dataUrl
+        link.click() */
 
-    html2canvas(document.body, { allowTaint: true }).then(function(canvas) {
+        ////////////////////////////////////////////////////
+        var formData = new FormData();
+        formData.append('imgData', dataUrl);
+        fetch('saveAvatarImage.php',
+          {
+            method: 'POST',
+            body: formData
+          }
+        )
+          .then((response) => response.text())
+          .then((response) => updateUserAvatar(response));
+        ////////////////////////////////////////////////////
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+
+    //html2canvas(document.body, { allowTaint: true }).then(function(canvas) {
       //html2canvas(userContent, { allowTaint: true }).then(function(canvas) {
       //let dataImg = canvas.toDataURL('image/png');
       //console.log(dataImg, " >>base64")
@@ -1187,7 +1324,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
            alert(error);
        }
       }); */
-    })
+    //})
   }
 
   function generateRandomNumber(min:number, max:number) {
@@ -1239,6 +1376,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     for (let i:number = 0; i < imgHairArr.length - 1; i++) {
       //console.log(selectedHairColor.split('_')[1], " ---- ", imgHairArr[i].split("_")[4])
       //if(imgHairArr[i].indexOf(selectedHairColor) !== -1) {
+
+        //console.log(selectedHairColor.split('_')[1], " --- ", selectedHairColor)
+
         if(imgHairArr.indexOf(selectedHairColor.split('_')[1] + '_' + imgHairArr[i].split("_")[4]) === -1) {
         if((selectedHairColor.split("_")[1] === imgHairArr[i].split("_")[4])) {
           let hairType = imgHairArr[i].split('/')[2].split('.')[0].split('_')[4]
@@ -1409,31 +1549,31 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
               );
             })}
 
-          <div id='userAvatar' style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px', marginLeft:'-10px'/* , backgroundColor:'red' */, marginTop:'50px'}}>
+          <div style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px', marginLeft:'-10px'/* , backgroundColor:'red' */, marginTop:'50px'}}>
             {selectedGroup !== '' || selectedSkin !== '' ?
-            <div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div ref={refAvatar} style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{display: selectedGroup !== '' ? 'block' : 'none'}} src={selectedGroup} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{display: selectedHairBack !== '' ? 'block' : 'none'}} src={selectedHairBack} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{display: selectedSkin !== '' ? 'block' : 'none'}} src={selectedSkin} width={'130px'} height={'130px'}  draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{display: selectedHair !== '' ? 'block' : 'none'}} src={selectedHair} width={'130px'} height={'130px'}  draggable={false}alt='' />
             </div>
-            <div style={{position:'absolute', top:'7px', left:'0px'}}>
+            <div style={{position:'absolute', top:'-3px', left:'0px'}}>
               <img style={{display: selectedOutfits !== '' ? 'block' : 'none'}} src={selectedOutfits} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
             </div>
             :
             <div>
-            <div style={{position:'absolute', top:'10px', left:'0px'}}>
+            <div style={{position:'absolute', top:'0px', left:'0px'}}>
               <img style={{backgroundColor:rgb2Color(rgb), borderRadius: '50%'}} src={props.participant.information.avatarSrc} width={'130px'} height={'130px'} draggable={false} alt='' />
             </div>
             </div>

@@ -37,6 +37,8 @@ import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 let nameStr:string = ''
 let loginClick:boolean = false
 let _roomName:string = ''
+let userType:string = ''
+
 export function userName(): string {
   return nameStr
 }
@@ -45,6 +47,10 @@ export function getLoginClick(): boolean {
 }
 export function getRoomName(): string {
   return _roomName
+}
+
+export function getUserType(): string {
+  return userType
 }
 
 
@@ -229,10 +235,14 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
     if (save) {
         if (participants.local.information.name !== name) {
+          userType = "N"
           nameStr = name
           participants.local.information.name = name
+          participants.local.information.randomAvatar = []
           participants.local.sendInformation()
           participants.local.saveInformationToStorage(true)
+        } else {
+          userType = "O"
         }
         if( room === "") {
           //console.log(room, " ---- ")
@@ -511,7 +521,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     </DialogContent> */}
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
     {/* <DialogContent style={{overflowY: 'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em'}}> */}
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 1.8.7</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 1.8.8</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

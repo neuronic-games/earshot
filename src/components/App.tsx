@@ -19,7 +19,7 @@ import {Map} from './map/map'
 import {Stores} from './utils'
 import {styleCommon/* , styleForSplit */} from './utils/styles'
 import logo_es from '@images/logo.png'
-import { getLoginClick} from './error/TheEntrance' // getRoomName
+import { getLoginClick, getUserType} from './error/TheEntrance' // getRoomName
 
 /* import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'; */
 /* import iconCollapse from '@images/earshot_icon_btn_collapse.png' */
@@ -31,6 +31,7 @@ import tabChatActive from '@images/earshot_icon_btn-chat.png'
 
 import tabContent from '@images/earshot_icon_btn-note.png'
 import tabContentActive from '@images/earshot_icon_btn-note.png'
+import { toPng } from 'html-to-image'
 
 
 let _able:Boolean = false
@@ -42,6 +43,15 @@ let _menuType:string = ''
 export function getSelectedMenuType() :string {
   return _menuType
 }
+
+//let selectedImage:string = ''
+let selectedGroup = ''
+let selectedSkin = ''
+let selectedHairColor = ''
+let selectedHair = ''
+let selectedHairBack = ''
+let selectedOutfits = ''
+let selectedSpecs = ''
 
 
 export const App: React.FC<{}> = () => {
@@ -63,6 +73,17 @@ export const App: React.FC<{}> = () => {
   const [menuType, setMenuType] = useState('chat')
 
   //console.log(showIntro, " showIntro")
+  const [activeOutfit, setActiveOutfit] = useState(-1)
+  const [activeSpecs, setActiveSpecs] = useState(-1)
+
+  const [activeSkin, setActiveSkin] = useState(-1)
+  const [activeHair, setActiveHair] = useState(-1)
+  const [activeGroup, setActiveGroup] = useState(-1)
+
+  const [activeFrontHair, setActiveFrontHair] = useState(-1)
+  const [activeBackHair, setActiveBackHair] = useState(-1)
+  // For Saving data
+  const refAvatar = useRef<HTMLDivElement>(null)
 
 
   // to display image and desc
@@ -84,16 +105,228 @@ export const App: React.FC<{}> = () => {
   _able = able
   _menuType = menuType
 
+  ////////////////////////////////////////////////////////////
+  const [data,setData] = useState('');
+  const getData=()=>{
+    fetch('folderlist.php?folder=avatar_tool/*/*.png')
+      .then((response) => response.text())
+      .then((response) => setData(response));
+    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_x_b.png,avatar_tool/Hair/es_hair_0_x_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
+    setData(dataStr) */
+  }
+  ////////////////////////////////////////////////////////////
   //console.log("CALLLEEEED- ", loginStatus)
   useEffect(() => {
     //console.log("CALLLEEEED- ", getLoginClick())
+    getData()
+
     if(getLoginClick() || loginStatus) {
       //console.log(sessionStorage.getItem("room"), " roomname")
+      //console.log("Show User random avatar - ", data)
+      //console.log("BBBB --- ", stores.participants.local.information.name, " ---- ", getUserType())
+      if(getUserType() === "N" && activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
+        onGenerateRandomAvatar()
+        const genImage = setTimeout(() => {
+          clearTimeout(genImage)
+          onGenImageForNewUser()
+        }, 50)
+      }
+
       setTimeout(function() {
         setShowIntro(false)
       }, 5000)
     }
   })
+
+
+  function onGenImageForNewUser() {
+    if (refAvatar.current === null) {
+      return
+    }
+    toPng(refAvatar.current, { cacheBust: true, })
+      .then((dataUrl) => {
+      ////////////////////////////////////////////////////
+      var formData = new FormData();
+      formData.append('imgData', dataUrl);
+      fetch('saveAvatarImage.php',
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
+        .then((response) => response.text())
+        .then((response) => updateUserAvatar(response));
+      ////////////////////////////////////////////////////
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+
+  function updateUserAvatar(_path:string) {
+    stores.participants.local.information.avatarSrc = _path
+
+    // Storing values to localstorage
+    stores.participants.local.information.randomAvatar = [selectedSkin, selectedHairColor, selectedGroup, selectedHair, selectedOutfits, selectedSpecs]
+
+    stores.participants.local.sendInformation()
+    stores.participants.local.saveInformationToStorage(true)
+
+  }
+
+  function generateRandomNumber(min:number, max:number) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
+
+
+  function onGenerateRandomAvatar() {
+
+    //////////////////////////////////////////////////////////////////////////////
+
+  //console.log(data, " data")
+  // format accordingly to folder name
+  const folders : Array<string> = []
+  const images : Array<string> = []
+  let tempArr : string = ''
+  let dataFolderWise = data.split(',')
+
+  for (let i=0; i<dataFolderWise.length-1; i++) {
+      if(folders.indexOf(dataFolderWise[i].split('/')[1]) === -1 && dataFolderWise[i].split('/')[1] !== undefined) {
+        folders.push(dataFolderWise[i].split('/')[1])
+      }
+
+    }
+    for (var j=0; j < folders.length; j++) {
+      for (let i=0; i<dataFolderWise.length-1; i++) {
+      if(folders[j] === dataFolderWise[i].split('/')[1]) {
+        tempArr += (dataFolderWise[i]) + ','
+      }
+    }
+    images.push(tempArr)
+    tempArr = ''
+  }
+  ////////////////////////////////////////////////////////////////////////////
+    // For Group, Skin and Hair Color setting
+    let randGroupIndex = generateRandomNumber(0,6)
+    let randSkinIndex = generateRandomNumber(15, 20)
+    let randHairColorIndex = generateRandomNumber(8, 14)
+    let imgArr = images[0].split(',')
+
+    //console.log(randHairColorIndex)
+
+    //if(pageIndex === 0) {
+      if(randGroupIndex < 7) {
+        selectedGroup = imgArr[randGroupIndex]
+        if(activeGroup !== randGroupIndex) {
+          setActiveGroup(randGroupIndex)
+        }
+      }
+    //}
+    if(randHairColorIndex >= 7 && randHairColorIndex < 15) {
+      selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]
+      if(activeHair !== randHairColorIndex) {
+        setActiveHair(randHairColorIndex)
+      }
+    }
+    if(randSkinIndex >= 15 && randSkinIndex < 20) {
+      selectedSkin = imgArr[randSkinIndex]
+      if(activeSkin !== randSkinIndex) {
+        setActiveSkin(randSkinIndex)
+      }
+    }
+  //}
+
+    // Setting Hairs [ Front , Back ]
+    let imgHairArr = images[1].split(',')
+    let frontHairs : Array<string> = []
+    let frontHairIndex : Array<number> = []
+    let backHairs : Array<string> = []
+    let backHairIndex : Array<number> = []
+    frontHairs.splice(0)
+    frontHairIndex.splice(0)
+    backHairs.splice(0)
+    backHairIndex.splice(0)
+    for (let i:number = 0; i < imgHairArr.length - 1; i++) {
+      //console.log(selectedHairColor.split('_')[1], " ---- ", imgHairArr[i].split("_")[4])
+      //if(imgHairArr[i].indexOf(selectedHairColor) !== -1) {
+
+        //console.log(selectedHairColor.split('_')[1], " --- ", selectedHairColor)
+
+        if(imgHairArr.indexOf(selectedHairColor.split('_')[1] + '_' + imgHairArr[i].split("_")[4]) === -1) {
+        if((selectedHairColor.split("_")[1] === imgHairArr[i].split("_")[4])) {
+          let hairType = imgHairArr[i].split('/')[2].split('.')[0].split('_')[4]
+          if(hairType === 'f') {
+            frontHairs.push(imgHairArr[i])
+            frontHairIndex.push(i)
+          } else if(hairType === 'b') {
+            backHairs.push(imgHairArr[i])
+            backHairIndex.push(i)
+          }
+        }
+      }
+    }
+    if(frontHairs.length > 0) {
+      let randFrontHairIndex = generateRandomNumber(0, frontHairs.length-1)
+      selectedHair = frontHairs[randFrontHairIndex]
+      //console.log(frontHairs[randFrontHairIndex])
+      if(activeFrontHair !== frontHairIndex[randFrontHairIndex]) {
+        setActiveFrontHair(frontHairIndex[randFrontHairIndex])
+      }
+      //console.log(frontHairs[randFrontHairIndex].split('/')[2].split('.')[0], " random front")
+      let findBack = imgHairArr.indexOf(String(frontHairs[randFrontHairIndex].split('_f.png')[0] + '_b.png'))
+      //console.log(String(frontHairs[randFrontHairIndex].split('_f.png')[0] + '_b.png'), " BackRandom ", findBack)
+      //console.log(findBack, " findBack")
+      if(findBack !== -1) {
+        selectedHairBack = imgHairArr[findBack]
+        if(activeBackHair !== findBack) {
+          setActiveBackHair(findBack)
+        } else {
+          selectedHairBack = ''
+          setActiveBackHair(-1)
+        }
+      } else {
+        selectedHairBack = ''
+        setActiveBackHair(-1)
+      }
+
+    } else {
+      selectedHair = ''
+      setActiveFrontHair(-1)
+
+      selectedHairBack = ''
+      setActiveBackHair(-1)
+    }
+    /* if(backHairs.length > 0) {
+      let randBackHairIndex = generateRandomNumber(0, backHairs.length-1)
+      selectedHairBack = backHairs[randBackHairIndex]
+      setActiveBackHair(backHairIndex[randBackHairIndex])
+    } else {
+      selectedHairBack = ''
+      setActiveBackHair(-1)
+    } */
+
+    // Setting OutFits
+    let imgOutfitArr = images[2].split(',')
+    let randOutfitIndex = generateRandomNumber(0, imgOutfitArr.length-2)
+    selectedOutfits = imgOutfitArr[randOutfitIndex]
+    if(activeOutfit !== randOutfitIndex) {
+      setActiveOutfit(randOutfitIndex)
+    }
+
+    // Setting Specs
+    let imgSpecsArr = images[3].split(',')
+    let randSpecsIndex = generateRandomNumber(0, imgSpecsArr.length-2)
+    selectedSpecs = imgSpecsArr[randSpecsIndex]
+    if(activeSpecs !== randSpecsIndex) {
+      setActiveSpecs(randSpecsIndex)
+    }
+  }
+
+
+
+
+
 
   // For toggle right panel that has users/contents/chat
   window.addEventListener('keydown', (ev) => {
@@ -204,7 +437,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.8.7</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.8.8</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
@@ -220,6 +453,31 @@ export const App: React.FC<{}> = () => {
         <img style={{width:isSmartphone() ? '18em' : '8em', position:'relative', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
         </div>
         </div>
+
+
+        <div ref={refAvatar} style={{position:'relative', width:'130px', height:'130px', maxWidth:'130px', zIndex:-999}}>
+          <div style={{position:'absolute', top:'0px', left:'0px'}}>
+            <img style={{display: selectedGroup !== '' ? 'block' : 'none'}} src={selectedGroup} width={'130px'} height={'130px'} draggable={false} alt='' />
+          </div>
+          <div style={{position:'absolute', top:'0px', left:'0px'}}>
+            <img style={{display: selectedHairBack !== '' ? 'block' : 'none'}} src={selectedHairBack} width={'130px'} height={'130px'} draggable={false} alt='' />
+          </div>
+          <div style={{position:'absolute', top:'0px', left:'0px'}}>
+            <img style={{display: selectedSkin !== '' ? 'block' : 'none'}} src={selectedSkin} width={'130px'} height={'130px'}  draggable={false} alt='' />
+          </div>
+          <div style={{position:'absolute', top:'0px', left:'0px'}}>
+            <img style={{display: selectedHair !== '' ? 'block' : 'none'}} src={selectedHair} width={'130px'} height={'130px'}  draggable={false}alt='' />
+          </div>
+          <div style={{position:'absolute', top:'-3px', left:'0px'}}>
+            <img style={{display: selectedOutfits !== '' ? 'block' : 'none'}} src={selectedOutfits} width={'130px'} height={'130px'} draggable={false} alt='' />
+          </div>
+          <div style={{position:'absolute', top:'0px', left:'0px'}}>
+            <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} draggable={false} alt='' />
+          </div>
+        </div>
+
+
+
       </div>
   }}</Observer>
 }

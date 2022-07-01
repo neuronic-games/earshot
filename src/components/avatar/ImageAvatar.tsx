@@ -17,26 +17,25 @@ function avatarCommon(props: ImageAvatarProps){
   const style = {
     width: props.size,
     height: props.size,
-    color:props.colors[1],
-    backgroundColor:props.colors[0],
+    color: '', //props.colors[1],
+    backgroundColor: '', //props.colors[0],
     pointerEvents: 'none' as Property.PointerEvents,
     userDrag: 'none',
     fontSize: props.size * 0.3,
     display:'inline-block',
   }
-
   return style
 }
-const BORDER_WIDTH = 0.04
+const BORDER_WIDTH = 0 //0.04
 const BORDER_CONTENT = 1 - BORDER_WIDTH*2
 
 function addBoarder(style:Object, props:ImageAvatarProps){
   const border = {
-    width: props.size * BORDER_CONTENT,
-    height: props.size * BORDER_CONTENT,
+    width: props.size,// * BORDER_CONTENT,
+    height: props.size,// * BORDER_CONTENT,
     borderStyle: 'solid',
-    borderWidth: props.size * BORDER_WIDTH,
-    borderColor: props.colors[0],
+    borderWidth: 0, //props.size,// * BORDER_WIDTH,
+    borderColor: '', //props.colors[0],
   }
 
   return Object.assign(style, border)
