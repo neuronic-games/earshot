@@ -1334,7 +1334,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   function onGenerateRandomAvatar() {
     // For Group, Skin and Hair Color setting
-    let randGroupIndex = generateRandomNumber(0,6)
+    //let randGroupIndex = generateRandomNumber(0,6)
+
     let randSkinIndex = generateRandomNumber(15, 20)
     let randHairColorIndex = generateRandomNumber(8, 14)
     let imgArr = images[0].split(',')
@@ -1342,12 +1343,16 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
     //console.log(randHairColorIndex)
 
     //if(pageIndex === 0) {
-      if(randGroupIndex < 7) {
+
+/////////////////////////////////
+      /* if(randGroupIndex < 7) {
         selectedGroup = imgArr[randGroupIndex]
         if(activeGroup !== randGroupIndex) {
           setActiveGroup(randGroupIndex)
         }
-      }
+      } */
+/////////////////////////////////////
+
     //}
     if(randHairColorIndex >= 7 && randHairColorIndex < 15) {
       selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]

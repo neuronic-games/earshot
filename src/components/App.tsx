@@ -25,12 +25,18 @@ import { getLoginClick, getUserType} from './error/TheEntrance' // getRoomName
 /* import iconCollapse from '@images/earshot_icon_btn_collapse.png' */
 import tabCollapseChat from '@images/earshot_icon_tab.png'
 import tabCollapseContent from '@images/earshot_icon_tab_content.png'
+//import tabCollapseEvents from '@images/earshot_icon_tab_events.png'
 
 import tabChat from '@images/earshot_icon_btn-chat.png'
 import tabChatActive from '@images/earshot_icon_btn-chat.png'
 
 import tabContent from '@images/earshot_icon_btn-note.png'
 import tabContentActive from '@images/earshot_icon_btn-note.png'
+
+//import tabEvents from '@images/earshot_icon_btn_events.png'
+//import tabEventsActive from '@images/earshot_icon_btn_events.png'
+
+
 import { toPng } from 'html-to-image'
 
 
@@ -208,20 +214,21 @@ export const App: React.FC<{}> = () => {
   }
   ////////////////////////////////////////////////////////////////////////////
     // For Group, Skin and Hair Color setting
-    let randGroupIndex = generateRandomNumber(0,6)
+    //let randGroupIndex = generateRandomNumber(0,6)
     let randSkinIndex = generateRandomNumber(15, 20)
     let randHairColorIndex = generateRandomNumber(8, 14)
     let imgArr = images[0].split(',')
+    let randGroupIndex = imgArr.indexOf('avatar_tool/Colors/es_co_group_x.png')
 
-    //console.log(randHairColorIndex)
+    //console.log(randGroupIndex)
 
     //if(pageIndex === 0) {
-      if(randGroupIndex < 7) {
+      //if(randGroupIndex < 7) {
         selectedGroup = imgArr[randGroupIndex]
         if(activeGroup !== randGroupIndex) {
           setActiveGroup(randGroupIndex)
         }
-      }
+      //}
     //}
     if(randHairColorIndex >= 7 && randHairColorIndex < 15) {
       selectedHairColor = imgArr[randHairColorIndex].split('/')[2].split('.')[0].split('co_')[1]
@@ -380,7 +387,7 @@ export const App: React.FC<{}> = () => {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : '#8b5e3c'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : 'orange'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
           minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : "77%"/* "85%" */ : "100%"}>
 
           <Fragment>
@@ -408,6 +415,8 @@ export const App: React.FC<{}> = () => {
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
 
+
+
              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
                 press = true;
@@ -426,6 +435,24 @@ export const App: React.FC<{}> = () => {
               <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
              </div>
 
+             {/* <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+              onClick={() => {
+                press = true;
+                if(able === true) {
+                  if(menuType === 'events') {
+                    setAble(false)
+                  }
+                } else
+                if(able === false) {
+                  setAble(true)
+                }
+                setMenuType('events')
+               }}
+             >
+              <img src={tabCollapseEvents} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '100px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
+              <img src={able ? tabEventsActive : tabEvents} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+             </div> */}
+
 
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -437,13 +464,13 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.8.8</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.8.9</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
           <img src={roomImgPath} style={roomImgPath ? {height: '250px', transform: "scale(1)", opacity:1, transition: 'opacity 300ms, transform: 300ms', userSelect:'none'} : {height: '0px', transform: "scale(0)", opacity:0, transition: '0.3s ease-out', userSelect:'none'}} draggable={false} alt=""/>
           <p style={{textAlign:'center', color: '#cdcdcd', fontSize:isSmartphone() ? '2.8em' : '1em', overflow:'hidden', position:'relative', marginTop:'0.5em', width:'80%', marginLeft:'10%'}}>{roomImgDesc}</p>
-          <img style={{width:isSmartphone() ? '8em' : '4em', backgroundColor:rgb2Color(rgb), borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '20px' : '-15px', userSelect:'none'}} src={stores.participants.local.information.avatarSrc} draggable={false} alt="" />
+          <img style={{width:isSmartphone() ? '8em' : '4em', backgroundColor:'#00000020'/* , backgroundColor:rgb2Color(rgb) */, borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '20px' : '-15px', userSelect:'none'}} src={stores.participants.local.information.avatarSrc} draggable={false} alt="" />
         <p style={{textAlign:'center', color: 'black', marginTop:'0.5em', fontSize:isSmartphone() ? '3em' : '1.2em'}}>{stores.participants.local.information.name}</p>
         <p style={{textAlign:'center', color: 'black', marginTop:'1.5em',fontSize:isSmartphone() ? '3em' : '1.2em'}}>Give your web browser permissions</p>
         <p style={{textAlign:'center', color: 'black', marginTop:'-0.9em',fontSize:isSmartphone() ? '3em' : '1.2em'}}>to access the mic and camera if necessary.</p>
