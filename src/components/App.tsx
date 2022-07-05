@@ -1,6 +1,6 @@
 import {urlParameters} from '@models/url'
 import {isPortrait, isSmartphone} from '@models/utils'
-import { rgb2Color } from '@models/utils'
+/* import { rgb2Color } from '@models/utils' */
 import chatStore from '@stores/Chat'
 import errorInfo from '@stores/ErrorInfo'
 import mapStore from '@stores/Map'
@@ -36,9 +36,15 @@ import tabContentActive from '@images/earshot_icon_btn-note.png'
 //import tabEvents from '@images/earshot_icon_btn_events.png'
 //import tabEventsActive from '@images/earshot_icon_btn_events.png'
 
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 
-import { toPng } from 'html-to-image'
 
+//import { toPng } from 'html-to-image'
+
+import html2canvas from 'html2canvas'
+
+import { Dialog, DialogContent } from '@material-ui/core'
 
 let _able:Boolean = false
 export function getAbleStatus():Boolean {
@@ -88,6 +94,13 @@ export const App: React.FC<{}> = () => {
 
   const [activeFrontHair, setActiveFrontHair] = useState(-1)
   const [activeBackHair, setActiveBackHair] = useState(-1)
+
+
+  // help ui
+  const [showHelp, setShowHelp] = useState(false)
+
+
+
   // For Saving data
   const refAvatar = useRef<HTMLDivElement>(null)
 
@@ -102,7 +115,9 @@ export const App: React.FC<{}> = () => {
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgDesc = content.contentDesc
   ))
-  const rgb = stores.participants.local.getColorRGB()
+
+  /* const rgb = stores.participants.local.getColorRGB() */
+
   let press = false
   const loginStatus = useObserver(() => stores.participants.localId)
 
@@ -113,24 +128,51 @@ export const App: React.FC<{}> = () => {
 
   ////////////////////////////////////////////////////////////
   const [data,setData] = useState('');
+  const [uiData, setUIData] = useState('')
   const getData=()=>{
     fetch('folderlist.php?folder=avatar_tool/*/*.png')
       .then((response) => response.text())
       .then((response) => setData(response));
     /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_x_b.png,avatar_tool/Hair/es_hair_0_x_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
     setData(dataStr) */
+
+    /* let uiDataStr = "help/help_0.png,help/help_1.png,help/help_2.png,"
+    setUIData(uiDataStr) */
   }
+
+  const getUIData=()=>{
+    fetch('folderlist.php?folder=ui/*.png')
+      .then((response) => response.text())
+      .then((response) => setUIData(response));
+
+   /*  let uiDataStr = "ui/help_0.png,ui/help_1.png,ui/help_2.png,"
+    setUIData(uiDataStr) */
+  }
+
+
   ////////////////////////////////////////////////////////////
   //console.log("CALLLEEEED- ", loginStatus)
+  let sliderData: Array<string> = []
+  let sliderDots: Array<string> = []
+  if(uiData !== '') {
+    sliderData = uiData.split(',')
+    sliderDots = uiData.split(',')
+    sliderDots.pop()
+  }
+
   useEffect(() => {
     //console.log("CALLLEEEED- ", getLoginClick())
     getData()
+    getUIData()
+
 
     if(getLoginClick() || loginStatus) {
       //console.log(sessionStorage.getItem("room"), " roomname")
       //console.log("Show User random avatar - ", data)
       //console.log("BBBB --- ", stores.participants.local.information.name, " ---- ", getUserType())
+
       if(getUserType() === "N" && activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
+      //if(activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
         onGenerateRandomAvatar()
         const genImage = setTimeout(() => {
           clearTimeout(genImage)
@@ -138,20 +180,51 @@ export const App: React.FC<{}> = () => {
         }, 50)
       }
 
-      setTimeout(function() {
+      const introTimer = setTimeout(() => {
+        clearTimeout(introTimer)
         setShowIntro(false)
+
+        if(getUserType() === "N" && activeSkin === -1) {
+          setShowHelp(true)
+        }
+
       }, 5000)
     }
   })
 
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const slidesLength = sliderData.length-1
+
+  if(!Array.isArray(sliderData) || sliderData.length <= 0) {
+    return null
+  }
 
   function onGenImageForNewUser() {
     if (refAvatar.current === null) {
       return
     }
-    toPng(refAvatar.current, { cacheBust: true, })
+
+    html2canvas(refAvatar.current, { allowTaint: true }).then(function(canvas:any) {
+      var formData = new FormData();
+      formData.append('imgData', canvas.toDataURL());
+      fetch('saveAvatarImage.php',
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
+        .then((response) => response.text())
+        .then((response) => updateUserAvatar(response));
+      ////////////////////////////////////////////////////
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
+    /* toPng(refAvatar.current, { cacheBust: true, })
       .then((dataUrl) => {
       ////////////////////////////////////////////////////
+      console.log(dataUrl, " DATA")
       var formData = new FormData();
       formData.append('imgData', dataUrl);
       fetch('saveAvatarImage.php',
@@ -166,7 +239,7 @@ export const App: React.FC<{}> = () => {
     })
     .catch((err) => {
       console.log(err)
-    })
+    }) */
   }
 
 
@@ -331,8 +404,15 @@ export const App: React.FC<{}> = () => {
   }
 
 
+  function onPrevClick() {
+    //console.log("prev click")
+    setCurrentSlide(currentSlide === 0 ? slidesLength-1 : currentSlide - 1)
+  }
 
-
+  function onNextClick() {
+    //console.log("next click")
+    setCurrentSlide(currentSlide === slidesLength-1 ? 0 : currentSlide + 1)
+  }
 
 
   // For toggle right panel that has users/contents/chat
@@ -464,7 +544,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.8.9</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.0</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
@@ -504,7 +584,64 @@ export const App: React.FC<{}> = () => {
         </div>
 
 
+        {/* Showing slideshow for new user */}
+        <Dialog open={showHelp} onClose={() => setShowHelp(false)} onExited={() => setShowHelp(false)}
+        keepMounted
+        PaperProps={{
+          style: {
+            backgroundColor: 'white',
+            position:'relative',
+            /* boxShadow: 'none', */
+            overflow:'hidden',
+            borderRadius: '20px',
+            width: 300,
+            height: 350,
+            zIndex: 0,
+            left: '250px',
+            transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogContent style={{overflow:'hidden'}}>
+          <div>
+            <div style={{position:'relative', left:'0px'}}>
+              <>
+              {
+                sliderData.map((slide, index) => {
+                  return (
+                    <div className={index === currentSlide ? classes.activeSlide : classes.slide} key={index}>
+                      {index === currentSlide && (
+                         <img src={slide} width={'250px'} height={'250px'} alt='' />
+                      )}
 
+                    </div>
+                  )
+                })
+              }
+              </>
+            </div>
+            <div style={{width:'100%', height:'1px', backgroundColor:'lightgrey', position:'relative', top:'5px'}}></div>
+            <div style={{display:'flex', position:'relative', top:'15px', width:'100%'}}>
+              <div onClick={() => onPrevClick()}>
+                <ArrowBackIosIcon className={classes.previous}  />
+              </div>
+              <div onClick={() => onNextClick()}>
+                <ArrowForwardIosIcon className={classes.next} />
+              </div>
+              <div style={{display:'flex', width:'80%', justifyContent:'center', position:'relative', top:'15px', left:'10%'}}>
+              {
+                sliderDots.map((slide, index) => {
+                  return (
+                    <div style={{position:'relative', width:'12px', height:'12px', borderRadius:'50%', backgroundColor: index === currentSlide ? 'green' : 'lightgray', alignItems:'center', margin:'3px'}} />
+                  )
+                })
+              }
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       </div>
   }}</Observer>
 }

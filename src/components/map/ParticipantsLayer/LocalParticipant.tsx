@@ -30,8 +30,8 @@ import MoreIcon from '@images/whoo-screen_btn-more.png'
 import AvatarGenIcon from '@images/earshot_icon_edit_avatar.png'
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
-//import html2canvas from 'html2canvas'
-import { toPng } from 'html-to-image'
+import html2canvas from 'html2canvas'
+//import { toPng } from 'html-to-image'
 
 
 const theme = createMuiTheme({
@@ -342,6 +342,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   }
 
   function updateUserAvatar(_path:string) {
+
+    if(participant.information.avatarSrc === _path) {return}
+
     participant.information.avatarSrc = _path
 
     // Storing values to localstorage
@@ -1280,17 +1283,28 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       return
     }
 
-    toPng(refAvatar.current, { cacheBust: true, })
+    /* toPng(refAvatar.current, { cacheBust: true, })
       .then((dataUrl) => {
-        //let fileName = "avatar_" + Math.floor((new Date()).getTime() / 1000)
-        /* const link = document.createElement('a')
-        link.download = fileName + '.png'
-        link.href = dataUrl
-        link.click() */
-
         ////////////////////////////////////////////////////
         var formData = new FormData();
         formData.append('imgData', dataUrl);
+        fetch('saveAvatarImage.php',
+          {
+            method: 'POST',
+            body: formData
+          }
+        )
+          .then((response) => response.text())
+          .then((response) => updateUserAvatar(response));
+        ////////////////////////////////////////////////////
+      })
+      .catch((err) => {
+        console.log(err)
+      }) */
+
+      html2canvas(refAvatar.current, { allowTaint: true }).then(function(canvas:any) {
+        var formData = new FormData();
+        formData.append('imgData', canvas.toDataURL());
         fetch('saveAvatarImage.php',
           {
             method: 'POST',

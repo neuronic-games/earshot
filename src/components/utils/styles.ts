@@ -1,6 +1,19 @@
 
 import {makeStyles} from '@material-ui/core/styles'
 
+
+const buttonStyle = {
+  '&': {
+    color:'lightgrey',
+  },
+  '&:hover': {
+    color:'lightgreen',
+  },
+  '&:active': {
+    color:'lightgreen',
+  },
+}
+
 export const styleCommon = makeStyles({
   back:{
     position: 'absolute',
@@ -17,7 +30,38 @@ export const styleCommon = makeStyles({
     top: 0,
     left: 0,
   },
+
+  previous : {
+    width:'50px',
+    height:'50px',
+    position:'absolute',
+    left:'0px',
+    color:'lightgrey',
+    cursor:'default',
+    ...buttonStyle,
+  },
+
+  next : {
+    width:'50px',
+    height:'50px',
+    position:'absolute',
+    right:'-12px',
+    color:'lightgrey',
+    ...buttonStyle,
+  },
+
+  activeSlide : {
+    opacity: 1,
+    transition: 'opacity 1000ms',
+  },
+
+  slide: {
+    opacity: 0,
+    transition: 'opacity1000ms',
+  }
 })
+
+
 
 export const styleForSplit = makeStyles({
   resizerVertical: {
