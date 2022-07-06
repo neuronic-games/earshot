@@ -542,7 +542,8 @@ function comparer(otherArray:string[]){
         <div className={show ? classes.menuActiveTop : classes.menuTop}>
           <FabMain size={fabSize} style={{width: '43%', float: 'left'}}
             onClick = { () => {
-              window.open('https://www.earshot.chat/meet/', '_self')
+              //window.open('https://www.earshot.chat/meet/', '_self')
+              window.open('/', '_self')
             }}>
               <div className={classes.more}>
                 <img src={ExitAppIcon} style={{width:60, height:60, position:'relative', top:isSmartphone() ? '17px' : '0px', left:'-5px', transform: isSmartphone() ? 'scale(2)' : 'scale(1)'}} alt=""/>

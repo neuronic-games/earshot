@@ -43,8 +43,9 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 //import { toPng } from 'html-to-image'
 
 import html2canvas from 'html2canvas'
-
 import { Dialog, DialogContent } from '@material-ui/core'
+
+declare const config:any             //  from ../../config.js included from index.html
 
 let _able:Boolean = false
 export function getAbleStatus():Boolean {
@@ -126,6 +127,9 @@ export const App: React.FC<{}> = () => {
   _able = able
   _menuType = menuType
 
+
+  ////////////////////////////////////////////////////////////
+  console.log(config.apps[0].name, " >>> ")
   ////////////////////////////////////////////////////////////
   const [data,setData] = useState('');
   const [uiData, setUIData] = useState('')
@@ -133,7 +137,7 @@ export const App: React.FC<{}> = () => {
     fetch('folderlist.php?folder=avatar_tool/*/*.png')
       .then((response) => response.text())
       .then((response) => setData(response));
-    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_x_b.png,avatar_tool/Hair/es_hair_0_x_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,"
+    /* let dataStr = "avatar_tool/Colors/es_co_group_0.png,avatar_tool/Colors/es_co_group_1.png,avatar_tool/Colors/es_co_group_2.png,avatar_tool/Colors/es_co_group_3.png,avatar_tool/Colors/es_co_group_4.png,avatar_tool/Colors/es_co_group_5.png,avatar_tool/Colors/es_co_group_6.png,avatar_tool/Colors/es_co_group_x.png,avatar_tool/Colors/es_co_hair_0.png,avatar_tool/Colors/es_co_hair_1.png,avatar_tool/Colors/es_co_hair_2.png,avatar_tool/Colors/es_co_hair_3.png,avatar_tool/Colors/es_co_hair_4.png,avatar_tool/Colors/es_co_hair_5.png,avatar_tool/Colors/es_co_hair_6.png,avatar_tool/Colors/es_co_skin_0.png,avatar_tool/Colors/es_co_skin_1.png,avatar_tool/Colors/es_co_skin_2.png,avatar_tool/Colors/es_co_skin_3.png,avatar_tool/Colors/es_co_skin_4.png,avatar_tool/Colors/es_co_skin_5_x.png,avatar_tool/Colors/es_co_skin_6_x.png,avatar_tool/Hair/avatars_hair_5_0_f.png,avatar_tool/Hair/avatars_hair_5_1_f.png,avatar_tool/Hair/avatars_hair_5_2_f.png,avatar_tool/Hair/avatars_hair_5_3_f.png,avatar_tool/Hair/avatars_hair_5_4_f.png,avatar_tool/Hair/avatars_hair_5_5_f.png,avatar_tool/Hair/avatars_hair_5_6_f.png,avatar_tool/Hair/es_hair_0_0_f.png,avatar_tool/Hair/es_hair_0_1_f.png,avatar_tool/Hair/es_hair_0_2_f.png,avatar_tool/Hair/es_hair_0_3_f.png,avatar_tool/Hair/es_hair_0_4_f.png,avatar_tool/Hair/es_hair_0_5_f.png,avatar_tool/Hair/es_hair_0_6_f.png,avatar_tool/Hair/es_hair_0_x_b.png,avatar_tool/Hair/es_hair_0_x_f.png,avatar_tool/Hair/es_hair_1_0_b.png,avatar_tool/Hair/es_hair_1_0_f.png,avatar_tool/Hair/es_hair_1_1_b.png,avatar_tool/Hair/es_hair_1_1_f.png,avatar_tool/Hair/es_hair_1_2_b.png,avatar_tool/Hair/es_hair_1_2_f.png,avatar_tool/Hair/es_hair_1_3_b.png,avatar_tool/Hair/es_hair_1_3_f.png,avatar_tool/Hair/es_hair_1_4_b.png,avatar_tool/Hair/es_hair_1_4_f.png,avatar_tool/Hair/es_hair_1_5_b.png,avatar_tool/Hair/es_hair_1_5_f.png,avatar_tool/Hair/es_hair_1_6_b.png,avatar_tool/Hair/es_hair_1_6_f.png,avatar_tool/Hair/es_hair_2_0_f.png,avatar_tool/Hair/es_hair_2_1_f.png,avatar_tool/Hair/es_hair_2_2_f.png,avatar_tool/Hair/es_hair_2_3_f.png,avatar_tool/Hair/es_hair_2_4_f.png,avatar_tool/Hair/es_hair_2_5_f.png,avatar_tool/Hair/es_hair_2_6_f.png,avatar_tool/Hair/es_hair_3_0_f.png,avatar_tool/Hair/es_hair_3_1_f.png,avatar_tool/Hair/es_hair_3_2_f.png,avatar_tool/Hair/es_hair_3_3_f.png,avatar_tool/Hair/es_hair_3_4_f.png,avatar_tool/Hair/es_hair_3_5_f.png,avatar_tool/Hair/es_hair_3_6_f.png,avatar_tool/Hair/es_hair_4_0_f.png,avatar_tool/Hair/es_hair_4_1_f.png,avatar_tool/Hair/es_hair_4_2_f.png,avatar_tool/Hair/es_hair_4_3_f.png,avatar_tool/Hair/es_hair_4_4_f.png,avatar_tool/Hair/es_hair_4_5_f.png,avatar_tool/Hair/es_hair_4_6_f.png,avatar_tool/Outfits/es_outfit_0.png,avatar_tool/Outfits/es_outfit_1.png,avatar_tool/Outfits/es_outfit_2.png,avatar_tool/Outfits/es_outfit_3.png,avatar_tool/Outfits/es_outfit_4.png,avatar_tool/Outfits/es_outfit_5.png,avatar_tool/Outfits/es_outfit_6.png,avatar_tool/Specs/es_specs_0.png,avatar_tool/Specs/es_specs_1.png,avatar_tool/Specs/es_specs_2.png,"
     setData(dataStr) */
 
     /* let uiDataStr = "help/help_0.png,help/help_1.png,help/help_2.png,"
@@ -467,8 +471,8 @@ export const App: React.FC<{}> = () => {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : 'orange'/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
-          minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : "77%"/* "85%" */ : "100%"}>
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : config.apps[0].containerColor/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+          minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : (_menuType === 'events') ? "73%" : "77%"/* "85%" */ : "100%"}>
 
           <Fragment>
             <MainScreen showAllTracks = {DEBUG_VIDEO} stores={stores} />
@@ -491,7 +495,7 @@ export const App: React.FC<{}> = () => {
                 setMenuType('chat')
                }}
              >
-               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 9 : 8}} draggable={false} alt='' />
+               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 9 : 8}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
 
@@ -511,7 +515,7 @@ export const App: React.FC<{}> = () => {
                 setMenuType('content')
                }}
              >
-              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 9 : 8}} draggable={false} alt='' />
+              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 9 : 8}} draggable={false} alt='' />
               <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
              </div>
 
@@ -533,6 +537,28 @@ export const App: React.FC<{}> = () => {
               <img src={able ? tabEventsActive : tabEvents} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div> */}
 
+             <>
+             {config.apps[0].enabled === 'true' ?
+            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+              onClick={() => {
+                press = true;
+                if(able === true) {
+                  if(menuType === 'events') {
+                    setAble(false)
+                  }
+                } else
+                if(able === false) {
+                  setAble(true)
+                }
+                setMenuType('events')
+               }}
+             >
+              <img src={config.apps[0].tabImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '99px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
+              <img src={config.apps[0].tabIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+             </div>
+             : '' }
+             </>
+
 
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -544,7 +570,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.0</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.2</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

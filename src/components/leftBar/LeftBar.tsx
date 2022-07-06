@@ -11,6 +11,8 @@ import { getAbleStatus } from '@components/App'
 import { getSelectedMenuType } from '@components/App'
 import { useObserver } from 'mobx-react-lite'
 
+declare const config:any             //  from ../../config.js included from index.html
+
 export interface TextLineStyle {
   lineHeight: number
   fontSize: number
@@ -82,10 +84,15 @@ export const LeftBar: React.FC<BMProps> = (props) => {
         {/* </SplitPane > */}
         <ChatInBar {...props}  {...textLineStyle} />
       </SplitPane >
-      :
+      : (_menuSelected === 'content') ?
       <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
           <ContentList {...props}  {...textLineStyle} />
+      </SplitPane >
+      :
+      <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
+        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
+          <iframe src= {config.apps[0].url} title={config.apps[0].name} allowTransparency={true} frameBorder={0} style={{width:'100%'}}></iframe>
       </SplitPane > }
     </div>
   )

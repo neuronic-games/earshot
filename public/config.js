@@ -71,6 +71,20 @@ const config_binaural = {
   //bmRelayServer: 'ws://localhost:8443',
   //roomInfoServer: 'ws://localhost:7443',
   //corsProxyUrl: 'http://localhost:7020',
+
+  // Define all the apps that needs to be used in the app
+  apps:
+    [
+      {
+        name: 'earshot_events',
+        tabImage: 'apps/events/earshot_icon_tab_events_new.png',
+        tabIcon: 'apps/events/earshot_icon_btn_events.png',
+        containerColor: '#F7941D',
+        enabled: 'true',
+        url: 'https://fladdicts.com/meet/earshot__events/index.html?id=zddor7uagzib8&date=06/11/2022&sheet=EarShot',
+      },
+    ]
+
 }
 Object.assign(config_binaural, Object.assign(common_config, config_binaural))
 
