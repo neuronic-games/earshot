@@ -81,7 +81,7 @@ const config_binaural = {
         tabIcon: 'apps/events/earshot_icon_btn_events.png',
         containerColor: '#F7941D',
         enabled: 'true',
-        url: 'https://fladdicts.com/meet/earshot__events/index.html?id=zddor7uagzib8&date=06/11/2022&sheet=EarShot',
+        url: 'https://fladdicts.com/meet/earshot__events/?id=zddor7uagzib8&date=06/11/2022&sheet=EarShot',
       },
     ]
 

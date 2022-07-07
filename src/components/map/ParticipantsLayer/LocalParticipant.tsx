@@ -344,6 +344,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   function updateUserAvatar(_path:string) {
 
     if(participant.information.avatarSrc === _path) {return}
+    if(activeSkin === -1) {return}
 
     participant.information.avatarSrc = _path
 

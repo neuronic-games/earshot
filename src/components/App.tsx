@@ -145,11 +145,11 @@ export const App: React.FC<{}> = () => {
   }
 
   const getUIData=()=>{
-    fetch('folderlist.php?folder=ui/*.png')
+    fetch('folderlist.php?folder=ui/help/*.png')
       .then((response) => response.text())
       .then((response) => setUIData(response));
 
-   /*  let uiDataStr = "ui/help_0.png,ui/help_1.png,ui/help_2.png,"
+    /* let uiDataStr = "ui/help/help_0.png,ui/help/help_1.png,ui/help/help_2.png,"
     setUIData(uiDataStr) */
   }
 
@@ -570,7 +570,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.2</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.3</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
