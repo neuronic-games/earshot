@@ -222,15 +222,20 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
     //Array.from(contents.roomContentsInfo.size ? contents.roomContentsInfo.values() : contents.all)
     Array.from(contents.all)
     all.sort((a,b) => {
-      let rv = a.name.localeCompare(b.name)
-      if (rv === 0){ rv = a.ownerName.localeCompare(b.ownerName) }
-      if (rv === 0){ rv = a.type.localeCompare(b.type) }
-      if (rv === 0){ rv = a.id.localeCompare(b.id) }
-      return rv
+        let rv = a.name.localeCompare(b.name)
+        if (rv === 0){ rv = a.ownerName.localeCompare(b.ownerName) }
+        if (rv === 0){ rv = a.type.localeCompare(b.type) }
+        if (rv === 0){ rv = a.id.localeCompare(b.id) }
+        return rv
     })
     return all
   })
 
+
+  /* let contentLength = 0
+  all.filter(item => item.shareType === "appimg").map((content, index) => (
+    content.shareType === 'appimg' ? contentLength = index-1 : 0
+  )) */
 
 
   const editing = useObserver(() => contents.editing)
@@ -238,9 +243,10 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
   const participants = useObserver(() => props.stores.participants)
 
   const elements = all.map(c =>
+    c.shareType !== 'appimg' ?
     <ContentLine key={c.id} content = {c} {...props} ap={participants}
       participant={participants.find(contents.owner.get(c.id) as string) as ParticipantBase}
-       />)
+       /> : <></>)
   const {t} = useTranslation()
 
   /* const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black') */

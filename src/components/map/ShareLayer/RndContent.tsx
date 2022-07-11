@@ -1682,7 +1682,7 @@ const mDeleteTimer = setTimeout(function() {
       }>
 
       {/* <Rnd className={classes.rndCls} enableResizing={isFixed ? resizeDisable : resizeEnable} */}
-      {props.content.shareType !== 'roomimg' ?
+      {(props.content.shareType !== 'roomimg' && props.content.shareType !== 'appimg') ?
         <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : (showHandler ? resizeEnable : resizeDisable)}
         disableDragging={isFixed} ref={rnd}
 

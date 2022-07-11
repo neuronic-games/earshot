@@ -11,7 +11,7 @@ import { getAbleStatus } from '@components/App'
 import { getSelectedMenuType } from '@components/App'
 import { useObserver } from 'mobx-react-lite'
 
-declare const config:any             //  from ../../config.js included from index.html
+//declare const config:any             //  from ../../config.js included from index.html
 
 export interface TextLineStyle {
   lineHeight: number
@@ -37,6 +37,10 @@ const textLineStyle = Object.assign({}, defaultTextLineHeight)
 export const LeftBar: React.FC<BMProps> = (props) => {
   const classes = styleForSplit()
   const [scale, doSetScale] = useState<number>(1)
+
+  const cContent = useObserver(() => props.stores.contents.all)
+
+
   const setScale = (scale:number) => {
     Object.assign(textLineStyle, defaultTextLineHeight)
     textLineStyle.fontSize *= scale
@@ -90,10 +94,19 @@ export const LeftBar: React.FC<BMProps> = (props) => {
           <ContentList {...props}  {...textLineStyle} />
       </SplitPane >
       :
-      <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
-        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
-          <iframe src= {config.apps[0].url} title={config.apps[0].name} allowTransparency={true} frameBorder={0} style={{width:'100%'}}></iframe>
-      </SplitPane > }
+      <>
+      {cContent.filter(item => item.shareType === "appimg").map(content => (
+        (_menuSelected === content.type) ?
+        <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
+          paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
+           {/*  <aside style={{backgroundColor: content.baseColor, width:'100%', height:'100%', overflowY: 'auto', overflowX: 'hidden', minWidth:'280px'}}> */}
+              <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+           {/*  </aside> */}
+        </SplitPane >
+        : <></>
+       ))}
+      </>
+      }
     </div>
   )
 }

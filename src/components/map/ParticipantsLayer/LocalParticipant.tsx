@@ -754,7 +754,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   }
 
   function openAvatarTool(ev:MouseOrTouch) {
-    console.log(participant.information.randomAvatar.length)
+    //console.log(participant.information.randomAvatar.length)
     if(data.length > 0 && participant.information.randomAvatar.length > 0) {
       getNewUserAvatarData()
     }

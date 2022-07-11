@@ -35,6 +35,9 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   stopWatchToggle: false,
   stopWatchReset: false,
   scaleRotateToggle: false,
+  baseImage: '',
+  baseIcon: '',
+  baseColor: '',
 })
 
 export function makeThemContents(them: ISharedContent[]) {
@@ -64,6 +67,9 @@ class SharedContentImp implements ISharedContent {
   stopWatchToggle!: boolean
   stopWatchReset!: boolean
   scaleRotateToggle!: boolean
+  baseImage!: string
+  baseIcon!: string
+  baseColor!:string
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -481,7 +487,7 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
 const extractData = extract<SharedContentData>({
   zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
+  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,baseImage:true,baseIcon:true,baseColor:true,
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -492,7 +498,7 @@ export function extractContentDatas(cs:ISharedContent[]) {
 const extractDataAndId = extract<SharedContentData&SharedContentId>({
   zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,baseImage:true,baseIcon:true,baseColor:true
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)

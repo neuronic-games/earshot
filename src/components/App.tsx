@@ -45,7 +45,7 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import html2canvas from 'html2canvas'
 import { Dialog, DialogContent } from '@material-ui/core'
 
-declare const config:any             //  from ../../config.js included from index.html
+//declare const config:any             //  from ../../config.js included from index.html
 
 let _able:Boolean = false
 export function getAbleStatus():Boolean {
@@ -109,12 +109,22 @@ export const App: React.FC<{}> = () => {
   // to display image and desc
   let roomImgPath:string = ""
   let roomImgDesc:string = ""
+  let activeBgColor:string = ""
   const cContent = useObserver(() => stores.contents.all)
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgPath = content.url
   ))
+
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgDesc = content.contentDesc
+  ))
+
+  // For Apps section [Room based loading directly from JSON file]
+  cContent.filter(item => item.shareType === "appimg").map((content, index) => (
+    //console.log(content, " TYPE ", index)
+    //content.type === menuType ? content.
+    //console.log(menuType, " -------------- ", content.type)
+    menuType === content.type ? activeBgColor = content.baseColor : ''
   ))
 
   /* const rgb = stores.participants.local.getColorRGB() */
@@ -128,8 +138,14 @@ export const App: React.FC<{}> = () => {
   _menuType = menuType
 
 
+  let tabBGTopBGWeb:number = 100 //98 //98
+  let tabBGTopBGMob:number = 242 //238
+
+  let tabBGTopIconWeb:number = 102 //104 //102
+  let tabBGTopIconMob:number = 255 //241
+
   ////////////////////////////////////////////////////////////
-  console.log(config.apps[0].name, " >>> ")
+  //console.log(config.apps[0].name, " >>> ")
   ////////////////////////////////////////////////////////////
   const [data,setData] = useState('');
   const [uiData, setUIData] = useState('')
@@ -471,8 +487,11 @@ export const App: React.FC<{}> = () => {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : config.apps[0].containerColor/* '#5f7ca020' */, boxShadow: '3px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
-          minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : (_menuType === 'events') ? "73%" : "77%"/* "85%" */ : "100%"}>
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : activeBgColor
+
+
+        /* '#5f7ca020' */, boxShadow: '5px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+          minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : (_menuType !== 'chat' && _menuType !== 'content') ? "73%" : "77%"/* "85%" */ : "100%"}>
 
           <Fragment>
             <MainScreen showAllTracks = {DEBUG_VIDEO} stores={stores} />
@@ -495,7 +514,7 @@ export const App: React.FC<{}> = () => {
                 setMenuType('chat')
                }}
              >
-               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 9 : 8}} draggable={false} alt='' />
+               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
 
@@ -515,7 +534,7 @@ export const App: React.FC<{}> = () => {
                 setMenuType('content')
                }}
              >
-              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 9 : 8}} draggable={false} alt='' />
+              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : 17}} draggable={false} alt='' />
               <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
              </div>
 
@@ -538,27 +557,27 @@ export const App: React.FC<{}> = () => {
              </div> */}
 
              <>
-             {config.apps[0].enabled === 'true' ?
-            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
-              onClick={() => {
-                press = true;
-                if(able === true) {
-                  if(menuType === 'events') {
-                    setAble(false)
-                  }
-                } else
-                if(able === false) {
-                  setAble(true)
-                }
-                setMenuType('events')
-               }}
-             >
-              <img src={config.apps[0].tabImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '99px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
-              <img src={config.apps[0].tabIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
-             </div>
-             : '' }
-             </>
 
+            { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
+              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+                onClick={() => {
+                  press = true;
+                  if(able === true) {
+                    if(menuType === content.type) {
+                      setAble(false)
+                    }
+                  } else
+                  if(able === false) {
+                    setAble(true)
+                  }
+                  setMenuType(content.type)
+                }}
+              >
+                <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
+                <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*48), left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+              </div>
+             ))}
+             </>
 
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -570,7 +589,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.3</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.4</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
