@@ -7,7 +7,7 @@ import {ChatInBar} from './Chat'
 import {ContentList} from './ContentList'
 import {ParticipantList} from './ParticipantList'
 
-import { getAbleStatus } from '@components/App'
+import { getAbleStatus, getSelectedMenuPos } from '@components/App'
 import { getSelectedMenuType } from '@components/App'
 import { useObserver } from 'mobx-react-lite'
 
@@ -74,6 +74,9 @@ export const LeftBar: React.FC<BMProps> = (props) => {
   const _menuSelected = useObserver(() => getSelectedMenuType())
   console.log(_status, " status ", _menuSelected)
 
+  const _menuSelectedPos = useObserver(() => getSelectedMenuPos())
+
+
 
 
   return (
@@ -96,12 +99,10 @@ export const LeftBar: React.FC<BMProps> = (props) => {
       :
       <>
       {cContent.filter(item => item.shareType === "appimg").map(content => (
-        (_menuSelected === content.type) ?
+        (_menuSelected === content.type && _menuSelectedPos === -2) ?
         <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
-           {/*  <aside style={{backgroundColor: content.baseColor, width:'100%', height:'100%', overflowY: 'auto', overflowX: 'hidden', minWidth:'280px'}}> */}
-              <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
-           {/*  </aside> */}
+            <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
         </SplitPane >
         : <></>
        ))}

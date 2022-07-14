@@ -16,7 +16,7 @@ export const enTranslate = {
   'Share zone image':'Share zone image',
   'Select video camera to share':'Select video camera to share',
   'Meeting Space':'Meeting Space',
-  shareImport: '_Load Meeting Space...',
+  shareImport: '_Load...',
   shareImportTip: 'Load the shared content from the downloaded .json file.',
   meetingSpace: '_Meeting Space',
   meetingDesc: 'Meeting Description',

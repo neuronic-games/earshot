@@ -39,11 +39,15 @@ import tabContentActive from '@images/earshot_icon_btn-note.png'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 
+import CloseTabIcon from '@material-ui/icons/HighlightOff';
+
 
 //import { toPng } from 'html-to-image'
 
 import html2canvas from 'html2canvas'
 import { Dialog, DialogContent } from '@material-ui/core'
+import Draggable from 'react-draggable'
+
 
 //declare const config:any             //  from ../../config.js included from index.html
 
@@ -55,6 +59,11 @@ export function getAbleStatus():Boolean {
 let _menuType:string = ''
 export function getSelectedMenuType() :string {
   return _menuType
+}
+
+let _menuPos:number = -2
+export function getSelectedMenuPos() : number {
+  return _menuPos;
 }
 
 //let selectedImage:string = ''
@@ -101,9 +110,26 @@ export const App: React.FC<{}> = () => {
   const [showHelp, setShowHelp] = useState(false)
 
 
+  // for tab
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [activeTabIndex, setActiveTabIndex] = useState(-1)
+
+
 
   // For Saving data
   const refAvatar = useRef<HTMLDivElement>(null)
+
+  // For supporting Apps
+  const refEntity_0 = useRef<Draggable>(null)
+  const refEntity_1 = useRef<Draggable>(null)
+  const refEntity_2 = useRef<Draggable>(null)
+  const refEntity_3 = useRef<Draggable>(null)
+  const refEntity_4 = useRef<Draggable>(null)
+  const refEntity_5 = useRef<Draggable>(null)
+  const refEntity_6 = useRef<Draggable>(null)
+  const refEntity_7 = useRef<Draggable>(null)
+  const refEntity_8 = useRef<Draggable>(null)
+
 
 
   // to display image and desc
@@ -126,6 +152,8 @@ export const App: React.FC<{}> = () => {
     //console.log(menuType, " -------------- ", content.type)
     menuType === content.type ? activeBgColor = content.baseColor : ''
   ))
+
+  //const elementsRef = useRef(cContent.filter(item => item.shareType === "appimg").map(() => React.createRef()));
 
   /* const rgb = stores.participants.local.getColorRGB() */
 
@@ -271,7 +299,6 @@ export const App: React.FC<{}> = () => {
 
     stores.participants.local.sendInformation()
     stores.participants.local.saveInformationToStorage(true)
-
   }
 
   function generateRandomNumber(min:number, max:number) {
@@ -481,6 +508,360 @@ export const App: React.FC<{}> = () => {
     setShowIntro(false)
   } */
 
+  function trackPos(data:any, _index:number) {
+    setPosition({ x: data.x, y: data.y })
+    _menuPos = position.x
+
+    if(_index === 0) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+
+    } else if(_index === 1) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 2) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 3) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 4) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+    }
+    setActiveTabIndex(_index)
+    //setMenuType('chat')
+    //setAble(false)
+
+    /* cContent.filter(item => item.shareType === "appimg").map((content, index) => (
+      console.log(Object(refEntity.current?.state).x, " - ALL X POS - ", content.type)
+    )) */
+  }
+
+  function setTrack(data:any, _url:string, _index:number) {
+    //setMenuType(_type)
+    //console.log(data.y)
+    if(data.y < (-135 + (_index * -51))) {
+      window.open(_url, "_new")
+      ///////////////////////////////////////////////////////
+      if(_index === 0) {
+        let moveIndex = 0
+        if(Object(refEntity_0.current?.state).x < 0) {
+          Object(refEntity_0.current?.state).x = 0
+          Object(refEntity_0.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_1.current?.state).x === 0) {
+          Object(refEntity_1.current?.state).x = 0
+          Object(refEntity_1.current?.state).y = (moveIndex * 51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_2.current?.state).x === 0) {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_3.current?.state).x === 0) {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_4.current?.state).x === 0) {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        }
+      } else if(_index === 1) {
+        let moveIndex = 0
+        if(Object(refEntity_0.current?.state).x === 0) {
+          Object(refEntity_0.current?.state).x = 0
+          Object(refEntity_0.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_1.current?.state).x < 0) {
+          Object(refEntity_1.current?.state).x = 0
+          Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_2.current?.state).x === 0) {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_3.current?.state).x === 0) {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_4.current?.state).x === 0) {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        }
+      } else if(_index === 2) {
+        let moveIndex = 0
+        if(Object(refEntity_0.current?.state).x === 0) {
+          Object(refEntity_0.current?.state).x = 0
+          Object(refEntity_0.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_1.current?.state).x === 0) {
+          Object(refEntity_1.current?.state).x = 0
+          Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_2.current?.state).x < 0) {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_3.current?.state).x === 0) {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_4.current?.state).x === 0) {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        }
+      } else if(_index === 3) {
+        let moveIndex = 0
+        if(Object(refEntity_0.current?.state).x === 0) {
+          Object(refEntity_0.current?.state).x = 0
+          Object(refEntity_0.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_1.current?.state).x === 0) {
+          Object(refEntity_1.current?.state).x = 0
+          Object(refEntity_1.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_2.current?.state).x === 0) {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_3.current?.state).x < 0) {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_4.current?.state).x === 0) {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = (0)
+        }
+      } else if(_index === 4) {
+        let moveIndex = 0
+        if(Object(refEntity_0.current?.state).x === 0) {
+          Object(refEntity_0.current?.state).x = 0
+          Object(refEntity_0.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_1.current?.state).x === 0) {
+          Object(refEntity_1.current?.state).x = 0
+          Object(refEntity_1.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_2.current?.state).x === 0) {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = (0)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+
+        if(Object(refEntity_3.current?.state).x === 0) {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        } else {
+          moveIndex = moveIndex + 1
+        }
+        if(Object(refEntity_4.current?.state).x < 0) {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        }
+      }
+
+      ///////////////////////////////////////////////////////
+      _menuPos = -2
+      setPosition({x:0, y:0})
+      setAble(false)
+    }
+  }
+
+//console.log(able, " able")
+
+
   return <Observer>{()=>{
     return <div ref={refDiv} className={classes.back} style={{backgroundColor: '#0f5c81'/* '#5f7ca020' */ /* rgb2Color(roomInfo.backgroundFill) */}}>
 
@@ -517,8 +898,6 @@ export const App: React.FC<{}> = () => {
                <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
-
-
 
              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
@@ -559,23 +938,534 @@ export const App: React.FC<{}> = () => {
              <>
 
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
-              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
-                onClick={() => {
-                  press = true;
-                  if(able === true) {
-                    if(menuType === content.type) {
-                      setAble(false)
+              <Draggable ref={index === 0 ? refEntity_0 : index === 1 ? refEntity_1 : index === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8} key={index} onDrag={(e, data) => trackPos(data, index)} onStop={(e, data) => setTrack(data, content.url, index)} disabled={able ? true : false} defaultPosition={{x: 0, y: 0}}>
+
+                <div style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === index) ? 17 : (18 - (index+2)), height:'100%'}}>
+                <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}}
+                  onClick={(e) => {
+                    //console.log(position.x, " --- ", menuType)
+                    if(position.x < -2) {return}
+                    //if(position.x < -2 && menuType === content.type) {
+                      //setAble(false)
+                      //setMenuType('')
+                    //} else {
+
+                      press = true;
+                      if(able === true) {
+                        if(menuType === content.type) {
+                          setAble(false)
+                        }
+                      } else
+                      if(able === false) {
+                        setAble(true)
+                      }
+                      setMenuType(content.type)
+                    //}
+                  }}
+                >
+                  <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
+                  <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*51), left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+                </div>
+                <div style={{position: 'absolute', width:'405px', height:'100%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), display:Object(refEntity_0.current?.state).x < 0 ? 'block' : Object(refEntity_1.current?.state).x < 0 ? 'block' :  Object(refEntity_2.current?.state).x < 0 ? 'block' :  Object(refEntity_3.current?.state).x < 0 ? 'block' :  Object(refEntity_4.current?.state).x < 0 ? 'block' : Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < 0 ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none'}}>
+                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white'}}
+                  onClick={() => {
+                    //console.log("Close Tab click")
+                    //console.log(Object(refEntity.current?.state).x)
+
+                    if(index === 0) {
+                      let moveIndex = 0
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_0.current?.state).x = 0
+                        Object(refEntity_0.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_1.current?.state).x === 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (moveIndex * 51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_2.current?.state).x === 0) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_3.current?.state).x === 0) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_4.current?.state).x === 0) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                      }
+                    } else if(index === 1) {
+                      let moveIndex = 0
+                      if(Object(refEntity_0.current?.state).x === 0) {
+                        Object(refEntity_0.current?.state).x = 0
+                        Object(refEntity_0.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_1.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_2.current?.state).x === 0) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_3.current?.state).x === 0) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_4.current?.state).x === 0) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                      }
+                    } else if(index === 2) {
+                      let moveIndex = 0
+                      if(Object(refEntity_0.current?.state).x === 0) {
+                        Object(refEntity_0.current?.state).x = 0
+                        Object(refEntity_0.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_1.current?.state).x === 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_2.current?.state).x < 0) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_3.current?.state).x === 0) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_4.current?.state).x === 0) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                      }
+                    } else if(index === 3) {
+                      let moveIndex = 0
+                      if(Object(refEntity_0.current?.state).x === 0) {
+                        Object(refEntity_0.current?.state).x = 0
+                        Object(refEntity_0.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_1.current?.state).x === 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_2.current?.state).x === 0) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_3.current?.state).x < 0) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_4.current?.state).x === 0) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                      }
+                    } else if(index === 4) {
+                      let moveIndex = 0
+                      if(Object(refEntity_0.current?.state).x === 0) {
+                        Object(refEntity_0.current?.state).x = 0
+                        Object(refEntity_0.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_1.current?.state).x === 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_2.current?.state).x === 0) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+
+                      if(Object(refEntity_3.current?.state).x === 0) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                      } else {
+                        moveIndex = moveIndex + 1
+                      }
+                      if(Object(refEntity_4.current?.state).x < 0) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                      }
                     }
-                  } else
-                  if(able === false) {
-                    setAble(true)
-                  }
-                  setMenuType(content.type)
-                }}
-              >
-                <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
-                <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*48), left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
-              </div>
+
+                    /* if(index === 0) {
+                      Object(refEntity_0.current?.state).x = 0
+                      Object(refEntity_0.current?.state).y = (0)
+                      if(Object(refEntity_1.current?.state).y === -51) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_2.current?.state).y === -51) {
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_3.current?.state).y === -51) {
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_4.current?.state).y === -51) {
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_5.current?.state).y === -51) {
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_6.current?.state).y === -51) {
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_7.current?.state).y === -51) {
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                      }
+                      if(Object(refEntity_8.current?.state).y === -51) {
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 1) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        if(Object(refEntity_2.current?.state).x === 0) {
+                          Object(refEntity_2.current?.state).x = 0
+                          Object(refEntity_2.current?.state).y = (-51)
+                        }
+                        if(Object(refEntity_3.current?.state).x < 0) {
+                          Object(refEntity_3.current?.state).x = 0
+                          Object(refEntity_3.current?.state).y = (-51)
+                        }
+                        if(Object(refEntity_4.current?.state).x < 0) {
+                          Object(refEntity_4.current?.state).x = 0
+                          Object(refEntity_4.current?.state).y = (-51)
+                        }
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+
+                        if(Object(refEntity_2.current?.state).x === 0) {
+                          Object(refEntity_2.current?.state).x = 0
+                          Object(refEntity_2.current?.state).y = (-51)
+                        }
+                        if(Object(refEntity_3.current?.state).x === 0) {
+                          Object(refEntity_3.current?.state).x = 0
+                          Object(refEntity_3.current?.state).y = (-51)
+                        }
+                        if(Object(refEntity_4.current?.state).x === 0) {
+                          Object(refEntity_4.current?.state).x = 0
+                          Object(refEntity_4.current?.state).y = (-51)
+                        }
+                      }
+
+                    } else if(index === 2) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 3) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 4) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 5) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 6) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 7) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } else if(index === 8) {
+                      if(Object(refEntity_0.current?.state).x < 0) {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (-51)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (-51)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (-51)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (-51)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (-51)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (-51)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (-51)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (-51)
+                      } else {
+                        Object(refEntity_1.current?.state).x = 0
+                        Object(refEntity_1.current?.state).y = (0)
+                        Object(refEntity_2.current?.state).x = 0
+                        Object(refEntity_2.current?.state).y = (0)
+                        Object(refEntity_3.current?.state).x = 0
+                        Object(refEntity_3.current?.state).y = (0)
+                        Object(refEntity_4.current?.state).x = 0
+                        Object(refEntity_4.current?.state).y = (0)
+                        Object(refEntity_5.current?.state).x = 0
+                        Object(refEntity_5.current?.state).y = (0)
+                        Object(refEntity_6.current?.state).x = 0
+                        Object(refEntity_6.current?.state).y = (0)
+                        Object(refEntity_7.current?.state).x = 0
+                        Object(refEntity_7.current?.state).y = (0)
+                        Object(refEntity_8.current?.state).x = 0
+                        Object(refEntity_8.current?.state).y = (0)
+                      }
+                    } */
+                    _menuPos = -2
+                    setPosition({x:0, y:0})
+                  }}
+                 />
+                <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+                </div>
+                </div>
+              </Draggable>
+
              ))}
              </>
 
@@ -589,7 +1479,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.4</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.5</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

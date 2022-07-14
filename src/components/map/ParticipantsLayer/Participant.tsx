@@ -612,7 +612,7 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       <div className={classes.pointerRotate}>{/* The avatar */}
         <svg
           className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
-          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill='#00000020' /* fill={color} */ />
+          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={'#00000020'} /* fill={color} */ />
           {audioMeter}
         {/*  {inZone === undefined ? audioMeter : undefined} */}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
