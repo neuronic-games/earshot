@@ -55,15 +55,17 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
   function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string, url:string) {
     const files = ev.currentTarget?.files
+
+    // Remove All previous loaded contents
+    contents.removeAllContents()
+
     if (files && files.length) {
       files[0].text().then((text) => {
         const items = JSON.parse(text)
         if (isArray(items)) {
           items.forEach((item) => {
             //console.log("Loading -- ", name)
-
             //console.log(item, " --- item")
-
             item.ownerName = name
             item.ownerURL = url
             const content = extractContentData(item as ISharedContent)

@@ -80,7 +80,7 @@ const useStyles = makeStyles({
     height: props.size * 3,
     left: props.size * -1,
     top: props.size * -1,
-    opacity: 1,
+    opacity: 0,
     pointerEvents: 'none',
     transform: "scale(0.5)",
     transition: '0.5s ease-out'
@@ -91,7 +91,7 @@ const useStyles = makeStyles({
     height: props.size * 3,
     left: props.size * -1,
     top: props.size * -1,
-    opacity: 1,
+    opacity: 0,
     pointerEvents: 'none',
     transform: "scale(1)",
     transition: '0.5s ease-out'
@@ -612,7 +612,15 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
       <div className={classes.pointerRotate}>{/* The avatar */}
         <svg
           className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
-          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={'#00000020'} /* fill={color} */ />
+
+          { (inZone === 'close' && (participant.id !== props.stores.participants.localId) && zoneId === localZoneId) ?
+          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="red" stroke-width="4" fill={'#00000020'} /* fill={color} */ />
+          :  (proxCords !== undefined && proxCords < 360 &&
+            ((participant.id !== props.stores.participants.localId)) && localZoneId === undefined)
+            ? <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="red" stroke-width="4" fill={'#00000020'} />
+            : <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={'#00000020'} />
+          }
+
           {audioMeter}
         {/*  {inZone === undefined ? audioMeter : undefined} */}
           {config.avatar === 'arrow' ?  //  arrow (circle with a corner) type avatar
@@ -650,8 +658,6 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
                   cx={svgCenter + eyeOffsets[1][0] +  eyeballs[1][0]} fill="black" />
               </>}
               */}
-
-
 
             </g>
           }
