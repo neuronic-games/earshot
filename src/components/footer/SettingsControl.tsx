@@ -57,7 +57,7 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     const files = ev.currentTarget?.files
 
     // Remove All previous loaded contents
-    contents.removeAllContents()
+    //contents.removeAllContents()
 
     if (files && files.length) {
       files[0].text().then((text) => {
