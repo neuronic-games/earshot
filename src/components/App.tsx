@@ -686,6 +686,29 @@ export const App: React.FC<{}> = () => {
     )) */
   }
 
+  /* function setDefaultTrack(_url:string, _index:number) {
+    if(_index === 0) {
+      Object(refEntity_0.current?.state).x = -99999999
+      console.log("Hiding Element", Object(refEntity_0.current))
+    } else if(_index === 1) {
+      Object(refEntity_1.current?.state).x = -99999999
+    } else if(_index === 2) {
+      Object(refEntity_2.current?.state).x = -99999999
+    } else if(_index === 3) {
+      Object(refEntity_3.current?.state).x = -99999999
+    } else if(_index === 4) {
+      Object(refEntity_4.current?.state).x = -99999999
+    }
+
+    ///////////////////////////////////////////////////////
+    //window.open(_url, "_new")
+    let externalWindow = window.open(_url, '', 'width=400,height=650,left=500,top=100');
+    var timer = setInterval(function() {
+      if(externalWindow?.closed) {
+          clearInterval(timer);
+      }})
+  } */
+
   function setTrack(data:any, _url:string, _index:number) {
     //setMenuType(_type)
     //console.log(data.x)
@@ -1233,6 +1256,197 @@ export const App: React.FC<{}> = () => {
 
 //console.log(able, " able")
 
+//////////////////////////////////////////
+
+/* let timer = 0
+let delay = 200;
+let prevent = false;
+ */
+
+/* function onSingleClickHandler() {
+  timer = window.setTimeout(() => {
+    if (!prevent) {
+      console.log("single click")
+    }
+  }, delay);
+};
+function onDoubleClickHandler(){
+  clearTimeout(timer);
+  prevent = true;
+  setTimeout(() => {
+    prevent = false;
+    //console.log("double click")
+
+  }, delay);
+}; */
+//////////////////////////////////////////
+function ResetAppsPanel(index:number) {
+  if(index === 0) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x < 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (moveIndex * 51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    }
+  } else if(index === 1) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x < 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    }
+  } else if(index === 2) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x < 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    }
+  } else if(index === 3) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x < 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (0)
+    }
+  } else if(index === 4) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x < 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    }
+  }
+  _menuPos = -2
+  setPosition({x:0, y:0})
+}
+//////////////////////////////////////////
 
   return <Observer>{()=>{
     return <div ref={refDiv} className={classes.back} style={{backgroundColor: '#0f5c81'/* '#5f7ca020' */ /* rgb2Color(roomInfo.backgroundFill) */}}>
@@ -1270,6 +1484,7 @@ export const App: React.FC<{}> = () => {
                <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
+
 
              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
@@ -1314,9 +1529,10 @@ export const App: React.FC<{}> = () => {
 
                 <div style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === index) ? 17 : (18 - (index+2)), height:'100%'}}>
                 <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}}
+                ////////////////////////////////////////////////////////////////////
                   onClick={(e) => {
                     //console.log(position.x, " --- ", menuType)
-                    if(position.x < -2 || position.x > 1) {return}
+                    if(position.x < 0 || position.x > 0) {return}
                     //if(position.x < -2 && menuType === content.type) {
                       //setAble(false)
                       //setMenuType('')
@@ -1334,17 +1550,55 @@ export const App: React.FC<{}> = () => {
                       setMenuType(content.type)
                     //}
                   }}
+                  ////////////////////////////////////////////////////////////////////
+                 /*  onClick={onSingleClickHandler}
+                  onDoubleClick={onDoubleClickHandler} */
+                  /* onClick={(e) => {
+                    if(position.x < 0 || position.x > 0) {return}
+                    timer = window.setTimeout(() => {
+                      if (!prevent) {
+                        //console.log("single click")
+                        press = true;
+                        if(able === true) {
+                          if(menuType === content.type) {
+                            setAble(false)
+                          }
+                        } else
+                        if(able === false) {
+                          setAble(true)
+                        }
+                        setMenuType(content.type)
+                      }
+                    }, delay);
+                  }}
+                  onDoubleClick={(e) => {
+                    clearTimeout(timer);
+                    prevent = true;
+                    setTimeout(() => {
+                      prevent = false;
+                      //console.log("double click")
+                      //setTrack(data, content.url, index)
+                      //console.log(data, " --- ", index)
+                      setDefaultTrack(content.url, index)
+                    }, delay);
+                  }} */
                 >
                   <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
                   <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*51), left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
                 </div>
 
                 <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) && index === 0) ? 'block' : ((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && index === 1) ? 'block' : ((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && index === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && index === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && index === 4) ? 'block' : 'none' /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
-                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white'}}
+                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1'}}
                   onClick={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
-                    if(index === 0) {
+                    ResetAppsPanel(index)
+                  }}
+                  onTouchEnd={() => {
+                    //console.log("Close Tab click")
+                    //console.log(Object(refEntity.current?.state).x)
+                    ResetAppsPanel(index)
+                    /* if(index === 0) {
                       let moveIndex = 0
                       if(Object(refEntity_0.current?.state).x < 0) {
                         Object(refEntity_0.current?.state).x = 0
@@ -1507,7 +1761,7 @@ export const App: React.FC<{}> = () => {
                       }
                     }
                     _menuPos = -2
-                    setPosition({x:0, y:0})
+                    setPosition({x:0, y:0}) */
                   }}
                  />
                     <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
@@ -1529,7 +1783,7 @@ export const App: React.FC<{}> = () => {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.8</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.9</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

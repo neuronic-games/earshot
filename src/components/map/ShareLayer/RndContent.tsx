@@ -803,6 +803,8 @@ const mDeleteTimer = setTimeout(function() {
 
      //console.log(String(Object(event?.target).nodeName))
 
+     //console.log(xy)
+
      //console.log(member._down, " dragged")
 
      //if(event?.type === 'touchend') {return}
@@ -880,11 +882,50 @@ const mDeleteTimer = setTimeout(function() {
           return
         }
 
-
+      ////////////////////////////////////////////////////////////
       let yCheck = props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1]) //participants.local.mouse.position[1]
       let xCheck = props.content.size[0] - (props.content.size[0] - (map.mouseOnMap[0] - props.content.pose.position[0]))
+      ///////////////////////////////////////////////////////////
+
+
+
+      //console.log(yCheck, " DIFF ", xCheck)
+
+      ///////////////////////////////////////////////////////////
 
       //console.log(xCheck, " xCheck")
+      //console.log(" --- ", props.content.size[1]/2 - 55, " 110 ", xCheck, " >>> ", props.content.size[1]/2 + 55)
+      //console.log(yCheck, " --- ", xCheck)
+      ///////////////////////////////////////////////////////////////
+
+      //let yyCheck = props.content.pose.orientation === 0 || props.content.pose.orientation === 180 ? (props.content.size[1] - (map.mouseOnMap[1] - props.content.pose.position[1])) : 0
+      //let xxCheck = props.content.pose.orientation === 0 || props.content.pose.orientation === 180 ? (props.content.size[0] - (props.content.size[0] - (map.mouseOnMap[0] - props.content.pose.position[0]))) : 0
+
+      //let x1Pos = props.content.pose.orientation === 0 || props.content.pose.orientation === 180 ? ((props.content.size[0]) - (90))/2 - 3 : ((props.content.size[0]) - (90))/2 - 5
+      //let y1Pos =  props.content.pose.orientation === 0 || props.content.pose.orientation === 180 ? props.content.size[1] - 30 : props.content.size[0] - 30
+      //console.log((props.content.size[0]/2 - 55), xCheck)
+      ////////////////////////////////////////////////////////////////
+
+      //const diff = subV2([map.mouseOnMap[0], map.mouseOnMap[1]], props.content.pose.position)
+      //console.log(diff)
+
+      /* console.log(" size ", xy[0], props.content.size[1], " ===== ", xy[1]-100, props.content.size[1] + 20, " )))) ", xy)
+
+      if(xy[0] > props.content.size[1]+100 && xy[0] < props.content.size[1] + 100 && xy[1]-100 > props.content.size[1]) {
+        console.log("ON TIMER")
+      } */
+
+     /*  console.log(diff, " diff ", x1Pos, " --- ", y1Pos)
+
+      let startXPos = x1Pos
+      let endXPos = x1Pos + 100
+      let startYPos = y1Pos
+      let endYPos = y1Pos + 20 */
+
+      //if(diff[0] >= startXPos && diff[0] <= endXPos && diff[1] >= startYPos && diff[1] <= endYPos) {
+        //console.log("ON TIMER ONLY")
+      //}
+
 
       //if(member.OnTimerClick) {return}
       ///////////////////////////////////////////////
@@ -892,7 +933,9 @@ const mDeleteTimer = setTimeout(function() {
         //console.log(member.OnTimerClick , " onTimer")
         //console.log(member._down, " down")
         //if(yCheck > -45 && yCheck < - 20) {
-        if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+        //if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+        if(yCheck > 5 && yCheck < 35 && xCheck > (props.content.size[0]/2 - 55) && xCheck < props.content.size[0]/2 + 55) {
+        //if(diff[0] >= startXPos && diff[0] <= endXPos && diff[1] >= startYPos && diff[1] <= endYPos) {
           member.clickStatus = 'toggleTimer'
           //console.log("onTimer click")
         } else {
@@ -900,7 +943,9 @@ const mDeleteTimer = setTimeout(function() {
         }
       } else if (event?.detail === 2) {
         //if(yCheck > -45 && yCheck < - 20) {
-        if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+        //if(yCheck > 5 && yCheck < 35 && xCheck > 7 && xCheck < 110) {
+          if(yCheck > 5 && yCheck < 35 && xCheck > (props.content.size[0]/2 - 55) && xCheck < props.content.size[0]/2 + 55) {
+          //if(diff[0] >= startXPos && diff[0] <= endXPos && diff[1] >= startYPos && diff[1] <= endYPos) {
           member.clickStatus = 'resetTimer'
         } else {
           member.clickStatus = "double"
@@ -926,8 +971,6 @@ const mDeleteTimer = setTimeout(function() {
     },
     onMove:({xy}) => {
       //isLocaked = props.content.pinned
-
-
       if(showTitle) {return}
       //_isOnContent = true
       member.isMoved = true
@@ -1328,6 +1371,10 @@ const mDeleteTimer = setTimeout(function() {
                           subV2(rotateVector2DByDegree(pose.orientation - newOri, center), center))
     pose.orientation = newOri
 
+    if(pose.orientation === 360) {
+      pose.orientation = 0
+    }
+
     setPose(Object.assign({}, pose))
   }
 
@@ -1481,8 +1528,13 @@ const mDeleteTimer = setTimeout(function() {
       >
         <Content {...props}
         />
-        <div className={classes.nameContainer}>{props.content.name}</div>
-        <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
+        {/* {console.log(props.content.pose.orientation, " ORIEN")} */}
+        <div className={classes.nameContainerHolder}>
+          <div className={classes.nameContainer}>{props.content.name}</div>
+        </div>
+        <div className={classes.stopWatchTitleHolder}>
+          <div className={classes.stopWatchTitle}>{stopTimeValue}</div>
+        </div>
         {/* <div className={showBorder ? classes.dashed : undefined}></div> */}
         <div className={(showHandler && showTitle === false) ? classes.dashedInEdit : (showBorder && (props.content.zone === 'close') ? classes.dashed : undefined)}></div>
 
@@ -1555,8 +1607,6 @@ const mDeleteTimer = setTimeout(function() {
         : ''}
       </div>
       {/*  : ''} */}
-
-
 
       </div>
 
@@ -2643,15 +2693,76 @@ const useStyles = makeStyles({
     ...buttonStyle,
   }),
 
+  nameContainerHolder: (props: StyleProps) => ({
+    display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
+    fontWeight: 'bold',
+    fontSize: '1.2em',
+    width: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[0] : props.size[0],
+    height: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[1] : props.size[1],
+   // marginLeft : props.pose.orientation === 0 || props.pose.orientation === 180 || props.pose.orientation === 360 ? '-5px' :  props.pose.orientation === 270 ? props.size[0]/2 - 77 : -props.size[1]/2 + 20,  //((props.size[0]) - (props.props.content.name.length * 12))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
+
+   //marginBottom: 5,
+
+
+   //marginTop: props.pose.orientation === 0 || props.pose.orientation === 360 ? -(props.size[1] + 38) : props.pose.orientation === 180 ? -(props.size[1] - 40) : -props.size[1],
+
+
+    //marginLeft: props.pose.orientation === 180 ? -(props.size[1] - props.props.content.name.length * 24)/2 + 20 : props.pose.orientation === 270 ? -props.size[0] - (props.size[0] - props.props.content.name.length * 24)/2 + 20 : props.pose.orientation === 90 ? -5 : props.pose.orientation === 360 ? -props.size[1] - 40 : -props.size[1] - 40,
+
+    //marginLeft: props.pose.orientation === 90 ? -5 : props.pose.orientation === 180 ? 0 : props.pose.orientation === 270 ? 0 : -10,
+
+    //marginTop: props.pose.orientation === 180 ? -props.size[0] + 5: props.pose.orientation === 270 ? -props.size[1] - (props.size[1] - props.props.content.name.length * 24)/2 + 15 : props.pose.orientation === 90 ? -props.size[1] - (props.size[1] - props.props.content.name.length * 24)/2 + 20 : props.pose.orientation === 360 ? -props.size[1] - 40 : -props.size[1] - 40,
+
+    //transform: 'rotate('+ -props.pose.orientation +')',
+
+
+    padding:5,
+    backgroundColor: '#eab67600', //'#eab676',
+    textAlign: 'center',
+    borderRadius: 2,
+    /* overflow:'hidden', */
+    alignContent: 'center',
+    position:'absolute',
+    bottom: 5,
+
+    transform: props.pose.orientation === 0 ? 'rotate(0deg)' : props.pose.orientation === 90 ? 'rotate(-90deg)' : props.pose.orientation === 180 ? 'rotate(-180deg)' : props.pose.orientation === 270 ? 'rotate(-270deg)' : 'rotate(0deg)',
+
+    //marginLeft : props.size[0]/2 - (props.size[0] - props.props.content.name.length * 24),
+    //marginTop : props.size[1]/2 - (props.size[1] - props.props.content.name.length * 24),
+    //marginLeft: props.pose.orientation === 90 ? -(props.size[0]/2 - (props.size[1]/2) + 30) : props.pose.orientation === 270 ? -(props.size[0]/2 - (props.size[1]/2) - 20): 0,
+
+    //marginTop: props.pose.orientation === 0 ? -(props.size[1] + 40) : props.pose.orientation === 90 ? -(props.size[1] - 5) : props.pose.orientation === 270 ? -(props.size[1] - 5) : props.pose.orientation === 180 ? -(props.size[1] - 40) : 0,
+
+    //left : props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 90 ? -20 : 0,
+    //top:  props.pose.orientation === 0 ? -40 : props.pose.orientation === 90 ? -5 : props.pose.orientation === 180 ? 33 : 0,
+
+    //top:-props.size[0],
+
+    //left:props.pose.orientation === 0 || props.pose.orientation === 180 ? 0 : props.pose.orientation === 90 || props.pose.orientation === 270 ? 0 : -60,
+    //top:0,
+
+    left: props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 270 ? (props.size[0] - props.size[1])/2 - 10 : (props.size[1] - props.size[0])/2,
+    top:  props.pose.orientation === 0 ? 0 : props.pose.orientation === 180 ? -7 : -5,
+    transformOrigin: 'middle',
+  }),
+
   nameContainer: (props: StyleProps) => ({
     display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
     fontSize: '1.2em',
-    width : props.props.content.name.length * 12 + 'px', //"70%",
+
+    width : props.props.content.name.length * 24 + 'px', //"70%",
     height: '20',
-    marginLeft : ((props.size[0]) - (props.props.content.name.length * 12))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
+
+    //marginLeft : ((props.size[0]) - (props.props.content.name.length * 24))/2 + 'px', //(100 - (props.props.content.name.length * 5))/2 + "%", //"15%",
     marginBottom: 5,
-    marginTop: -(props.size[1] + 38),
+
+    marginLeft: props.pose.orientation === 0 || props.pose.orientation === 180 ? ((props.size[0]) - (props.props.content.name.length * 24))/2 - 3 + 'px' : ((props.size[0]) - (props.props.content.name.length * 24))/2 - 5 + 'px',
+
+   //marginTop: props.pose.orientation === 90 || props.pose.orientation === 270 ? -20 : 0, //-(props.size[1] + 38),
+
+   marginTop: -40,
+
     padding:5,
     backgroundColor: '#7ececc', //'#eab676',
     textAlign: 'center',
@@ -2662,6 +2773,27 @@ const useStyles = makeStyles({
     bottom: 5,
   }),
 
+  stopWatchTitleHolder: (props: StyleProps) => ({
+    display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
+    fontWeight: 'bold',
+    fontSize: '1.2em',
+    width: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[0] : props.size[0],
+    height: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[1] : props.size[1],
+    padding:5,
+    backgroundColor: '#eab67600', //'#eab676',
+    textAlign: 'center',
+    borderRadius: 2,
+    alignContent: 'center',
+    position:'absolute',
+    bottom: 5,
+    transform: props.pose.orientation === 0 ? 'rotate(0deg)' : props.pose.orientation === 90 ? 'rotate(-90deg)' : props.pose.orientation === 180 ? 'rotate(-180deg)' : props.pose.orientation === 270 ? 'rotate(-270deg)' : 'rotate(0deg)',
+    //left: props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 270 ? -(props.size[1]/2 - 50) : (props.size[1]/2 - 50),
+    //top:  props.pose.orientation === 0 ? -5 : props.pose.orientation === 180 ? -7 : -5,
+    left: props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 270 ? (props.size[0] - props.size[1])/2 - 10 : (props.size[1] - props.size[0])/2,
+    top:  props.pose.orientation === 0 ? 0 : props.pose.orientation === 180 ? -7 : -5,
+    transformOrigin: 'middle',
+  }),
+
   stopWatchTitle: (props: StyleProps) => ({
     display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._stopWatch) ? 'block' : 'none',
     fontWeight: 'bold',
@@ -2669,7 +2801,16 @@ const useStyles = makeStyles({
     width : '90px', //'40%', //"70%",
     height: '20px',
     //marginLeft : (100 - (40))/2 + "%",
-    marginLeft : '5px', //((props.size[0]) - 100)/2 + 'px', //5, //((props.size[0]))/200 + "%",
+    //marginLeft : '5px', //((props.size[0]) - 100)/2 + 'px', //5, //((props.size[0]))/200 + "%",
+
+    marginLeft: props.pose.orientation === 0 || props.pose.orientation === 180 ? ((props.size[0]) - (90))/2 - 3 + 'px' : ((props.size[0]) - (90))/2 - 5 + 'px',
+
+
+    //marginTop: props.pose.orientation === 270 ? props.size[0]/2 + 20 : props.size[1] - 30,
+
+    marginTop: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[1] - 30 : props.size[0] - 30,
+
+
     marginBottom: '5px',
     //marginTop: -(props.size[1] + 38),
     padding:5,
@@ -2678,7 +2819,7 @@ const useStyles = makeStyles({
     borderRadius: 2,
     overflow:'hidden',
     alignContent: 'center',
-    position:'absolute',
+    position:'relative',
     bottom: 0,
   }),
 

@@ -195,12 +195,12 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
             }}>{t('ctFocus')}</Button>
         </Box>
         <Table size="small"><TableBody>{[
-           Row(<span style={{fontSize:'2em'}}>{t('ctUnTitle')}</span>,<Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />,
+           Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctUnTitle')}</span>,<Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />,
            <Switch color="secondary" checked={props.content?.showTitle} onChange={(ev, checked)=>{
              if (!props.content) { return }
              props.content.showTitle = checked
              props.updateOnly(props.content)
-           }}/>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />, <span style={{fontSize:'2em'}}>{t('ctTitle')}</span>, 'title'),
+           }}/>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctTitle')}</span>, 'title'),
 
           /* Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
             <Switch color="secondary" checked={props.content?.pinned} onChange={(ev, checked)=>{
@@ -216,22 +216,22 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
               contents.setEditing(checked ? props.content.id : '')
             }}/>, <EditIcon />, editButtonTip(false, props.content)) : undefined}</Fragment>,
           <Fragment key="wall">{canContentBeAWallpaper(props.content) ?
-            Row(<span style={{fontSize:'2em'}}>{t('ctUnWallpaper')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctUnWallpaper')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
             <Switch color="secondary" checked={isContentWallpaper(props.content)} onChange={(ev, checked)=>{
               if (!props.content) { return }
               makeContentWallpaper(props.content, checked)
               props.updateOnly(props.content)
-            }}/>, <Icon icon={imageOutlineBadged} height={isSmartphone() ? (TITLE_HEIGHT*1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:'2em'}}>{t('ctWallpaper')}</span>) : undefined}</Fragment>,
+            }}/>, <Icon icon={imageOutlineBadged} height={isSmartphone() ? (TITLE_HEIGHT*1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctWallpaper')}</span>) : undefined}</Fragment>,
           <Fragment key="noFrame">{
-            Row(<span style={{fontSize:'2em'}}>{t('ctFrameVisible')}</span>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctFrameVisible')}</span>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
             <Switch color="secondary" checked={props.content?.noFrame ? true : false} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.noFrame = checked ? true : undefined
               props.updateOnly(props.content)
-            }}/>, <Icon icon={biImageNoFrame} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:'2em'}}>{t('ctFrameInvisible')}</span>) }</Fragment>,
+            }}/>, <Icon icon={biImageNoFrame} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctFrameInvisible')}</span>) }</Fragment>,
           <Fragment key="zone">{
             props.content?.type === 'img' ?
-            Row(<span style={{fontSize:'2em'}}>{t('ctNotAudioZone')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctNotAudioZone')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
               <Switch color="secondary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
                 if (!props.content) { return }
                 props.content.zone = checked ? (props.content.zone ? props.content.zone : 'open') : undefined
@@ -244,10 +244,10 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
                   props.updateOnly(props.content)}}>
                   <Icon icon={props.content.zone==='close' ? roomClosed : roomOpen} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>
                 </IconButton> : undefined}
-                {props.content.zone === 'close' ? <span style={{fontSize:'2em'}}>{t('ctClosedAudioZone')}</span> : <span style={{fontSize:'2em'}}>{t('ctOpenAudioZone')}</span>}
+                {props.content.zone === 'close' ? <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctClosedAudioZone')}</span> : <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctOpenAudioZone')}</span>}
               </>) : undefined }</Fragment>,
           <Fragment key="opacity">{
-            Row(<span style={{fontSize:'2em'}}>{t('ctTransparent')}</span>, <Icon icon={biDashCircleDotted} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctTransparent')}</span>, <Icon icon={biDashCircleDotted} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
             <Slider color="secondary" value={props.content?.opacity===undefined ? 1000 : props.content.opacity*1000}
               min={0} max={1000}
               style={{width:isSmartphone() ? '2em' : '6em', marginLeft:isSmartphone() ? '4em' : '0.4em', marginRight:isSmartphone() ? '4em' : '0.4em', transform:isSmartphone() ? 'scale(2)' : 'scale(1'}}
@@ -255,7 +255,7 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
                 if (!props.content) { return }
                 props.content.opacity = value === 1000 ? undefined : (value as number) / 1000
                 props.updateOnly(props.content)
-            }} />, <Icon icon={biPlusCircleFill} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:'2em'}}>{t('ctOpaque')}</span>) }</Fragment>,
+            }} />, <Icon icon={biPlusCircleFill} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctOpaque')}</span>) }</Fragment>,
             ]}</TableBody></Table>
         <Box mt={2} mb={2}>
 
