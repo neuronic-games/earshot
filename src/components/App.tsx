@@ -23,15 +23,19 @@ import { getLoginClick, getUserType} from './error/TheEntrance' // getRoomName
 
 /* import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'; */
 /* import iconCollapse from '@images/earshot_icon_btn_collapse.png' */
-import tabCollapseChat from '@images/earshot_icon_tab.png'
-import tabCollapseContent from '@images/earshot_icon_tab_content.png'
+////////////////////////////////////////////////////////////////////////////////////
+/* import tabCollapseChat from '@images/earshot_icon_tab.png'
+import tabCollapseContent from '@images/earshot_icon_tab_content.png' */
+////////////////////////////////////////////////////////////////////////////////////
 //import tabCollapseEvents from '@images/earshot_icon_tab_events.png'
 
-import tabChat from '@images/earshot_icon_btn-chat.png'
+////////////////////////////////////////////////////////////////////////////////////
+/* import tabChat from '@images/earshot_icon_btn-chat.png'
 import tabChatActive from '@images/earshot_icon_btn-chat.png'
 
 import tabContent from '@images/earshot_icon_btn-note.png'
-import tabContentActive from '@images/earshot_icon_btn-note.png'
+import tabContentActive from '@images/earshot_icon_btn-note.png' */
+////////////////////////////////////////////////////////////////////////////////////
 
 //import tabEvents from '@images/earshot_icon_btn_events.png'
 //import tabEventsActive from '@images/earshot_icon_btn_events.png'
@@ -47,6 +51,7 @@ import CloseTabIcon from '@material-ui/icons/HighlightOff';
 import html2canvas from 'html2canvas'
 import { Dialog, DialogContent } from '@material-ui/core'
 import Draggable from 'react-draggable'
+
 
 
 //declare const config:any             //  from ../../config.js included from index.html
@@ -92,7 +97,7 @@ export const App: React.FC<{}> = () => {
 
   const [showIntro, setShowIntro] = useState<Boolean>(true)
 
-  const [menuType, setMenuType] = useState('chat')
+  const [menuType, setMenuType] = useState('')
 
   //console.log(showIntro, " showIntro")
   const [activeOutfit, setActiveOutfit] = useState(-1)
@@ -130,8 +135,6 @@ export const App: React.FC<{}> = () => {
   const refEntity_7 = useRef<Draggable>(null)
   const refEntity_8 = useRef<Draggable>(null)
 
-
-
   // to display image and desc
   let roomImgPath:string = ""
   let roomImgDesc:string = ""
@@ -143,6 +146,11 @@ export const App: React.FC<{}> = () => {
 
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgDesc = content.contentDesc
+  ))
+
+  // Setting default Menu Type
+  cContent.filter(item => item.shareType === "appimg").map((content, index) => (
+    index === 0 && menuType === '' ? setMenuType(content.type) : ''
   ))
 
   // For Apps section [Room based loading directly from JSON file]
@@ -166,11 +174,12 @@ export const App: React.FC<{}> = () => {
   _menuType = menuType
 
 
-  let tabBGTopBGWeb:number = 100 //98 //98
+
+  let tabBGTopBGWeb:number = 0 //100 //98 //98
   let tabBGTopBGMob:number = 242 //238
 
-  let tabBGTopIconWeb:number = 102 //104 //102
-  let tabBGTopIconMob:number = 255 //241
+  //let tabBGTopIconWeb:number = 2 //102 //104 //102
+  //let tabBGTopIconMob:number = 255 //241
 
   ////////////////////////////////////////////////////////////
   //console.log(config.apps[0].name, " >>> ")
@@ -219,7 +228,7 @@ export const App: React.FC<{}> = () => {
       //console.log("Show User random avatar - ", data)
       //console.log("BBBB --- ", stores.participants.local.information.name, " ---- ", getUserType())
 
-      if(getUserType() === "N" && activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
+      if(getUserType() === "N" && activeSkin === -1 && (stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0)) {
       //if(activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
         onGenerateRandomAvatar()
         const genImage = setTimeout(() => {
@@ -508,10 +517,16 @@ export const App: React.FC<{}> = () => {
     setShowIntro(false)
   } */
 
-  function trackPos(data:any, _index:number) {
+  function trackPos(data:any, _index:number, menu:string) {
     setPosition({ x: data.x, y: data.y })
     _menuPos = position.x
 
+    //_menuType = menu
+
+    // Setting Pos
+    CheckAndSetPosition(_index)
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
     if(_index === 0) {
       let moveIndex = 0
       if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
@@ -543,6 +558,18 @@ export const App: React.FC<{}> = () => {
       } else {
         Object(refEntity_4.current?.state).x = 0
         Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
       }
 
     } else if(_index === 1) {
@@ -577,6 +604,18 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_4.current?.state).x = 0
         Object(refEntity_4.current?.state).y = (moveIndex * -51)
       }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
     } else if(_index === 2) {
       let moveIndex = 0
       if(Object(refEntity_0.current?.state).x < 0) {
@@ -608,6 +647,18 @@ export const App: React.FC<{}> = () => {
       } else {
         Object(refEntity_4.current?.state).x = 0
         Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
       }
     } else if(_index === 3) {
       let moveIndex = 0
@@ -641,6 +692,18 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_4.current?.state).x = 0
         Object(refEntity_4.current?.state).y = (moveIndex * -51)
       }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
     } else if(_index === 4) {
       let moveIndex = 0
       if(Object(refEntity_0.current?.state).x < 0) {
@@ -673,10 +736,112 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_4.current?.state).x = 0
         Object(refEntity_4.current?.state).y = (moveIndex * -51)
       }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 5) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 6) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
     }
-    setMenuType('chat')
-    setActiveTabIndex(_index)
+     */
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    //setMenuType('chat')
+    setActiveTabIndex(_index)
 
     //setMenuType('chat')
     //setAble(false)
@@ -709,9 +874,323 @@ export const App: React.FC<{}> = () => {
       }})
   } */
 
+
+  function CheckAndSetPosition(_index:number) {
+
+    if(_index === 0) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+
+    } else if(_index === 1) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else if(Object(refEntity_1.current?.state).x === 0) {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 2) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 3) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 4) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 5) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    } else if(_index === 6) {
+      let moveIndex = 0
+      if(Object(refEntity_0.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_1.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_2.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_3.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_4.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_5.current?.state).x < 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      }
+      if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+        moveIndex = moveIndex + 1
+      } else {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      }
+    }
+  }
+
   function setTrack(data:any, _url:string, _index:number) {
     //setMenuType(_type)
-    //console.log(data.x)
 
     /* if(_index === 0) {
       if(Object(refEntity_0.current?.state).x > 0) {
@@ -893,12 +1372,14 @@ export const App: React.FC<{}> = () => {
 
   // 30
   //console.log(window.innerHeight, " --- ", data.y)
-
   //console.log(data.x, " ---- ", (stores.map.screenSize))
 
-    if(data.y < (-135 + (_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
-      ///////////////////////////////////////////////////////
+  //console.log(data.y, "  < " , ((_index * -51)))
 
+
+    //if(data.y < (-135 + (_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
+    if(data.y < ((_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
+      ///////////////////////////////////////////////////////
       // Hide the Tab
       if(_index === 0) {
         Object(refEntity_0.current?.state).x = -99999999
@@ -910,6 +1391,10 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_3.current?.state).x = -99999999
       } else if(_index === 4) {
         Object(refEntity_4.current?.state).x = -99999999
+      } else if(_index === 5) {
+        Object(refEntity_5.current?.state).x = -99999999
+      } else if(_index === 6) {
+        Object(refEntity_6.current?.state).x = -99999999
       }
 
       ///////////////////////////////////////////////////////
@@ -919,6 +1404,8 @@ export const App: React.FC<{}> = () => {
         if(externalWindow?.closed) {
             clearInterval(timer);
             //alert(_index);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //CheckAndSetPosition(_index)
             if(_index === 0) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
@@ -950,6 +1437,18 @@ export const App: React.FC<{}> = () => {
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
                 Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
               }
             } else if(_index === 1) {
               let moveIndex = 0
@@ -982,6 +1481,18 @@ export const App: React.FC<{}> = () => {
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
                 Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
               }
             } else if(_index === 2) {
               let moveIndex = 0
@@ -1014,6 +1525,18 @@ export const App: React.FC<{}> = () => {
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
                 Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
               }
             } else if(_index === 3) {
               let moveIndex = 0
@@ -1046,6 +1569,18 @@ export const App: React.FC<{}> = () => {
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
                 Object(refEntity_4.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
               }
             } else if(_index === 4) {
               let moveIndex = 0
@@ -1078,8 +1613,110 @@ export const App: React.FC<{}> = () => {
               if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
                 Object(refEntity_4.current?.state).x = 0
                 Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              }
+            } else if(_index === 5) {
+              let moveIndex = 0
+              if(Object(refEntity_0.current?.state).x === 0) {
+                Object(refEntity_0.current?.state).x = 0
+                Object(refEntity_0.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_1.current?.state).x === 0) {
+                Object(refEntity_1.current?.state).x = 0
+                Object(refEntity_1.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              }
+            } else if(_index === 6) {
+              let moveIndex = 0
+              if(Object(refEntity_0.current?.state).x === 0) {
+                Object(refEntity_0.current?.state).x = 0
+                Object(refEntity_0.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_1.current?.state).x === 0) {
+                Object(refEntity_1.current?.state).x = 0
+                Object(refEntity_1.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
+              if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = (moveIndex * -51)
               }
             }
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             setPosition({x:0, y:0})
         }
     }, 100);
@@ -1313,7 +1950,22 @@ function ResetAppsPanel(index:number) {
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
       Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
     }
+
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+    }
+
   } else if(index === 1) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x === 0) {
@@ -1345,7 +1997,20 @@ function ResetAppsPanel(index:number) {
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
       Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
     }
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+    }
+
   } else if(index === 2) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x === 0) {
@@ -1377,7 +2042,20 @@ function ResetAppsPanel(index:number) {
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
       Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
     }
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+    }
+
   } else if(index === 3) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x === 0) {
@@ -1409,6 +2087,18 @@ function ResetAppsPanel(index:number) {
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
       Object(refEntity_4.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (0)
     }
   } else if(index === 4) {
     let moveIndex = 0
@@ -1441,11 +2131,531 @@ function ResetAppsPanel(index:number) {
     if(Object(refEntity_4.current?.state).x < 0) {
       Object(refEntity_4.current?.state).x = 0
       Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+    }
+  } else if(index === 5) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_5.current?.state).x < 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x === 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+    }
+  } else if(index === 6) {
+    let moveIndex = 0
+    if(Object(refEntity_0.current?.state).x === 0) {
+      Object(refEntity_0.current?.state).x = 0
+      Object(refEntity_0.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      Object(refEntity_1.current?.state).x = 0
+      Object(refEntity_1.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_2.current?.state).x === 0) {
+      Object(refEntity_2.current?.state).x = 0
+      Object(refEntity_2.current?.state).y = (0)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+
+    if(Object(refEntity_3.current?.state).x === 0) {
+      Object(refEntity_3.current?.state).x = 0
+      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_4.current?.state).x === 0) {
+      Object(refEntity_4.current?.state).x = 0
+      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_5.current?.state).x === 0) {
+      Object(refEntity_5.current?.state).x = 0
+      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+    } else {
+      moveIndex = moveIndex + 1
+    }
+    if(Object(refEntity_6.current?.state).x < 0) {
+      Object(refEntity_6.current?.state).x = 0
+      Object(refEntity_6.current?.state).y = (moveIndex * -51)
     }
   }
   _menuPos = -2
   setPosition({x:0, y:0})
+  setActiveTabIndex(-1)
 }
+//////////////////////////////////////////
+let clicks:any = [];
+let timeout:any;
+// Single & Double Click
+function singleClick(event:any, tabType:string, tabURL:string, tabIndex:number) {
+  //alert(tabType);
+  if((position.x < 0 || position.x > 0) && activeTabIndex === tabIndex) {return}
+    press = true;
+    if(able === true) {
+      if(menuType === tabType) {
+        setAble(false)
+      }
+    } else
+    if(able === false) {
+      setAble(true)
+    }
+    setMenuType(tabType)
+}
+
+function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) {
+  //alert(tabType);
+  if(tabIndex === 0 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {return}
+    Object(refEntity_0.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0])
+    Object(refEntity_0.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 1 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {return}
+    Object(refEntity_1.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0])
+    Object(refEntity_1.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 2 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {return}
+    Object(refEntity_2.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0])
+    Object(refEntity_2.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 3 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {return}
+    Object(refEntity_3.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
+    Object(refEntity_3.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 4 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {return}
+    Object(refEntity_4.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
+    Object(refEntity_4.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 5 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {return}
+    Object(refEntity_5.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
+    Object(refEntity_5.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25) //(120)
+  } else if(tabIndex === 6 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return}
+    Object(refEntity_6.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
+    Object(refEntity_6.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else {
+    if(tabIndex === 0) {
+      if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {return}
+      Object(refEntity_0.current?.state).x = -99999999
+    } else if(tabIndex === 1) {
+      if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {return}
+      Object(refEntity_1.current?.state).x = -99999999
+    } else if(tabIndex === 2) {
+      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {return}
+      Object(refEntity_2.current?.state).x = -99999999
+    } else if(tabIndex === 3) {
+      if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {return}
+      Object(refEntity_3.current?.state).x = -99999999
+    } else if(tabIndex === 4) {
+      if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {return}
+      Object(refEntity_4.current?.state).x = -99999999
+    } else if(tabIndex === 5) {
+      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {return}
+      Object(refEntity_5.current?.state).x = -99999999
+    } else if(tabIndex === 6) {
+      if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return}
+      Object(refEntity_6.current?.state).x = -99999999
+    }
+
+    ///////////////////////////////////////////////////////
+    //window.open(_url, "_new")
+    let externalWindow = window.open(tabURL, '', 'width=400,height=650,left=500,top=100');
+    var timer = setInterval(function() {
+      if(externalWindow?.closed) {
+          clearInterval(timer);
+          //alert(_index);
+          //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          //CheckAndSetPosition(_index)
+          if(tabIndex === 0) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (moveIndex * 51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 1) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 2) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 3) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 4) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 5) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x === 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          } else if(tabIndex === 6) {
+            let moveIndex = 0
+            if(Object(refEntity_0.current?.state).x === 0) {
+              Object(refEntity_0.current?.state).x = 0
+              Object(refEntity_0.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_1.current?.state).x === 0) {
+              Object(refEntity_1.current?.state).x = 0
+              Object(refEntity_1.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_2.current?.state).x === 0) {
+              Object(refEntity_2.current?.state).x = 0
+              Object(refEntity_2.current?.state).y = (0)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+
+            if(Object(refEntity_3.current?.state).x === 0) {
+              Object(refEntity_3.current?.state).x = 0
+              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_4.current?.state).x === 0) {
+              Object(refEntity_4.current?.state).x = 0
+              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_5.current?.state).x === 0) {
+              Object(refEntity_5.current?.state).x = 0
+              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+            } else {
+              moveIndex = moveIndex + 1
+            }
+            if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+              Object(refEntity_6.current?.state).x = 0
+              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+            }
+          }
+          //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          setPosition({x:0, y:0})
+      }
+  }, 100);
+    ///////////////////////////////////////////////////////
+    _menuPos = -2
+    //setAble(false)
+  }
+
+  _menuPos = -(stores.map.screenSize[0]/2)
+  CheckAndSetPosition(tabIndex)
+  setActiveTabIndex(tabIndex)
+  setAble(false)
+}
+
+function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
+  event.preventDefault();
+  clicks.push(new Date().getTime());
+  window.clearTimeout(timeout);
+  timeout = window.setTimeout(() => {
+      if (clicks.length > 1 && clicks[clicks.length - 1] - clicks[clicks.length - 2] < 250) {
+          doubleClick(event.target, _type, _url, _index);
+      } else {
+          singleClick(event.target, _type, _url, _index);
+      }
+  }, 250);
+}
+
 //////////////////////////////////////////
 
   return <Observer>{()=>{
@@ -1466,7 +2676,7 @@ function ResetAppsPanel(index:number) {
              || DEBUG_VIDEO} stores={stores} />
             }</Observer>
 
-
+            {/*
              <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
                 press = true;
@@ -1481,8 +2691,8 @@ function ResetAppsPanel(index:number) {
                 setMenuType('chat')
                }}
              >
-               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
-                <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+               <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
+                <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px', userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div>
 
 
@@ -1500,9 +2710,17 @@ function ResetAppsPanel(index:number) {
                 setMenuType('content')
                }}
              >
-              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', /* color:'white',  */position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : 17}} draggable={false} alt='' />
-              <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px' /* transform: able ? 'rotate(0deg)' : 'rotate(-180deg)' */, userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
+              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : 17}} draggable={false} alt='' />
+              <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px', userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
              </div>
+                */}
+
+
+
+
+
+
+
 
              {/* <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
@@ -1525,14 +2743,23 @@ function ResetAppsPanel(index:number) {
              <>
 
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
-              <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ ref={index === 0 ? refEntity_0 : index === 1 ? refEntity_1 : index === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8} key={index} onDrag={(e, data) => trackPos(data, index)} onStop={(e, data) => setTrack(data, content.url, index)} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
+              <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: (index * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (index * 51)))} : {}}
 
-                <div style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === index) ? 17 : (18 - (index+2)), height:'100%'}}>
+              ref={index === 0 ? refEntity_0 : index === 1 ? refEntity_1 : index === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8}
+
+              key={index} onDrag={(e, data) => trackPos(data, index, content.type)} onStop={(e, data) => setTrack(data, content.url, index)} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
+
+                <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === index) ? 19 : (18 - (index+2)), height:'100%'}}>
                 <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}}
                 ////////////////////////////////////////////////////////////////////
                   onClick={(e) => {
+
+                    // handling single & double click
+                    onTabMenuClick(e, content.type, content.url, index)
+
+                    /*
                     //console.log(position.x, " --- ", menuType)
-                    if(position.x < 0 || position.x > 0) {return}
+                    if((position.x < 0 || position.x > 0) && activeTabIndex === index) {return}
                     //if(position.x < -2 && menuType === content.type) {
                       //setAble(false)
                       //setMenuType('')
@@ -1548,8 +2775,13 @@ function ResetAppsPanel(index:number) {
                         setAble(true)
                       }
                       setMenuType(content.type)
-                    //}
+                    //} */
+
+
+
                   }}
+
+
                   ////////////////////////////////////////////////////////////////////
                  /*  onClick={onSingleClickHandler}
                   onDoubleClick={onDoubleClickHandler} */
@@ -1583,12 +2815,16 @@ function ResetAppsPanel(index:number) {
                     }, delay);
                   }} */
                 >
-                  <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
-                  <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*51), left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+                  <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */, left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
+                  <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px'/* isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*51) */, left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
                 </div>
 
-                <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) && index === 0) ? 'block' : ((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && index === 1) ? 'block' : ((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && index === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && index === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && index === 4) ? 'block' : 'none' /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
-                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1'}}
+                <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */,
+
+                display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) && index === 0) ? 'block' : ((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && index === 1) ? 'block' : ((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && index === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && index === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && index === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && index === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && index === 6) ? 'block' : 'none'
+
+                /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
+                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                   onClick={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
@@ -1764,9 +3000,17 @@ function ResetAppsPanel(index:number) {
                     setPosition({x:0, y:0}) */
                   }}
                  />
-                    <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
-                </div>
 
+                 {/* {(content.type.toLowerCase() !== 'chat' || content.type.toLowerCase() !== 'content') ?
+                    <iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+                    : <LeftBar stores={stores}/>}
+ */}
+                  {}
+                  {content.type === 'chat' || content.type === 'content' ?
+                  <LeftBar stores={stores} type={content.type}/>
+                  : <iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+                  }
+                </div>
                 </div>
               </Draggable>
 
@@ -1779,11 +3023,11 @@ function ResetAppsPanel(index:number) {
 
           </Fragment>
           <div style={{display: (able === true ? "block" : "none"), minWidth:'280px', width:'100%', maxWidth:'280px'}}>
-            <LeftBar stores={stores}/>
+            <LeftBar stores={stores} type={_menuType}/>
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 1.9.9</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.0</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

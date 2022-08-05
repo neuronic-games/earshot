@@ -34,7 +34,7 @@ function limitScale(currentScale: number, scale: number): number {
 }
 const textLineStyle = Object.assign({}, defaultTextLineHeight)
 
-export const LeftBar: React.FC<BMProps> = (props) => {
+export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
   const classes = styleForSplit()
   const [scale, doSetScale] = useState<number>(1)
 
@@ -72,6 +72,8 @@ export const LeftBar: React.FC<BMProps> = (props) => {
 
   const _status = useObserver(() => getAbleStatus())
   const _menuSelected = useObserver(() => getSelectedMenuType())
+
+
   console.log(_status, " status ", _menuSelected)
 
   const _menuSelectedPos = useObserver(() => getSelectedMenuPos())
@@ -81,7 +83,7 @@ export const LeftBar: React.FC<BMProps> = (props) => {
 
   return (
     <div {...bind()}>
-      {_menuSelected === 'chat' ?
+      {/* _menuSelected === 'chat' ||  */props.type === 'chat' ?
       <SplitPane split="horizontal" /* defaultSize="80%" */ defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
         {/* <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
@@ -91,7 +93,7 @@ export const LeftBar: React.FC<BMProps> = (props) => {
         {/* </SplitPane > */}
         <ChatInBar {...props}  {...textLineStyle} />
       </SplitPane >
-      : (_menuSelected === 'content') ?
+      : (/* _menuSelected === 'content' ||  */props.type === 'content') ?
       <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
           <ContentList {...props}  {...textLineStyle} />

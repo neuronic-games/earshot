@@ -232,10 +232,10 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
   })
 
 
-  /* let contentLength = 0
-  all.filter(item => item.shareType === "appimg").map((content, index) => (
-    content.shareType === 'appimg' ? contentLength = index-1 : 0
-  )) */
+  let contentLength = 0
+  all.filter(item => item.shareType !== "appimg").map((content, index) => (
+    content.shareType !== 'appimg' ? contentLength++ : 0
+  ))
 
 
   const editing = useObserver(() => contents.editing)
@@ -252,7 +252,7 @@ export const ContentList: React.FC<BMProps&TextLineStyle>  = (props) => {
   /* const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black') */
 
   return <div className={classes.container} >
-    <div className={classes.title} style={{color:'#FFFFFF90', marginLeft:isSmartphone() ? '10px':'8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2em' : '1em'}} /* style={{color:textColor}} */>{t('Contents')} ({(props.stores.contents.all.length).toString()})
+    <div className={classes.title} style={{color:'#FFFFFF90', marginLeft:isSmartphone() ? '10px':'8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2em' : '1em'}} /* style={{color:textColor}} */>{t('Contents')} ({(contentLength/* props.stores.contents.all.length */).toString()})
       {editing ? <Button variant="contained" size="small" color="secondary"
         style={{marginLeft:4, padding:3, height:'1.4em', fontSize:'0.8'}}
         onClick={()=>{ contents.setEditing('')}}>

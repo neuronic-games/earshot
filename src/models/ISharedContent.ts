@@ -4,7 +4,7 @@ const MAXIMIZABLE_IMAGE_MIN_WIDTH = 200
 
 
 export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
-  'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' |  ''
+  'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' | 'chat' | 'content' |  ''
 
 
 export interface SharedContentInfoData {

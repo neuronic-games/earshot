@@ -36,6 +36,8 @@ export function contentTypeIcons(type: ContentType, size = 12, width = -1) {
     pdf : <span style={{width, height:size}}><Icon icon={filePdfBox} height={size} /></span>,
     playbackScreen: <ScreenShareIcon style={{fontSize:size, width}} />,
     playbackCamera: <CameraAltIcon style={{fontSize:size, width}} />,
+    chat: <></>,
+    content: <></>,
     '': undefined,
   }
 
