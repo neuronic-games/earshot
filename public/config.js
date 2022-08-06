@@ -96,4 +96,21 @@ const config_alpha = {
 }
 Object.assign(config_alpha, Object.assign(common_config, config_alpha))
 
-const config = config_binaural
+const config_titech = {
+  hosts: {
+    domain: 'titech.binaural.me',
+    muc: 'conference.titech.binaural.me'
+  },
+  serviceUrl: 'wss://titech.binaural.me:443/xmpp-websocket',
+  //bosh: 'https://binaural.me/http-bind',
+  bmRelayServer: 'wss://relay.titech.binaural.me',
+  roomInfoServer: 'wss://titech.binaural.me/roomInfoServer-websocket',
+  corsProxyUrl: 'https://binaural.me/cors_proxy/',
+
+  //bmRelayServer: 'ws://localhost:8443',
+  //roomInfoServer: 'ws://localhost:7443',
+  //corsProxyUrl: 'http://localhost:7020',
+}
+Object.assign(config_titech, Object.assign(common_config, config_titech))
+
+const config = config_titech

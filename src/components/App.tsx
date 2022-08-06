@@ -24,17 +24,17 @@ import { getLoginClick, getUserType} from './error/TheEntrance' // getRoomName
 /* import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos'; */
 /* import iconCollapse from '@images/earshot_icon_btn_collapse.png' */
 ////////////////////////////////////////////////////////////////////////////////////
-/* import tabCollapseChat from '@images/earshot_icon_tab.png'
-import tabCollapseContent from '@images/earshot_icon_tab_content.png' */
+import tabCollapseChat from '@images/earshot_icon_tab.png'
+import tabCollapseContent from '@images/earshot_icon_tab_content.png'
 ////////////////////////////////////////////////////////////////////////////////////
 //import tabCollapseEvents from '@images/earshot_icon_tab_events.png'
 
 ////////////////////////////////////////////////////////////////////////////////////
-/* import tabChat from '@images/earshot_icon_btn-chat.png'
+//import tabChat from '@images/earshot_icon_btn-chat.png'
 import tabChatActive from '@images/earshot_icon_btn-chat.png'
 
-import tabContent from '@images/earshot_icon_btn-note.png'
-import tabContentActive from '@images/earshot_icon_btn-note.png' */
+//import tabContent from '@images/earshot_icon_btn-note.png'
+import tabContentActive from '@images/earshot_icon_btn-note.png'
 ////////////////////////////////////////////////////////////////////////////////////
 
 //import tabEvents from '@images/earshot_icon_btn_events.png'
@@ -226,9 +226,10 @@ export const App: React.FC<{}> = () => {
     if(getLoginClick() || loginStatus) {
       //console.log(sessionStorage.getItem("room"), " roomname")
       //console.log("Show User random avatar - ", data)
-      //console.log("BBBB --- ", stores.participants.local.information.name, " ---- ", getUserType())
+      //console.log("BBBB --- ", stores.participants.local.information, " ---- ", getUserType())
 
       if(getUserType() === "N" && activeSkin === -1 && (stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0)) {
+      //if(stores.participants.local.information.avatarSrc === "" || stores.participants.local.information.avatarSrc === undefined || activeSkin === -1 || stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0) {
       //if(activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
         onGenerateRandomAvatar()
         const genImage = setTimeout(() => {
@@ -2254,6 +2255,7 @@ function singleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
       setAble(true)
     }
     setMenuType(tabType)
+    setActiveTabIndex(tabIndex)
 }
 
 function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) {
@@ -2676,8 +2678,9 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
              || DEBUG_VIDEO} stores={stores} />
             }</Observer>
 
-            {/*
-             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+
+            {/* /////////////////////////////////SEPARATE BLOCK/////////////////////////////////// */}
+             {/* <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
                 press = true;
                 if(able === true) {
@@ -2693,10 +2696,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
              >
                <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : 18}} draggable={false} alt='' />
                 <img src={able ? tabChatActive : tabChat} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px', userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
-             </div>
+             </div> */}
 
 
-             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
+             {/* <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex'}}
               onClick={() => {
                 press = true;
                 if(able === true) {
@@ -2712,13 +2715,69 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
              >
               <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '119px' : '49px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : 17}} draggable={false} alt='' />
               <img src={able ? tabContentActive : tabContent} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '122px' : '52px', left:isSmartphone() ? '10px' : '5px', userSelect:'none', zIndex:showIntro ? 0 : 98}} draggable={false} alt='' />
-             </div>
-                */}
+             </div> */}
+
+            {/* /////////////////////////////////CHAT APP/////////////////////////////////// */}
 
 
+            <Draggable bounds={{top: (0 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (0 * 51)))}}ref={refEntity_0} key={0} onDrag={(e, data) => trackPos(data, 0, 'chat')} onStop={(e, data) => setTrack(data, '', 0)} defaultPosition={{x: 0, y: 0}}>
+
+            <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (0 * 119) : tabBGTopBGWeb + (0*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (activeTabIndex === 0) ? 19 : (18 - (0+2)), height:'100%'}}>
+            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (18 - (0+2))}}
+            ////////////////////////////////////////////////////////////////////
+              onClick={(e) => {
+                // handling single & double click
+                onTabMenuClick(e, 'chat', '', 0)
+              }}>
+                <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (18 - (0+2))}} draggable={false} alt='' />
+                <img src={tabChatActive} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+              </div>
+
+              <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:'#0f5c81', borderRadius:'2px', minWidth:'280px', top:'0px',
+              display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
+              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                onClick={() => {
+                  ResetAppsPanel(0)
+                }}
+                onTouchEnd={() => {
+                  ResetAppsPanel(0)
+                }}
+              />
+                <LeftBar stores={stores} type={'chat'}/>
+              </div>
+              </div>
+            </Draggable>
+
+             {/* /////////////////////////////////CONTENT APP////////////////////////////////// */}
 
 
+             <Draggable bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}}ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1)} defaultPosition={{x: 0, y: 0}}>
 
+            <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (1 * 119) : tabBGTopBGWeb + (1*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (activeTabIndex === 1) ? 19 : (18 - (1+2)), height:'100%'}}>
+            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}}
+              onClick={(e) => {
+                // handling single & double click
+                onTabMenuClick(e, 'content', '', 1)
+              }}>
+                <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}} draggable={false} alt='' />
+                <img src={tabContentActive} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
+              </div>
+
+              <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px',
+              display:((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
+              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                onClick={() => {
+                  ResetAppsPanel(1)
+                }}
+                onTouchEnd={() => {
+                  ResetAppsPanel(1)
+                }}
+              />
+                <LeftBar stores={stores} type={'content'}/>
+              </div>
+              </div>
+            </Draggable>
+              {/* /////////////////////////////////////////////////////////////////// */}
 
 
 
@@ -2739,23 +2798,21 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               <img src={tabCollapseEvents} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '100px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
               <img src={able ? tabEventsActive : tabEvents} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div> */}
-
              <>
-
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
-              <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: (index * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (index * 51)))} : {}}
+              <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: ((index+2) * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + ((index+2) * 51)))} : {}}
 
-              ref={index === 0 ? refEntity_0 : index === 1 ? refEntity_1 : index === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8}
+              ref={(index+2) === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8}
 
-              key={index} onDrag={(e, data) => trackPos(data, index, content.type)} onStop={(e, data) => setTrack(data, content.url, index)} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
+              key={(index+2)} onDrag={(e, data) => trackPos(data, (index+2), content.type)} onStop={(e, data) => setTrack(data, content.url, (index+2))} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
 
-                <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === index) ? 19 : (18 - (index+2)), height:'100%'}}>
-                <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}}
+                <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + ((index+2) * 119) : tabBGTopBGWeb + ((index+2)*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === (index+2)) ? 19 : (18 - ((index+2)+2)), height:'100%'}}>
+                <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - ((index+2)+2))}}
                 ////////////////////////////////////////////////////////////////////
                   onClick={(e) => {
 
                     // handling single & double click
-                    onTabMenuClick(e, content.type, content.url, index)
+                    onTabMenuClick(e, content.type, content.url, (index+2))
 
                     /*
                     //console.log(position.x, " --- ", menuType)
@@ -2776,12 +2833,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                       }
                       setMenuType(content.type)
                     //} */
-
-
-
                   }}
-
-
                   ////////////////////////////////////////////////////////////////////
                  /*  onClick={onSingleClickHandler}
                   onDoubleClick={onDoubleClickHandler} */
@@ -2815,25 +2867,25 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                     }, delay);
                   }} */
                 >
-                  <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */, left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - (index+2))}} draggable={false} alt='' />
+                  <img src={content.baseImage} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */, left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - ((index+2)+2))}} draggable={false} alt='' />
                   <img src={content.baseIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px'/* isSmartphone() ? tabBGTopIconMob + (index * 119) : tabBGTopIconWeb + (index*51) */, left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
                 </div>
 
                 <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */,
 
-                display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) && index === 0) ? 'block' : ((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && index === 1) ? 'block' : ((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && index === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && index === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && index === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && index === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && index === 6) ? 'block' : 'none'
+                display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (index+2) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (index+2) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (index+2) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (index+2) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (index+2) === 6) ? 'block' : 'none'
 
                 /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
                 <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                   onClick={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
-                    ResetAppsPanel(index)
+                    ResetAppsPanel((index+2))
                   }}
                   onTouchEnd={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
-                    ResetAppsPanel(index)
+                    ResetAppsPanel((index+2))
                     /* if(index === 0) {
                       let moveIndex = 0
                       if(Object(refEntity_0.current?.state).x < 0) {
@@ -3006,10 +3058,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                     : <LeftBar stores={stores}/>}
  */}
                   {}
-                  {content.type === 'chat' || content.type === 'content' ?
+                 {/*  {content.type === 'chat' || content.type === 'content' ?
                   <LeftBar stores={stores} type={content.type}/>
-                  : <iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
-                  }
+                  :  */}<iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+                 {/* } */}
                 </div>
                 </div>
               </Draggable>
@@ -3027,7 +3079,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.0</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.1</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
