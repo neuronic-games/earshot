@@ -97,7 +97,7 @@ export const App: React.FC<{}> = () => {
 
   const [showIntro, setShowIntro] = useState<Boolean>(true)
 
-  const [menuType, setMenuType] = useState('')
+  const [menuType, setMenuType] = useState('chat')
 
   //console.log(showIntro, " showIntro")
   const [activeOutfit, setActiveOutfit] = useState(-1)
@@ -135,6 +135,8 @@ export const App: React.FC<{}> = () => {
   const refEntity_7 = useRef<Draggable>(null)
   const refEntity_8 = useRef<Draggable>(null)
 
+  //const p = React.createRef<Draggable>(null)
+
   // to display image and desc
   let roomImgPath:string = ""
   let roomImgDesc:string = ""
@@ -169,6 +171,10 @@ export const App: React.FC<{}> = () => {
   const loginStatus = useObserver(() => stores.participants.localId)
 
   const _roomName = sessionStorage.getItem("room") //getRoomName()
+
+  const enterUserType = useObserver(() => getUserType())
+
+  //console.log(loginStatus, " --------- !!!! -------- ", enterUserType)
 
   _able = able
   _menuType = menuType
@@ -209,6 +215,9 @@ export const App: React.FC<{}> = () => {
 
   ////////////////////////////////////////////////////////////
   //console.log("CALLLEEEED- ", loginStatus)
+
+
+
   let sliderData: Array<string> = []
   let sliderDots: Array<string> = []
   if(uiData !== '') {
@@ -222,13 +231,12 @@ export const App: React.FC<{}> = () => {
     getData()
     getUIData()
 
-
+    //console.log(enterUserType, " --CHECK RANDOM-- ", activeSkin)
     if(getLoginClick() || loginStatus) {
       //console.log(sessionStorage.getItem("room"), " roomname")
       //console.log("Show User random avatar - ", data)
       //console.log("BBBB --- ", stores.participants.local.information, " ---- ", getUserType())
-
-      if(getUserType() === "N" && activeSkin === -1 && (stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0)) {
+      if(enterUserType === "N" && activeSkin === -1 && (stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0)) {
       //if(stores.participants.local.information.avatarSrc === "" || stores.participants.local.information.avatarSrc === undefined || activeSkin === -1 || stores.participants.local.information.randomAvatar === undefined || stores.participants.local.information.randomAvatar.length === 0) {
       //if(activeSkin === -1 && stores.participants.local.information.randomAvatar.length === 0) {
         onGenerateRandomAvatar()
@@ -245,7 +253,6 @@ export const App: React.FC<{}> = () => {
         if(getUserType() === "N" && activeSkin === -1) {
           setShowHelp(true)
         }
-
       }, 5000)
     }
   })
@@ -2798,6 +2805,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               <img src={tabCollapseEvents} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '100px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
               <img src={able ? tabEventsActive : tabEvents} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div> */}
+             {console.log(activeTabIndex, " TAB active")}
              <>
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
               <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: ((index+2) * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + ((index+2) * 51)))} : {}}
@@ -3079,7 +3087,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.1</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.2</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

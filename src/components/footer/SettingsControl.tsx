@@ -62,8 +62,19 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     if (files && files.length) {
       files[0].text().then((text) => {
         const items = JSON.parse(text)
+
+        // For Checking whether to Reset the contents or not
+        //console.log(items[0].Reset, " ----- ")
+        if(items[0].ResetRoomElements !== undefined && items[0].ResetRoomElements[0].status === "true") {
+          contents.removeAllContents()
+        }
+
+        // For Elements
+        //console.log(items[0].Elements, " Elements")
+
+        ////////////////////////////////////////////////////////////
         if (isArray(items)) {
-          items.forEach((item) => {
+          items[0].RoomElements.forEach((item:any) => {
             //console.log("Loading -- ", name)
             //console.log(item, " --- item")
             item.ownerName = name
@@ -75,6 +86,8 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
             contents.addLocalContent(newContent)
           })
         }
+        ////////////////////////////////////////////////////////////
+
       })
     }
   }
@@ -95,15 +108,21 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
    /*  const content = JSON.stringify(extractContentDatas(contents.all))
     const blob = new Blob([content], {type: 'text/plain'}) */
 
+
     const content = JSON.stringify(contentAll)
 
+    //////////////////////////////////////////////////////////////////////////
+    // Added Reset Flag to JSON
+    let ResetFlag = {status: "true"}
+    const Reset = JSON.stringify(ResetFlag)
+    let contentElement = '[{"ResetRoomElements" : [' + Reset + '],"RoomElements" : ' + content + '}]'
+    //////////////////////////////////////////////////////////////////////////
 
-    const blob = new Blob([content], {type: 'text/plain'})
+    const blob = new Blob([contentElement], {type: 'text/plain'}) // new Blob([content], {type: 'text/plain'})
     const a = document.createElement('a')
     const url = URL.createObjectURL(blob)
     a.href = url
     //a.download = 'BinauralMeetSharedItems.json'
-
 
     let roomName = sessionStorage.getItem('room')
     /* let details: Object|undefined = undefined
