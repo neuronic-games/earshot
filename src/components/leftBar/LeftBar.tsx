@@ -7,7 +7,7 @@ import {ChatInBar} from './Chat'
 import {ContentList} from './ContentList'
 import {ParticipantList} from './ParticipantList'
 
-import { getAbleStatus, getSelectedMenuPos } from '@components/App'
+import { /* getAbleStatus, */ getSelectedMenuPos } from '@components/App'
 import { getSelectedMenuType } from '@components/App'
 import { useObserver } from 'mobx-react-lite'
 
@@ -70,11 +70,11 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
   )
 
 
-  const _status = useObserver(() => getAbleStatus())
+  //const _status = useObserver(() => getAbleStatus())
   const _menuSelected = useObserver(() => getSelectedMenuType())
 
 
-  console.log(_status, " status ", _menuSelected)
+  /* console.log(_status, " status ", _menuSelected) */
 
   const _menuSelectedPos = useObserver(() => getSelectedMenuPos())
 

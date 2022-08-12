@@ -21,6 +21,7 @@ import React, { useState } from 'react'
 import {SignalQualityIcon} from './SignalQuality'
 // Image
 import proximityVolumeIcon from '@images/whoo-emoticons_voice.png'
+
 // Animated Emoticons
 import symSmileIcon from '@images/whoo-screen_sym-smile.png'
 import symClapIcon from '@images/whoo-screen_sym-clap.png'

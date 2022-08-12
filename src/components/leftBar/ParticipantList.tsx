@@ -21,11 +21,45 @@ import averageConnIcon from '@images/earshot_icon_quality_2.png'
 import badConnIcon from '@images/earshot_icon_quality_1.png'
 import {isSmartphone} from '@models/utils'
 
+// Animated Emoticons
+import symSmileIcon from '@images/whoo-screen_sym-smile.png'
+import symClapIcon from '@images/whoo-screen_sym-clap.png'
+import symHandIcon from '@images/whoo-screen_sym-hand.png'
 
+import {makeStyles} from '@material-ui/core/styles'
 
 
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
+
+interface StyleProps {
+  size: number,
+}
+
+
+const useStyles = makeStyles({
+  iconEmoticon: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
+    left: props.size * -0.2,
+    top: props.size * -0.2,
+    pointerEvents: 'none',
+    transform: 'scale(1)',
+    transition: '0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  }),
+  iconEmoticonNone: (props: StyleProps) => ({
+    position: 'absolute',
+    width: props.size * 0.6 ,
+    height: props.size * 0.6,
+    left: props.size * 0.1,
+    top: props.size * 0,
+    pointerEvents: 'none',
+    transform: 'scale(0)',
+    transition: '0s ease-out',
+  }),
+})
+
 
 export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: ParticipantBase}> = (props) => {
   const map = props.stores.map
@@ -38,6 +72,13 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
   const ref = React.useRef<HTMLButtonElement>(null)
   const {lineHeight, ...propsForForm} = props
   //  console.log(`PColor pid:${props.participant.id} colors:${colors}`, props.participant)
+
+
+
+
+  const classesIcons = useStyles({
+    size: isSmartphone() ? (props.lineHeight * 4) : (props.lineHeight * 2.5),
+  })
 
   const _connQuality = useObserver(() => props.participant.quality?.connectionQuality)
   const zoneName = useObserver(() => {
@@ -52,6 +93,21 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
       }
     }
   })
+
+  // For Emoticons
+  const _iconsRemote = useObserver(() => {
+    let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
+    for(let [i] of remotes.entries()) {
+      if(props.stores.participants.remote.get(remotes[i])?.trackStates.emoticon !== '') {
+        if(props.stores.participants.remote.get(remotes[i])?.id === props.participant.id && props.stores.participants.remote.get(remotes[i])?.trackStates.emoticon !== '') {
+          return props.stores.participants.remote.get(remotes[i])?.trackStates.emoticon
+        }
+      } else {
+        return ''
+      }
+    }
+  })
+  const _iconsLocal = useObserver(() => props.stores.participants.local.trackStates.emoticon)
 
   const localZone = useObserver(() => (props.stores.participants.local.zone?.name !== undefined && props.stores.participants.local.zone?.name !== '') ? ' ('+props.stores.participants.local.zone?.name+')' : '')
 
@@ -95,6 +151,14 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
       <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 1px 10px'}}>
         <IconButton style={{margin:0, padding:0, marginTop: '5px', marginLeft:isSmartphone() ? '10px' : '5px'}} onClick={onClick} onContextMenu={onContextMenu}>
           <ImageAvatar border={true} colors={colors} /* size={size} */ size={(isSmartphone() ? (size * 3.2) : (size * 2))} name={name} avatarSrc={avatarSrc} />
+          <img
+          src={ (props.stores.participants.localId === props.participant.id) ?
+            _iconsLocal === 'smile' ? symSmileIcon : (_iconsLocal === "hand" ? symHandIcon : (_iconsLocal === "clap" ? symClapIcon : undefined)) :  _iconsRemote === 'smile' ? symSmileIcon : (_iconsRemote === "hand" ? symHandIcon : (_iconsRemote === "clap" ? symClapIcon : undefined))
+          }
+            className={ (props.stores.participants.localId === props.participant.id) ?
+              _iconsLocal === '' ? classesIcons.iconEmoticonNone : classesIcons.iconEmoticon
+              :  _iconsRemote === '' ? classesIcons.iconEmoticonNone : classesIcons.iconEmoticon
+            }  alt='' />
         </IconButton>
         <Button /* variant="contained" */ className={classes.line} ref={ref}
           style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '5px', fontWeight: 'bold', fontSize: isSmartphone() ? '2em' : '1em'}}
@@ -105,6 +169,9 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
         <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:isSmartphone() ? '50px' : '25px', marginTop: '2px',}}>
             {(_connQuality !== undefined && _connQuality > 80) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
         </div>
+
+
+
       </div>
     </Tooltip>
     {props.participant.id === props.stores.participants.localId ?

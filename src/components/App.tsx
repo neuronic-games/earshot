@@ -97,7 +97,7 @@ export const App: React.FC<{}> = () => {
 
   const [showIntro, setShowIntro] = useState<Boolean>(true)
 
-  const [menuType, setMenuType] = useState('chat')
+  const [menuType, setMenuType] = useState('')
 
   //console.log(showIntro, " showIntro")
   const [activeOutfit, setActiveOutfit] = useState(-1)
@@ -141,6 +141,7 @@ export const App: React.FC<{}> = () => {
   let roomImgPath:string = ""
   let roomImgDesc:string = ""
   let activeBgColor:string = ""
+  let AllMenusTypes:any = []
   const cContent = useObserver(() => stores.contents.all)
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgPath = content.url
@@ -163,6 +164,10 @@ export const App: React.FC<{}> = () => {
     menuType === content.type ? activeBgColor = content.baseColor : ''
   ))
 
+  cContent.filter(item => item.shareType === "appimg").map((content, index) => (
+    AllMenusTypes.push(content.type)
+  ))
+
   //const elementsRef = useRef(cContent.filter(item => item.shareType === "appimg").map(() => React.createRef()));
 
   /* const rgb = stores.participants.local.getColorRGB() */
@@ -182,8 +187,10 @@ export const App: React.FC<{}> = () => {
 
 
   let tabBGTopBGWeb:number = 0 //100 //98 //98
-  let tabBGTopBGMob:number = 242 //238
+  let tabBGTopBGMob:number = 0 //242 //238
 
+
+  //console.log(activeTabIndex, " TAB INDEX")
   //let tabBGTopIconWeb:number = 2 //102 //104 //102
   //let tabBGTopIconMob:number = 255 //241
 
@@ -525,7 +532,7 @@ export const App: React.FC<{}> = () => {
     setShowIntro(false)
   } */
 
-  function trackPos(data:any, _index:number, menu:string) {
+  function trackPos(data:any, _index:number, _menu:string) {
     setPosition({ x: data.x, y: data.y })
     _menuPos = position.x
 
@@ -533,6 +540,15 @@ export const App: React.FC<{}> = () => {
 
     // Setting Pos
     CheckAndSetPosition(_index)
+    CheckAndActivateMenu(_index)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Check How many items are there in the dock tab
+    /* let _bool = false
+    if(Object(refEntity_0.current?.state).x === 0 || Object(refEntity_1.current?.state).x === 0 || Object(refEntity_2.current?.state).x === 0) {
+      _bool = true
+    }
+    console.log(_bool) */
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
     if(_index === 0) {
@@ -883,6 +899,123 @@ export const App: React.FC<{}> = () => {
   } */
 
 
+
+  function CheckAndActivateMenu(_index:number) {
+    //console.log(AllMenusTypes)
+    if(AllMenusTypes.length === 0) {
+      if(_index === 0) {
+        if(Object(refEntity_1.current?.state).x === 0) {
+          setMenuType('content')
+        } else {
+          setMenuType('blank')
+        }
+      } else if(_index === 1) {
+        if(Object(refEntity_0.current?.state).x === 0) {
+          setMenuType('chat')
+        } else {
+          setMenuType('blank')
+        }
+      }
+    } else {
+      if(_index === 0) {
+        if(Object(refEntity_1.current?.state).x === 0) {
+          setMenuType('content')
+        } else if(Object(refEntity_2.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index])
+        } else if(Object(refEntity_3.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+1])
+        } else if(Object(refEntity_4.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+2])
+        } else if(Object(refEntity_5.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+3])
+        } else if(Object(refEntity_6.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+4])
+        } else {
+          setMenuType('blank')
+        }
+      } else if(_index === 1) {
+        if(Object(refEntity_0.current?.state).x === 0) {
+          setMenuType('chat')
+        } else if(Object(refEntity_2.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index-1])
+        } else if(Object(refEntity_3.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index])
+        } else if(Object(refEntity_4.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+1])
+        } else if(Object(refEntity_5.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+3])
+        } else if(Object(refEntity_6.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index+4])
+        } else {
+          setMenuType('blank')
+        }
+      } else if(_index >= 2) {
+        if(Object(refEntity_0.current?.state).x === 0) {
+          setMenuType('chat')
+        } else if(Object(refEntity_1.current?.state).x === 0) {
+          setMenuType('content')
+        } else if(Object(refEntity_3.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_4.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_5.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_6.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType(AllMenusTypes[_index-2])
+        } else {
+          setMenuType('blank')
+        }
+      } /* else if(_index === 3) {
+        if(Object(refEntity_0.current?.state).x === 0) {
+          setMenuType('chat')
+        } else if(Object(refEntity_1.current?.state).x === 0) {
+          setMenuType('content')
+        } else if(Object(refEntity_2.current?.state).x === 0) {
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_4.current?.state).x === 0) {
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_5.current?.state).x === 0) {
+          setMenuType(AllMenusTypes[_index-2])
+        } else if(Object(refEntity_6.current?.state).x === 0) {
+          setMenuType(AllMenusTypes[_index-2])
+        } else {
+          setMenuType('blank')
+        }
+      } */
+    }
+  }
+
+
+
+
   function CheckAndSetPosition(_index:number) {
 
     if(_index === 0) {
@@ -897,37 +1030,37 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
 
     } else if(_index === 1) {
@@ -942,37 +1075,37 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else if(Object(refEntity_1.current?.state).x === 0) {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     } else if(_index === 2) {
       let moveIndex = 0
@@ -986,37 +1119,37 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     } else if(_index === 3) {
       let moveIndex = 0
@@ -1024,43 +1157,43 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_0.current?.state).x = 0
-        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+        Object(refEntity_0.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_1.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     } else if(_index === 4) {
       let moveIndex = 0
@@ -1068,43 +1201,43 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_0.current?.state).x = 0
-        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+        Object(refEntity_0.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_1.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     } else if(_index === 5) {
       let moveIndex = 0
@@ -1112,43 +1245,43 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_0.current?.state).x = 0
-        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+        Object(refEntity_0.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_1.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     } else if(_index === 6) {
       let moveIndex = 0
@@ -1156,45 +1289,46 @@ export const App: React.FC<{}> = () => {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_0.current?.state).x = 0
-        Object(refEntity_0.current?.state).y = (moveIndex * -51)
+        Object(refEntity_0.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_1.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_1.current?.state).x = 0
-        Object(refEntity_1.current?.state).y = (moveIndex * -51)
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_2.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = (moveIndex * -51)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_3.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_4.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = (moveIndex * -51)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_5.current?.state).x < 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = (moveIndex * -51)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
       if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
         moveIndex = moveIndex + 1
       } else {
         Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = (moveIndex * -51)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
     }
+
   }
 
   function setTrack(data:any, _url:string, _index:number) {
@@ -1424,39 +1558,39 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (moveIndex * 51)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * 51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_2.current?.state).x === 0) {
                 Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 1) {
               let moveIndex = 0
@@ -1468,39 +1602,39 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (moveIndex * -51)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_2.current?.state).x === 0) {
                 Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 2) {
               let moveIndex = 0
@@ -1512,39 +1646,39 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (moveIndex * -51)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
                 Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 3) {
               let moveIndex = 0
@@ -1563,14 +1697,14 @@ export const App: React.FC<{}> = () => {
 
               if(Object(refEntity_2.current?.state).x === 0) {
                 Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (moveIndex * -51)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
               if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
@@ -1582,13 +1716,13 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 4) {
               let moveIndex = 0
@@ -1614,25 +1748,25 @@ export const App: React.FC<{}> = () => {
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 5) {
               let moveIndex = 0
@@ -1658,25 +1792,25 @@ export const App: React.FC<{}> = () => {
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x === 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             } else if(_index === 6) {
               let moveIndex = 0
@@ -1702,25 +1836,25 @@ export const App: React.FC<{}> = () => {
 
               if(Object(refEntity_3.current?.state).x === 0) {
                 Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = (moveIndex * -51)
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_4.current?.state).x === 0) {
                 Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (moveIndex * -51)
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_5.current?.state).x === 0) {
                 Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = (moveIndex * -51)
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
               if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
                 Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = (moveIndex * -51)
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               }
             }
 
@@ -1925,7 +2059,7 @@ function onDoubleClickHandler(){
   }, delay);
 }; */
 //////////////////////////////////////////
-function ResetAppsPanel(index:number) {
+function ResetAppsPanel(index:number, _type:string) {
   if(index === 0) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x < 0) {
@@ -1936,42 +2070,42 @@ function ResetAppsPanel(index:number) {
     }
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (moveIndex * 51)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * 51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_2.current?.state).x === 0) {
       Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_3.current?.state).x === 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_5.current?.state).x === 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_6.current?.state).x === 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
 
   } else if(index === 1) {
@@ -1984,39 +2118,39 @@ function ResetAppsPanel(index:number) {
     }
     if(Object(refEntity_1.current?.state).x < 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_2.current?.state).x === 0) {
       Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_3.current?.state).x === 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_5.current?.state).x === 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_6.current?.state).x === 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
 
   } else if(index === 2) {
@@ -2029,14 +2163,14 @@ function ResetAppsPanel(index:number) {
     }
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (moveIndex * -51)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_2.current?.state).x < 0) {
       Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
@@ -2049,19 +2183,19 @@ function ResetAppsPanel(index:number) {
     }
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_5.current?.state).x === 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_6.current?.state).x === 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
 
   } else if(index === 3) {
@@ -2081,14 +2215,14 @@ function ResetAppsPanel(index:number) {
 
     if(Object(refEntity_2.current?.state).x === 0) {
       Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (moveIndex * -51)
+      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
     if(Object(refEntity_3.current?.state).x < 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
@@ -2132,25 +2266,25 @@ function ResetAppsPanel(index:number) {
 
     if(Object(refEntity_3.current?.state).x === 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_4.current?.state).x < 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_5.current?.state).x === 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_6.current?.state).x === 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
   } else if(index === 5) {
     let moveIndex = 0
@@ -2176,25 +2310,25 @@ function ResetAppsPanel(index:number) {
 
     if(Object(refEntity_3.current?.state).x === 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_5.current?.state).x < 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_6.current?.state).x === 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
   } else if(index === 6) {
     let moveIndex = 0
@@ -2220,30 +2354,31 @@ function ResetAppsPanel(index:number) {
 
     if(Object(refEntity_3.current?.state).x === 0) {
       Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_4.current?.state).x === 0) {
       Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (moveIndex * -51)
+      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_5.current?.state).x === 0) {
       Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (moveIndex * -51)
+      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
     if(Object(refEntity_6.current?.state).x < 0) {
       Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (moveIndex * -51)
+      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     }
   }
   _menuPos = -2
   setPosition({x:0, y:0})
   setActiveTabIndex(-1)
+  setMenuType(_type)
 }
 //////////////////////////////////////////
 let clicks:any = [];
@@ -2338,39 +2473,39 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (moveIndex * 51)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_2.current?.state).x === 0) {
               Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x === 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 1) {
             let moveIndex = 0
@@ -2382,39 +2517,39 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (moveIndex * -51)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_2.current?.state).x === 0) {
               Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x === 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 2) {
             let moveIndex = 0
@@ -2426,39 +2561,39 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (moveIndex * -51)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
               Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x === 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 3) {
             let moveIndex = 0
@@ -2477,14 +2612,14 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
             if(Object(refEntity_2.current?.state).x === 0) {
               Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (moveIndex * -51)
+              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
             if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
@@ -2496,13 +2631,13 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 4) {
             let moveIndex = 0
@@ -2528,25 +2663,25 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 5) {
             let moveIndex = 0
@@ -2572,25 +2707,25 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x === 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x === 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           } else if(tabIndex === 6) {
             let moveIndex = 0
@@ -2616,39 +2751,47 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
             if(Object(refEntity_3.current?.state).x === 0) {
               Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = (moveIndex * -51)
+              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_4.current?.state).x === 0) {
               Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (moveIndex * -51)
+              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_5.current?.state).x === 0) {
               Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = (moveIndex * -51)
+              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
             if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
               Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = (moveIndex * -51)
+              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             }
           }
           //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          _menuPos = -2
           setPosition({x:0, y:0})
+          setMenuType(tabType)
       }
   }, 100);
     ///////////////////////////////////////////////////////
-    _menuPos = -2
+    //_menuPos = -2
     //setAble(false)
   }
 
-  _menuPos = -(stores.map.screenSize[0]/2)
+  //_menuPos = -(stores.map.screenSize[0]/2)
   CheckAndSetPosition(tabIndex)
+
+  // When double click
+  CheckAndActivateMenu(tabIndex)
+
   setActiveTabIndex(tabIndex)
+
+  // Enable When needed
   setAble(false)
 }
 
@@ -2673,10 +2816,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="70em"> */}
 
-        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : activeBgColor
+        <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : menuType !== 'blank' ? activeBgColor : 'white'
 
 
-        /* '#5f7ca020' */, boxShadow: '5px 10px 10px 3px black'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
+        /* '#5f7ca020' */, boxShadow: menuType !== 'blank' ? '5px 10px 10px 3px black' : '5px 10px 10px 3px white'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
           minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : (_menuType !== 'chat' && _menuType !== 'content') ? "73%" : '73%'/* "77%" *//* "85%" */ : "100%"}>
 
           <Fragment>
@@ -2735,7 +2878,12 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               onClick={(e) => {
                 // handling single & double click
                 onTabMenuClick(e, 'chat', '', 0)
-              }}>
+              }}
+              onTouchEnd={(e) => {
+                  onTabMenuClick(e, 'chat', '', 0)
+                }}
+              >
+
                 <img src={tabCollapseChat} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (18 - (0+2))}} draggable={false} alt='' />
                 <img src={tabChatActive} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
               </div>
@@ -2744,10 +2892,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
               <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                 onClick={() => {
-                  ResetAppsPanel(0)
+                  ResetAppsPanel(0, 'chat')
                 }}
                 onTouchEnd={() => {
-                  ResetAppsPanel(0)
+                  ResetAppsPanel(0, 'chat')
                 }}
               />
                 <LeftBar stores={stores} type={'chat'}/>
@@ -2765,7 +2913,12 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               onClick={(e) => {
                 // handling single & double click
                 onTabMenuClick(e, 'content', '', 1)
-              }}>
+              }}
+              onTouchEnd={(e) => {
+                onTabMenuClick(e, 'content', '', 1)
+              }}
+              >
+
                 <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}} draggable={false} alt='' />
                 <img src={tabContentActive} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
               </div>
@@ -2774,10 +2927,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               display:((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
               <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                 onClick={() => {
-                  ResetAppsPanel(1)
+                  ResetAppsPanel(1, 'content')
                 }}
                 onTouchEnd={() => {
-                  ResetAppsPanel(1)
+                  ResetAppsPanel(1, 'content')
                 }}
               />
                 <LeftBar stores={stores} type={'content'}/>
@@ -2805,7 +2958,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
               <img src={tabCollapseEvents} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:isSmartphone() ? '238px' : '100px', left:isSmartphone() ? '1px' : '0px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'events' ? 9 : 7}} draggable={false} alt='' />
               <img src={able ? tabEventsActive : tabEvents} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:isSmartphone() ? '241px' : '102px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
              </div> */}
-             {console.log(activeTabIndex, " TAB active")}
+             {/* console.log(activeTabIndex, " TAB active") */}
              <>
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
               <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: ((index+2) * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + ((index+2) * 51)))} : {}}
@@ -2841,6 +2994,9 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                       }
                       setMenuType(content.type)
                     //} */
+                  }}
+                  onTouchEnd={(e) => {
+                    onTabMenuClick(e, content.type, content.url, (index+2))
                   }}
                   ////////////////////////////////////////////////////////////////////
                  /*  onClick={onSingleClickHandler}
@@ -2888,12 +3044,12 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                   onClick={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
-                    ResetAppsPanel((index+2))
+                    ResetAppsPanel((index+2), content.type)
                   }}
                   onTouchEnd={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
-                    ResetAppsPanel((index+2))
+                    ResetAppsPanel((index+2), content.type)
                     /* if(index === 0) {
                       let moveIndex = 0
                       if(Object(refEntity_0.current?.state).x < 0) {
@@ -3087,7 +3243,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.2</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4em' : '1em'}}>Version 2.0.3</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white', /* marginTop:roomImgPath !== '' ? '1em' : '10.5em', */fontSize:isSmartphone() ? '3em' : '1.2em'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '2.8em' : '1.2em', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'/* , width: '50%', marginLeft:'25%' */} : {textAlign:'center', color: 'white', marginTop:'-0.8em', fontSize:isSmartphone() ? '3em' : '1.2em', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

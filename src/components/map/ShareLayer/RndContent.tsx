@@ -2774,7 +2774,7 @@ const useStyles = makeStyles({
   }),
 
   stopWatchTitleHolder: (props: StyleProps) => ({
-    display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
+    display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
     fontSize: '1.2em',
     width: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[0] : props.size[0],
