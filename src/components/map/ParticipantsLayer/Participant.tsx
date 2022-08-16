@@ -53,6 +53,8 @@ interface StyleProps {
 const SVG_RATIO = 12
 const HALF = 0.5
 
+let animCount = 0
+
 const useStyles = makeStyles({
   root: (props: StyleProps) => ({
     position: 'absolute',
@@ -92,9 +94,9 @@ const useStyles = makeStyles({
     height: props.size * 3,
     left: props.size * -1,
     top: props.size * -1,
-    opacity: 0,
+    opacity: 1,
     pointerEvents: 'none',
-    transform: "scale(1)",
+    transform: "scale(0.9)",
     transition: '0.5s ease-out'
   }),
 
@@ -425,15 +427,23 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
     setTogglePingSound(false)
   }
 
-  if(zoneId === localZoneId) {
-    const _timer = setTimeout(() => {
-      clearTimeout(_timer)
-      if(anim === false) {
-        setAnim(true)
-      } else {
-        setAnim(false)
-      }
-    }, 500)
+
+  if(localZoneId === undefined) {
+    animCount = 0
+  } else {
+    if(zoneId === localZoneId) {
+      const _timer = setTimeout(() => {
+        if(animCount >= 2) {return}
+        clearTimeout(_timer)
+        if(anim === false) {
+          setAnim(true)
+          animCount++
+        } else {
+          setAnim(false)
+          //animCount = 0
+        }
+      }, 500)
+    }
   }
 
   //const _pingCursor = useObserver(() => participant.trackStates.cursorMove)
@@ -615,10 +625,10 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
           className={classes.pointer} width={props.size * SVG_RATIO} height={props.size * SVG_RATIO} xmlns="http://www.w3.org/2000/svg">
 
           { (inZone === 'close' && (participant.id !== props.stores.participants.localId) && zoneId === localZoneId) ?
-          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="red" stroke-width="4" fill={'#00000020'} /* fill={color} */ />
+          <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="#ff4500" stroke-width="4" fill={'#00000020'} /* fill={color} */ />
           :  (proxCords !== undefined && proxCords < 360 &&
             ((participant.id !== props.stores.participants.localId)) && localZoneId === undefined)
-            ? <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="red" stroke-width="4" fill={'#00000020'} />
+            ? <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="#ff4500" stroke-width="4" fill={'#00000020'} />
             : <circle r={outerRadius} cy={svgCenter} cx={svgCenter} stroke="none" fill={'#00000020'} />
           }
 

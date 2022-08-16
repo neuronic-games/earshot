@@ -179,7 +179,7 @@ const useStyles = makeStyles({
       width:'91%',
       height:'100%',
       minWidth: '440px',
-      minHeight:'245px',
+      minHeight: '400px', //'245px',
       border:'2px dashed #00000030',
       left:'45px',
       position:'relative'
@@ -203,7 +203,7 @@ const useStyles = makeStyles({
       gap:-10,
       overflowY:'hidden',
       overflowX: 'hidden',
-      height:'90px',
+      height:isSmartphone() ? '110px' : '90px',
       alignContent:'flex-start',
     },
     deavticeButtons: {
@@ -525,9 +525,15 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         var changedTouch = e.changedTouches[0];
 
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-        if(elem?.nodeName === "IMG" && elem?.id === "menuUpload") {
+
+        console.log(elem?.nodeName, " ----- ", elem?.id)
+
+        if(elem?.nodeName === "IMG" && elem?.id === "contextMore") {
           //setShowUploadOption(true)
-          setShowMenu(false)
+          //setShowMenu(false)
+          openConfig()
+        } else if(elem?.nodeName === "IMG" && elem?.id === "avatarGen") {
+          openAvatarTool(e)
         }
         onLocalUser = false
       }
@@ -1554,7 +1560,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         PaperProps={{
           style: {
             minWidth: 760,
-            transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
+            transform: isSmartphone() ? 'scale(1.2)' : 'scale(1)',
           },
         }}
       >
@@ -1607,22 +1613,22 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
           {pageIndex === 0 ?
               <ListItem style={{minWidth:'470px', minHeight:'250px'}}>
                 <div className={classes.galleryMain}>
-                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>SKIN</div>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.5em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>SKIN</div>
                   <div className={classes.galleryList}>
                     {_ITEMS_SKIN}
                   </div>
-                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>HAIR</div>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.5em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>HAIR</div>
                   <div className={classes.galleryList}>
                     {_ITEMS_HAIR}
                   </div>
-                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.2em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>GROUP</div>
+                  <div style={{position:'relative', marginTop:'5px', marginLeft:'5px', fontSize:isSmartphone() ? '1.5em' : '0.9em', fontWeight:'bold', color:'#2279BD'}}>GROUP</div>
                   <div className={classes.galleryList}>
                     {_ITEMS_GROUP}
                   </div>
 
                 </div>
               </ListItem>
-              : <ListItem style={{minWidth:'470px'}}>
+              : <ListItem style={{minWidth:'470px', minHeight:'250px'}}>
               <div className={classes.galleryMain}>
                 <div className={classes.gallery}>
                   {_ITEMS}
@@ -1634,7 +1640,7 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
               <Button
                   variant="contained"
                   /* color="primary" */
-                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', backgroundColor:'orange', position:'relative', marginLeft:'75px'}}
+                  style={{fontSize: isSmartphone() ? '1.5em' : '1em', backgroundColor:'orange', position:'relative', marginLeft:isSmartphone() ? '-130px' : '75px'}}
                   onClick={() => {
                     onCloseDialog()
                   }}

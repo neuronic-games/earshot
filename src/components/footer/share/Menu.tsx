@@ -27,7 +27,7 @@ import {initOptions} from '@models/api/Connection'
 import {connection} from '@models/api/ConnectionDefs'
 /* import {ISharedContent} from '@models/ISharedContent' */
 import {useTranslation} from '@models/locales'
-import {assert} from '@models/utils'
+import {assert, isSmartphone} from '@models/utils'
 import {/* createContent,  */createContentFromText, createContentOfIframe,
   createContentOfTextOnly,
   createContentOfVideo/* , extractContentData */} from '@stores/sharedContents/SharedContentCreator' // createContentOfText, , extractContentDatas
@@ -249,14 +249,14 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
       /> */}
       <ShareDialogItem
         tip = {t('shareImageTip')}
-        key="shareImage" text={t('shareImage')} icon={<ImageIcon />} onClick={() => setStep('image')}
+        key="shareImage" text={t('shareImage')} icon={<ImageIcon style={isSmartphone() ? {width:'2em', height:'2em'} : {width:'1em', height:'1em'}} />} onClick={() => setStep('image')}
       />
       {/* <ShareDialogItem
         tip = {t('shareGDriveTip')}
         key="shareGDrive" text={t('shareGDrive')} icon={<InsertDriveFileTwoTone />} onClick={() => setStep('Gdrive')}
       /> */}
       <ShareDialogItem
-        key="shareText" text={t('shareText')} icon={<SubjectIcon />} onClick={createText}
+        key="shareText" text={t('shareText')} icon={<SubjectIcon  style={isSmartphone() ? {width:'2em', height:'2em'} : {width:'1em', height:'1em'}} />} onClick={createText}
       />
       {/* <ShareDialogItem
         tip = {t('shareWhiteboardTip')}
@@ -287,10 +287,10 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
       <ShareDialogItem
         tip = {t('shareScreenContentTip')}
         key="shareScreenContent"
-        icon={<ScreenShareIcon />}
+        icon={<ScreenShareIcon  style={isSmartphone() ? {width:'2em', height:'2em'} : {width:'1em', height:'1em'}} />}
         text={t('shareScreenContent')}
         onClick={createScreen}
-        secondEl = {<FormControl component="fieldset">
+        secondEl = {<FormControl style={isSmartphone() ? {transform:'scale(1.5)', marginLeft:'2em'} : {transform:'scale(1)', marginLeft:'0em'}} component="fieldset">
           <Observer>{
             ()=> <RadioGroup row aria-label="screen-fps" name="FPS" value={props.stores.contents.screenFps}
               onChange={(ev)=>{ props.stores.contents.setScreenFps(Number(ev.target.value)) }}
@@ -309,12 +309,10 @@ export const ShareMenu: React.FC<ShareMenuProps> = (props) => {
           }</Observer>
         </FormControl>}
       />
-
-      <Divider />
       <Divider />
       <ShareDialogItem
         tip = {t('shareImageTip')}
-        key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon />} onClick={() => setStep('zoneimage')}
+        key="shareZoneImage" text={t('shareZoneImage')} icon={<ImageIcon  style={isSmartphone() ? {width:'2em', height:'2em'} : {width:'1em', height:'1em'}} />} onClick={() => setStep('zoneimage')}
       />
        <Divider />
 

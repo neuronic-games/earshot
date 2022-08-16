@@ -25,9 +25,10 @@ export const ShareDialogItem: React.FC<ShareDialogItemProps> = (props) => {
   } = props
   const textEl = acceleratorText2El(text)
   const fontSize = isSmartphone() ? '2.5em' : '1em'
+
   const item = <ListItem button dense={dense} onClick={onClick} style={{alignItems:'start'}}>
     {icon ? <ListItemAvatar style={{fontSize: fontSize, height:fontSize}}>
-      {icon}
+        {icon}
     </ListItemAvatar> : undefined }
     <ListItem style={{paddingLeft:0, paddingTop:0, paddingBottom:0}}>
       <div style={{fontSize: isSmartphone() ? '2.5em' : '1.2em', verticalAlign: 'middle'}}>

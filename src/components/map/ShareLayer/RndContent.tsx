@@ -41,6 +41,7 @@ import {ShareDialog} from '@components/footer/share/ShareDialog'
 /* import { getBasePingStatus } from '../Base' */
 import {Icon} from '@iconify/react'
 import crossIcon from '@iconify-icons/fa-solid/expand-arrows-alt'
+import { isCanvasMoved } from '../Base'
 
 
 
@@ -150,6 +151,11 @@ export function isOnContentStatus() : boolean {
   return _isOnContent
 }
 
+let _contenHandler = false
+export function isContentHandlerOn() : boolean {
+  return _contenHandler
+}
+
 // For Double Touch
 let dblTouchTapCount = 0
 
@@ -206,8 +212,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   _contentDialogOpen = showUploadOption
 
-
-
 const mDeleteTimer = setTimeout(function() {
   clearTimeout(mDeleteTimer)
  _contentDeleteDialogOpen = showDelete
@@ -220,6 +224,8 @@ const mDeleteTimer = setTimeout(function() {
   const stopWatchReset = useObserver(() => props.content.stopWatchReset)
 
   const showHandler = useObserver(() => props.content.scaleRotateToggle)
+
+  _contenHandler = showHandler
 
   //const [isPaused, setIsPaused] = useState(props.content.stopWatchToggle)
   const [time, setTime] = useState(0);
@@ -610,10 +616,16 @@ const mDeleteTimer = setTimeout(function() {
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
 
+    //console.log(member.clickStatus, " ---- ", member.clickEnter, " --- ", member.isMoved)
+
     if(member.clickStatus === 'single') {
       if(member.clickEnter) {return}
      // if(pingLocation) {return}
-     if(member.isMoved) {return}
+
+     //if(member.isMoved) {return}
+
+     if(isCanvasMoved()) {return}
+
      if(showDelete) {return}
      //if(member.OnTimerClick) {return}
 
@@ -621,6 +633,7 @@ const mDeleteTimer = setTimeout(function() {
 
      //console.log(showOnRotation, " onRota icon")
      if(showOnRotation) {return}
+     if(showHandler) {return}
 
      if(pingLocation) {}
       pingEnable = false
@@ -631,6 +644,10 @@ const mDeleteTimer = setTimeout(function() {
       setPingLocation(false)
       const moveTimer = setTimeout(() =>{
         clearTimeout(moveTimer)
+
+        console.log(member.isMoved)
+
+        if(member.isMoved) {return}
         function moveParticipant(move:boolean) {
           const local = participants.local
           //const diff = subV2(map.mouseOnMap, local.pose.position)
@@ -660,6 +677,11 @@ const mDeleteTimer = setTimeout(function() {
      /*  if(pingLocation) {return}
       if(getBasePingStatus()) {return} */
       ///////////////////////////////////
+
+      if(_contentDeleteDialogOpen) {return}
+
+
+      //console.log("ENTER IN RND --- ", _contentDeleteDialogOpen)
 
       window.clearTimeout(member.hidePinIcon)
 
@@ -711,6 +733,8 @@ const mDeleteTimer = setTimeout(function() {
   const isFixed = (props.content.pinned)
 
 
+
+
   //const stopTimeValue = ("0" + Math.floor((time / 3600000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) // + ":" + ("0" + ((time / 10) % 100)).slice(-2)
   const stopTimeValue = ("0" + Math.floor((time / 60000) % 60)).slice(-2) + ":" + ("0" + Math.floor((time / 1000) % 60)).slice(-2) + ":" + ("0" + ((time / 10) % 100)).slice(-2)
 
@@ -739,8 +763,10 @@ const mDeleteTimer = setTimeout(function() {
       //  console.log('onDragTitle:', delta)
       isLocaked = props.content.pinned
       //console.log(isLocaked, " rnd")
-      _isOnContent = true
 
+      //if(event?.type === 'touchmove') {return}
+
+      _isOnContent = true
       member._down = false
 
       if (isFixed) { return }
@@ -759,11 +785,14 @@ const mDeleteTimer = setTimeout(function() {
       //if(event?.type === 'touchend') {return}
       //member.OnTimerClick = false
 
+      // unCommented if needed
       if(event?.type === "touchstart") {return}
 
       _isOnContent = true
 
       if(showTitle) {return}
+
+
       setDragging(true)
       member.buttons = buttons
       member.dragCanceled = false
@@ -796,7 +825,6 @@ const mDeleteTimer = setTimeout(function() {
             setShowTitle(true)
           }
         }, 500)
-
     },
     onDragEnd: ({event, currentTarget, delta, buttons, xy}) => {
       //  console.log(`dragEnd delta=${delta}  buttons=${buttons}`)
@@ -807,9 +835,13 @@ const mDeleteTimer = setTimeout(function() {
 
      //console.log(member._down, " dragged")
 
+
      //if(event?.type === 'touchend') {return}
 
+     //alert('dragend')
+
       _isOnContent = false
+
 
 
       isLocaked = false
@@ -817,16 +849,19 @@ const mDeleteTimer = setTimeout(function() {
       member._item = "DIV"
       window.clearTimeout(member._timer)
 
-      if(event?.type !== 'touchend') {
+      //if(event?.type !== 'touchend') {
         if(String(Object(event?.target).nodeName)==="DIV") {
           showHideTimer(0)
         } else {
           showHideTimer(1)
         }
-      }
+      //}
 
 
       if(showTitle) {return}
+
+      //if(showHandler) {return}
+      //if(_contentDeleteDialogOpen) {return}
 
       //_isOnContent = false
 
@@ -955,25 +990,33 @@ const mDeleteTimer = setTimeout(function() {
           member.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
         }
       }
-
       member.clickEnter = true
       const timer = setTimeout(() => {
         clearTimeout(timer);
         //if(member.OnTimerClick) {return}
+
         if(member.clickEnter) {
           member.clickEnter = false
           hindleClickStatus()
         }
       }, 250)
 //////////////////////////////////////////
-
-
     },
-    onMove:({xy}) => {
+    onMove:({event, xy}) => {
       //isLocaked = props.content.pinned
+
+
       if(showTitle) {return}
       //_isOnContent = true
-      member.isMoved = true
+
+      //console.log(event?.type, " --- ", !isSmartphone())
+
+      if(event?.type === 'mousemove' && !isSmartphone() === true) {
+        member.isMoved = true
+      } else {
+        member.isMoved = false
+      }
+
       //isLocaked = props.content.pinned
       const diff = subV2([xy[0], xy[1]], pose.position)
       member.downPos = Number(diff[1])
@@ -983,20 +1026,26 @@ const mDeleteTimer = setTimeout(function() {
       //}
     },
 
-    onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
+    onPointerUp: (arg) => { if(editing) {arg.stopPropagation()}},
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
 
     onTouchMove :(e) => {
       /////////////////////////////////////////////////
+      member.isMoved = true
+
+
+
       member.movePos = Number(map.mouseOnMap[1])
       member.moveXPos = Number(map.mouseOnMap[0])
       //console.log(member.downXPos, " --- ", member.moveXPos)
       if((member.moveXPos >= (member.downXPos-20) && member.moveXPos <= (member.downXPos+20) && (member.movePos >= (member.downPos-20) && member.movePos <= (member.downPos+20)))) {
         member._down = true
         member._checkForRotation = true
+
       } else {
         member._down = false
         member._checkForRotation = false
+
       }
       //////////////////////////////////////////////
       //console.log(member._down, " in Moving")
@@ -1191,6 +1240,7 @@ const mDeleteTimer = setTimeout(function() {
     onTouchStart: (arg) => {
       if(editing) {arg.stopPropagation() }
 
+
       //console.log(arg.type, " onTYPE")
 
       var touch = arg.touches[0];
@@ -1202,7 +1252,10 @@ const mDeleteTimer = setTimeout(function() {
       member.dragCanceled = false
       /////////////////////////////////////////////
       // SetMouse Pose with map canvas
-      member.isMoved = true
+      member.isMoved = false
+
+
+
       const diff = subV2([touch.clientX, touch.clientY], pose.position)
       member.downPos = Number(diff[1])
       member.downXPos = Number(diff[0])
@@ -1228,10 +1281,12 @@ const mDeleteTimer = setTimeout(function() {
       const mMenuTimer =  setTimeout(function() {
         //console.log("MOVING END -- ", member._down, " --- ", _contentDeleteDialogOpen, " >> ", member.touchEnd)
         clearTimeout(mMenuTimer)
-
         //if(dblTouchTapCount === 2) {return}
-
-        if(member._down && showTitle === false && showOnRotation === false && _contentDeleteDialogOpen === false && dblTouchTapCount === 0) {
+        //alert(member._down)
+        //console.log(showHandler, " showHandler")
+        let canvasStat = isCanvasMoved()
+        if(showTitle === false && showHandler === false && _contentDeleteDialogOpen === false && dblTouchTapCount === 0) {
+          if(canvasStat) {return}
           const diff = subV2(map.mouseOnMap, pose.position)
           member.downPos = Number(diff[1])
           member.downXPos = Number(diff[0])
@@ -1241,20 +1296,27 @@ const mDeleteTimer = setTimeout(function() {
       }, 500)
     },
     /* onTouchEnd: (arg) => { if(editing) {arg.stopPropagation()} }, */
+
     onTouchEnd:(e) => {
       member._down = false
+      _isOnContent = false
+      member.isMoved = false
       var changedTouch = e.changedTouches[0];
       var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
 
       //////////////////////////////////////////////
-
         //console.log(elem?.nodeName)
         //console.log(elem)
+        //if(showHandler) {return}
+        //if(_contentDeleteDialogOpen) {return}
+
+
 
         dblTouchTapCount ++
         //console.log(dblTouchTapCount, " checking DBLCLick")
         const dblClick = setTimeout(function () {
           clearTimeout(dblClick)
+
           if(dblTouchTapCount === 2) {
             //console.log('doubleClick')
             member.clickStatus = "double"
@@ -1824,7 +1886,7 @@ const mDeleteTimer = setTimeout(function() {
             {/* <SharedContentForm open={showForm} {...props} close={onCloseForm}
               anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
             /> */}
-              <div className={classes.close_dialog} onMouseUp={onClickClose} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
+              <div className={classes.close_dialog} onMouseUp={onClickClose} /* onTouchEnd={onClickClose} */ onTouchStart={stop} onMouseLeave={onLeaveIcon}>
                 <img id='contextDelete' src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
               </div>
             <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
