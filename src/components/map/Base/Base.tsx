@@ -382,9 +382,13 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setPingLocation(false) */
 
 
+
+
     let _contentDialogStatus:boolean = getContentDialogStatus()
 
     //if(_contentDeleteStatus) {return}
+
+
 
     if(_contentDialogStatus) {return}
 
@@ -398,6 +402,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     if(mem.clickStatus === 'single' || mem.clickStatus === '') {
       if(mem.clickEnter) {return}
       //if(pingLocation) {return}
+
+      if(participants.local.pingIcon) {return}
+
 
       if(pingLocation) {}
 
@@ -442,6 +449,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       //mem.userAngle = props.stores.participants.loca
 
       window.clearTimeout(mem.hidePinIcon)
+
       /////////////////////////////
       //if(pingLocation) {return}
      // if(getRndPingStatus()) {return}
@@ -453,7 +461,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
       //let audio = new Audio("sound/beep.mp3")
       //audio.play()
-
 
       pingEnable = true
       setPingLocation(true)
@@ -540,7 +547,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             clearTimeout(downTimer)
             if(itemLocked) {return}
 
-            if(mem.mouseDown && showUploadOption === false) {
+            if(mem.mouseDown && showUploadOption === false && canvasMoved === false) {
               //console.log("Open Context Menu")
               mem.zoomX = xy[0]
               mem.zoomY = xy[1]
@@ -623,7 +630,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
 
-        canvasMoved = false
+        //canvasMoved = false
 
         mem.upTime = new Date().getSeconds()
         let timeDiff = mem.upTime - mem.downTime
@@ -632,7 +639,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
         //console.log(_dialogStatus, " dialog status")
-
 
 
 
@@ -646,7 +652,14 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let _contentDialogStatus:boolean = getContentDialogStatus()
         let _avatarToolStatus = getAvatarToolStatus()
 
+        let contentContextMenu = getContextMenuStatus()
+
+        //console.log('function called', _contentDialogStatus, " --- ", showMenu, " --- ", _avatarToolStatus)
+
         if(_contentDialogStatus) {return}
+
+        if(contentContextMenu) {return}
+
 
 
         if(_dialogStatus) {return}
@@ -665,6 +678,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
               return
             }
           }
+        }
 
         //console.log(event?.detail, " DETAILS")
         //////////////////////////////////////////////////////////////
@@ -687,6 +701,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         //if(event?.type !== 'touchend') {
           //let _contentDeleteDialog = getContentDeleteDialogStatus()
 
+
+
+
+
           if (event?.detail === 1) {
             mem.clickStatus = 'single'
           } else if (event?.detail === 2 ) {
@@ -705,9 +723,14 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             clearTimeout(timer);
             if(mem.clickEnter) {
               mem.clickEnter = false
-              hindleClickStatus()
+              if(showMenu === false) {
+                if(canvasMoved === false) {
+                  hindleClickStatus()
+                }
+              }
             }
-          }, 250)
+            canvasMoved = false
+          }, 220)
        // }
 
        ////////////////////////////////////////////////////////
@@ -737,8 +760,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             }
             moveParticipant(false)
           }, 0) */
-        }
 
+        ////////////////////////////////////////
+        //} // end if
+        ////////////////////////////////////////
 
         if (matrix.toString() !== map.committedMatrix.toString()) {
           map.setCommittedMatrix(matrix)
@@ -748,6 +773,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.dragging = false
         mem.mouseDown = false
         _menuCanvas = false
+
         setShowMenu(false)
       },
       onPinch: ({da: [d, a], origin, event, memo}) => {

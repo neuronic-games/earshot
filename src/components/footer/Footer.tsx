@@ -1,6 +1,6 @@
 import {ErrorDialog} from '@components/error/ErrorDialog'
 import {BMProps} from '@components/utils'
-import {acceleratorText2El} from '@components/utils/formatter'
+/* import {acceleratorText2El} from '@components/utils/formatter' */
 //import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 //import {Icon} from '@iconify/react'
 import {Collapse} from '@material-ui/core'
@@ -501,7 +501,7 @@ function comparer(otherArray:string[]){
     }
 
     function showSharePopMenu() {
-      console.log(showPop, " >>> showPop")
+      //console.log(showPop, " >>> showPop")
       if(showPop) {
         setShowPop(false)
       } else {
@@ -660,20 +660,20 @@ function comparer(otherArray:string[]){
         <div className={show ? classes.menuActive : classes.menu}>
         <MuiThemeProvider theme={theme}>
         {/* <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/> */ }
-        <FabMain size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
+        <FabWithTooltip isOpen={show} index={0} size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
           aria-label="speaker" onClick={(ev) => {
-            member.upTime = new Date().getSeconds()
+            /* member.upTime = new Date().getSeconds()
             let timeDiff = member.upTime - member.downTime;
             if(timeDiff > 1) {
-            } else {
+            } else { */
               participants.local.muteSpeaker = !mute.muteS
               if (participants.local.muteSpeaker) {
                 participants.local.muteAudio = true
               }
               participants.local.saveMediaSettingsToStorage()
-            }
+          /*   } */
           }}
-          onDown={(ev) => {
+          /* onDown={(ev) => {
             member.downTime = new Date().getSeconds()
             let _ev = ev
             let _target = ev.currentTarget
@@ -684,7 +684,7 @@ function comparer(otherArray:string[]){
               updateDevices(_ev)
               setSpeakerMenuEl(_target)
             }, 500)
-          }}
+          }} */
           onClickMore = { (ev) => {
             updateDevices(ev)
             setSpeakerMenuEl(ev.currentTarget)
@@ -695,27 +695,27 @@ function comparer(otherArray:string[]){
           stereo ?
             <HeadsetIcon style={{width:iconSize, height:iconSize, color:'gold'}} /> */
             : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
-        </FabMain>
+        </FabWithTooltip>
         <Menu anchorEl={speakerMenuEl} keepMounted={false} style={{marginTop:-70}}
           open={Boolean(speakerMenuEl)} onChange={() => { closeSpeakerMenu('') }} onClose={() => { closeSpeakerMenu('') }}>
           {speakerMenuItems}
         </Menu>
 
-        <FabWithTooltip size={fabSize} color={mute.muteA ? 'primary' : 'secondary' } aria-label="mic"
-          title = {acceleratorText2El(t('ttMicMute'))}
+        <FabWithTooltip isOpen={show} index={1} size={fabSize} color={mute.muteA ? 'primary' : 'secondary' } aria-label="mic"
+          /* title = {acceleratorText2El(t('ttMicMute'))} */
           onClick = { () => {
-            member.upTime = new Date().getSeconds()
+            /* member.upTime = new Date().getSeconds()
             let timeDiff = member.upTime - member.downTime;
             if(timeDiff > 1) {
-            } else {
+            } else { */
               participants.local.muteAudio = !mute.muteA
               if (!participants.local.muteAudio) {
                 participants.local.muteSpeaker = false
               }
               participants.local.saveMediaSettingsToStorage()
-            }
+           /*  } */
           }}
-          onDown={(ev) => {
+          /* onDown={(ev) => {
             member.downTime = new Date().getSeconds()
             let _ev = ev
             let _target = ev.currentTarget
@@ -726,7 +726,7 @@ function comparer(otherArray:string[]){
               updateDevices(_ev)
               setMicMenuEl(_target)
             }, 500)
-          }}
+          }} */
           onClickMore = { (ev) => {
             updateDevices(ev)
             setMicMenuEl(ev.currentTarget)
@@ -743,16 +743,16 @@ function comparer(otherArray:string[]){
         </Menu>
 
         {/* <FabWithTooltip size={fabSize} color={(toggleIcon === false && mute.muteV) ? 'primary' : 'secondary'} aria-label="camera" */}
-        <FabWithTooltip size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
+        <FabWithTooltip isOpen={show} index={2} size={fabSize} color={mute.muteV ? 'primary' : 'secondary'} aria-label="camera"
           onClick = { () => {
             //if(inzone !== undefined) {
-              member.upTime = new Date().getSeconds()
+              /* member.upTime = new Date().getSeconds()
               let timeDiff = member.upTime - member.downTime;
               if(timeDiff > 1) {
-              } else {
+              } else { */
 
 
-
+                //////////////////////////////////////////////////////////////////
                 //Stop All Stream
                 //if(!mute.muteV) {
                   //(mute.lStream, " LEN")
@@ -779,29 +779,24 @@ function comparer(otherArray:string[]){
                   //participants.local.muteVideo = !mute.muteV
 
                   //console.log(vStatus, " CHECK STATUS")
+                   //////////////////////////////////////////////////////////////////
 
 
                   // mute all remote videos
-
                   connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
-
                   participants.local.muteVideo = !mute.muteV
                   participants.local.saveMediaSettingsToStorage()
 
-
                   buttonClickStatus = true
 
-
                   //setToggleIcon(true)
-
-
                 //setVidStream(false)
 
               //}
-              }
+            /*   } */
            //}
           }}
-          onDown={(ev) => {
+          /* onDown={(ev) => {
             //if(inzone !== undefined) {
               member.downTime = new Date().getSeconds()
               let _ev = ev
@@ -814,7 +809,7 @@ function comparer(otherArray:string[]){
                 setVideoMenuEl(_target)
               }, 500)
             //}
-          }}
+          }} */
           onClickMore = { (ev) => {
             updateDevices(ev)
             setVideoMenuEl(ev.currentTarget)
@@ -825,7 +820,7 @@ function comparer(otherArray:string[]){
           {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
             : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
         </FabWithTooltip>
-        <Menu anchorEl={videoMenuEl} keepMounted={true}  style={{marginTop:-70}}
+        <Menu anchorEl={videoMenuEl} keepMounted={true}  style={{marginTop:-30}}
           open={Boolean(videoMenuEl)} onChange={() => { closeVideoMenu('') }} onClose={() => { closeVideoMenu('') }}>
           {videoMenuItems}
         </Menu>
@@ -855,18 +850,18 @@ function comparer(otherArray:string[]){
         {/* position:'inherit', right:120, top:'15px' */}
 
 
-        <FabMain size={fabSize} color={'primary'}
+        <FabWithTooltip isOpen={show} index={3} size={fabSize} color={'primary'}
           aria-label="settings" onClick={(ev) => {
             member.upTime = new Date().getSeconds()
-            let timeDiff = member.upTime - member.downTime;
+           /*  let timeDiff = member.upTime - member.downTime;
             if(timeDiff > 1) {
-            } else {
+            } else { */
               //setSettingsMenuEl(ev.currentTarget)
               openAdmin()
-            }
+           /*  } */
 
           }}
-          onDown={(ev) => {
+          /* onDown={(ev) => {
             member.downTime = new Date().getSeconds()
             //let _ev = ev
             let _target = ev.currentTarget
@@ -877,10 +872,14 @@ function comparer(otherArray:string[]){
                 setSettingsMenuEl(_target)
                 setOpenSettiong(true)
             }, 500)
-          }}
+          }} */
+          onClickMore = { (ev) => {
+            setSettingsMenuEl(ev.currentTarget)
+            setOpenSettiong(true)
+          } }
           >
             <SettingsIcon style={{width:iconSize, height:iconSize, color:'white'}} />
-        </FabMain>
+        </FabWithTooltip>
 
         <Menu anchorEl={settingsMenuEl} keepMounted={false} style={openSettiong ? {marginTop:-70, display:'block'} : {marginTop:-70, display:'none'}}
           //open={Boolean(settingsMenuEl)} /* onClick={() => { setTimeout(()=>{closeSettingsMenu('')},100)}} */ onClose={() => { closeSettingsMenu('') }}>

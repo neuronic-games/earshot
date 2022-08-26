@@ -282,6 +282,16 @@ const mDeleteTimer = setTimeout(function() {
     ()=> {
       member.dragCanceled = true
 
+      // Resizing the elments
+      ////////////////////////////////////////////////////////////////////////////
+        //console.log(props.content.size[0])
+        if(props.content.size[0] < 80 || props.content.size[1] < 80) {
+          setSize([props.content.size[0] + (80-props.content.size[0]), props.content.size[1] + (80 - props.content.size[1])])
+        }
+        updateHandler()
+        ////////////////////////////////////////////////////////////////////////////
+
+      ///////////////////////////////////
       //console.log(isPaused, " in Eff ", stopWatchToggle, " ---- ", stopWatchReset)
       // Place timer here
       //////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,8 +355,6 @@ const mDeleteTimer = setTimeout(function() {
     [props.content, props.content.showStopWatch, props.content.stopWatchToggle],
   )
 
-
-
   function setPoseAndSizeToRnd(){
     if (rnd.current) { rnd.current.resizable.orientation = pose.orientation + map.rotation }
     const titleHeight = showTitle ? TITLE_HEIGHT : 0
@@ -358,9 +366,9 @@ const mDeleteTimer = setTimeout(function() {
   }
   useLayoutEffect(  //  reflect pose etc. to rnd size
     () => {
+
       setPoseAndSizeToRnd()
       //console.log("ENTER in Layout")
-
       ///////////////////////////////////////////////////
       // Use Timer here
       /* const timerInterval = setInterval(() => {
@@ -644,9 +652,7 @@ const mDeleteTimer = setTimeout(function() {
       setPingLocation(false)
       const moveTimer = setTimeout(() =>{
         clearTimeout(moveTimer)
-
-        console.log(member.isMoved)
-
+        //console.log(member.isMoved)
         if(member.isMoved) {return}
         function moveParticipant(move:boolean) {
           const local = participants.local
@@ -842,8 +848,6 @@ const mDeleteTimer = setTimeout(function() {
 
       _isOnContent = false
 
-
-
       isLocaked = false
       member._down = false
       member._item = "DIV"
@@ -994,12 +998,11 @@ const mDeleteTimer = setTimeout(function() {
       const timer = setTimeout(() => {
         clearTimeout(timer);
         //if(member.OnTimerClick) {return}
-
         if(member.clickEnter) {
           member.clickEnter = false
-          hindleClickStatus()
+            hindleClickStatus()
         }
-      }, 250)
+      }, 220)
 //////////////////////////////////////////
     },
     onMove:({event, xy}) => {
@@ -1798,6 +1801,8 @@ const mDeleteTimer = setTimeout(function() {
         <Rnd className={classes.rndCls} enableResizing={showTitle ? resizeDisable : (showHandler ? resizeEnable : resizeDisable)}
         disableDragging={isFixed} ref={rnd}
 
+
+
        /*  disableDragging={showTitle} ref={rnd}
         disableDragging={false} ref={rnd} */
 
@@ -1813,8 +1818,15 @@ const mDeleteTimer = setTimeout(function() {
           bottomRight: cursorStyles,
         }}
         dragHandleClassName={classes.cursorStyles}
+
+        /* default={{
+          x: 0,
+          y: 0,
+          width: props.content.size[0] * 1.5,
+          height: props.content.size[1] * 1.5,
+        }} */
       >
-        {theContent}
+          {theContent}
       </Rnd> : ''}
 
       {/* <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>

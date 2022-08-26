@@ -155,6 +155,8 @@ export const ZoneAvatar: React.FC<BMProps&{height?:number}> = (props) => {
 
   const videoButtonStatus = getVideoButtonStatus()
 
+  //console.log(videoButtonStatus, " button status")
+
   //const inzone = useObserver(() => participants.local.zone?.zone)
   //if(inzone !== undefined) {
   //console.log(inzone, " >>zone")
@@ -581,6 +583,7 @@ function comparer(otherArray:string[]){
 
         onClick = { () => {
           /* console.log("on Vid Click") */
+          /* if(localStream !== false || startStream !== false || toggleUI === false) {return} */
           connection.conference.sendMessage(MessageType.MUTE_VIDEO, true)
           participants.local.muteVideo = !mute.muteV
           participants.local.saveMediaSettingsToStorage()

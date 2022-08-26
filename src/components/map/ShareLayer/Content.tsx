@@ -60,15 +60,19 @@ export function editButtonTip(editing: boolean, c?: ISharedContent){
   return ''
 }
 
+interface StyleProps{
+  props: ContentProps,
+}
 
 const useStyles = makeStyles({
-  img: {
+  img: (props: StyleProps) => ({
     width: '100%',
     height: '100%',
     verticalAlign: 'bottom',
     userDrag: 'none',
     pointerEvents: 'none',
-  },
+    //transform: props.props.content.size[0] < 100 || props.props.content.size[1] < 100 ? 'scale(0.75)' : 'scale(0.95)',
+  }),
   iframe: {
     width: '100%',
     height: '100%',
@@ -91,7 +95,7 @@ export interface ContentProps extends BMProps{
   updateOnly: (c:ISharedContent) => void
 }
 export const RawContent: React.FC<ContentProps> = (props:ContentProps) => {
-  const classes = useStyles()
+  const classes = useStyles({props})
   const editing = useObserver(() => props.stores.contents.editing === props.content.id)
 
   let rv
