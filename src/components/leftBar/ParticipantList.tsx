@@ -1,12 +1,12 @@
 import {ImageAvatar} from '@components/avatar/ImageAvatar'
-import {LocalParticipantForm} from '@components/map/ParticipantsLayer/LocalParticipantForm'
-import {RemoteParticipantForm} from '@components/map/ParticipantsLayer/RemoteParticipantForm'
+import {LocalParticipantForm} from '@components/map/Participant/LocalParticipantForm'
+import {RemoteParticipantForm} from '@components/map/Participant/RemoteParticipantForm'
 import {BMProps} from '@components/utils'
 import {Tooltip} from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
-import {connection} from '@models/api'
-import {MessageType} from '@models/api/MessageType'
+import {conference} from '@models/conference'
+import {MessageType} from '@models/conference/DataMessageType'
 import {getColorOfParticipant} from '@models/Participant'
 /* import {isDarkColor} from '@models/utils' */
 import {ParticipantBase} from '@stores/participants/ParticipantBase'
@@ -16,11 +16,11 @@ import React from 'react'
 import {styleForList} from '../utils/styles'
 import {TextLineStyle} from './LeftBar'
 import {StatusDialog} from './StatusDialog'
+
 import goodConnIcon from '@images/earshot_icon_quality_3.png'
 import averageConnIcon from '@images/earshot_icon_quality_2.png'
 import badConnIcon from '@images/earshot_icon_quality_1.png'
 import {isSmartphone} from '@models/utils'
-
 // Animated Emoticons
 import symSmileIcon from '@images/whoo-screen_sym-smile.png'
 import symClapIcon from '@images/whoo-screen_sym-clap.png'
@@ -28,14 +28,12 @@ import symHandIcon from '@images/whoo-screen_sym-hand.png'
 
 import {makeStyles} from '@material-ui/core/styles'
 
-
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
 
 interface StyleProps {
   size: number,
 }
-
 
 const useStyles = makeStyles({
   iconEmoticon: (props: StyleProps) => ({
@@ -60,7 +58,6 @@ const useStyles = makeStyles({
   }),
 })
 
-
 export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: ParticipantBase}> = (props) => {
   const map = props.stores.map
   const name = useObserver(() => (props.participant.information.name))
@@ -73,14 +70,15 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
   const {lineHeight, ...propsForForm} = props
   //  console.log(`PColor pid:${props.participant.id} colors:${colors}`, props.participant)
 
-
-
-
   const classesIcons = useStyles({
     size: isSmartphone() ? (props.lineHeight * 4) : (props.lineHeight * 2.5),
   })
 
-  const _connQuality = useObserver(() => props.participant.quality?.connectionQuality)
+  const _connQuality = useObserver(() => props.participant.quality)
+
+
+  //console.log(props)
+
   const zoneName = useObserver(() => {
     let remotes = Array.from(props.stores.participants.remote.keys()).filter(key => key !== props.stores.participants.localId)
     for(let [i] of remotes.entries()) {
@@ -108,7 +106,6 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
     }
   })
   const _iconsLocal = useObserver(() => props.stores.participants.local.trackStates.emoticon)
-
   const localZone = useObserver(() => (props.stores.participants.local.zone?.name !== undefined && props.stores.participants.local.zone?.name !== '') ? ' ('+props.stores.participants.local.zone?.name+')' : '')
 
   function onClick(){
@@ -116,7 +113,7 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
       map.focusOn(props.participant)
     }else{
       if(config.bmRelayServer){
-        connection.conference.pushOrUpdateMessageViaRelay(
+        conference.dataConnection.pushOrUpdateMessageViaRelay(
           MessageType.REQUEST_PARTICIPANT_STATES, [props.participant.id])
       }
       const disposer = autorun(()=>{
@@ -133,7 +130,7 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
       map.keyInputUsers.add('participantList')
     }else{
       if(config.bmRelayServer){
-        connection.conference.pushOrUpdateMessageViaRelay(
+        conference.dataConnection.pushOrUpdateMessageViaRelay(
           MessageType.REQUEST_PARTICIPANT_STATES, [props.participant.id])
       }
       const disposer = autorun(()=>{
@@ -146,9 +143,37 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
     }
   }
 
+  /*
+  <>
+    <Tooltip title={`${props.participant.information.name} (${props.participant.id})`} placement="right">
+      <div className={classes.outer} style={{margin:'1px 0 1px 0'}}>
+        <IconButton style={{margin:0, padding:0}} onClick={onClick} onContextMenu={onContextMenu}>
+          <ImageAvatar border={true} colors={colors} size={size} name={name} avatarSrc={avatarSrc} />
+        </IconButton>
+        <Button variant="contained" className={classes.line} ref={ref}
+          style={{backgroundColor:colors[0], color:colors[1], textTransform:'none'}}
+          onClick={onClick} onContextMenu={onContextMenu}>
+            {name}
+        </Button>
+      </div>
+    </Tooltip>
+    {props.participant.id === props.stores.participants.localId ?
+      <LocalParticipantForm stores={props.stores} open={showForm} close={()=>{
+        setShowForm(false)
+        map.keyInputUsers.delete('participantList')
+      }} anchorEl={ref.current} anchorOrigin={{vertical:'top', horizontal:'right'}} /> :
+      <RemoteParticipantForm {...propsForForm} open={showForm} close={()=>{
+        setShowForm(false)
+        map.keyInputUsers.delete('participantList')
+      }} participant={props.stores.participants.remote.get(props.participant.id)}
+        anchorEl={ref.current} anchorOrigin={{vertical:'top', horizontal:'right'}} />
+    }
+  </> */
+
+
   return <>
-    <Tooltip title={<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{`${props.participant.information.name} (${props.participant.id})`}</span>} placement="right">
-      <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 1px 10px'}}>
+    <Tooltip title={<span style={{fontSize:isSmartphone() ? '2rem' : '1rem'}}>{`${props.participant.information.name} (${props.participant.id})`}</span>} placement="right">
+      <div className={classes.outer} /* style={{margin:'1px 0 1px 0'}} */ style={{margin:'1px 0 1px 10px', position:'relative', left:'5px', marginTop: '0px', top:'7px'}}>
         <IconButton style={{margin:0, padding:0, marginTop: '5px', marginLeft:isSmartphone() ? '10px' : '5px'}} onClick={onClick} onContextMenu={onContextMenu}>
           <ImageAvatar border={true} colors={colors} /* size={size} */ size={(isSmartphone() ? (size * 3.2) : (size * 2))} name={name} avatarSrc={avatarSrc} />
           <img
@@ -161,12 +186,12 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
             }  alt='' />
         </IconButton>
         <Button /* variant="contained" */ className={classes.line} ref={ref}
-          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '5px', fontWeight: 'bold', fontSize: isSmartphone() ? '2em' : '1em'}}
+          style={{/* backgroundColor:colors[0],  */color:'#FFFFFF'/* colors[1] */, textTransform:'none', marginLeft:'10px', marginTop: '10px', fontWeight: 'bold', fontSize: isSmartphone() ? '2rem' : '1rem', height:'30px'}}
           onClick={onClick} onContextMenu={onContextMenu}>
             {name}
-            <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px', fontSize:isSmartphone() ? '1.5em' : '1em'}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>
+            <div style={{color:'#EDA741', letterSpacing:'0px', position:'relative', marginLeft:'5px', fontSize:isSmartphone() ? '1.5rem' : '1rem'}}>{(props.stores.participants.localId === props.participant.id) ? localZone : zoneName}</div>
         </Button>
-        <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:isSmartphone() ? '50px' : '25px', marginTop: '2px',}}>
+        <div style={{position:'absolute', width:'10px', height:'10px', /* backgroundColor:'yellow', */ right:isSmartphone() ? '60px' : '40px', marginTop: '5px',}}>
             {(_connQuality !== undefined && _connQuality > 80) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
         </div>
 
@@ -216,10 +241,9 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
 
   return (
     <div className={classes.container} >
-      <div className={classes.title} style={{color:'#FFFFFF90'/* textColor */, marginLeft: isSmartphone() ? '14px' : '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2em' : '1em'}} ref={ref}
+      <div className={classes.title} /* style={{color:textColor}} */style={{color:'#FFFFFF90'/* textColor */, marginLeft: isSmartphone() ? '14px' : '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2rem' : '1rem'}} ref={ref}
         onClick={()=>{setShowStat(true)}}
-     /*  >{(participants.remote.size + 1).toString()} in {connection.conference.name}</div> */
-     >{connection.conference.name} ({(participants.remote.size + 1).toString()})</div>
+      >{/* {conference.room} */}{sessionStorage.getItem('room')} ({(participants.remote.size + 1).toString()}){/*  in {conference.room} */}</div>
       <StatusDialog open={showStat}
         close={()=>{setShowStat(false)}} {...statusProps} anchorEl={ref.current}/>
       {localElement}{remoteElements}

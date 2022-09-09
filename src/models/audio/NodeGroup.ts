@@ -35,7 +35,6 @@ export const BROADCAST_DISTANCE = 100000
 
 export type PlayMode = 'Context' | 'Element' | 'Pause'
 
-
 export class NodeGroup {
   protected sourceNode: MediaStreamAudioSourceNode | MediaElementAudioSourceNode | undefined = undefined
   protected audioElement: HTMLAudioElement | undefined = undefined

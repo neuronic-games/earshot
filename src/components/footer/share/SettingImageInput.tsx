@@ -2,8 +2,9 @@ import {useTranslation} from '@models/locales'
 import {createContentOfImage} from '@stores/sharedContents/SharedContentCreator' // createRoomImageDesc,
 import sharedContents from '@stores/sharedContents/SharedContents'
 import {DropzoneArea} from 'material-ui-dropzone'
-import React, {useState} from 'react'
-import {DialogPageProps} from './DialogPage'
+import React, {useEffect, useState} from 'react'
+/* import {DialogPageProps} from './DialogPage' */
+import {DialogPageProps} from './Step'
 import {SettingInput} from './SettingInput'
 import {Step} from './Step'
 import {makeStyles} from '@material-ui/styles'
@@ -41,6 +42,8 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
   const [desc, setDesc] = useState<string>('')
   const [reset, setReset] = useState(false)
 
+  const [uploadType/* , setUploadType */] = useState<"gyazo" | "gdrive">(sessionStorage.getItem("uploadTypePreferences") as "gyazo" | "gdrive" || "gyazo")
+
   // Filtering the imagepath
   //console.log(contents.all)
   let uploadedPath:string = ''
@@ -73,6 +76,10 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
       previewChipProps={{classes: { root: classes.preview } }}
     />
   )
+
+  useEffect(() => {
+    sessionStorage.setItem("uploadTypePreferences", uploadType);
+  }, [uploadType]);
 
   const map = props.stores.map
 
@@ -118,7 +125,7 @@ export const SettingImageInput: React.FC<SettingImageInputProps> = (props) => {
           //console.log("DESC in upload - ", desc)
           //setReset(false)
 
-          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], props.type, props.xCord, props.yCord, props.from, desc).then(
+          createContentOfImage(file, map, [IMAGE_OFFSET_X * i, IMAGE_OFFSET_Y * i], uploadType, props.type, props.xCord, props.yCord, props.from, desc).then(
             imageContent => sharedContents.shareContent(imageContent))
         })
       }}

@@ -1,18 +1,18 @@
-import {BMProps} from '@components/utils'
+import {/* acceleratorText2El,  */BMProps} from '@components/utils'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import {useTranslation} from '@models/locales'
 import {isSmartphone} from '@models/utils'
-import {createContentOfIframe, createContentOfTextOnly} from '@stores/sharedContents/SharedContentCreator'
+import {createContentOfIframe, createContentOfText} from '@stores/sharedContents/SharedContentCreator'
 import sharedContents from '@stores/sharedContents/SharedContents'
 import React, {useRef, useState} from 'react'
 import {CameraSelector} from './CameraSelector'
 import {CameraSelectorMember} from './CameraSelector'
 import { GoogleDriveImport } from './GoogleDrive'
 import {ImageInput} from './ImageInput'
-import {SettingImageInput} from './SettingImageInput'
-import {ShareMenu} from './Menu'
+import { SettingImageInput } from './SettingImageInput'
+import {ShareMenu} from './ShareMenu'
 import {Step} from './Step'
 import {TextInput} from './TextInput'
 
@@ -30,17 +30,12 @@ export function isDialogOpen():boolean {
   return isOpen
 }
 
-export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
+export const ShareDialog: React.FC<ShareDialogProps> = (props:ShareDialogProps) => {
   const {open, onClose, cordX, cordY, origin, _type} = props
   const {map} = props.stores
 
-  //console.log("type ::: ", _type)
-
   const cameras = useRef(new CameraSelectorMember())
-
   //const [step, setStep] = useState<Step>('menu')
-
-
 
   let assignType:Step
   if(_type === "roomImage") {
@@ -48,7 +43,6 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   } else {
     assignType = 'menu'
   }
-
   const [step, setStep] = useState<Step>(assignType)
 
   const wrappedSetStep = (step: Step) => {
@@ -66,7 +60,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         return <TextInput stores={props.stores}
             setStep={setStep}
             onFinishInput={(value) => {
-              sharedContents.shareContent(createContentOfTextOnly(value, map, cordX, cordY, origin))
+              sharedContents.shareContent(createContentOfText(value, map, cordX, cordY, origin))
               //  console.debug(`share text: ${value}`)
             }}
             textLabel = "Text"
@@ -109,10 +103,18 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   //  console.debug(`step=${step}, pasteEnabled=${sharedContents.pasteEnabled}`)
   sharedContents.pasteEnabled = step === 'none' || step === 'menu'
 
+  isOpen = open
+
   const {t} = useTranslation()
   const stepTitle: {
-    [key: string]: string,
+    [key: string]: string|JSX.Element,
   } = {
+    /* menu: acceleratorText2El(t('createAndShareTitle')),
+    text: t('Share Text'),
+    iframe: t('Share iframe'),
+    image: t('Share image'),
+    none: 'None',
+    camera: t('Select video camera to share'), */
     menu: t('Create and Share'),
     text: t('Share Text'),
     iframe: t('Share iframe'),
@@ -125,8 +127,15 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
   const title = stepTitle[step]
   const page: JSX.Element | undefined = getPage(step, wrappedSetStep)
 
-  isOpen = open
-
+  /* return  <Dialog open={open} onClose={onClose} TransitionProps={{onExited:() => setStep('menu')}} maxWidth="sm"
+      onPointerMove = {(ev) => {
+        map.setMouse([ev.clientX, ev.clientY])
+      }}
+    >
+    <DialogTitle id="simple-dialog-title" style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
+      {title}</DialogTitle>
+    <DialogContent>{page}</DialogContent>
+  </Dialog> */
   return  <Dialog open={open} onClose={onClose} onExited={() => setStep(assignType)} maxWidth="sm" fullWidth={true}
       onPointerMove = {(ev) => {
         map.setMouse([ev.clientX, ev.clientY])
@@ -137,7 +146,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = (props) => {
         },
       }}
     >
-    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
+    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize: isSmartphone() ? '2.5em' : '1.2em'}}>
       {title}</DialogTitle>
     <DialogContent>{page}</DialogContent>
   </Dialog>

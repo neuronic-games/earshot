@@ -31,7 +31,7 @@ import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef} from 'react'
 /* import {AdminConfigForm} from './adminConfig/AdminConfigForm' */
 /* import {BroadcastControl} from './BroadcastControl' */
-import {FabMain} from './FabEx'
+import {FabMain} from '@components/utils/FabEx'
 import {isSmartphone} from '@models/utils'
 
 /* import {ShareButton} from './share/ShareButton'

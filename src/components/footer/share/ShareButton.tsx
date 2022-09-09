@@ -4,10 +4,11 @@ import windowArrowUp from '@iconify/icons-fluent/window-arrow-up-24-regular'
 
 import {Icon} from '@iconify/react'
 import {makeStyles} from '@material-ui/styles'
+import { conference } from '@models/conference'
 import {useTranslation} from '@models/locales'
 import {useObserver} from 'mobx-react-lite'
 import React from 'react'
-import {FabWithTooltip} from '../FabEx'
+import {FabWithTooltip} from '@components/utils/FabEx'
 import {ShareDialog} from './ShareDialog'
 
 
@@ -24,8 +25,8 @@ interface ShareButtonProps extends BMProps{
 }
 export const ShareButton: React.FC<ShareButtonProps> = (props) => {
   const classes = useStyles()
-  const store = props.stores.contents
-  const sharing = useObserver(() => store.tracks.localMains.size + store.tracks.localContents.size)
+  const contents = props.stores.contents
+  const sharing = useObserver(() => contents.getLocalRtcContentIds().length || contents.mainScreenOwner === conference.rtcConnection.peer)
   const {t} = useTranslation()
 
   let upTime = 0
@@ -36,7 +37,7 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
       <FabWithTooltip size={props.size} color={sharing ? 'secondary' : 'primary'}
         title = {acceleratorText2El(t('ttCreateAndshare'))}
         aria-label="share"
-        /* onClick={() => props.setShowDialog(true)} */
+        /* onClick={() => props.setShowDialog(true)}> */
         onClick={(ev) => {
           upTime = new Date().getSeconds()
           let timeDiff = upTime - downTime;
@@ -48,7 +49,6 @@ export const ShareButton: React.FC<ShareButtonProps> = (props) => {
         onDown={(ev) => {
           downTime = new Date().getSeconds()
           //console.log(Object(ev).clientX)
-
           const _timer = setTimeout(()=> {
             clearTimeout(_timer)
             let timeDiff = upTime - downTime;

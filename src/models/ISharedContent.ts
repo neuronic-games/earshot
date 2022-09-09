@@ -1,11 +1,10 @@
-import {Pose2DMap} from '@models/utils/coordinates'
 import {MapObject} from './MapObject'
 const MAXIMIZABLE_IMAGE_MIN_WIDTH = 200
 
-
+//export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
+//  'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' |  ''
 export type ContentType = 'img' | 'text' | 'pdf' | 'youtube' | 'iframe' | 'screen' | 'camera' |
   'gdrive' | 'whiteboard' | 'playbackScreen' | 'playbackCamera' | 'chat' | 'content' |  ''
-
 
 export interface SharedContentInfoData {
   name: string                    //  name or title of the content.
@@ -27,27 +26,27 @@ export interface SharedContentInfo extends SharedContentInfoData, SharedContentI
 }
 export function isEqualSharedContentInfo(a:SharedContentInfo, b:SharedContentInfo){
   return a.name === b.name && a.ownerName === b.ownerName && a.ownerURL === b.ownerURL
-    && a.color.toString() === b.color.toString() && a.textColor.toString() === b.textColor.toString() && a.contentDesc === b.contentDesc && a.baseImage === b.baseImage && a.baseIcon === b.baseIcon && a.baseColor === b.baseColor
+    && a.color.toString() === b.color.toString() && a.textColor.toString() === b.textColor.toString() && a.contentDesc.toString() === b.contentDesc.toString() && a.baseImage.toString() === b.baseImage.toString() && a.baseIcon.toString() === b.baseIcon.toString() && a.baseColor.toString() === b.baseColor.toString()
 }
 export function extractSharedContentInfo(c: SharedContentInfo){
-  const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName, ownerURL: c.ownerURL, color:c.color, textColor: c.textColor, type: c.type, shareType: c.shareType, contentDesc: c.contentDesc, baseImage:c.baseImage, baseIcon:c.baseIcon, baseColor:c.baseColor}
+  const rv:SharedContentInfo = {id:c.id, name: c.name, ownerName: c.ownerName, ownerURL: c.ownerURL,
+    color:c.color, textColor: c.textColor, type: c.type, shareType: c.shareType, contentDesc: c.contentDesc, baseImage:c.baseImage, baseIcon:c.baseIcon, baseColor:c.baseColor}
 
   return rv
 }
 
 export type ZoneType = 'open' | 'close'
 
-export interface SharedContentData extends SharedContentInfoData {
+export interface SharedContentDataToSend extends SharedContentInfoData {
   zorder: number                  //  unix timestamp when shared or moved to top.
   url: string                     //  url or text to share
-  pose: Pose2DMap                 //  position and orientation
   size: [number, number]          //  current size of the content
   originalSize: [number, number]  //  original size of the content or [0, 0]
-  pinned: boolean                 //  pinned (not resizable or resizable)
+  pinned: boolean                //  pinned (not resizable or resizable)
   noFrame?: boolean               //  no (invisible) frame
   opacity?: number                //  opacity
   zone?: ZoneType                 //  is this a audio zone is the zone closed or open?
-  playback?: boolean              //  is playback or normal content
+  // New
   showTitle:boolean               // for showing the title
   showStopWatch:boolean           // for showing stop watch
   stopWatchToggle:boolean         // storing stop watch time toggle
@@ -55,8 +54,53 @@ export interface SharedContentData extends SharedContentInfoData {
   scaleRotateToggle:boolean       // for scaling and rotation
 }
 
+export interface SharedContentData extends SharedContentDataToSend {
+  playback?: boolean                  //  is playback or normal content
+  zIndex?: number                     //  zIndex for display
+  overlapZones: ISharedContent[]      //  other zones overlap this
+  surroundingZones: ISharedContent[]  //  surrounded zones
+}
+
 export interface ISharedContent extends MapObject, SharedContentData, SharedContentId {
-  zIndex?: number
+}
+export interface ISharedContentToSend extends MapObject, SharedContentDataToSend, SharedContentId {
+}
+export interface ISharedContentToSave extends MapObject, SharedContentDataToSend{
+}
+export interface IPlaybackContent extends ISharedContent{
+  audioBlob?: Blob
+  videoBlob?: Blob
+}
+
+export function contentsToSend(them: ISharedContent[]) {
+  for(const content of them){
+    const c = content as any
+    delete c.playback
+    delete c.zIndex
+    delete c.zones
+  }
+  return them as ISharedContentToSend[]
+}
+export function receiveToContents(them: ISharedContentToSend[]) {
+  for(const content of them){
+    const c = content as ISharedContent
+    c.overlapZones = []
+    c.surroundingZones = []
+  }
+  return them as ISharedContent[]
+}
+export function contentsToSave(them: ISharedContent[]) {
+  for(const content of them){
+    const c = content as any
+    delete c.playback
+    delete c.zIndex
+    delete c.zones
+    delete c.id
+  }
+  return them as ISharedContentToSave[]
+}
+export function loadToContents(them: ISharedContentToSend[]) {
+  return receiveToContents(them)
 }
 
 export const TIME_RESOLUTION_IN_MS = 100
@@ -88,6 +132,9 @@ export function isContentWallpaper(c?: ISharedContent) {
 export const CONTENT_OUT_OF_RANGE_VALUE = 1024*1024
 export function isContentOutOfRange(c?: ISharedContent) {
   return !c || c.pose.position[0] === CONTENT_OUT_OF_RANGE_VALUE
+}
+export function isContentRtc(c?: SharedContentInfoData){
+  return c && (c.type === 'camera' || c.type === 'screen')
 }
 
 export interface WallpaperStore {

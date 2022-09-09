@@ -12,10 +12,13 @@ import React, {useRef, useState} from 'react'
 //import DownloadIcon from '@material-ui/icons/GetApp'
 //import RoomPreferencesIcon from '@material-ui/icons/Settings'
 
-import {ShareDialogItem} from './share/SharedDialogItem'
-import {ISharedContent} from '@models/ISharedContent'
+/* import {ShareDialogItem} from './share/SharedDialogItem' */
+import {DialogIconItem} from '@components/utils/DialogIconItem'
+
+/* import {ISharedContent} from '@models/ISharedContent' */
 import {SharedContents} from '@stores/sharedContents/SharedContents'
-import {createContent, extractContentData} from '@stores/sharedContents/SharedContentCreator'
+import {createContent/* , extractContentData */} from '@stores/sharedContents/SharedContentCreator'
+import {contentsToSave, loadToContents} from '@models/ISharedContent'
 //createContentFromText, createContentOfIframe, createContentOfText, createContentOfVideo,
 import {isArray} from 'lodash'
 /* import {SettingImageInput} from '@components/footer/share/SettingImageInput'
@@ -55,6 +58,31 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
   function importItems(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string, url:string) {
     const files = ev.currentTarget?.files
+    if (files && files.length) {
+      files[0].text().then((text) => {
+        const itemsRecv = JSON.parse(text)
+        if(itemsRecv[0].ResetRoomElements !== undefined && itemsRecv[0].ResetRoomElements[0].status === "true") {
+          contents.removeAllContents()
+        }
+        if (isArray(itemsRecv)) {
+          itemsRecv[0].RoomElements.forEach((item:any) => {
+            item.ownerName = name
+            item.ownerURL = url
+            const items = loadToContents(itemsRecv[0].RoomElements)
+            items.forEach(content => {
+              if (content.type === 'screen' || content.type === 'camera') { return }
+              const newContent = createContent()
+              Object.assign(newContent, content)
+              contents.addLocalContent(newContent)
+            })
+          })
+        }
+      })
+    }
+  }
+
+  /* function importItems1(ev: React.ChangeEvent<HTMLInputElement>, contents: SharedContents, name:string, url:string) {
+    const files = ev.currentTarget?.files
 
     // Remove All previous loaded contents
     //contents.removeAllContents()
@@ -90,9 +118,43 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
 
       })
     }
-  }
+  } */
 
   function downloadItems(contents:SharedContents) {
+
+    let contentAll = contentsToSave(contents.all)
+    for(var i:number=0; i < contentAll.length; i++) {
+      contentAll[i].ownerName = ""
+      contentAll[i].ownerURL = ""
+    }
+
+    //const content = JSON.stringify(contentsToSave(contents.all))
+
+    const content = JSON.stringify(contentAll)
+
+     // Added Reset Flag to JSON
+     let ResetFlag = {status: "true"}
+     const Reset = JSON.stringify(ResetFlag)
+     let contentElement = '[{"ResetRoomElements" : [' + Reset + '],"RoomElements" : ' + content + '}]'
+
+
+    /* const blob = new Blob([content], {type: 'text/plain'}) */
+    const blob = new Blob([contentElement], {type: 'text/plain'})
+    const a = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    a.href = url
+    //a.download = `BMC_${conference.room}_${dateTimeString()}.json`
+    let roomName = sessionStorage.getItem('room')
+    a.download = String(roomName) + ".json"
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => {
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    },         0)
+  }
+
+  /* function downloadItems(contents:SharedContents) {
 
     console.log("download")
 
@@ -103,44 +165,28 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
       contentAll[i].ownerName = ""
       contentAll[i].ownerURL = ""
     }
-
-
-   /*  const content = JSON.stringify(extractContentDatas(contents.all))
-    const blob = new Blob([content], {type: 'text/plain'}) */
-
-
     const content = JSON.stringify(contentAll)
-
     //////////////////////////////////////////////////////////////////////////
     // Added Reset Flag to JSON
     let ResetFlag = {status: "true"}
     const Reset = JSON.stringify(ResetFlag)
     let contentElement = '[{"ResetRoomElements" : [' + Reset + '],"RoomElements" : ' + content + '}]'
     //////////////////////////////////////////////////////////////////////////
-
     const blob = new Blob([contentElement], {type: 'text/plain'}) // new Blob([content], {type: 'text/plain'})
     const a = document.createElement('a')
     const url = URL.createObjectURL(blob)
     a.href = url
     //a.download = 'BinauralMeetSharedItems.json'
-
     let roomName = sessionStorage.getItem('room')
-    /* let details: Object|undefined = undefined
-    if (roomName) { details = JSON.parse(roomName) as Object }
-    const roomInDetails = details
-
-    let saveJsonRoom = Object(roomInDetails).name */
-
     a.download = String(roomName) + ".json"
     //a.download = String(saveJsonRoom) + ".json"
-
     document.body.appendChild(a)
     a.click()
     setTimeout(() => {
       document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
     },         0)
-  }
+  } */
 
   const {t} = useTranslation()
 
@@ -148,19 +194,15 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
   icon={<DownloadIcon />} */
 
   return <Container>
-
-  <ShareDialogItem
+  <DialogIconItem
       key="meetingSpace" onClick={()=>openMeetingSpaceDialog()} text={t('meetingSpace')}
     />
     <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
 
-    <ShareDialogItem
+    <DialogIconItem
     key="shareDownload" onClick={()=>openDownload()} text={t('shareDownload')}
   />
-
-
-
-  <ShareDialogItem
+  <DialogIconItem
       key="shareImport" onClick={()=>openImport()} text={t('shareImport')}
     />
     <input type="file" accept="application/json" ref={fileInput} style={{display:'none'}}
@@ -172,14 +214,6 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
     />
 
   <div style={{width:'140%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
-  {/* <ShareDialogItem
-  key="settingPreference" onClick={()=>showAdmin()} text={t('settingPreference')} icon={<RoomPreferencesIcon />}
-/>*/}
-  {/* <Dialog open={show} onClose={()=>setShow(false)} onExited={() => setShow(false)} maxWidth="sm" fullWidth={true}>
-       <DialogTitle id="simple-dialog-title" style={{fontSize: isSmartphone() ? '2.5em' : '1em'}}>
-      {t('meetingSpace')}</DialogTitle>
-    <DialogContent>{<SettingImageInput setStep={setStep} stores={props.stores} type={step} xCord={0} yCord={0} from={''}/>}</DialogContent>
-  </Dialog> */}
   <ShareDialog {...props} open={show} onClose={() => setShow(false)} cordX={0} cordY={0} origin={''} _type={'roomImage'} />
   </Container>
 }

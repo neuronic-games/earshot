@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react'
-import {DialogPageProps} from './DialogPage'
+import {DialogPageProps} from './Step'
+
+
 
 
 interface GoogleDriveImportProps extends DialogPageProps{
@@ -12,50 +14,22 @@ export const GoogleDriveImport: React.FC<GoogleDriveImportProps> = ({ onSelected
   const developerKey = 'AIzaSyAADCXxUujmh0VqXIzJofwl03MA5O8v8EQ'
 
   // The Client ID obtained from the Google API Console. Replace with your own Client ID.
-  const clientId = "858773398697-vki2lito392c5dlss9s31ap077nn0qbd.apps.googleusercontent.com"
+  //const clientId = "858773398697-vki2lito392c5dlss9s31ap077nn0qbd.apps.googleusercontent.com"
+  /* const clientId = "188672642721-3f8u1671ecugbl2ukhjmb18nv283upm0.apps.googleusercontent.com" */
 
   // Replace with your own project number from console.developers.google.com.
   // See "Project number" under "IAM & Admin" > "Settings"
-  const appId = "binarual-meet"
+  //const appId = "binarual-meet"
+  const appId = "188672642721"
 
   // Scope to use to access user's Drive items.
-  const scope = ['https://www.googleapis.com/auth/drive.file']
+  /* const scope = ['https://www.googleapis.com/auth/drive.file'] */
 
   let pickerApiLoaded = false
-  let oauthToken: undefined | string
-
-  // Use the Google API Loader script to load the google.picker script.
-  function loadPicker() {
-    gapi.load('auth', {'callback': onAuthApiLoad})
-    gapi.load('picker', {'callback': onPickerApiLoad})
-
-  }
-
-  //Oauth flow with google
-  function onAuthApiLoad() {
-    window.gapi.auth.authorize(
-        {
-          'client_id': clientId,
-          'scope': scope,
-          'immediate': false
-        },
-        handleAuthResult)
-  }
-
-  function onPickerApiLoad() {
-    pickerApiLoaded = true
-    createPicker()
-  }
-
-  function handleAuthResult(authResult: GoogleApiOAuth2TokenObject) {
-    if (authResult && !authResult.error) {
-      oauthToken = authResult.access_token
-      createPicker()
-    }
-  }
+  /* let oauthToken: undefined | string */
 
   // Create and render a Picker object for searching images.
-  function createPicker() {
+  function createPicker(oauthToken:string) {
     if (pickerApiLoaded && oauthToken) {
       const view = new google.picker.DocsView(google.picker.ViewId.DOCS) // LIMIT CONTENT TYPE RESULT
       //view.setMimeTypes("image/png,image/jpeg,image/jpg"); // LIMIT BY MIME TYPE
@@ -76,7 +50,7 @@ export const GoogleDriveImport: React.FC<GoogleDriveImportProps> = ({ onSelected
   // A simple callback implementation.
   function pickerCallback(data: google.picker.ResponseObject) {
     if (data.action === google.picker.Action.PICKED) {
-      //const fileId = data.docs[0].id
+      /* const fileId = data.docs[0].id */
       //TODO: if wanted change permissiosn to public but his could be a security issue
       //insertPermission(fileId,undefined,'anyone', 'reader')
       onSelectedFile(data.docs[0].embedUrl)
@@ -107,11 +81,12 @@ export const GoogleDriveImport: React.FC<GoogleDriveImportProps> = ({ onSelected
 
 
   useEffect(() => {
-    if(gapi){
-      loadPicker()
+    if(gapi && window.gapiPickerReady ){
+      const token = sessionStorage.getItem('gdriveToken')
+      if(token)
+      createPicker(token)
     }
-    // gapi
-  })
+  }, /* [gapi,window.gapiPickerReady] */)
 
   return <>{'loading...'}</>
 }

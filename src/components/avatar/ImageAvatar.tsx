@@ -17,24 +17,25 @@ function avatarCommon(props: ImageAvatarProps){
   const style = {
     width: props.size,
     height: props.size,
-    color: '', //props.colors[1],
-    backgroundColor: '', //props.colors[0],
+    color:'', //props.colors[1],
+    backgroundColor:'', //props.colors[0],
     pointerEvents: 'none' as Property.PointerEvents,
     userDrag: 'none',
     fontSize: props.size * 0.3,
     display:'inline-block',
   }
+
   return style
 }
-const BORDER_WIDTH = 0 //0.04
+const BORDER_WIDTH = 0 // 0.04
 const BORDER_CONTENT = 1 - BORDER_WIDTH*2
 
 function addBoarder(style:Object, props:ImageAvatarProps){
   const border = {
-    width: props.size,// * BORDER_CONTENT,
-    height: props.size,// * BORDER_CONTENT,
+    width: props.size, // * BORDER_CONTENT,
+    height: props.size, // * BORDER_CONTENT,
     borderStyle: 'solid',
-    borderWidth: 0, //props.size,// * BORDER_WIDTH,
+    borderWidth: 0, //props.size * BORDER_WIDTH,
     borderColor: '', //props.colors[0],
   }
 
@@ -66,19 +67,20 @@ export const RawImageAvatar: React.FC<ImageAvatarProps> = (props: ImageAvatarPro
     //console.log(`render ImageAvatar src=${props.avatarSrc}`)
 
     let initial = ''
-    if (!props.avatarSrc){
+    const isImage = props.avatarSrc && props.avatarSrc.slice(-4) !== '.vrm'
+    if (!isImage){
       const nameArray = props.name.split(' ')
       nameArray.forEach(s => initial += s ? s.substring(0,1) : '')
       initial = initial.substring(0,2)
     }
     const size = props.border ? props.size * BORDER_CONTENT : props.size
 
-    return props.avatarSrc ?
+    return isImage ?
       <Avatar src={props.avatarSrc} className={classes.imageAvatar} /> :
       <Avatar className={classes.textAvatar} >
         <div style={{height:size, width:size, textAlign:'center',
           verticalAlign:'middle', display:'table-cell', whiteSpace:'nowrap'}}>
-        {'initial'}</div></Avatar>
+        {initial}</div></Avatar>
     }
   }</Observer>
 }

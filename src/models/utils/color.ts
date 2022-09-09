@@ -42,7 +42,6 @@ export function rgb2Colors(rgb: number[]):[string, string, string]{
 
 export function getRandomColor(v:string):[string, string, string] {
   const rgb = getRandomColorRGB(v)
-
   return rgb2Colors(rgb)
 }
 

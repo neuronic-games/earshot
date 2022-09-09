@@ -1,168 +1,84 @@
 import Button from '@material-ui/core/Button'
 import Paper from '@material-ui/core/Paper'
 import Popper, { PopperProps } from '@material-ui/core/Popper'
-import { connection } from '@models/api'
-import contents from '@stores/sharedContents/SharedContents'
+import { StreamStat, TransportStat } from '@models/conference/RtcConnection'
 import React from 'react'
-import {useState} from 'react'
 import {BMProps} from '../utils'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-
-import { makeStyles } from '@material-ui/core/styles'
-import { isSmartphone } from '@models/utils'
-
+import {conference} from '@models/conference'
+import { useObserver } from 'mobx-react-lite'
+import errorInfo from '@stores/ErrorInfo'
+import {useTranslation} from '@models/locales'
+import {ConnectionStat} from '@components/map/Participant/SignalQuality'
 
 declare const config:any             //  from ../../config.js included from index.html
-
-const useStyles = makeStyles({
-  divText: {
-    fontSize: isSmartphone() ? '2em' : "1em"
-  }
-})
-
-const theme = createMuiTheme({
-  palette: {
-    primary: { main: '#7ececc' },
-    secondary: { main: '#ef4623' }
-  }
-});
 
 export interface StatusDialogProps extends Omit<PopperProps, 'children'>, BMProps{
   close: () => void,
 }
-
-class Remote{
-  address = ''
-  port = 0
-  protocol = ''
-}
-class Session{
-  remotes: Remote[] = []
-}
-class Status{
-  sessions: Session[] = []
-  open = false
-  update = false
-  interval: NodeJS.Timeout|undefined = undefined
-  messageServer = ''
-}
-const status = new Status()
-
 export const StatusDialog: React.FC<StatusDialogProps> = (props: StatusDialogProps) => {
-  const [update,setUpdate] = useState<boolean>(false)
-  status.open = props.open === true
-  status.update = update
-
-  const classes = useStyles()
-
-  function updateStatus(){
-    const chatRoom = connection.conference._jitsiConference?.room
-    if (status.open && chatRoom){
-      const sessions = chatRoom.xmpp?.connection?.jingle?.sessions
-      const nSessions = Object.keys(sessions).length
-      status.sessions.splice(nSessions)
-      while (status.sessions.length < nSessions){ status.sessions.push(new Session()) }
-      for(const id in sessions){
-        const pc = sessions[id]?.peerconnection?.peerconnection as RTCPeerConnection
-        if (pc){
-          pc.getStats().then((stats) => {
-            const pairs: any[] = []
-            stats.forEach((v, k) => {
-              if (v.type === 'candidate-pair' && (v.bytesReceived > 0 || v.bytesSent > 0)) {
-                pairs.push(v)
-              }
-            })
-            const remoteCandidateIds = pairs.map(p => p.remoteCandidateId)
-            const sess = status.sessions[status.sessions.length-1]
-            sess.remotes=[]
-            remoteCandidateIds.forEach(id => {
-              const remote = new Remote()
-              const v = stats.get(id)
-              remote.address = v.address
-              remote.port = v.port
-              remote.protocol = v.protocol
-              sess.remotes.push(remote)
-            })
-          })
+  const {t} = useTranslation()
+  const stat = useObserver(()=>{
+    const stats:TransportStat[] = []
+    const senderStat = conference.sendTransport?.appData?.stat as (TransportStat|undefined)
+    if (senderStat) stats.push(senderStat)
+    const receiverStats:TransportStat[] = Array.from(conference.remotePeers.values())
+      .map(remote => remote.transport?.appData?.stat as (TransportStat)).filter(s=>s!==undefined)
+    stats.push(...receiverStats)
+    const servers:[string, string, string|undefined][] = []
+    const sum = {} as any
+    const streams:StreamStat[] = []
+    for(const ts of stats){
+      for(const key in ts){
+        if (key !== 'turn' && key !== 'streams' && key !== 'localServer' && key !== 'remoteServer'){
+          if (sum[key]) sum[key] = sum[key] + (ts as any)[key]
+          else sum[key] = (ts as any)[key]
         }
       }
-      setUpdate(status.update ? false : true)
-    }
-    if (connection.conference.bmRelaySocket?.readyState === WebSocket.OPEN) {
-      status.messageServer = config.bmRelayServer
-    }else{
-      const chatRoom = connection.conference._jitsiConference?.room
-      if (status.open && chatRoom){
-        status.messageServer = 'bridge'
-      }else{
-        status.messageServer = 'prosody'
+      if (ts.remoteServer){
+        const len = ts.remoteServer.lastIndexOf(':')
+        const serverAddr = ts.remoteServer!.substring(0,len)
+        const sameAddr = servers.find(s => s[0]===ts.dir && s[1].substring(0, len) === serverAddr)
+        if (!sameAddr){
+          servers.push([ts.dir, ts.remoteServer, ts.turn])
+        }else{
+          const port = ts.remoteServer!.substring(len+1)
+          sameAddr[1] += `,${port}`
+        }
+        streams.push(...ts.streams)
       }
     }
-  }
-  if (props.open){
-    if (!status.interval){
-      status.interval = setInterval(updateStatus, 100)
-      //console.log('setInterval')
+    if (stats.length){
+      const tStatSum = sum as TransportStat
+      tStatSum.fractionLost = tStatSum.fractionLost ? tStatSum.fractionLost/stats.length : undefined
+      tStatSum.jitter = tStatSum.jitter ? tStatSum.jitter/stats.length : undefined
+      tStatSum.quality = tStatSum.quality ? tStatSum.quality/stats.length : undefined
+      tStatSum.roundTripTime  = tStatSum.roundTripTime ? tStatSum.roundTripTime/stats.length : undefined
     }
-  }else{
-    if (status.interval){
-      clearInterval(status.interval)
-      status.interval = undefined
-      //console.log('clearInterval')
+    const data = errorInfo.types.has('dataConnection') ? undefined : config.bmRelayServer
+    return {
+      transport: stats.length ? sum as TransportStat : undefined,
+      streams,
+      servers,
+      data,
     }
-  }
-  const {close, ...poperProps} = props
-  const stat = connection.conference._jitsiConference?.connectionQuality.getStats()
-  const stats = Array.from(contents.tracks.contentCarriers.values())
-    .filter(c => c&&c.jitsiConference).map(c => c.jitsiConference!.connectionQuality.getStats())
-  if (stat) { stats.unshift(stat) }
-  const bitrates = stats.filter(s=>s.bitrate).map(s=>s.bitrate!)
-  const statSum = {
-    audio: {
-      up: bitrates.map(b => b.audio.upload).reduce((a, b) => a+b, 0),
-      down: bitrates.map(b => b.audio.download).reduce((a, b) => a+b, 0),
-    },
-    video: {
-      up: bitrates.map(b => b.video.upload).reduce((a, b) => a+b, 0),
-      down: bitrates.map(b => b.video.download).reduce((a, b) => a+b, 0),
-    }
-  }
-  const loss = {
-    up: stat?.packetLoss?.upload || 0,
-    down: stat?.packetLoss?.download || 0
-  }
-  const codecSet = new Set<string>()
-  for(const pid in stat?.codec){
-    const p = stat?.codec[pid]
-    for (const ssrc in p){
-      codecSet.add(p[ssrc].audio)
-      codecSet.add(p[ssrc].video)
-    }
-  }
-  const codecs = Array.from(codecSet)
+  })
 
-  return <Popper {...poperProps}>
-    <Paper style={{background:'rgba(255,255,255,0.6)', padding:'0.4em', marginTop: isSmartphone() ? '13em' : 0}}>
-      <div style={{overflowY:'auto'}} className={classes.divText}>
-        <strong>Servers</strong><br />
-        {status.sessions.length === 0 ? <div>No WebRTC</div> :
-        status.sessions.map((sess, idx) => <div key={idx}>
-          WebRTC: {sess.remotes.map((r,k) => <span key={k.toString()}>{r.address} {r.port}/{r.protocol}<br /></span>)}
+  const {close, ...poperProps} = props
+  return <Popper {...poperProps} disablePortal={false} style={{zIndex:2}}>
+    <Paper style={{background:'rgba(255,255,255,1)', padding:'0.4em'}}>
+      <div style={{overflowY:'auto'}}>
+        <strong>{t('connectionStatus')}</strong><br />
+        <div> Data: {stat.data}</div>
+        {stat.servers.length === 0 ? <div>'No RTC server'</div> :
+          stat.servers.map((server, idx) => <div key={idx}>
+            RTC{server[0]==='send'?'⇑':'⇓'}:{server[1]}
+            {server[2] ? <><br/>&nbsp; via {server[2]}</> : undefined}
         </div>)}
-        <div> Message: {status.messageServer}</div>
-        <div> Bitrate (kbps): audio: ⇑{statSum.audio.up}&nbsp; ⇓{statSum.audio.down}
-        &nbsp;&nbsp; video: ⇑{statSum.video.up}&nbsp; ⇓{statSum.video.down}</div>
-        <div> Quality:{Math.round((stat?.connectionQuality || 0) * 10) / 10} &nbsp; Loss: ⇑{loss.up}&nbsp; ⇓{loss.down}
-        &nbsp;&nbsp;RTT:{stat?.jvbRTT}
-        {codecs.length ? <>&nbsp;&nbsp;Codecs:{`${codecs}`}</> : undefined}
-        </div>
-        {/*<div> Quality: {JSON.stringify(stat)}</div>*/}
+        <ConnectionStat stat={stat.transport} streams={stat.streams} />
       </div>
-      <MuiThemeProvider theme={theme}>
-      <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em', fontSize:isSmartphone() ? '2em' : '1em'}}
+      <Button variant="contained" color="primary" style={{textTransform:'none', marginTop:'0.4em'}}
         onClick={close}
-        > Close </Button>
-      </MuiThemeProvider>
+        >{t('emClose')}</Button>
     </Paper>
   </Popper>
 }

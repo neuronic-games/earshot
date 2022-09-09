@@ -2,11 +2,12 @@ import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import React from 'react'
-import {DialogPageProps} from './DialogPage'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+/* import {DialogPageProps} from './DialogPage' */
+import {DialogPageProps} from './Step'
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
 import { isSmartphone } from '@models/utils'
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: { main: '#7ececc' },
     secondary: { main: '#ef4623' }

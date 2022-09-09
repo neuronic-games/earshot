@@ -1,26 +1,38 @@
 import {
   defaultInformation, defaultPhysics, defaultRemoteInformation,
   defaultViewpoint, LocalInformation,
-  ParticipantBase as IParticipantBase, Physics, RemoteInformation, Tracks, TrackStates as ITrackStates
+  ParticipantBase as IParticipantBase, Physics, RemoteInformation, Tracks, TrackStates as ITrackStates, VRMRigs
 } from '@models/Participant'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from '@models/utils'
 import {Mouse} from '@models/utils'
 import {MapObject} from '@stores/MapObject'
 import {Store} from '@stores/utils'
-import {JitsiTrack} from 'lib-jitsi-meet'
-import { ConnectionQualityStats } from 'lib-jitsi-meet/JitsiConference'
 import {action, computed, makeObservable, observable} from 'mobx'
 
 export class TracksStore implements Tracks{
   constructor(){
     makeObservable(this)
   }
-  @observable.ref audio:JitsiTrack|undefined = undefined
-  @observable.ref avatar:JitsiTrack|undefined = undefined
-  @observable avatarOk = this.avatar ? !this.avatar.getTrack().muted : true
-  @computed get audioStream() { return this.audio?.getOriginalStream() }
-  @computed get avatarStream() { return this.avatarOk ? this.avatar?.getOriginalStream() : undefined }
-  @action onMuteChanged(track: JitsiTrack, mute: boolean) {
+  @observable.ref audio:MediaStreamTrack|undefined = undefined
+  @observable.ref avatar:MediaStreamTrack|undefined = undefined
+  @observable avatarOk = this.avatar ? !this.avatar.muted : true
+  @computed get audioStream() {
+    if (this.audio){
+      const ms = new MediaStream()
+      if (this.audio) ms.addTrack(this.audio)
+      return ms
+    }
+    return undefined
+  }
+  @computed get avatarStream() {
+    if (this.avatar){
+      const ms = new MediaStream()
+      if (this.avatar) ms.addTrack(this.avatar)
+      return ms
+    }
+    return undefined
+  }
+  @action onMuteChanged(track: MediaStreamTrack, mute: boolean) {
     if (track === this.avatar) {
       this.avatarOk = !mute
     }
@@ -40,15 +52,14 @@ export class TrackStates implements Store<ITrackStates>{
   @observable remoteID = ''
   @observable remoteX = 0
   @observable remoteY = 0
-
-
-  constructor() {
+  constructor(){
     makeObservable(this)
   }
 }
 
 export class ParticipantBase extends MapObject implements Store<IParticipantBase> {
   @observable id = ''
+  @observable zIndex = 0
   @observable.shallow physics = defaultPhysics
   @observable.shallow viewpoint = defaultViewpoint
   @observable.shallow mouse:Mouse = {position:[0, 0], show:false}
@@ -57,7 +68,6 @@ export class ParticipantBase extends MapObject implements Store<IParticipantBase
   @observable muteSpeaker = false
   @observable muteVideo = false
   @observable audioLevel = 0
-  @observable.ref quality?:ConnectionQualityStats = undefined
   @action setAudioLevel(a:number) { this.audioLevel = a }
   @observable recording = false
   // determines whether the audio would be rendered
@@ -68,15 +78,17 @@ export class ParticipantBase extends MapObject implements Store<IParticipantBase
   @computed get showVideo () {
     return !this.muteVideo
   }
+  @observable quality:number|undefined = undefined
+  @observable.ref vrmRigs:VRMRigs|undefined = undefined
 
   constructor(isLocal=false) {
     super()
-    makeObservable(this)
     if (isLocal){
       this.information = defaultInformation
     }else{
       this.information = defaultRemoteInformation
     }
+    makeObservable(this)
   }
 
   getColor() {

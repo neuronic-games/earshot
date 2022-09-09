@@ -1,15 +1,13 @@
 import {getProxiedUrl} from '@models/api/CORS'
 import GoogleDrive from '@models/api/GoogleDrive'
 import {getImageSize, uploadToGyazo} from '@models/api/Gyazo'
-import {ContentType, isContentWallpaper, ISharedContent, SharedContentData,
-  SharedContentId, TEN_YEAR, TextMessages, TIME_RESOLUTION_IN_MS} from '@models/ISharedContent'
+import {ContentType, isContentWallpaper, ISharedContent, TEN_YEAR, TextMessages,
+   TIME_RESOLUTION_IN_MS} from '@models/ISharedContent'
 import {Pose2DMap} from '@models/utils'
-import {extract} from '@models/utils'
 import { getMimeType } from '@models/utils'
 import {isSelfUrl} from '@models/utils'
 import {MapData} from '@stores/Map'
 import {defaultValue as mapObjectDefaultValue} from '@stores/MapObject'
-import {JitsiLocalTrack} from 'lib-jitsi-meet'
 import _ from 'lodash'
 import participants from '../participants/Participants'
 import sharedContents, {contentLog} from './SharedContents'
@@ -28,6 +26,10 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   id: '',
   zorder: 0,
   pinned: false,
+  overlapZones:[],
+  surroundingZones:[],
+
+  // New Addition
   shareType: '',
   showTitle: false,
   contentDesc: '',
@@ -39,10 +41,6 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   baseIcon: '',
   baseColor: '',
 })
-
-export function makeThemContents(them: ISharedContent[]) {
-  return them
-}
 
 class SharedContentImp implements ISharedContent {
   name!: string
@@ -57,6 +55,8 @@ class SharedContentImp implements ISharedContent {
   pinned!: boolean
   pose!: Pose2DMap
   size!: [number, number]
+  overlapZones!: ISharedContent[]
+  surroundingZones!: ISharedContent[]
   originalSize!:[number, number]
   noFrame?: boolean
   opacity?: number
@@ -195,7 +195,6 @@ export function createContentOfText(message: string, map: MapData, xCord:number,
 
   return pasted
 }
-
 export function createContentOfTextOnly(message: string, map: MapData, xCord:number, yCord:number, from:string) {
   //console.log(xCord, " --- ", yCord, " : ", from)
   const pasted = createContent()
@@ -230,27 +229,10 @@ export function createContentOfTextOnly(message: string, map: MapData, xCord:num
   return pasted
 }
 
-export function createRoomImageDesc(imageFile: File, desc:string) {
-  /* uploadToGyazo(imageFile).then((url) => {
-    //console.log("Uploaded image : Path --> ", url)
-    // Update the desc and image for roomInfo
-    const roomDetails = sessionStorage.getItem('room')
-    let details: Object|undefined = undefined
-    if (roomDetails) { details = JSON.parse(roomDetails) as Object }
-    const roomInDetails = details
-    const _roomDetails:Object = {
-      name: Object(roomInDetails).name,
-      image: url,
-      desc: desc,
-    }
-    sessionStorage.setItem('room', JSON.stringify(_roomDetails))
-  }) */
-}
-
-export function createContentOfImage(imageFile: File, map: MapData,  offset?:[number, number], _type?:Step, xCord?:number, yCord?:number, from?:string, desc?:string)
+export function createContentOfImage(imageFile: File, map: MapData, offset?:[number, number], uploadType?: "gyazo" | "gdrive", _type?:Step, xCord?:number, yCord?:number, from?:string, desc?:string)
   : Promise<SharedContentImp> {
   const promise = new Promise<SharedContentImp>((resolutionFunc, rejectionFunc) => {
-    if (participants.local.uploaderPreference === 'gyazo'){
+    if (!uploadType || uploadType === 'gyazo'){
       uploadToGyazo(imageFile).then((url) => {
         createContentOfImageUrl(url, map, offset, _type, xCord, yCord, from, desc).then(resolutionFunc)
       }).catch((error) => {
@@ -279,49 +261,38 @@ export function createContentOfImageUrl(url: string, map: MapData,
     getImageSize(url).then((size) => {
       // console.log("mousePos:" + (global as any).mousePositionOnMap)
       const pasted = createContent()
-
-      //console.log("DESC - ", desc)
-
       pasted.type = 'img'
+
       if(_type === "image") {
         pasted.shareType = "img"
-        //pasted.noFrame = true
       } else if(_type === "zoneimage") {
         pasted.shareType = 'zoneimg'
-        //pasted.noFrame = true
-        //pasted.zone = "open"
       } else if(_type === "roomImage") {
         pasted.shareType = 'roomimg'
       }
-
       // Assign the desc values of content uploaded to differentiate between the images/room image
       pasted.contentDesc = String(desc?.toString())
-
       pasted.noFrame = true
-
       // For EDIT Mode
       //pasted.pinned = true
       pasted.scaleRotateToggle = true
 
-      //console.log(pasted.pinned, " pinned")
-
       pasted.url = url
-      /* const max = size[0] > size[1] ? size[0] : size[1]
-      const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
-      pasted.size = [size[0] * scale, size[1] * scale] */
+      //const max = size[0] > size[1] ? size[0] : size[1]
+      //const scale = max > IMAGESIZE_LIMIT ? IMAGESIZE_LIMIT / max : 1
+      //pasted.size = [size[0] * scale, size[1] * scale]
       pasted.size = [size[0], size[1]]
       pasted.originalSize = [size[0], size[1]]
       const CENTER = 0.5
       for (let i = 0; i < pasted.pose.position.length; i += 1) {
         if (offset) {
           if(from === 'contextmenu') {
-            //console.log('contextmenu')
             pasted.pose.position[0] = Number(xCord)
             pasted.pose.position[1] = Number(yCord)
           } else {
             pasted.pose.position[i] = map.mouseOnMap[i] + offset[i]
           }
-        } else {
+        }else {
           pasted.pose.position[i] = map.mouseOnMap[i] - CENTER * pasted.size[i]
         }
       }
@@ -375,7 +346,7 @@ export function createContentOfPdf(file: File, map: MapData, offset?:[number, nu
 }
 
 
-export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, type:ContentType, xCord:number, yCord:number, from:string) {
+export function createContentOfVideo(tracks: MediaStreamTrack[], map: MapData, type:ContentType, xCord:number, yCord:number, from:string) {
   const pasted = createContent()
   pasted.type = type
   pasted.url = ''
@@ -386,8 +357,8 @@ export function createContentOfVideo(tracks: JitsiLocalTrack[], map: MapData, ty
     pasted.pose.position[0] = map.mouseOnMap[0]
     pasted.pose.position[1] = map.mouseOnMap[1]
   }
-  const track = tracks.find(track => track.getType() === 'video')
-  const settings = track?.getTrack().getSettings()
+  const track = tracks.find(track => track.kind === 'video')
+  const settings = track?.getSettings()
   if (settings) {
     pasted.originalSize = [settings.width || 0, settings.height || 0]
   }else {
@@ -483,11 +454,11 @@ export function createContentsFromDataTransfer(dataTransfer: DataTransfer, map: 
     }
   })
 }
-
-const extractData = extract<SharedContentData>({
-  zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
+/*
+const extractData = extract<ISharedContent>({
+  zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true, pinned: true,
-  noFrame: true, opacity: true, zone:true, playback:true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,baseImage:true,baseIcon:true,baseColor:true,
+  noFrame: true, opacity: true, zone:true, playback:true
 })
 export function extractContentData(c:ISharedContent) {
   return extractData(c)
@@ -495,10 +466,10 @@ export function extractContentData(c:ISharedContent) {
 export function extractContentDatas(cs:ISharedContent[]) {
   return cs.map(extractContentData)
 }
-const extractDataAndId = extract<SharedContentData&SharedContentId>({
-  zorder: true, name: true, ownerName: true, ownerURL:true, color: true, textColor:true,
+const extractDataAndId = extract<SharedContentData|SharedContentId|MapObject>({
+  zorder: true, name: true, ownerName: true, color: true, textColor:true,
   type: true, url: true, pose: true, size: true, originalSize: true,
-  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true, shareType:true, showTitle:true,contentDesc:true,showStopWatch:true,stopWatchToggle:true,stopWatchReset:true,scaleRotateToggle:true,baseImage:true,baseIcon:true,baseColor:true
+  pinned: true, noFrame: true, opacity:true, zone:true, id: true, playback: true
 })
 export function extractContentDataAndId(c: ISharedContent) {
   return extractDataAndId(c)
@@ -506,7 +477,7 @@ export function extractContentDataAndId(c: ISharedContent) {
 export function extractContentDataAndIds(cs: ISharedContent[]) {
   return cs.map(extractDataAndId)
 }
-
+*/
 
 function execCopy(str: string){
   const temp = document.createElement('textarea')
@@ -655,11 +626,6 @@ export function moveContentToTop(c: SharedContentImp) {
     c.zorder = Math.floor(Date.now() / TIME_RESOLUTION_IN_MS)
   }
 }
-
-/* export function moveContentToIndex(c: SharedContentImp, _zIndex:number) {
-    c.zorder = Math.floor(_zIndex)
-} */
-
 //  change zorder to the bottom.
 export function moveContentToBottom(c: SharedContentImp) {
   if (isContentWallpaper(c)){

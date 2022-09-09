@@ -1,5 +1,5 @@
 import { PARTICIPANT_SIZE } from '@models/Participant'
-import {JitsiRemoteTrack} from 'lib-jitsi-meet'
+import { TrackKind } from '@models/utils'
 import {action, computed, makeObservable, observable} from 'mobx'
 import {LocalParticipant} from './LocalParticipant'
 import {PlaybackParticipant} from './PlaybackParticipant'
@@ -40,6 +40,19 @@ export class Participants {
     const newParticipant = new RemoteParticipant(participantId)
     newParticipant.physics.located = false
     this.remote.set(participantId, newParticipant)
+    return newParticipant
+  }
+
+  @action
+  getOrCreateRemote(participantId: string){
+    let r = this.remote.get(participantId)
+    if (!r){
+      r = this.join(participantId)
+    }
+    return r
+  }
+  getRemote(participantId: string){
+    return this.remote.get(participantId)
   }
 
   @action
@@ -63,7 +76,7 @@ export class Participants {
     return res
   }
 
-  getPlayback(id: string){
+  getOrCreatePlayback(id: string){
     let rv = this.playback.get(id)
     if (!rv){
       rv = new PlaybackParticipant(id)
@@ -76,29 +89,22 @@ export class Participants {
     return this.playback.delete(id)
   }
 
-  addRemoteTrack(track: JitsiRemoteTrack):boolean {
-    const remote = this.remote.get(track.getParticipantId())
-    if (!remote) { return false }
-    if (track.isAudioTrack()) {
-      remote.tracks.audio = track
-    } else {
-      remote.tracks.avatar = track
-      track.getTrack().addEventListener('ended', () => { remote.tracks.avatar = undefined })
-      track.getTrack().addEventListener('mute', () => { remote.tracks.onMuteChanged(track, true) })
-      track.getTrack().addEventListener('unmute', () => { remote.tracks.onMuteChanged(track, false) })
+  addRemoteTrack(peer: string, track: MediaStreamTrack){
+    const participant = participants.getOrCreateRemote(peer)
+    if (track.kind === 'audio'){
+      participant.tracks.audio = track
+    }else{
+      participant.tracks.avatar = track
     }
-
-    return true
   }
-  removeRemoteTrack(track: JitsiRemoteTrack):boolean {
-    const remote = this.remote.get(track.getParticipantId())
+  removeRemoteTrack(peer: string, kind: TrackKind){
+    const remote = this.remote.get(peer)
     if (!remote) { return false }
-    if (track.isAudioTrack()) {
+    if (kind === 'audio') {
       remote.tracks.audio = undefined
     } else {
       remote.tracks.avatar = undefined
     }
-
     return true
   }
 

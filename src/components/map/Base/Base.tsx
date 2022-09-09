@@ -1,4 +1,6 @@
+import { ShareDialog } from '@components/footer/share/ShareDialog'
 import {BMProps, MapProps as BP} from '@components/utils'
+import { Tooltip } from '@material-ui/core'
 import {makeStyles} from '@material-ui/core/styles'
 import {PARTICIPANT_SIZE} from '@models/Participant'
 import {
@@ -8,26 +10,18 @@ import {
 } from '@models/utils'
 import {addV2, mulV2, normV, subV2} from '@models/utils/coordinates'
 import {SCALE_LIMIT} from '@stores/Map'
+import { TITLE_HEIGHT } from '@stores/sharedContents/SharedContents'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect, useRef, useState} from 'react'
 import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 
-import {getContextMenuStatus, MouseOrTouch, getContentLocked, getContentDialogStatus, isOnContentStatus/* , getContentDeleteDialogStatus, *//* , getContentDeleteDialogStatus */
-/* getContentDeleteDialogStatus */} from '../ShareLayer/RndContent'
-import {isDialogOpen} from "@components/footer/share/ShareDialog"
-
-import {Tooltip} from '@material-ui/core'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
-//import PingIcon from '@images/whoo-screen_pointer.png'
-import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
+import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, isOnContentStatus, MouseOrTouch } from '../Share/RndContent'
 import {t} from '@models/locales'
-import {ShareDialog} from '@components/footer/share/ShareDialog'
-import { getOnRemote } from '../ParticipantsLayer/RemoteParticipant'
-import { getAvatarToolStatus, getOnLocalUser } from '../ParticipantsLayer/LocalParticipant'
-//import { getRndPingStatus } from '../ShareLayer/RndContent'
-
-
+import {isDialogOpen} from "@components/footer/share/ShareDialog"
+import { getAvatarToolStatus, getOnLocalUser, getUserContextMenu } from '../Participant/LocalParticipant'
+import { getOnRemote } from '../Participant/RemoteParticipant'
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -166,9 +160,6 @@ const buttonStyle = {
     width: '35px',
     height: '35px',
     padding: '3px',
-
-    //border: '2px solid #9e886c',
-    //backgroundColor: 'white',
   },
 
   '&:hover': {
@@ -178,7 +169,6 @@ const buttonStyle = {
     borderRadius: '50%',
   },
   '&:active': {
-    //backgroundColor: 'firebrick',
     margin: '5px',
     padding: '3px',
     borderRadius: '50%',
@@ -205,19 +195,15 @@ class BaseMember{
   zoomY = 0
   moveX = 0
   moveY = 0
-
   clickStatus = ''
   userAngle = 0
   clickEnter = false
   pingX = 0
   pingY = 0
   hidePinIcon = 0
-
   touchStart = 0
   touchEnd = 0
-
 }
-
 
 let _menuCanvas = false
 export function getMenuStatus():boolean {
@@ -234,20 +220,11 @@ export function isCanvasMoved() : boolean {
   return canvasMoved
 }
 
- // For Double Touch
+// For Double Touch
  let dblTouchTapCount = 0
 
 export const Base: React.FC<MapProps> = (props: MapProps) => {
   const {map, participants} = props.stores
-
-
-  //////////////////////////////////////////////////////////////
-
-  //const _contentDeleteStatus = useObserver(() => getContentDeleteDialogStatus())
-
-  /////////////////////////////////////////////////////////////
-
-
   const matrix = useObserver(() => map.matrix)
   const container = useRef<HTMLDivElement>(null)
   const outer = useRef<HTMLDivElement>(null)
@@ -298,12 +275,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       const newMatrix = matrix.translate(-diff[0], -diff[1])
       map.setMatrix(newMatrix)*/
 
-      let _contentDialogStatus:boolean = getContentDialogStatus()
-      let _avatarToolStatus = getAvatarToolStatus()
-
-      if(_contentDialogStatus) {return}
-      if(_avatarToolStatus) {return}
-
       //  zoom map
       let scale = Math.pow(1.2, event.deltaY / 100)
       scale = limitScale(extractScaleX(map.matrix), scale)
@@ -319,30 +290,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       map.setCommittedMatrix(newMatrix)
     }
   }
-  /* function moveParticipant(move: boolean, givenTarget?:[number,number]) {
-    const local = participants.local
-    console.log("moving")
-    let target = givenTarget
-    if (!target){ target = [mem.moveX, mem.moveY] }
-    const diff = subV2(target, local.pose.position)
-    if (normV(diff) > (givenTarget ? PARTICIPANT_SIZE*2 : PARTICIPANT_SIZE / 10)) {
-      const dir = mulV2(20 / normV(diff)/5, diff)
-      local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-      if (move) {
-        local.pose.position = addV2(local.pose.position, dir)
-      }
-      local.savePhysicsToStorage(false)
-    }
-  }
-  function moveParticipantPeriodically(move: boolean, target?:[number,number]) {
-    moveParticipant(move, target)
-    const TIMER_INTERVAL = move ? 0 : 0
-    setTimeout(() => {
-      //if (mem.mouseDown) {
-        moveParticipantPeriodically(true)
-      //}
-    }, TIMER_INTERVAL) //  move to mouse position
-  } */
 
   function checkContentsInEdit():boolean {
     let isEdit:boolean = false
@@ -370,6 +317,31 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     }
   }
 
+  function moveParticipant(move: boolean, givenTarget?:[number,number]) {
+    const local = participants.local
+    let target = givenTarget
+    if (!target){ target = map.mouseOnMap }
+    const diff = subV2(target, local.pose.position)
+    if (normV(diff) > (givenTarget ? PARTICIPANT_SIZE*2 : PARTICIPANT_SIZE / 2)) {
+      const dir = mulV2(20 / normV(diff), diff)
+      local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
+      if (move) {
+        local.pose.position = addV2(local.pose.position, dir)
+      }
+      local.savePhysicsToStorage(false)
+    }
+  }
+  /*
+  function moveParticipantPeriodically(move: boolean, target?:[number,number]) {
+    moveParticipant(move, target)
+    const TIMER_INTERVAL = move ? 33 : 300
+    setTimeout(() => {
+      if (mem.mouseDown) {
+        moveParticipantPeriodically(true)
+      }
+    }, TIMER_INTERVAL) //  move to mouse position
+  }*/
+
   function hindleClickStatus() {
     //console.log(mem.clickStatus, " onClick")
 
@@ -384,14 +356,14 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
 
 
-    let _contentDialogStatus:boolean = getContentDialogStatus()
+    /* let _contentDialogStatus:boolean = getContentDialogStatus() */
 
     //if(_contentDeleteStatus) {return}
 
 
 
-    if(_contentDialogStatus) {return}
-
+    /* if(_contentDialogStatus) {return}
+ */
     //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
 
     //if(_contentDeleteDeleteDialogOpen) {return}
@@ -478,28 +450,47 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     }
   }
 
-
   const bind = useGesture(
     {
       onDragStart: ({buttons, xy}) => {
-
-
-
         document.body.focus()
         mem.dragging = true
         mem.mouseDown = true
 
-        mem.downTime = new Date().getSeconds()
+        //console.log('Base StartDrag:')
+
+       mem.downTime = new Date().getSeconds()
         mem.moveX = map.mouseOnMap[0]
         mem.moveY = map.mouseOnMap[1]
 
+
+
         let itemLocked = getContentLocked()
         let _onContent = isOnContentStatus()
-
         let _onRemoteUser = getOnRemote()
+        let _dialogStatus:boolean = isDialogOpen()
+        let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+        let _avatarToolStatus = getAvatarToolStatus()
 
+        let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+        if(_contentDeleteDeleteDialogOpen) {return}
+
+        if(_contentDialogStatus) {return}
+        if(_dialogStatus) {return}
+        if(showUploadOption) {return}
+        if(_onContent) {return}
+        if(_onRemoteUser) {return}
+        if(_focusLocalUser) {return}
+        if(_avatarToolStatus) {return}
+
+
+
+        /* let itemLocked = getContentLocked()
+        let _onContent = isOnContentStatus()
+        //let _onRemoteUser = getOnRemote()
         //console.log("locked -- ", itemLocked)
-        //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+        let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
         //console.log(_onContent, " >>> _onContent")
 
         let _dialogStatus:boolean = isDialogOpen()
@@ -507,25 +498,30 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let _focusLocalUser:boolean = getOnLocalUser()
         let _avatarToolStatus = getAvatarToolStatus()
 
+        let isUserContentOpen = getUserContextMenu()
+        if(isUserContentOpen) {return}
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
-
         if(showUploadOption) {return}
         if(_onContent) {return}
-        if(_onRemoteUser) {return}
+        //if(_onRemoteUser) {return}
         if(_focusLocalUser) {return}
         if(_avatarToolStatus) {return}
 
-        //console.log(_onContent, " onContent")
+        if(_contentDeleteDeleteDialogOpen) {return} */
 
-        //if(_contentDeleteDeleteDialogOpen) {return}
+        /* let _avatarToolStatus = getAvatarToolStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+        let _dialogStatus:boolean = isDialogOpen()
 
-        //console.log(buttons, " buttons ", MOUSE_LEFT)
+        if(_dialogStatus) {return}
+        if(_focusLocalUser) {return}
 
+        if(showUploadOption) {return}
+        if(showMenu) {return}
+        if(_avatarToolStatus) {return} */
 
-        //  console.log('Base StartDrag:')
         if (buttons === MOUSE_LEFT || buttons === 0) {
-
           mem.downTime = new Date().getSeconds()
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
@@ -565,36 +561,59 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         }
       },
       onDrag: ({down, delta, xy, buttons}) => {
-
-
-       // console.log(map)
-
-
+        if (delta[0] || delta[1]) { mem.mouseDown = false }
 
         if (delta[0] || delta[1]) {
           mem.mouseDown = false
           canvasMoved = true
         }
-        let _menuStatus:boolean = getContextMenuStatus()
 
+
+
+        let _menuStatus:boolean = getContextMenuStatus()
         let _dialogStatus:boolean = isDialogOpen()
         let _contentDialogStatus:boolean = getContentDialogStatus()
         let _focusLocalUser:boolean = getOnLocalUser()
         let _onRemoteUser = getOnRemote()
         let _avatarToolStatus = getAvatarToolStatus()
-
         if(_contentDialogStatus) {return}
         if(_dialogStatus) {return}
-
         //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
-
         if(_menuStatus) {return}
         if(showMenu) {return}
         if(_focusLocalUser) {return}
         if(_onRemoteUser) {return}
         if(_avatarToolStatus) {return}
 
-       // if(_contentDeleteDeleteDialogOpen) {return}
+        /*
+        //let _menuStatus:boolean = getContextMenuStatus()
+        let _dialogStatus:boolean = isDialogOpen()
+        //let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+        //let _onRemoteUser = getOnRemote()
+        let _avatarToolStatus = getAvatarToolStatus()
+
+        //if(_contentDialogStatus) {return}
+        //let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+
+        let isUserContentOpen = getUserContextMenu()
+        if(isUserContentOpen) {return}
+
+        //if(_menuStatus) {return}
+        if(showMenu) {return}
+        if(_focusLocalUser) {return}
+        //if(_onRemoteUser) {return}
+        if(_avatarToolStatus) {return} */
+
+        /* let _avatarToolStatus = getAvatarToolStatus()
+        let _focusLocalUser:boolean = getOnLocalUser()
+        let _dialogStatus:boolean = isDialogOpen()
+
+        if(_dialogStatus) {return}
+        if(_focusLocalUser) {return}
+        if(showUploadOption) {return}
+        if(showMenu) {return}
+        if(_avatarToolStatus) {return} */
 
         //  if (map.keyInputUsers.size) { return }
         if (mem.dragging && down && outer.current) {
@@ -620,7 +639,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             map.setMatrix(newMatrix)
             //  rotate and direct participant to the mouse position.
             if (delta[0] || delta[1]){
-              //moveParticipant(false, map.centerOnMap)
+              moveParticipant(false, map.centerOnMap)
             }
             //console.log('Base onDrag:', delta)
           }
@@ -629,41 +648,42 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onDragEnd: ({event, xy}) => {
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
-
-        //canvasMoved = false
-
         mem.upTime = new Date().getSeconds()
         let timeDiff = mem.upTime - mem.downTime
 
         let _dialogStatus:boolean = isDialogOpen()
-
-
-        //console.log(_dialogStatus, " dialog status")
-
-
-
-        //props.stores.contents.removeAllContents()
-        //console.log(props.stores.contents.all[0].scaleRotateToggle)
-
-
-
-
-        //console.log()
         let _contentDialogStatus:boolean = getContentDialogStatus()
         let _avatarToolStatus = getAvatarToolStatus()
-
         let contentContextMenu = getContextMenuStatus()
-
+        let isUserContentOpen = getUserContextMenu()
+        let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+        if(_contentDeleteDeleteDialogOpen) {return}
+        if(isUserContentOpen) {return}
         //console.log('function called', _contentDialogStatus, " --- ", showMenu, " --- ", _avatarToolStatus)
-
         if(_contentDialogStatus) {return}
-
         if(contentContextMenu) {return}
-
-
-
         if(_dialogStatus) {return}
         if(_avatarToolStatus) {return}
+
+        /*
+        //let _contentDialogStatus:boolean = getContentDialogStatus()
+        let _dialogStatus:boolean = isDialogOpen()
+        //console.log(_dialogStatus, " dStatus")
+        let _avatarToolStatus = getAvatarToolStatus()
+        //let contentContextMenu = getContextMenuStatus()
+        //console.log('function called', _contentDialogStatus, " --- ", showMenu, " --- ", _avatarToolStatus)
+        //if(_contentDialogStatus) {return}
+        //if(contentContextMenu) {return}
+        let isUserContentOpen = getUserContextMenu()
+        if(isUserContentOpen) {return}
+        if(_dialogStatus) {return}
+        if(_avatarToolStatus) {return}
+ */
+
+        /* let _avatarToolStatus = getAvatarToolStatus()
+        let _dialogStatus:boolean = isDialogOpen()
+        if(_dialogStatus) {return}
+        if(_avatarToolStatus) {return} */
 
 
         if((mem.upXpos >= (mem.downXpos-20) && mem.upXpos <= (mem.downXpos+20) && (mem.upYpos >= (mem.downYpos-20) && mem.upYpos <= (mem.downYpos+20))) && String(Object(event?.target).tagName) === "DIV" && timeDiff < 1) {
@@ -731,63 +751,22 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             }
             canvasMoved = false
           }, 220)
-       // }
-
-       ////////////////////////////////////////////////////////
-          /* const moveTimer = setTimeout(() => {
-            clearTimeout(moveTimer)
-
-            function moveParticipant(move: boolean) {
-
-                //const local = participants.local
-                //const diff = subV2(map.mouseOnMap, local.pose.position)
-
-
-                const diff = subV2([mem.moveX, mem.moveY], local.pose.position)
-
-                if (normV(diff) > PARTICIPANT_SIZE / 10) {
-                  const dir = mulV2(normV(diff)/5 / normV(diff), diff)
-                  local.pose.orientation = Math.atan2(dir[0], -dir[1]) * 180 / Math.PI
-                  if (move) {
-                    local.pose.position = addV2(local.pose.position, dir)
-                  }
-                  local.savePhysicsToStorage(false)
-                  const TIMER_INTERVAL = move ? 0 : 0
-                  if(event?.detail === 1) {
-                    setTimeout(() => { moveParticipant(true) }, TIMER_INTERVAL)
-                  }
-                }
-            }
-            moveParticipant(false)
-          }, 0) */
-
-        ////////////////////////////////////////
-        //} // end if
-        ////////////////////////////////////////
 
         if (matrix.toString() !== map.committedMatrix.toString()) {
           map.setCommittedMatrix(matrix)
-          //moveParticipant(false, map.centerOnMap)
+          moveParticipant(false, map.centerOnMap)
           //console.log(`Base onDragEnd: (${map.centerOnMap})`)
         }
         mem.dragging = false
         mem.mouseDown = false
-        _menuCanvas = false
 
+        _menuCanvas = false
         setShowMenu(false)
       },
       onPinch: ({da: [d, a], origin, event, memo}) => {
         if (memo === undefined) {
           return [d, a]
         }
-
-        let _dialogStatus:boolean = isDialogOpen()
-        let _contentDialogStatus:boolean = getContentDialogStatus()
-        let _avatarToolStatus = getAvatarToolStatus()
-
-        if(_contentDialogStatus) {return}
-        if(_dialogStatus) {return}
-        if(_avatarToolStatus) {return}
 
         const [md, ma] = memo
 
@@ -814,25 +793,19 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
       onPinchEnd: () => map.setCommittedMatrix(matrix),
       onMove:({xy}) => {
-        mem.zoomX = xy[0]
-        mem.zoomY = xy[1]
-
-
-        //console.log(participants.local.trackStates.pingIcon, " moving")
-        //if(participants.local.trackStates.pingIcon === false) {
         map.setMouse(xy)
-        //}
-        if(showMenu) {return}
-        participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
+        if (participants.local.mouse.position[0] !== map.mouseOnMap[0]
+          || participants.local.mouse.position[1] !== map.mouseOnMap[1]){
+          participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
+        }
       },
 
-      /* onTouchMove:(ev) => {
-        mem.zoomX = ev.touches[0].clientX
-        mem.zoomY = ev.touches[0].clientY
+      /*
+      onTouchStart:(ev) => {
         map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
-      }, */
-
+      },
+      */
       onTouchStart:(ev) => {
         mem.zoomX = ev.touches[0].clientX
         mem.zoomY = ev.touches[0].clientY
@@ -841,28 +814,17 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
 
       onTouchEnd:(e) => {
-        //console.log(e.changedTouches)
-        ////////////////////////////////////////////////////
         var changedTouch = e.changedTouches[0];
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-        ///////////////////////////////
-
-
         dblTouchTapCount ++
-        //console.log(dblTouchTapCount, " checking DBLCLick")
-        //let _contentDeleteDialog = getContentDeleteDialogStatus()
-
         //if(_contentDeleteDialog) {return}
         const dblClick = setTimeout(function () {
           clearTimeout(dblClick)
           if(dblTouchTapCount === 2) {
-            //console.log('doubleClick')
               mem.clickStatus = "double"
               mem.pingX = participants.local.mouse.position[0] - participants.local.pose.position[0]
               mem.pingY = participants.local.mouse.position[1]-participants.local.pose.position[1]
           } else if(dblTouchTapCount === 1) {
-            //console.log("single click")
-            //e.preventDefault()
           }
           dblTouchTapCount = 0
         }, 250)
@@ -870,14 +832,12 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           setShowUploadOption(true)
           setShowMenu(false)
         }
-
       }
     },
     {
       eventOptions:{passive:false}, //  This prevents default zoom by browser when pinch.
     },
   )
-  ///////////////////////////////////////////////////////
 
   //  setClientRect of the outer.
   useEffect(
@@ -989,20 +949,6 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     mem,
   }
 
-  //console.log(props.stores.map.mouseOnMap, " m on m")
-
-
-  const [showMenu, setShowMenu] = useState(false)
-  const [showUploadOption, setShowUploadOption] = useState(false)
-
-  const [pingLocation, setPingLocation] = useState(false)
-
-  //const _pingIcon = useObserver(()=> participants.local.pingIcon)
-
-  //console.log("AAAA - ", _pingIcon)
-
-
-  const classes = useStyles(styleProps)
 
   function stop(ev:MouseOrTouch|React.PointerEvent) {
     ev.stopPropagation()
@@ -1014,7 +960,12 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setShowMenu(false)
   }
 
-  //console.log(pingLocation, " pL")
+  // use State
+  const [showMenu, setShowMenu] = useState(false)
+  const [showUploadOption, setShowUploadOption] = useState(false)
+  const [pingLocation, setPingLocation] = useState(false)
+
+  const classes = useStyles(styleProps)
 
   return (
     <div className={classes.root} ref={outer} {...bind()}>
@@ -1024,9 +975,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             {props.children}
         </div>
       </div>
-
-      {/* Add Context Menu */}
-      <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
+   {/* Add Context Menu */}
+   <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
       <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}>
           <div className={classes.uploadZone} onMouseUp={onClickUploadZone} /* onTouchEnd={onClickUploadZone} */
             onTouchStart={stop} /* onMouseLeave={() => setTimeout(()=>{setShowMenu(false)},100)} */>
@@ -1040,6 +990,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       </div> */}
       <ShareDialog {...props} open={showUploadOption} onClose={() => setShowUploadOption(false)} cordX={mem.contentX} cordY={mem.contentY} origin={'contextmenu'} _type={'menu'}/>
     </div>
+
   )
 }
 Base.displayName = 'MapBase'

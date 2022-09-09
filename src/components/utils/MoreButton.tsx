@@ -57,8 +57,8 @@ export const MoreButton: React.FC<MoreButtonProps> = (props) => {
     <IconButton className={props.className} color={props.color} onClick={handleClick}
       size={'small'} ref={props.buttonRef}
     >
-      {/* <MoreVertIcon color={props.iconColor} htmlColor={props.htmlColor} fontSize="large" /> */}
-      <img src={MoreIcon} width={isSmartphone() ? 90 : 45} height={isSmartphone() ? 60 : 30} draggable={false} alt='' />
+     {/*  <MoreVertIcon color={props.iconColor} htmlColor={props.htmlColor} fontSize="large" /> */}
+     <img src={MoreIcon} width={isSmartphone() ? 90 : 45} height={isSmartphone() ? 60 : 30} draggable={false} alt='' />
     </IconButton>
   </Zoom>
 }

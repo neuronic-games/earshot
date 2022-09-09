@@ -1,17 +1,14 @@
 import {MAP_SIZE} from '@components/Constants'
-import {connection} from '@models/api'
-import {ConnectionStates} from '@models/api/Constants'
 import {t} from '@models/locales'
-import {priorityCalculator} from '@models/middleware/trafficControl'
 import { defaultInformation } from '@models/Participant'
 import {urlParameters} from '@models/url'
 import {addV2, diffSet, mulV2} from '@models/utils'
-import {createJitisLocalTracksFromStream} from '@models/utils/jitsiTrack'
 import map from '@stores/Map'
 import participants from '@stores/participants/Participants'
 import {action, autorun, computed, makeObservable, observable, when} from 'mobx'
+import {conference} from '@models/conference'
 
-export type ErrorType = '' | 'connection' | 'retry' | 'noMic' | 'micPermission' | 'channel' | 'entrance' | 'afk' | 'kicked'
+export type ErrorType = '' | 'connection' | 'retry' | 'noMic' | 'micPermission' | 'rtcConnection' | 'dataConnection' | 'entrance' | 'afk' | 'kicked'
 
 export class ErrorInfo {
   @computed get fatal() { return !this.type }
@@ -32,7 +29,8 @@ export class ErrorInfo {
       case 'retry': return t('etRetry')
       case 'noMic': return t('etNoMic')
       case 'micPermission': return t('etMicPermission')
-      case 'channel': return t('etNoChannel')
+      case 'rtcConnection': return t('etRtcConnection')
+      case 'dataConnection': return t('etDataConnection')
       case 'entrance': return ''
       case 'afk': return t('afkTitle')
       case 'kicked': return `Kicked by ${this.name}. ${this.reason}`
@@ -46,7 +44,8 @@ export class ErrorInfo {
       case 'retry': return t('emRetry')
       case 'noMic': return t('emNoMic')
       case 'micPermission': return t('emMicPermission')
-      case 'channel': return t('emNoChannel')
+      case 'rtcConnection': return t('emRtcConnection')
+      case 'dataConnection': return t('emDataConnection')
       case 'entrance': return ''
       case 'afk': return t('afkMessage')
       case 'kicked': return ''
@@ -132,16 +131,20 @@ export class ErrorInfo {
     }
   }
   @action checkConnection() {
-    if (connection.state !== ConnectionStates.CONNECTED) {
-      this.setType('connection')
+    if (!conference.isRtcConnected()) {
+      this.setType('rtcConnection')
+      setTimeout(this.checkConnection.bind(this), 5 * 1000)
+    }else if (!conference.isDataConnected()){
+      this.setType('dataConnection')
       setTimeout(this.checkConnection.bind(this), 5 * 1000)
     }else {
-      this.clear('connection')
+      this.clear('rtcConnection')
+      this.clear('dataConnection')
       this.checkMic()
     }
   }
   @action checkMic() {
-    if (participants.localId && !participants.local.muteAudio && !connection.conference.getLocalMicTrack()) {
+    if (participants.localId && !participants.local.muteAudio && !conference.getLocalMicTrack()) {
       if (this.audioInputs.length) {
         this.setType('micPermission')
         //  this.message += 'You have: '
@@ -157,43 +160,8 @@ export class ErrorInfo {
       }
       this.clear('noMic')
       this.clear('micPermission')
-      this.checkRemote()
     }
   }
-  checkRemote() {
-    if (participants.remote.size > 0) {
-      /*
-      //console.log(stringify(connection.conference))
-      //console.log(stringify(d.chatRoom.xmpp.connection.jingle.sessions))
-      for(const sid in d.chatRoom.xmpp.connection.jingle.sessions){
-        const sess = d.chatRoom.xmpp.connection.jingle.sessions[sid]
-        const pc = sess.peerconnection.peerconnection as RTCPeerConnection
-        console.log(pc)
-        console.log('currentLocal:', pc.currentLocalDescription?.sdp)
-        console.log('currentRemote:', pc.currentRemoteDescription?.sdp)
-
-        //console.log(pc.remoteDescription?.sdp)
-      }
-      */
-
-      setTimeout(this.checkChannel.bind(this), 3 * 1000)
-    }else {
-      setTimeout(this.checkRemote.bind(this), 1 * 1000)
-    }
-  }
-  @action checkChannel() {
-    if (participants.remote.size > 0) {
-      if (!connection.conference._jitsiConference?.rtc._channel?.isOpen()) {
-        this.setType('channel')
-        setTimeout(this.checkChannel.bind(this), 5 * 1000)
-      }else {
-        this.clear('channel')
-      }
-    }else {
-      this.checkRemote()
-    }
-  }
-
   //  testBot
   canvas: HTMLCanvasElement|undefined = undefined
   oscillator: OscillatorNode|undefined = undefined
@@ -222,12 +190,10 @@ export class ErrorInfo {
       this.oscillator?.frequency.setValueAtTime(440 + counter % 440, ctxA.currentTime) // 440HzはA4(4番目のラ)
       //  update camera image
       const colors = ['green', 'blue']
-      const nearest = priorityCalculator.tracksToAccept[0].length ?
-        participants.remote.get(priorityCalculator.tracksToAccept[0][0].endpointId) : undefined
-      if (nearest && !nearest?.tracks.avatarOk) { colors[0] = 'yellow' }
-      if (nearest && nearest?.tracks.audio?.getTrack().muted) { colors[1] = 'red' }
-      //if (priorityCalculator.tracksToAccept[0][0]?.track.getTrack()?.muted) { colors[0] = 'yellow' }
-      //if (priorityCalculator.tracksToAccept[1][0]?.track.getTrack()?.muted) { colors[1] = 'red' }
+      const nearestVideo = conference.priorityCalculator.tracksToConsume.videos[0]?.producer
+      const nearestAudio = conference.priorityCalculator.tracksToConsume.audios[0]?.producer
+      if (nearestVideo && nearestVideo.consumer?.track.muted) { colors[0] = 'yellow' }
+      if (nearestAudio && nearestAudio.consumer?.track.muted) { colors[1] = 'red' }
       ctx.fillStyle = colors[0]
       ctx.beginPath()
       ctx.ellipse(width * 0.63, height * 0.33, width * 0.1, height * 0.4, counter / 20, 0, Math.PI * 2)
@@ -276,13 +242,10 @@ export class ErrorInfo {
     }
 
     const vidoeStream = (this.canvas as any).captureStream(20) as MediaStream
-    const audioStream = destination.stream
-    const stream = new MediaStream()
-    stream.addTrack(audioStream.getAudioTracks()[0])
-    stream.addTrack(vidoeStream.getVideoTracks()[0])
-    const tracks = createJitisLocalTracksFromStream(stream)
-    connection.conference.setLocalCameraTrack(tracks[0])
-    connection.conference.setLocalMicTrack(tracks[1])
+    const videoTrack = vidoeStream.getVideoTracks()[0]
+    const audioTrack = destination.stream.getAudioTracks()[0]
+    conference.setLocalCameraTrack({track:videoTrack, peer:participants.local.id, role:'avatar'})
+    conference.setLocalMicTrack({track:audioTrack, peer:participants.local.id, role:'avatar'})
   }
 }
 

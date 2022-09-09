@@ -16,16 +16,10 @@ export class RoomInfo{
 
   @observable roomDetails=JSON.stringify({name:'',image:'',desc:''})
 
-
-
-
-
   constructor() {
     makeObservable(this)
   }
-
   @action onUpdateProp(key:string, val:string|undefined){
-    //console.log(val, " val ", key)
     if (val === undefined){
       this.roomProps.delete(key)
     }else{

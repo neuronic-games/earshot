@@ -1,5 +1,3 @@
-
-//import { createReadStream } from "fs"
 /**
  * Abstract class to store base Google credentials
  */
@@ -26,7 +24,7 @@ class GoogleDrive {
     //   //gapi is loading lock until done
     //   console.log('D: loading gapi')
     // }
-    //gapi.load('auth', {'callback': this.onAuthApiLoad.bind(this)})
+    gapi.load('auth', {'callback': this.onAuthApiLoad.bind(this)})
     // while (this.loadState<2) {
     //   //apis still loading
     //   console.log('D: loading gapi APIs')
@@ -44,13 +42,20 @@ class GoogleDrive {
 
   private async login() {
     const res = await new Promise((resolve, reject)=>{
+      console.log(gapi.auth);
       gapi.auth.authorize(
         {
           'client_id': this.clientId,
           'scope': this.scopes,
-          'immediate': false
+          'immediate': true
         },
-        (r)=>r.error?reject(r):resolve(r))
+        (r)=>r.error?gapi.auth.authorize(
+          {
+            'client_id': this.clientId,
+            'scope': this.scopes,
+            'immediate': false
+          },
+          (k)=>k.error?reject(k):resolve(k)):resolve(r))
     })
     console.log(res)
   }

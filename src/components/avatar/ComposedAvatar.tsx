@@ -1,6 +1,6 @@
 import React from 'react'
 import {ImageAvatar, ImageAvatarProps} from './ImageAvatar'
-import {StreamAvatarProps} from './StreamAvatar' // StreamAvatar,
+import {/* StreamAvatar, */ StreamAvatarProps} from './StreamAvatar'
 
 type ComposedAvatarProps = ImageAvatarProps & Partial<StreamAvatarProps>
 

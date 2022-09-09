@@ -1,11 +1,11 @@
 import MenuItem from '@material-ui/core/MenuItem'
-import {assert} from '@models/utils'
 import {createContentOfVideo} from '@stores/sharedContents/SharedContentCreator'
-import JitsiMeetJS, {JitsiLocalTrack} from 'lib-jitsi-meet'
 import {makeObservable, observable} from 'mobx'
 import {useObserver} from 'mobx-react-lite'
 import React, {useEffect} from 'react'
-import {DialogPageProps} from './DialogPage'
+import {DialogPageProps} from './Step'
+import {createLocalCamera} from '@models/conference/faceCamera'
+import {conference} from '@models/conference'
 
 export class CameraSelectorMember{
   @observable.shallow videos: MediaDeviceInfo[] = []
@@ -37,23 +37,21 @@ export const CameraSelector: React.FC<CameraSelectorProps> = (props) => {
   function closeVideoMenu(did:string) {
     setStep('none')
     if (did) {
-      JitsiMeetJS.createLocalTracks({devices:['video'],
-        cameraDeviceId: did}).then((tracks: JitsiLocalTrack[]) => {
-          if (tracks.length) {
-            const content = createContentOfVideo(tracks, map, 'camera', Object(props).xCord, Object(props).yCord, Object(props).from)
-            contents.shareContent(content)
-            assert(content.id)
-            contents.tracks.addLocalContent(content.id, tracks)
-          }
-        },
-      )
+      createLocalCamera(false, did).then((msTrack)=>{
+        const content = createContentOfVideo([msTrack.track], map, 'screen', Object(props).xCord, Object(props).yCord, Object(props).from)
+        contents.assignId(content)
+        msTrack.role = content.id
+        contents.getOrCreateContentTracks(conference.rtcConnection.peer, content.id)
+        contents.shareContent(content)
+        conference.addOrReplaceLocalTrack(msTrack)
+      })
     }
   }
 
   //  keyboard shortcut
   useEffect(() => {
     const onKeyPress = (e: KeyboardEvent) => {
-      if (e.code.substr(0, 3) === 'Key') {
+      if (e.code.substring(0, 3) === 'Key') {
         const keyNum = e.code.charCodeAt(3) - 65
         closeVideoMenu(props.cameras.videos[keyNum]?.deviceId)
       }

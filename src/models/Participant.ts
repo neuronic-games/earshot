@@ -1,11 +1,17 @@
 import { ISharedContent } from '@models/ISharedContent'
-import {JitsiTrack} from 'lib-jitsi-meet'
-import {ConnectionQualityStats} from 'lib-jitsi-meet/JitsiConference'
 import {MapObject} from './MapObject'
 import {findReverseColorRGB, findTextColorRGB, getRandomColorRGB, rgb2Color} from './utils/color'
 import {Mouse} from './utils/coordinates'
+import * as Kalidokit from 'kalidokit'
 
 export const PARTICIPANT_SIZE = 60
+
+export interface VRMRigs{
+  face?:Kalidokit.TFace,
+  pose?:Kalidokit.TPose,
+  leftHand?: Kalidokit.THand<'Left'>
+  rightHand?: Kalidokit.THand<'Right'>
+}
 
 export interface ParticipantBase extends MapObject{
   physics: Physics
@@ -13,10 +19,16 @@ export interface ParticipantBase extends MapObject{
   viewpoint: Viewpoint
   id: string
   information: RemoteInformation|LocalInformation
-  quality?: ConnectionQualityStats
+  zIndex: number
+  vrmRigs?: VRMRigs
 }
 
 export interface PlaybackParticipant extends ParticipantBase {
+  audioBlob?: Blob
+  videoBlob?: Blob
+}
+
+export interface PlaybackContent extends ISharedContent {
   audioBlob?: Blob
   videoBlob?: Blob
 }
@@ -47,18 +59,20 @@ export interface RemoteInformation extends BaseInformation{
 }
 export interface LocalInformation extends BaseInformation{
   email: string
+  faceTrack: boolean
   notifyCall: boolean
   notifyTouch: boolean
   notifyNear: boolean
   notifyYarn: boolean
 }
 export const defaultInformation:LocalInformation = {
-  name: 'Anonymous',
+  name: '',
   email: '',
   avatarSrc: '',
   color: [],
   textColor: [],
   randomAvatar: [],
+  faceTrack: false,
   notifyCall: true,
   notifyTouch: false,
   notifyNear: false,
@@ -72,8 +86,8 @@ export const defaultRemoteInformation:RemoteInformation = {
   randomAvatar: [],
 }
 export interface Tracks {
-  audio: JitsiTrack | undefined
-  avatar: JitsiTrack | undefined
+  audio: MediaStreamTrack | undefined
+  avatar: MediaStreamTrack | undefined
   audioStream: MediaStream | undefined
   avatarStream: MediaStream | undefined
 }
@@ -103,10 +117,11 @@ export const defaultPhysics: Physics = {
 export interface Viewpoint{
   height: number              //  zoom (viewing range) of the map
   center: [number, number]    //  center of the map from the avatar
+  nodding?: number            //  up-down nose direction
 }
 export const defaultViewpoint: Viewpoint = {
   height: 0,
-  center: [0,0]
+  center: [0,0],
 }
 export type SoundLocalizationBase = 'avatar' | 'user'
 
@@ -128,5 +143,3 @@ export function getColorOfParticipant(information: BaseInformation) {
 
   return colors
 }
-
-

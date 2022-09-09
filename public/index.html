@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta http-equiv="EXPIRES" content="Fri, 26 Aug 2022 12:30:00 GMT">
+    <title>Earshot Chat</title>
+    <meta http-equiv="EXPIRES" content="Fri, 9 Sep 2022 23:55:00 GMT">
     <meta name="viewport" content= "user-scalable=no">
-    <title>EarShot Chat</title>
     <script src="./config.js"></script>
     <script> const d = {}; </script>
     <script src="https://apis.google.com/js/client.js"></script>
@@ -17,10 +17,42 @@
     </style>
   </head>
   <body tabindex="0" bgcolor="#5f7ca0">
-    <h2 style="color: white;"> Loading EarShot Chat </h2>
+    <h2 style="color: white;"> Loading Earshot Chat </h1>
     <div id="root"></div>
     <div id="overlay" style="position: fixed; top: 0px; left: 0px;"></div>
     <!--Import the browser google api-->
-    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
+    <script>
+      // The Browser API key obtained from the Google API Console.
+      // Replace with your own Browser API key, or your own key.
+      const developerKey = 'AIzaSyAADCXxUujmh0VqXIzJofwl03MA5O8v8EQ'
+
+      // The Client ID obtained from the Google API Console. Replace with your own Client ID.
+      const clientId = "858773398697-vki2lito392c5dlss9s31ap077nn0qbd.apps.googleusercontent.com"
+
+      // Replace with your own project number from console.developers.google.com.
+      // See "Project number" under "IAM & Admin" > "Settings"
+      const appId = "binarual-meet"
+
+      // Scope to use to access user's Drive items.
+      const scope = ['https://www.googleapis.com/auth/drive.file']
+
+      function loadGoogleDrive(){
+
+        gapi.load('auth', {'callback': ()=>window.gapiAuthReady = true})
+        gapi.load('picker', {'callback': ()=> window.gapiPickerReady = true})
+      }
+      window.authorizeGdrive = (callback) => {
+        if(gapi){
+          gapi.auth.authorize(
+          {
+            'client_id': clientId,
+            'scope': scope,
+            'immediate': false
+          },
+          callback)
+        }
+      }
+    </script>
+    <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadGoogleDrive"></script>
   </body>
 </html>

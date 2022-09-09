@@ -1,9 +1,9 @@
-import {PlaybackParticipant, RemoteParticipant} from '@models/Participant'
+import { IPlaybackContent, ISharedContent } from '@models/ISharedContent'
+import {PlaybackContent, PlaybackParticipant, RemoteParticipant} from '@models/Participant'
 import {urlParameters} from '@models/url'
 import {diffMap} from '@models/utils'
 import participants from '@stores/participants/Participants'
 import contents from '@stores/sharedContents/SharedContents'
-import {JitsiRemoteTrack} from 'lib-jitsi-meet'
 import {autorun} from 'mobx'
 import {ConnectedGroup, ConnectedGroupForPlayback} from './ConnectedGroup'
 import {StereoManager} from './StereoManager'
@@ -16,7 +16,8 @@ export class ConnectedManager {
 
   private remotesMemo = new Map<string, RemoteParticipant>()
   private playbacksMemo = new Map<string, PlaybackParticipant>()
-  private contentsMemo = new Map<string, Set<JitsiRemoteTrack>>()
+  private contentsMemo = new Map<string, ISharedContent>()
+  private playbackContentsMemo = new Map<string, PlaybackContent>()
 
   public setAudioOutput(deviceId: string) {
     this.manager.setAudioOutput(deviceId)
@@ -26,6 +27,7 @@ export class ConnectedManager {
 
     autorun(this.onRemotesChange)
     autorun(this.onPlaybacksChange)
+    autorun(this.onPlaybackContentsChange)
     autorun(this.onScreenContentsChange)
     autorun(
       () => {
@@ -53,9 +55,19 @@ export class ConnectedManager {
     this.playbacksMemo = newPlaybacks
     //  console.log('Update connectedGroups:', this.connectedGroups)
   }
+  private onPlaybackContentsChange = () => {
+    const newPlaybackContents = new Map(contents.playbackContents)
+    const added = diffMap(newPlaybackContents, this.playbackContentsMemo)
+    const removed = diffMap(this.playbackContentsMemo, newPlaybackContents)
+    removed.forEach(this.removePlayback)
+    added.forEach(this.addPlaybackContent)
+    this.playbackContentsMemo = newPlaybackContents
+    //  console.log('Update connectedGroups:', this.connectedGroups)
+  }
 
   private onScreenContentsChange = () => {
-    const newRemotes = new Map(contents.tracks.remoteContents)
+    const audioRemoteContents = contents.getRemoteRtcContentIds().filter(cid => contents.getContentTrack(cid, 'audio'))
+    const newRemotes = new Map(audioRemoteContents.map(cid => [cid, contents.find(cid)!]))
     const added = diffMap(newRemotes, this.contentsMemo)
     const removed = diffMap(this.contentsMemo, newRemotes)
     removed.forEach(this.removeContent)
@@ -63,7 +75,7 @@ export class ConnectedManager {
     this.contentsMemo = newRemotes
   }
 
-  private removePlayback = (pp: PlaybackParticipant) => {
+  private removePlayback = (pp: PlaybackParticipant | IPlaybackContent) => {
     const id = pp.id
     this.connectedGroups[id].dispose()
     delete this.connectedGroups[id]
@@ -73,7 +85,13 @@ export class ConnectedManager {
   private addPlayback = (pp: PlaybackParticipant) => {
     const id = pp.id
     const group = this.manager.addPlayback(id)
-    this.connectedGroups[id] = new ConnectedGroupForPlayback(participants.local_, pp, group)
+    this.connectedGroups[id] = new ConnectedGroupForPlayback(participants.local_, group, pp)
+  }
+  private addPlaybackContent = (pc: IPlaybackContent) => {
+    //  console.log(`addPlaybackContent: ${JSON.stringify(pc)}`)
+    const id = pc.id
+    const group = this.manager.addPlayback(id)
+    this.connectedGroups[id] = new ConnectedGroupForPlayback(participants.local_, group, undefined, pc.id)
   }
 
   private removeRemote = (rp: RemoteParticipant) => {
@@ -88,32 +106,13 @@ export class ConnectedManager {
     this.connectedGroups[remote.id] = new ConnectedGroup(participants.local_, undefined, remote, group)
   }
 
-  private removeContent = (tracks: Set<JitsiRemoteTrack>) => {
-    const audioTrack = Array.from(tracks.values()).find(track => track.getType() === 'audio')
-
-    if (audioTrack) {
-      const carrierId = audioTrack.getParticipantId()
-      if (carrierId) {
-        this.connectedGroups[carrierId].dispose()
-        delete this.connectedGroups[carrierId]
-
-        this.manager.removeSpeaker(carrierId)
-      }else {
-        console.error('removeContent: track does not have content id.', audioTrack)
-      }
-    }
+  private removeContent = (content: ISharedContent) => {
+    this.connectedGroups[content.id].dispose()
+    delete this.connectedGroups[content.id]
+    this.manager.removeSpeaker(content.id)
   }
-
-  private addContent = (tracks: Set<JitsiRemoteTrack>) => {
-    const audioTrack = Array.from(tracks.values()).find(track => track.getType() === 'audio')
-    if (audioTrack) {
-      const carrierId = audioTrack.getParticipantId()
-      if (carrierId) {
-        const group = this.manager.addSpeaker(carrierId)
-        this.connectedGroups[carrierId] = new ConnectedGroup(participants.local_, audioTrack, undefined, group)
-      }else {
-        console.error('addContent: track does not have content id.', audioTrack)
-      }
-    }
+  private addContent = (content: ISharedContent) => {
+    const group = this.manager.addSpeaker(content.id)
+    this.connectedGroups[content.id] = new ConnectedGroup(participants.local_, content, undefined, group)
   }
 }

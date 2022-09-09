@@ -35,6 +35,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   devicePreference = new DevicePreference()
   @observable.shallow tracks = new TracksStore()
   @observable useStereoAudio = false  //  will be override by url switch
+
   @observable emoticon = ''  //  for emoticon
   @observable pingIcon = false  //  for ping status
   @observable pingX = 0  //  for ping location X
@@ -44,6 +45,7 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
   @observable remoteX = 0  //  for remote movement
   @observable remoteY = 0  //  for remote movement
 
+  @observable headphoneConfirmed = false  //  Ask if really use headphone or not
   @observable thirdPersonView = config.thirdPersonView as boolean
   @observable soundLocalizationBase = config.soundLocalizationBase ? config.soundLocalizationBase : 'user'
   @observable uploaderPreference:UploaderPreference = config.uploaderPreference ? config.uploaderPreference : 'gyazo'
@@ -70,10 +72,9 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
       remoteID: this.remoteID,
       remoteX: this.remoteX,
       remoteY: this.remoteY,
-
     }
   }
-  get info():LocalInformation { return this.information as LocalInformation}
+//  get info():LocalInformation { return this.information as LocalInformation}
 
   constructor() {
     super(true)
@@ -96,22 +97,31 @@ export class LocalParticipant extends ParticipantBase implements Store<ILocalPar
     this.remoteX = 0 // for remote X
     this.remoteY = 0 // for remote Id
 
-
     this.loadMediaSettingsFromStorage()
     this.loadPhysicsFromStorage()
     autorun(() => { //  image avatar
       const gravatar = 'https://www.gravatar.com/avatar/'
+      const vrm = 'https://binaural.me/public_packages/uploader/vrm'
       let src = this.information.avatarSrc
-      if ((!src || src.includes(gravatar, 0)) && this.information.email){
-        const hash = md5(this.information.email.trim().toLowerCase())
-        src = `${gravatar}${hash}?d=404`
+      if ((!src || src.includes(gravatar, 0) || src.includes(vrm, 0)) && this.information.email){
+        const email = this.information.email.trim()
+        if (email.includes(vrm) && email.slice(-4) === '.vrm'){
+          src = email
+        }else{
+          const hash = md5(this.information.email.trim().toLowerCase())
+          src = `${gravatar}${hash}?d=404`
+        }
       }
       if (src){
-        checkImageUrl(src).then((src)=>{
+        if (src.slice(-4)==='.vrm'){
           this.information.avatarSrc = src
-        }).catch(()=>{
-          this.information.avatarSrc = ''
-        })
+        }else{
+          checkImageUrl(src).then((src)=>{
+            this.information.avatarSrc = src
+          }).catch(()=>{
+            this.information.avatarSrc = ''
+          })
+        }
       }
     })
   }

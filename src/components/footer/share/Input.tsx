@@ -1,19 +1,25 @@
 import Button from '@material-ui/core/Button'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import React, {/*  useEffect,  */useEffect, useState } from 'react'
-import {DialogPageProps} from './DialogPage'
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles'
+import {DialogPageProps} from './Step'
+import React, {useEffect, useState } from 'react'
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
 import {makeStyles} from '@material-ui/styles'
 import { isSmartphone } from '@models/utils'
 
-
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: { main: '#7ececc' },
     secondary: { main: '#ef4623' },
   },
 });
+
+interface InputProps<T> extends DialogPageProps{
+  inputField: JSX.Element
+  value: T
+  type: string
+  onFinishInput: (text: T) => void
+}
 
 const useStyles = makeStyles({
   mainContainer: {
@@ -75,13 +81,6 @@ export function ResetSelectedImage() {
   selectedImage = ''
 }
 
-interface InputProps<T> extends DialogPageProps{
-  inputField: JSX.Element
-  value: T
-  type: string
-  onFinishInput: (text: T) => void
-}
-
 export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
   const {
     setStep,
@@ -89,6 +88,30 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
     onFinishInput,
     inputField,
   } = props
+
+
+
+  /* return (
+    <List>
+      <ListItem>
+        {inputField}
+      </ListItem>
+      <ListItem>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            onFinishInput(value)
+            setStep('none')
+          }}
+        >
+          Done
+        </Button>
+      </ListItem>
+    </List>
+  ) */
+
+  ///////////////////////////
 
   const classes = useStyles()
   const [pageIndex, setPageIndex] = useState(0)
@@ -398,5 +421,8 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
     </List>
     </div>
   )
+
+  ///////////////////////////
+
 }
 Input.displayName = 'Input'
