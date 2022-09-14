@@ -160,6 +160,7 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
               />
             </Box>
           </Box>
+          <MuiThemeProvider theme={theme}>
           <Box mt={3}>
             <div style={{fontSize:isSmartphone() ? '2em' : 12}}>{t('lsNotification')}</div>
             <Box mt={isSmartphone() ? 1 : -1} ml={isSmartphone() ? 37 : 2} style={{transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}>
@@ -181,6 +182,7 @@ export const LocalParticipantForm: React.FC<LocalParticipantFormProps> = (props:
               } label={t('lsNotifyYarn')} />
             </Box>
           </Box>
+          </MuiThemeProvider>
         </>}}
       </Observer>
       <MuiThemeProvider theme={theme}>

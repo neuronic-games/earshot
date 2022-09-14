@@ -68,13 +68,13 @@ class GoogleDrive {
 
     //upsert custom folder (to be a little more organized 😊)
     const {result:{files}} = await gapi.client.drive.files.list({
-      q:"name='Binaural Meet Files' and mimeType='application/vnd.google-apps.folder' and not trashed=true"
+      q:"name='Earshot Chat Files' and mimeType='application/vnd.google-apps.folder' and not trashed=true"
     })
 
     let dirId=''
     if(!files?.length){
       var fileMetadata = {
-        'name' : 'Binaural Meet Files',
+        'name' : 'Earshot Chat Files',
         'mimeType' : 'application/vnd.google-apps.folder',
       }
       const directoryResponse = await gapi.client.drive.files.create({

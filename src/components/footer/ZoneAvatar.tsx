@@ -83,7 +83,7 @@ const useStyles = makeStyles({
     position: 'absolute',
     width: '30%',
     top: '0%',
-    right:0,
+    right:10,
     padding: 0,
     outline: 'none',
     pointerEvents: 'none',
@@ -169,9 +169,9 @@ function comparer(otherArray:string[]){
       if(toggleUI) {
         setToggleUI(false)
       }
-
       } else if(startStream) {
-        dispText = "RECONNECTING..."
+        //dispText = "RECONNECTING..."
+        dispText = ""
       } else {
         dispText = "STREAM OFF"
         if(toggleUI === false) {
@@ -266,7 +266,7 @@ function comparer(otherArray:string[]){
       </div>
     </FabMain>
       <div style={toggleUI === false && stream === undefined ? {width:'240px', height:'243px', borderRadius: '50%',top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black',/*  display:'block', */ /* transform: 'opacity(1)',  */opacity: 1, transition: 'opacity 0.3s ease-out'} : {/* display:'none',  */width:'240px', height:'243px', borderRadius: '50%', top:'12.5px', right:'20.7px', position:'absolute', backgroundColor:'black', /* transform: 'opacity(0)',  */ opacity: 0, transition: 'opacity 0.3s ease-out'}}>
-        <p style={dispText === 'GOING LIVE...' || stream !== undefined ? {display:'none'} : {display:'block', position:'absolute', color:'red', top:'235px', width:'250px', textAlign:'center', fontSize:'20px', fontWeight:'bold', /* textShadow: '1px 1px #ff0000, -1px 1px #ff0000, -1px -1px #ff0000, 1px -1px #ff0000' */}}>RECONNECTING...</p>
+        <p style={dispText === 'GOING LIVE...' || stream !== undefined ? {display:'none'} : {display:'block', position:'absolute', color:'red', top:'235px', width:'250px', textAlign:'center', fontSize:'20px', fontWeight:'bold', /* textShadow: '1px 1px #ff0000, -1px 1px #ff0000, -1px -1px #ff0000, 1px -1px #ff0000' */}}>{/* RECONNECTING... */}</p>
       </div>
 
       <div style={{height:'50px', width:'150px', textAlign:'center', position:'relative', left:'-66px',

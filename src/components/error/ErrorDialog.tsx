@@ -97,12 +97,11 @@ export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void
   return <Dialog {...props} open={errorInfo.show()}
     onClose={props.onClose} maxWidth="xl" fullWidth={false} fullScreen={true} >
   {errorInfo.title ?
-    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize:isSmartphone() ? '3em' : '1em'}}>{errorInfo.title}</DialogTitle>
+    <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize:isSmartphone() ? '4em' : '1em'}}>{errorInfo.title}</DialogTitle>
     : undefined }
   {props.children}
 </Dialog>
 }
-
 
 export const ErrorDialog: React.FC<BMProps> = (props) => {
   function close(){
@@ -118,7 +117,7 @@ export const ErrorDialog: React.FC<BMProps> = (props) => {
           return dialogs.get(errorInfo.type)!(props)
         }else{
           return <ErrorDialogFrame onClose={() => { close() }}>
-            <DialogContent style={{fontSize:isSmartphone() ? '2.5em' : '1em'}}>{errorInfo.message}</DialogContent>
+            <DialogContent style={{fontSize:isSmartphone() ? '3em' : '1em'}}>{errorInfo.message}</DialogContent>
             {errorInfo.type !== 'retry' ?
               <Box mt={2} mb={2} ml={4}>
               <Button variant="contained" color="primary" style={{textTransform:'none', fontSize:isSmartphone() ? '2.5em' : '1em'}}

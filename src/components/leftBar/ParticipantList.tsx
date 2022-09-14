@@ -195,8 +195,6 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
             {(_connQuality !== undefined && _connQuality > 80) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={goodConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : (_connQuality !== undefined && _connQuality < 80 && _connQuality > 50) ? <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={averageConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> : <img width={isSmartphone() ? '60px' : '40px'} height={isSmartphone() ? '60px' : '40px'} src={badConnIcon} draggable={false} style={{userSelect:'none'}} alt='' /> }
         </div>
 
-
-
       </div>
     </Tooltip>
     {props.participant.id === props.stores.participants.localId ?

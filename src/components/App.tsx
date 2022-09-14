@@ -445,6 +445,13 @@ export const App: React.FC<{}> = () => {
   /////////////////////////////////////////////////////////////////////////////////
 
   function trackPos(data:any, _index:number, _menu:string) {
+    //console.log(data.x, " XXXX START")
+
+    if(data.x > -100 || data.x === 0) {
+      setPosition({ x: 0, y: 0 })
+      return
+    }
+
     setPosition({ x: data.x, y: data.y })
     _menuPos = position.x
 
@@ -1430,15 +1437,21 @@ export const App: React.FC<{}> = () => {
 
   //console.log(data.y, "  < " , ((_index * -51)))
 
+  //if(data.x === -40 || data.x === 0) {return}
+
 
     //if(data.y < (-135 + (_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
     if(data.y < ((_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
       ///////////////////////////////////////////////////////
       // Hide the Tab
       if(_index === 0) {
-        Object(refEntity_0.current?.state).x = -99999999
+        //Object(refEntity_0.current?.state).x = -99999999
+        ResetAppsPanel(0, 'chat')
+        return
       } else if(_index === 1) {
-        Object(refEntity_1.current?.state).x = -99999999
+        //Object(refEntity_1.current?.state).x = -99999999
+        ResetAppsPanel(1, 'content')
+        return
       } else if(_index === 2) {
         Object(refEntity_2.current?.state).x = -99999999
       } else if(_index === 3) {
@@ -1939,9 +1952,9 @@ export const App: React.FC<{}> = () => {
       } */
 
       ///////////////////////////////////////////////////////
-      _menuPos = -2
-      //setPosition({x:0, y:0})
-      setAble(false)
+        _menuPos = -2
+        //setPosition({x:0, y:0})
+        setAble(false)
     }
   }
 
@@ -1974,7 +1987,7 @@ function onDoubleClickHandler(){
 function ResetAppsPanel(index:number, _type:string) {
   if(index === 0) {
     let moveIndex = 0
-    if(Object(refEntity_0.current?.state).x < 0) {
+    if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
       Object(refEntity_0.current?.state).x = 0
       Object(refEntity_0.current?.state).y = (0)
     } else {
@@ -2028,7 +2041,7 @@ function ResetAppsPanel(index:number, _type:string) {
     } else {
       moveIndex = moveIndex + 1
     }
-    if(Object(refEntity_1.current?.state).x < 0) {
+    if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {
       Object(refEntity_1.current?.state).x = 0
       Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
@@ -2777,8 +2790,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
             {/* /////////////////////////////////CHAT APP/////////////////////////////////// */}
 
-
-            <Draggable bounds={{top: (0 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (0 * 51)))}}ref={refEntity_0} key={0} onDrag={(e, data) => trackPos(data, 0, 'chat')} onStop={(e, data) => setTrack(data, '', 0)} defaultPosition={{x: 0, y: 0}}>
+            <Draggable /* bounds={{top: (0 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (0 * 51)))}} */ ref={refEntity_0} key={0} onDrag={(e, data) => trackPos(data, 0, 'chat')} onStop={(e, data) => setTrack(data, '', 0)} defaultPosition={{x: 0, y: 0}}>
 
             <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (0 * 119) : tabBGTopBGWeb + (0*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (activeTabIndex === 0) ? 19 : (18 - (0+2)), height:'100%'}}>
             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (18 - (0+2))}}
@@ -2813,8 +2825,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
              {/* /////////////////////////////////CONTENT APP////////////////////////////////// */}
 
-
-             <Draggable bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}}ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1)} defaultPosition={{x: 0, y: 0}}>
+             <Draggable /* bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}} */ ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1)} defaultPosition={{x: 0, y: 0}}>
 
             <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (1 * 119) : tabBGTopBGWeb + (1*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (activeTabIndex === 1) ? 19 : (18 - (1+2)), height:'100%'}}>
             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}}
@@ -3149,16 +3160,16 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
           </div>
         </SplitPane>
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 2.0.5</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 2.0.6</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Welcome To</p>
-          <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:'-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:'-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
+          <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
           <img src={roomImgPath} style={roomImgPath ? {height: '250px', transform: "scale(1)", opacity:1, transition: 'opacity 300ms, transform: 300ms', userSelect:'none'} : {height: '0px', transform: "scale(0)", opacity:0, transition: '0.3s ease-out', userSelect:'none'}} draggable={false} alt=""/>
           <p style={{textAlign:'center', color: '#cdcdcd', fontSize:isSmartphone() ? '2.8rem' : '1rem', overflow:'hidden', position:'relative', marginTop:'0.5rem', width:'80%', marginLeft:'10%', fontWeight:'normal'}}>{roomImgDesc}</p>
           <img style={{width:isSmartphone() ? '8rem' : '4rem', backgroundColor:'#00000020', borderRadius: '50%', position:'relative', marginTop:roomImgPath !== '' ? '20px' : '-15px', userSelect:'none'}} src={stores.participants.local.information.avatarSrc} draggable={false} alt="" />
         <p style={{textAlign:'center', color: 'black', marginTop:'0.5rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>{stores.participants.local.information.name}</p>
         <p style={{textAlign:'center', color: 'black', marginTop:'1.5rem',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Give your web browser permissions</p>
-        <p style={{textAlign:'center', color: 'black', marginTop:'-0.9rem',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>to access the mic and camera if necessary.</p>
+        <p style={{textAlign:'center', color: 'black', marginTop:isSmartphone() ? '-2.9rem' : '-0.9rem',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>to access the mic and camera if necessary.</p>
         <img style={{width:isSmartphone() ? '18rem' : '8rem', position:'relative', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
         </div>
         </div>

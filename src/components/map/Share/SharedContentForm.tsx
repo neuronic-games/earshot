@@ -9,8 +9,10 @@ import biImageNoFrame from '@iconify/icons-bi/image-alt'
 import roomOpen from '@iconify/icons-fluent/square-hint-24-regular'
 
 import biPlusCircleFill from '@iconify/icons-bi/plus-circle-fill'
-import pinIcon from '@iconify/icons-mdi/pin'
-import pinOffIcon from '@iconify/icons-mdi/pin-off'
+
+/* import pinIcon from '@iconify/icons-mdi/pin'
+import pinOffIcon from '@iconify/icons-mdi/pin-off' */
+
 import {Icon} from '@iconify/react'
 import Box from '@material-ui/core/Box'
 import Button from '@material-ui/core/Button'
@@ -32,7 +34,7 @@ import FlipToFrontIcon from '@material-ui/icons/FlipToFront'
 import {ISharedContent} from '@models/ISharedContent'
 import {canContentBeAWallpaper, isContentEditable, isContentWallpaper} from '@models/ISharedContent'
 import {t} from '@models/locales'
-import {Pose2DMap} from '@models/utils'
+import {isSmartphone, Pose2DMap} from '@models/utils'
 import {copyContentToClipboard,  makeContentWallpaper,
    moveContentToBottom, moveContentToTop} from '@stores/sharedContents/SharedContentCreator'
 import {TITLE_HEIGHT} from '@stores/sharedContents/SharedContents'
@@ -40,6 +42,15 @@ import {Observer} from 'mobx-react-lite'
 import React, {Fragment} from 'react'
 import {contentTypeIcons, editButtonTip} from './Content'
 import {RndContentProps} from './RndContent'
+import { MuiThemeProvider, createTheme } from '@material-ui/core/styles'
+
+
+const theme = createTheme({
+  palette: {
+    primary: { main: '#7ececc' },
+    secondary: { main: '#ef4623' }
+  }
+});
 
 type PopoverPropsNoOnClose = Omit<PopoverProps, 'onClose'>
 export interface SharedContentFormProps extends Omit<RndContentProps, 'content'>, PopoverPropsNoOnClose{
@@ -58,10 +69,24 @@ function Row(left1: ContentType, left2: ContentType, center: ContentType,
     border:'none',
   }
 
-  return <TableRow key={key}>
+  const centerCellstyle = {
+    margin:0,
+    padding:2,
+    border:'none',
+    transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)'
+  }
+
+  /* return <TableRow key={key}>
     <TableCell align="right" style={cellstyle}>{left1}</TableCell>
     <TableCell align="right" style={cellstyle}>{left2}</TableCell>
     <TableCell align="center" style={cellstyle}>{center}</TableCell>
+    <TableCell style={cellstyle}>{right2}</TableCell>
+    <TableCell style={cellstyle}>{right1}</TableCell>
+  </TableRow> */
+  return <TableRow key={key}>
+    <TableCell align="right" style={cellstyle}>{left1}</TableCell>
+    <TableCell align="right" style={cellstyle}>{left2}</TableCell>
+    <TableCell align="center" style={centerCellstyle}>{center}</TableCell>
     <TableCell style={cellstyle}>{right2}</TableCell>
     <TableCell style={cellstyle}>{right1}</TableCell>
   </TableRow>
@@ -71,6 +96,7 @@ class SharedContentFormMember{
   zorder!: number
   pinned!: boolean
   editing!: string
+  showTitle!: boolean
   name!: string
   pose!: Pose2DMap
   constructor(props: SharedContentFormProps){
@@ -83,6 +109,7 @@ class SharedContentFormMember{
     this.name = props.content.name
     this.pose = props.content.pose
     this.editing = props.stores.contents.editing
+    this.showTitle = props.content.showTitle
   }
   restore(props: SharedContentFormProps){
     if (!props.content) { return }
@@ -91,11 +118,16 @@ class SharedContentFormMember{
     props.content.name = this.name
     props.content.pose = this.pose
     props.stores.contents.setEditing(this.editing)
+    this.showTitle = props.content.showTitle
   }
 }
 export const SharedContentForm: React.FC<SharedContentFormProps> = (props: SharedContentFormProps) => {
   const memberRef = React.useRef(new SharedContentFormMember(props))
   const member = memberRef.current
+
+  const tfLStyle = {fontSize: isSmartphone() ? '2em' : '1em'}
+
+
   function closeForm(ev:Object, reason:string) {
     if (reason === 'enter' || reason==='backdropClick'){
       member.save(props)
@@ -125,8 +157,9 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
        {contentTypeIcons(props.content ? props.content.type : '', TITLE_HEIGHT)}
        </td><td>
         <TextField label={t('ctName')} multiline={false} value={props.content ? props.content.name : ''}
-          inputProps={{autoFocus:true}}
+          inputProps={{autoFocus:true, style:tfLStyle}}
           style={{marginLeft:20, width:'100%'}}
+          InputLabelProps={{style:tfLStyle}}
           onChange={event => {
             //setName(event.target.value)
             if (!props.content) { return }
@@ -136,63 +169,71 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
           onKeyPress={onKeyPress} fullWidth={true}
         />
         </td></tr></tbody></table>
+        <MuiThemeProvider theme={theme}>
         <Box mt={2} mb={2}>
-          <Button variant="contained" style={{textTransform:'none'}}
+          <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               if (!props.content) { return }
               moveContentToTop(props.content)
               props.updateOnly(props.content)
-            }}><FlipToFrontIcon />&nbsp; {t('ctMoveTop')}</Button> &nbsp;
-          <Button variant="contained" style={{textTransform:'none'}}
+            }}><FlipToFrontIcon style={tfLStyle}  />&nbsp; {t('ctMoveTop')}</Button> &nbsp;
+          <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               if (!props.content) { return }
               moveContentToBottom(props.content)
               props.updateOnly(props.content)
-            }}><FlipToBackIcon />&nbsp; {t('ctMoveBottom')}</Button> &nbsp;
+            }}><FlipToBackIcon style={tfLStyle} />&nbsp; {t('ctMoveBottom')}</Button> &nbsp;
         </Box>
         <Box mt={2} mb={2}>
-          <Button variant="contained" style={{textTransform:'none'}}
+          <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               if (!props.content) { return }
               copyContentToClipboard(props.content)
-            }}><Icon icon={clipboardCopy} height={TITLE_HEIGHT}/>&nbsp; {t('ctCopyToClipboard')}</Button> &nbsp;
-          <Button variant="contained" style={{textTransform:'none'}}
+            }}><Icon style={tfLStyle} icon={clipboardCopy} height={TITLE_HEIGHT}/>&nbsp; {t('ctCopyToClipboard')}</Button> &nbsp;
+          <Button variant="contained" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               if (!props.content) { return }
               map.focusOn(props.content)
             }}>{t('ctFocus')}</Button>
         </Box>
         <Table size="small" ><TableBody>{[
-          Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
+          /* Row(t('ctUnpin'),<Icon icon={pinOffIcon} height={TITLE_HEIGHT} />,
             <Switch color="primary" checked={props.content?.pinned} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.pinned = checked
               props.updateOnly(props.content)
-            }}/>, <Icon icon={pinIcon} height={TITLE_HEIGHT} />, t('ctPin'), 'pin'),
+            }}/>, <Icon icon={pinIcon} height={TITLE_HEIGHT} />, t('ctPin'), 'pin'), */
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctUnTitle')}</span>,<Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />,
+           <Switch color="secondary" checked={props.content?.showTitle} onChange={(ev, checked)=>{
+             if (!props.content) { return }
+             props.content.showTitle = checked
+             props.updateOnly(props.content)
+           }}/>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT} />, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctTitle')}</span>, 'title'),
+
           <Fragment key="edit">{isContentEditable(props.content) ?
             Row(editButtonTip(true, props.content),<DoneIcon />,
-            <Switch color="primary" checked={props.content?.id === contents.editing} onChange={(ev, checked)=>{
+            <Switch color="secondary" checked={props.content?.id === contents.editing} onChange={(ev, checked)=>{
               if (!props.content) { return }
               contents.setEditing(checked ? props.content.id : '')
             }}/>, <EditIcon />, editButtonTip(false, props.content)) : undefined}</Fragment>,
           <Fragment key="wall">{canContentBeAWallpaper(props.content) ?
-            Row(t('ctUnWallpaper'), <Icon icon={imageLine} height={TITLE_HEIGHT}/>,
-            <Switch color="primary" checked={isContentWallpaper(props.content)} onChange={(ev, checked)=>{
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctUnWallpaper')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            <Switch color="secondary" checked={isContentWallpaper(props.content)} onChange={(ev, checked)=>{
               if (!props.content) { return }
               makeContentWallpaper(props.content, checked)
               props.updateOnly(props.content)
-            }}/>, <Icon icon={imageOutlineBadged} height={TITLE_HEIGHT}/>, t('ctWallpaper')) : undefined}</Fragment>,
+            }}/>, <Icon icon={imageOutlineBadged} height={isSmartphone() ? (TITLE_HEIGHT*1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctWallpaper')}</span>) : undefined}</Fragment>,
           <Fragment key="noFrame">{
-            Row(t('ctFrameVisible'), <Icon icon={biImage} height={TITLE_HEIGHT}/>,
-            <Switch color="primary" checked={props.content?.noFrame ? true : false} onChange={(ev, checked)=>{
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctFrameVisible')}</span>, <Icon icon={biImage} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            <Switch color="secondary" checked={props.content?.noFrame ? true : false} onChange={(ev, checked)=>{
               if (!props.content) { return }
               props.content.noFrame = checked ? true : undefined
               props.updateOnly(props.content)
-            }}/>, <Icon icon={biImageNoFrame} height={TITLE_HEIGHT}/>, t('ctFrameInvisible')) }</Fragment>,
+            }}/>, <Icon icon={biImageNoFrame} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctFrameInvisible')}</span>) }</Fragment>,
           <Fragment key="zone">{
             props.content?.type === 'img' ?
-            Row(t('ctNotAudioZone'), <Icon icon={imageLine} height={TITLE_HEIGHT}/>,
-              <Switch color="primary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctNotAudioZone')}</span>, <Icon icon={imageLine} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+              <Switch color="secondary" checked={props.content?.zone!==undefined} onChange={(ev, checked)=>{
                 if (!props.content) { return }
                 props.content.zone = checked ? (props.content.zone ? props.content.zone : 'open') : undefined
                 props.updateOnly(props.content)
@@ -202,38 +243,40 @@ export const SharedContentForm: React.FC<SharedContentFormProps> = (props: Share
                   if (!props.content){ return }
                   props.content.zone = props.content.zone === 'close' ? 'open' : 'close'
                   props.updateOnly(props.content)}}>
-                  <Icon icon={props.content.zone==='close' ? roomClosed : roomOpen} height={TITLE_HEIGHT}/>
+                  <Icon icon={props.content.zone==='close' ? roomClosed : roomOpen} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>
                 </IconButton> : undefined}
-                {props.content.zone === 'close' ? t('ctClosedAudioZone') : t('ctOpenAudioZone')}
+                {props.content.zone === 'close' ? <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctClosedAudioZone')}</span> : <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctOpenAudioZone')}</span>}
               </>) : undefined }</Fragment>,
           <Fragment key="opacity">{
-            Row(t('ctTransparent'), <Icon icon={biDashCircleDotted} height={TITLE_HEIGHT}/>,
-            <Slider color="primary" value={props.content?.opacity===undefined ? 1000 : props.content.opacity*1000}
+            Row(<span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctTransparent')}</span>, <Icon icon={biDashCircleDotted} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>,
+            <Slider color="secondary" value={props.content?.opacity===undefined ? 1000 : props.content.opacity*1000}
               min={0} max={1000}
-              style={{width:'6em', marginLeft:'0.4em', marginRight:'0.4em'}}
+              /* style={{width:'6em', marginLeft:'0.4em', marginRight:'0.4em'}} */
+              style={{width:isSmartphone() ? '2em' : '6em', marginLeft:isSmartphone() ? '4em' : '0.4em', marginRight:isSmartphone() ? '4em' : '0.4em', transform:isSmartphone() ? 'scale(2)' : 'scale(1'}}
               onChange={(ev, value) => {
                 if (!props.content) { return }
                 props.content.opacity = value === 1000 ? undefined : (value as number) / 1000
                 props.updateOnly(props.content)
-            }} />, <Icon icon={biPlusCircleFill} height={TITLE_HEIGHT}/>, t('ctOpaque')) }</Fragment>,
+            }} />, <Icon icon={biPlusCircleFill} height={isSmartphone() ? (TITLE_HEIGHT * 1.2) : TITLE_HEIGHT}/>, <span style={{fontSize:isSmartphone() ? '2em' : '1em'}}>{t('ctOpaque')}</span>) }</Fragment>,
             ]}</TableBody></Table>
         <Box mt={2} mb={2}>
-          <Button variant="contained" color="primary" style={{textTransform:'none'}}
+          <Button variant="contained" color="primary" style={{textTransform:'none', fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               closeForm({}, 'enter')
             }}>{t('btSave')}</Button>
-          <Button variant="contained" color="secondary" style={{textTransform:'none', marginLeft:15}}
+          <Button variant="contained" color="secondary" style={{textTransform:'none', marginLeft:15, fontSize:isSmartphone() ? '2em' : '1em'}}
             onClick={()=>{
               if (!props.content) { return }
               member.restore(props)
               props.updateOnly(props.content)
             }}>{t('btCancel')}</Button>
-          <Button variant="contained" color="secondary" style={{textTransform:'none', marginLeft:60}}
-            disabled={props.content?.pinned || isContentWallpaper(props.content)}
+          <Button variant="contained" color="secondary" style={{textTransform:'none', marginLeft:60, fontSize:isSmartphone() ? '2em' : '1em'}}
+           /*  disabled={props.content?.pinned || isContentWallpaper(props.content)} */
             onClick={(ev)=>{
               props.onClose(ev)
             }}><CloseRoundedIcon /> &nbsp; {t('ctDelete')}</Button> &nbsp;&nbsp;
         </Box>
+        </MuiThemeProvider>
       </DialogContent>}
     </Observer>
   </Popover>

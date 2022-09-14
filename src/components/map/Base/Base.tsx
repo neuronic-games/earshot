@@ -17,7 +17,7 @@ import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
-import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, isOnContentStatus, MouseOrTouch } from '../Share/RndContent'
+import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, /* isContentHandlerOn, */ isOnContentStatus, MouseOrTouch } from '../Share/RndContent'
 import {t} from '@models/locales'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import { getAvatarToolStatus, getOnLocalUser, getUserContextMenu } from '../Participant/LocalParticipant'
@@ -235,6 +235,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
   const memRef = useRef<BaseMember>(new BaseMember())
   const mem = memRef.current
 
+  // To checkout Content edit mode
+  //const isContentEdit = useObserver(() => isContentHandlerOn())
+
   const center = transformPoint2D(matrix, participants.local.pose.position)
   if (thirdPersonView !== mem.prebThirdPersonView) {
     mem.prebThirdPersonView = thirdPersonView
@@ -368,7 +371,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
     //if(_contentDeleteDeleteDialogOpen) {return}
 
-    //console.log(mem.clickStatus, " STATUS")
+
+
+
 
 
     if(mem.clickStatus === 'single' || mem.clickStatus === '') {
@@ -562,13 +567,14 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       },
       onDrag: ({down, delta, xy, buttons}) => {
         if (delta[0] || delta[1]) { mem.mouseDown = false }
-
         if (delta[0] || delta[1]) {
           mem.mouseDown = false
-          canvasMoved = true
+          //if(showMenu || isContentEdit) {
+            //canvasMoved = false
+          //} else {
+            canvasMoved = true
+        //}
         }
-
-
 
         let _menuStatus:boolean = getContextMenuStatus()
         let _dialogStatus:boolean = isDialogOpen()
@@ -648,6 +654,14 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       onDragEnd: ({event, xy}) => {
         mem.upXpos = xy[0]
         mem.upYpos = xy[1]
+
+        // setInitVars
+        /* if(showMenu || isContentEdit) {
+          canvasMoved = false
+        } else {
+          canvasMoved = true
+        } */
+
         mem.upTime = new Date().getSeconds()
         let timeDiff = mem.upTime - mem.downTime
 

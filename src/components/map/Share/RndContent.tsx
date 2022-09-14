@@ -257,7 +257,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       ////////////////////////////////////////////////////////////////////////////
         //console.log(props.content.size[0])
         if(props.content.size[0] < 80 || props.content.size[1] < 80) {
-          setSize([props.content.size[0] + (80-props.content.size[0]), props.content.size[1] + (80 - props.content.size[1])])
+          setSize([props.content.size[0] + (150-props.content.size[0]), props.content.size[1] + (150 - props.content.size[1])])
         }
         updateHandler()
         ////////////////////////////////////////////////////////////////////////////
@@ -526,6 +526,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   function hindleClickStatus() {
+
+    console.log(member.clickStatus, " STATUS")
+
     if(member.clickStatus === 'single') {
       if(member.clickEnter) {return}
      // if(pingLocation) {return}
@@ -717,8 +720,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         currentTarget.releasePointerCapture(event?.pointerId)
       }
       if (!map.keyInputUsers.size && member.buttons === MOUSE_RIGHT){ //  right click
-        setShowForm(true)
-        map.keyInputUsers.add('contentForm')
+        //setShowForm(true)
+        //map.keyInputUsers.add('contentForm')
       }
       member.buttons = 0
       if(props.content.scaleRotateToggle && member._checkForRotation) {
@@ -2226,7 +2229,7 @@ const useStyles = makeStyles({
   nameContainerHolder: (props: StyleProps) => ({
     display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
-    fontSize: '1.2em',
+    fontSize: isSmartphone() ? '1.2em' : '1em',
     width: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[0] : props.size[0],
     height: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[1] : props.size[1],
     padding:5,
@@ -2245,7 +2248,7 @@ const useStyles = makeStyles({
   nameContainer: (props: StyleProps) => ({
     display: (props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
-    fontSize: '1.2em',
+    fontSize: isSmartphone() ? '1.2em' : '1em',
     width : props.props.content.name.length * 24 + 'px', //"70%",
     height: '20',
     marginBottom: 5,
@@ -2264,7 +2267,7 @@ const useStyles = makeStyles({
   stopWatchTitleHolder: (props: StyleProps) => ({
     display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._title && props.props.content.name !== '') ? 'block' : 'none',
     fontWeight: 'bold',
-    fontSize: '1.2em',
+    fontSize: isSmartphone() ? '1.2em' : '1em',
     width: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[0] : props.size[0],
     height: props.pose.orientation === 0 || props.pose.orientation === 180 ? props.size[1] : props.size[1],
     padding:5,
@@ -2275,15 +2278,18 @@ const useStyles = makeStyles({
     position:'absolute',
     bottom: 5,
     transform: props.pose.orientation === 0 ? 'rotate(0deg)' : props.pose.orientation === 90 ? 'rotate(-90deg)' : props.pose.orientation === 180 ? 'rotate(-180deg)' : props.pose.orientation === 270 ? 'rotate(-270deg)' : 'rotate(0deg)',
-    left: props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 270 ? (props.size[0] - props.size[1])/2 - 10 : (props.size[1] - props.size[0])/2,
-    top:  props.pose.orientation === 0 ? 0 : props.pose.orientation === 180 ? -7 : -5,
+
+    left: props.pose.orientation === 0 || props.pose.orientation === 180 ? -5 : props.pose.orientation === 270 ? (props.size[0] - props.size[1])/2 - 5 : (props.size[1] - props.size[0])/2 - 5,
+
+    top:  props.pose.orientation === 0 ? -5 : props.pose.orientation === 180 ? -5 : -5,
+
     transformOrigin: 'middle',
   }),
 
   stopWatchTitle: (props: StyleProps) => ({
     display: (props.props.content.showStopWatch ? 'block' : 'none'), //(props._stopWatch) ? 'block' : 'none',
     fontWeight: 'bold',
-    fontSize: '1.2em',
+    fontSize: isSmartphone() ? '1.2em' : '1em',
     width : '90px', //'40%', //"70%",
     height: '20px',
     marginLeft: props.pose.orientation === 0 || props.pose.orientation === 180 ? ((props.size[0]) - (90))/2 - 3 + 'px' : ((props.size[0]) - (90))/2 - 5 + 'px',

@@ -70,7 +70,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         >
           <TranslateIcon />
         </Button>
-        <h2>Binaural Meet</h2>
+        <h2>Earshot Chat</h2>
         <p>
           <img
             style={{ float: "right", width: "28em" }}
@@ -360,7 +360,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 2.0.5</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 2.0.6</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
