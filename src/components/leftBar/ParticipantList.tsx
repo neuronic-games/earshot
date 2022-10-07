@@ -241,7 +241,7 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
     <div className={classes.container} >
       <div className={classes.title} /* style={{color:textColor}} */style={{color:'#FFFFFF90'/* textColor */, marginLeft: isSmartphone() ? '14px' : '8px', padding:'10px', borderRadius:'5px', /* border:'1px dotted #FFFFFF80', */ marginTop:'5px', userSelect:'text', fontWeight:'bold', fontSize:isSmartphone() ? '2rem' : '1rem'}} ref={ref}
         onClick={()=>{setShowStat(true)}}
-      >{/* {conference.room} */}{sessionStorage.getItem('room')} ({(participants.remote.size + 1).toString()}){/*  in {conference.room} */}</div>
+      >{conference.dataConnection.room}{/* {sessionStorage.getItem('room')} */} ({(participants.remote.size + 1).toString()}){/*  in {conference.room} */}</div>
       <StatusDialog open={showStat}
         close={()=>{setShowStat(false)}} {...statusProps} anchorEl={ref.current}/>
       {localElement}{remoteElements}

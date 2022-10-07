@@ -18,7 +18,9 @@ import {DialogIconItem} from '@components/utils/DialogIconItem'
 /* import {ISharedContent} from '@models/ISharedContent' */
 import {SharedContents} from '@stores/sharedContents/SharedContents'
 import {createContent/* , extractContentData */} from '@stores/sharedContents/SharedContentCreator'
+
 import {contentsToSave, loadToContents} from '@models/ISharedContent'
+
 //createContentFromText, createContentOfIframe, createContentOfText, createContentOfVideo,
 import {isArray} from 'lodash'
 /* import {SettingImageInput} from '@components/footer/share/SettingImageInput'
@@ -65,17 +67,22 @@ export const SettingsControl: React.FC<BMProps> = (props: BMProps) => {
           contents.removeAllContents()
         }
         if (isArray(itemsRecv)) {
-          itemsRecv[0].RoomElements.forEach((item:any) => {
+          /* itemsRecv[0].RoomElements.forEach((item:any) => {
             item.ownerName = name
-            item.ownerURL = url
+            item.ownerURL = url */
             const items = loadToContents(itemsRecv[0].RoomElements)
+            //loadToContents(itemsRecv[0].RoomElements)
             items.forEach(content => {
               if (content.type === 'screen' || content.type === 'camera') { return }
+             /*  if (item.type === 'screen' || item.type === 'camera') { return } */
+             content.ownerName = name
+             content.ownerURL = url
               const newContent = createContent()
               Object.assign(newContent, content)
+              /* Object.assign(newContent, item) */
               contents.addLocalContent(newContent)
             })
-          })
+          //})
         }
       })
     }

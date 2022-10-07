@@ -52,6 +52,7 @@ export interface SharedContentDataToSend extends SharedContentInfoData {
   stopWatchToggle:boolean         // storing stop watch time toggle
   stopWatchReset:boolean          // Reset the stopwatch
   scaleRotateToggle:boolean       // for scaling and rotation
+  mediaURL:string                 // for media url
 }
 
 export interface SharedContentData extends SharedContentDataToSend {

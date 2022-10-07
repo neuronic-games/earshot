@@ -28,10 +28,20 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import CloseTabIcon from '@material-ui/icons/HighlightOff';
 import html2canvas from 'html2canvas'
-import { Dialog, DialogContent } from '@material-ui/core'
+import { Dialog, DialogContent} from '@material-ui/core'
 import Draggable from 'react-draggable'
 import { Emoticons } from './footer/Emoticons'
 import { ZoneAvatar } from './footer/ZoneAvatar'
+// Media Share Icons
+import twitchIcon from '@images/twitch.png';
+/* import {Icon} from '@iconify/react'
+import OndemandVideoIcon from '@material-ui/icons/OndemandVideo'; */
+
+/* import {Icon} from '@iconify/react' */
+import twitchActive from '@images/twitchActive.png'
+
+
+
 
 
 let _able:Boolean = false
@@ -57,6 +67,9 @@ let selectedHair = ''
 let selectedHairBack = ''
 let selectedOutfits = ''
 let selectedSpecs = ''
+
+
+let defaultActive:boolean = false
 
 export const App: React.FC<{}> = () => {
   /* const clsSplit = styleForSplit() */
@@ -84,7 +97,21 @@ export const App: React.FC<{}> = () => {
   const [showHelp, setShowHelp] = useState(false)
   // for tab
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [positionMedia, setPositionMedia] = useState({ x: 0, y: 0 })
+
   const [activeTabIndex, setActiveTabIndex] = useState(-1)
+
+  const [anim, setAnim] = useState(false)
+
+
+  //console.log(document.getElementById('appFrame'))
+  /* var iframe = document.querySelector( 'iframe');
+  console.log(iframe?.src, " SRC") */
+
+  //console.log(window.location.host, " HOST")
+
+
+
 
   // For Saving data
   const refAvatar = useRef<HTMLDivElement>(null)
@@ -100,12 +127,87 @@ export const App: React.FC<{}> = () => {
   const refEntity_7 = useRef<Draggable>(null)
   const refEntity_8 = useRef<Draggable>(null)
 
+  // For Media Stream
+  const refEntity_9 = useRef<Draggable>(null)
+
+
+
+
+  /* let totalTab:number = 0 */
+  const zoneMediaURL = useObserver(() => stores.participants.local.zone?.mediaURL)
+  const inZone = useObserver(() => stores.participants.local.zone?.zone)
+
+  const videoParent = window.location.host.split("https://www.")[0]
+
+  //let animCount = 0
+  if(zoneMediaURL === undefined) {
+    //animCount = 0
+    if(defaultActive === true){
+      defaultActive = false
+      setMenuType('chat')
+    }
+  } else {
+    if(zoneMediaURL !== undefined && inZone === 'close') {
+      defaultActive = true
+      if(menuType === '') {
+        _menuPos = -2
+        setMenuType('twitch')
+      }
+      const _timer = setTimeout(() => {
+        clearTimeout(_timer)
+        if(anim === false) {
+          setAnim(true)
+          //animCount++
+        } else {
+          setAnim(false)
+        }
+      }, 500)
+    } else {
+      setAnim(false)
+    }
+  }
+
+  //console.log(anim, " < ANIMATE ARROW")
+  /* if(zoneMediaURL !== undefined && zoneMediaURL !== "" && inZone !== undefined && inZone === "close") {
+    const setPosTimer = setTimeout(() => {
+      clearTimeout(setPosTimer)
+      console.log("SETTING POS")
+      // Setting Pos
+      CheckAndSetPosition(2)
+      CheckAndActivateMenu(2)
+    }, 3000)
+  } */
+  /*if(zoneMediaURL !== undefined && zoneMediaURL !== "" && inZone !== undefined && inZone === "close") {
+    const setPosTimer = setTimeout(() => {
+      clearTimeout(setPosTimer)
+      _menuPos = -2
+      setMenuType('twitch')
+    }, 100)
+  }  else if(zoneMediaURL !== undefined && zoneMediaURL !== "" && inZone === undefined) {
+    const setPosTimer = setTimeout(() => {
+      clearTimeout(setPosTimer)
+      setAble(false)
+    }, 100)
+  } */
+  //console.log(zoneMediaURL, " --- ", inZone)
+
+
+
   // to display image and desc
   let roomImgPath:string = ""
   let roomImgDesc:string = ""
   let activeBgColor:string = ""
   let AllMenusTypes:any = []
+
+
+
+
+
+  //let lastTabIndex = 0
+  let tabsDisabled:any = []
+
   const cContent = useObserver(() => stores.contents.all)
+
   cContent.filter(item => item.shareType==="roomimg").map(content => (
     roomImgPath = content.url
   ))
@@ -127,6 +229,116 @@ export const App: React.FC<{}> = () => {
   cContent.filter(item => item.shareType === "appimg").map((content, index) => (
     AllMenusTypes.push(content.type)
   ))
+
+
+  //console.log(cContent, " ALL CONTENT")
+
+  // Find last Index
+  if(AllMenusTypes.length === 0) {
+    //lastTabIndex = 2
+    tabsDisabled.splice(0)
+    if(Object(refEntity_0.current?.state).x === 0) {
+      tabsDisabled.push('chat')
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      tabsDisabled.push('content')
+    }
+  } else {
+    //lastTabIndex = AllMenusTypes.length + 2
+  }
+
+// Checking for tabs in normal states
+function getNormalTabs() {
+  /* let AllNormalTabs:any = []
+  if(Object(refEntity_0.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_0)
+  }
+  if(Object(refEntity_1.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_1)
+  }
+  if(Object(refEntity_2.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_2)
+  }
+  if(Object(refEntity_3.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_3)
+  }
+  if(Object(refEntity_4.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_4)
+  }
+  if(Object(refEntity_5.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_5)
+  }
+  if(Object(refEntity_6.current?.state).x === 0) {
+    AllNormalTabs.push(refEntity_6)
+  }
+  return AllNormalTabs */
+  let _index = 0
+  if(AllMenusTypes.length === 0) {
+    if(Object(refEntity_0.current?.state).x === 0) {
+      _index++
+    }
+    if(Object(refEntity_1.current?.state).x === 0) {
+      _index++
+    }
+  } else {
+    //_index = (AllMenusTypes.length + 2)
+    if(AllMenusTypes.length === 1) {
+      if(Object(refEntity_0.current?.state).x === 0) {
+        _index++
+      }
+      if(Object(refEntity_1.current?.state).x === 0) {
+        _index++
+      }
+      if(Object(refEntity_2.current?.state).x === 0) {
+        _index++
+      }
+    } else if(AllMenusTypes.length === 2) {
+      if(Object(refEntity_0.current?.state).x === 0) {
+        _index++
+      }
+      if(Object(refEntity_1.current?.state).x === 0) {
+        _index++
+      }
+      if(Object(refEntity_2.current?.state).x === 0) {
+        _index++
+      }
+      if(Object(refEntity_3.current?.state).x === 0) {
+        _index++
+      }
+    }
+  }
+  return _index
+}
+
+
+
+//console.log(getNormalTabs())
+
+let mediaIndex = getNormalTabs() //.length
+
+let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2))
+
+//console.log(mediaIndex, " ================ ", mediaItemIndex)
+
+//console.log(mediaIndex, " TWITCH INDEX")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //console.log(tabsDisabled.length, " LEN")
+
+
   //const elementsRef = useRef(cContent.filter(item => item.shareType === "appimg").map(() => React.createRef()));
   let press = false
   const loginStatus = useObserver(() => stores.participants.localId)
@@ -450,6 +662,10 @@ export const App: React.FC<{}> = () => {
     if(data.x > -100 || data.x === 0) {
       setPosition({ x: 0, y: 0 })
       return
+    }
+
+    if(_menu === "twitch") {
+      setPositionMedia({ x: data.x, y: data.y })
     }
 
     setPosition({ x: data.x, y: data.y })
@@ -825,12 +1041,28 @@ export const App: React.FC<{}> = () => {
       if(_index === 0) {
         if(Object(refEntity_1.current?.state).x === 0) {
           setMenuType('content')
+        } else if(Object(refEntity_2.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType('twitch')
         } else {
           setMenuType('blank')
         }
       } else if(_index === 1) {
         if(Object(refEntity_0.current?.state).x === 0) {
           setMenuType('chat')
+        } else if(Object(refEntity_2.current?.state).x === 0) {
+          _menuPos = -2
+          setActiveTabIndex(-1)
+          setMenuType('twitch')
+        } else {
+          setMenuType('blank')
+        }
+      } else if(_index === 2) {
+        if(Object(refEntity_0.current?.state).x === 0) {
+          setMenuType('chat')
+        } else if(Object(refEntity_1.current?.state).x === 0) {
+          setMenuType('content')
         } else {
           setMenuType('blank')
         }
@@ -842,23 +1074,43 @@ export const App: React.FC<{}> = () => {
         } else if(Object(refEntity_2.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index])
+          if(mediaItemIndex !== 2) {
+            setMenuType(AllMenusTypes[_index])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_3.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+1])
+          if(mediaItemIndex !== 3) {
+            setMenuType(AllMenusTypes[_index+1])
+          }else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_4.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+2])
+          if(mediaItemIndex !== 4) {
+            setMenuType(AllMenusTypes[_index+2])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_5.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+3])
+          if(mediaItemIndex !== 5) {
+            setMenuType(AllMenusTypes[_index+3])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_6.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+4])
+          if(mediaItemIndex !== 6) {
+            setMenuType(AllMenusTypes[_index+4])
+          } else {
+            setMenuType('twitch')
+          }
         } else {
           setMenuType('blank')
         }
@@ -868,23 +1120,43 @@ export const App: React.FC<{}> = () => {
         } else if(Object(refEntity_2.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index-1])
+          if(mediaItemIndex !== 2) {
+            setMenuType(AllMenusTypes[_index-1])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_3.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index])
+          if(mediaItemIndex !== 3) {
+            setMenuType(AllMenusTypes[_index])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_4.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+1])
+          if(mediaItemIndex !== 4) {
+            setMenuType(AllMenusTypes[_index+1])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_5.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+3])
+          if(mediaItemIndex !== 5) {
+            setMenuType(AllMenusTypes[_index+3])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_6.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index+4])
+          if(mediaItemIndex !== 6) {
+            setMenuType(AllMenusTypes[_index+4])
+          } else {
+            setMenuType('twitch')
+          }
         } else {
           setMenuType('blank')
         }
@@ -896,23 +1168,40 @@ export const App: React.FC<{}> = () => {
         } else if(Object(refEntity_3.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index-2])
+          if(mediaItemIndex !== 3) {
+            setMenuType(AllMenusTypes[_index-2])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_4.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index-2])
+          if(mediaItemIndex !== 4) {
+            setMenuType(AllMenusTypes[_index-2])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_5.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index-2])
+          if(mediaItemIndex !== 5) {
+            setMenuType(AllMenusTypes[_index-2])
+          } else {
+            setMenuType('twitch')
+          }
         } else if(Object(refEntity_6.current?.state).x === 0) {
           _menuPos = -2
           setActiveTabIndex(-1)
-          setMenuType(AllMenusTypes[_index-2])
+          if(mediaItemIndex !== 6) {
+            setMenuType(AllMenusTypes[_index-2])
+          } else {
+            setMenuType('twitch')
+          }
         } else {
           setMenuType('blank')
         }
-      } /* else if(_index === 3) {
+      }
+       /* else if(_index === 3) {
         if(Object(refEntity_0.current?.state).x === 0) {
           setMenuType('chat')
         } else if(Object(refEntity_1.current?.state).x === 0) {
@@ -933,10 +1222,7 @@ export const App: React.FC<{}> = () => {
   }
 
 
-
-
   function CheckAndSetPosition(_index:number) {
-
     if(_index === 0) {
       let moveIndex = 0
       if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {
@@ -951,37 +1237,47 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
-      }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
-      }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
-      }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
-      }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
 
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
+      }
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
+      }
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
+      }
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
+      }
     } else if(_index === 1) {
       let moveIndex = 0
       if(Object(refEntity_0.current?.state).x < 0) {
@@ -996,35 +1292,45 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     } else if(_index === 2) {
       let moveIndex = 0
@@ -1040,35 +1346,45 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     } else if(_index === 3) {
       let moveIndex = 0
@@ -1084,35 +1400,45 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     } else if(_index === 4) {
       let moveIndex = 0
@@ -1128,35 +1454,45 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     } else if(_index === 5) {
       let moveIndex = 0
@@ -1172,35 +1508,45 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     } else if(_index === 6) {
       let moveIndex = 0
@@ -1216,38 +1562,47 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_1.current?.state).x = 0
         Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
       }
-      if(Object(refEntity_2.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_2.current?.state).x = 0
-        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 2) {
+        if(Object(refEntity_2.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_2.current?.state).x = 0
+          Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_3.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_3.current?.state).x = 0
-        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 3) {
+        if(Object(refEntity_3.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_3.current?.state).x = 0
+          Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_4.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_4.current?.state).x = 0
-        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 4) {
+        if(Object(refEntity_4.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_4.current?.state).x = 0
+          Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_5.current?.state).x < 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_5.current?.state).x = 0
-        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 5) {
+        if(Object(refEntity_5.current?.state).x < 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_5.current?.state).x = 0
+          Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
-      if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
-        moveIndex = moveIndex + 1
-      } else {
-        Object(refEntity_6.current?.state).x = 0
-        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(mediaItemIndex !== 6) {
+        if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+          moveIndex = moveIndex + 1
+        } else {
+          Object(refEntity_6.current?.state).x = 0
+          Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+        }
       }
     }
-
   }
 
   function setTrack(data:any, _url:string, _index:number) {
@@ -1462,11 +1817,19 @@ export const App: React.FC<{}> = () => {
         Object(refEntity_5.current?.state).x = -99999999
       } else if(_index === 6) {
         Object(refEntity_6.current?.state).x = -99999999
+      } else if(_index === 9) {
+        Object(refEntity_9.current?.state).x = -99999999
+        /* ResetAppsPanel(9, 'twitch')
+        return */
       }
 
       ///////////////////////////////////////////////////////
       //window.open(_url, "_new")
-      let externalWindow = window.open(_url, '', 'width=400,height=650,left=500,top=100');
+
+      //console.log(_index, " INDEX ", _url)
+
+
+      let externalWindow = window.open(_index === mediaItemIndex ? _url + '&parent=' + videoParent + '&autoplay=true' : _url, '', 'width=400,height=650,left=500,top=100');
       var timer = setInterval(function() {
         if(externalWindow?.closed) {
             clearInterval(timer);
@@ -1488,35 +1851,74 @@ export const App: React.FC<{}> = () => {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
+
             } else if(_index === 1) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x === 0) {
@@ -1532,35 +1934,74 @@ export const App: React.FC<{}> = () => {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
+
             } else if(_index === 2) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x === 0) {
@@ -1576,35 +2017,74 @@ export const App: React.FC<{}> = () => {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
+
             } else if(_index === 3) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x === 0) {
@@ -1615,40 +2095,80 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (0)
+                //Object(refEntity_1.current?.state).y = (0)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = (0)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = (0)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
+
             } else if(_index === 4) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x === 0) {
@@ -1659,39 +2179,79 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (0)
+                //Object(refEntity_1.current?.state).y = (0)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (0)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  //Object(refEntity_2.current?.state).y = (0)
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
             } else if(_index === 5) {
               let moveIndex = 0
@@ -1703,40 +2263,81 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (0)
+                //Object(refEntity_1.current?.state).y = (0)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (0)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  //Object(refEntity_2.current?.state).y = (0)
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x === 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x === 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
+
             } else if(_index === 6) {
               let moveIndex = 0
               if(Object(refEntity_0.current?.state).x === 0) {
@@ -1747,44 +2348,84 @@ export const App: React.FC<{}> = () => {
               }
               if(Object(refEntity_1.current?.state).x === 0) {
                 Object(refEntity_1.current?.state).x = 0
-                Object(refEntity_1.current?.state).y = (0)
+                //Object(refEntity_1.current?.state).y = (0)
+                Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
               } else {
                 moveIndex = moveIndex + 1
               }
 
-              if(Object(refEntity_2.current?.state).x === 0) {
-                Object(refEntity_2.current?.state).x = 0
-                Object(refEntity_2.current?.state).y = (0)
+              if(mediaItemIndex !== 2) {
+                if(Object(refEntity_2.current?.state).x === 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  //Object(refEntity_2.current?.state).y = (0)
+                  Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_2.current?.state).x < 0) {
+                  Object(refEntity_2.current?.state).x = 0
+                  Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
 
-              if(Object(refEntity_3.current?.state).x === 0) {
-                Object(refEntity_3.current?.state).x = 0
-                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              if(mediaItemIndex !== 3) {
+                if(Object(refEntity_3.current?.state).x === 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_3.current?.state).x < 0) {
+                  Object(refEntity_3.current?.state).x = 0
+                  Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_4.current?.state).x === 0) {
-                Object(refEntity_4.current?.state).x = 0
-                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 4) {
+                if(Object(refEntity_4.current?.state).x === 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_4.current?.state).x < 0) {
+                  Object(refEntity_4.current?.state).x = 0
+                  Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_5.current?.state).x === 0) {
-                Object(refEntity_5.current?.state).x = 0
-                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 5) {
+                if(Object(refEntity_5.current?.state).x === 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                } else {
+                  moveIndex = moveIndex + 1
+                }
               } else {
-                moveIndex = moveIndex + 1
+                if(Object(refEntity_5.current?.state).x < 0) {
+                  Object(refEntity_5.current?.state).x = 0
+                  Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
-              if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
-                Object(refEntity_6.current?.state).x = 0
-                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+              if(mediaItemIndex !== 6) {
+                if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+                }
+              } else {
+                if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+                  Object(refEntity_6.current?.state).x = 0
+                  Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+                }
               }
             }
-
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             setPosition({x:0, y:0})
+            setPositionMedia({x:0, y:0})
         }
     }, 100);
       ///////////////////////////////////////////////////////
@@ -1955,6 +2596,8 @@ export const App: React.FC<{}> = () => {
         _menuPos = -2
         //setPosition({x:0, y:0})
         setAble(false)
+
+        //console.log(_menuPos, " menuPos")
     }
   }
 
@@ -1993,6 +2636,7 @@ function ResetAppsPanel(index:number, _type:string) {
     } else {
       moveIndex = moveIndex + 1
     }
+
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
       Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * 51)
@@ -2000,37 +2644,77 @@ function ResetAppsPanel(index:number, _type:string) {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 2) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 6) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
   } else if(index === 1) {
@@ -2048,79 +2732,169 @@ function ResetAppsPanel(index:number, _type:string) {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 2) { */
+   if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    if(mediaItemIndex !== 5) {
+    /* if(_type !== 'twitch') { */
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    if(mediaItemIndex !== 6) {
+    /* if(_type !== 'twitch') { */
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
   } else if(index === 2) {
     let moveIndex = 0
-    if(Object(refEntity_0.current?.state).x === 0) {
-      Object(refEntity_0.current?.state).x = 0
-      Object(refEntity_0.current?.state).y = (0)
+
+      if(Object(refEntity_0.current?.state).x === 0) {
+        Object(refEntity_0.current?.state).x = 0
+        Object(refEntity_0.current?.state).y = (0)
+      } else {
+        moveIndex = moveIndex + 1
+      }
+
+
+      if(Object(refEntity_1.current?.state).x === 0) {
+        Object(refEntity_1.current?.state).x = 0
+        Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
+
+
+    /* if(mediaItemIndex !== 2) { */
+   if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
-    }
-    if(Object(refEntity_1.current?.state).x === 0) {
-      Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
-    } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_2.current?.state).x < 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = (moveIndex * -51)
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 6) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
     } else {
-      moveIndex = moveIndex + 1
-    }
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
   } else if(index === 3) {
@@ -2133,40 +2907,88 @@ function ResetAppsPanel(index:number, _type:string) {
     }
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (0)
+      //Object(refEntity_1.current?.state).y = (0)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 2) { */
+   if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x < 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = (0)
+
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        //Object(refEntity_4.current?.state).y = (0)
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = (0)
+
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        //Object(refEntity_5.current?.state).y = (0)
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = (0)
+
+   /*  if(mediaItemIndex !== 6) { */
+   if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        //Object(refEntity_6.current?.state).y = (0)
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
+
   } else if(index === 4) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x === 0) {
@@ -2175,42 +2997,89 @@ function ResetAppsPanel(index:number, _type:string) {
     } else {
       moveIndex = moveIndex + 1
     }
+
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (0)
+      //Object(refEntity_1.current?.state).y = (0)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (0)
+    /* if(mediaItemIndex !== 2) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        //Object(refEntity_2.current?.state).y = (0)
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+   if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x < 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 6) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
+
   } else if(index === 5) {
     let moveIndex = 0
     if(Object(refEntity_0.current?.state).x === 0) {
@@ -2221,39 +3090,83 @@ function ResetAppsPanel(index:number, _type:string) {
     }
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (0)
+      //Object(refEntity_1.current?.state).y = (0)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (0)
+    /* if(mediaItemIndex !== 2) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (0)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x < 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_6.current?.state).x === 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 6) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x === 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
   } else if(index === 6) {
     let moveIndex = 0
@@ -2265,43 +3178,89 @@ function ResetAppsPanel(index:number, _type:string) {
     }
     if(Object(refEntity_1.current?.state).x === 0) {
       Object(refEntity_1.current?.state).x = 0
-      Object(refEntity_1.current?.state).y = (0)
+      //Object(refEntity_1.current?.state).y = (0)
+      Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
     } else {
       moveIndex = moveIndex + 1
     }
 
-    if(Object(refEntity_2.current?.state).x === 0) {
-      Object(refEntity_2.current?.state).x = 0
-      Object(refEntity_2.current?.state).y = (0)
+    /* if(mediaItemIndex !== 2) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_2.current?.state).x === 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = (0)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_2.current?.state).x < 0) {
+        Object(refEntity_2.current?.state).x = 0
+        Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
 
-    if(Object(refEntity_3.current?.state).x === 0) {
-      Object(refEntity_3.current?.state).x = 0
-      Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+    /* if(mediaItemIndex !== 3) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_3.current?.state).x === 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_3.current?.state).x < 0) {
+        Object(refEntity_3.current?.state).x = 0
+        Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_4.current?.state).x === 0) {
-      Object(refEntity_4.current?.state).x = 0
-      Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 4) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_4.current?.state).x === 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_4.current?.state).x < 0) {
+        Object(refEntity_4.current?.state).x = 0
+        Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_5.current?.state).x === 0) {
-      Object(refEntity_5.current?.state).x = 0
-      Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 5) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_5.current?.state).x === 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      } else {
+        moveIndex = moveIndex + 1
+      }
     } else {
-      moveIndex = moveIndex + 1
+      if(Object(refEntity_5.current?.state).x < 0) {
+        Object(refEntity_5.current?.state).x = 0
+        Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
-    if(Object(refEntity_6.current?.state).x < 0) {
-      Object(refEntity_6.current?.state).x = 0
-      Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+    /* if(mediaItemIndex !== 6) { */
+    if(_type !== 'twitch') {
+      if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+      }
+    } else {
+      if(Object(refEntity_6.current?.state).x < 0) {
+        Object(refEntity_6.current?.state).x = 0
+        Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+      }
     }
   }
+
   _menuPos = -2
   setPosition({x:0, y:0})
+  setPositionMedia({x:0, y:0})
   setActiveTabIndex(-1)
   setMenuType(_type)
 }
@@ -2355,6 +3314,11 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
     if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return}
     Object(refEntity_6.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
     Object(refEntity_6.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+  } else if(tabIndex === 9 && (tabType === 'chat' || tabType === 'content')) {
+    if(Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0) {return}
+    Object(refEntity_9.current?.state).x = -Math.floor(Math.random() * (stores.map.screenSize[0] - 500 + 1) + 500) //Math.random() * -(stores.map.screenSize[0] + 400)/2
+    //Object(refEntity_9.current?.state).y = Math.floor(Math.random() * (150 - 50 + 1) + 50) + (tabIndex * -25)
+    Object(refEntity_9.current?.state).y = isSmartphone() ? (0) : (0)
   } else {
     if(tabIndex === 0) {
       if(Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) {return}
@@ -2377,11 +3341,16 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
     } else if(tabIndex === 6) {
       if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return}
       Object(refEntity_6.current?.state).x = -99999999
+    } else if(tabIndex === 9) {
+      if(Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0) {return}
+      Object(refEntity_9.current?.state).x = -99999999
     }
 
     ///////////////////////////////////////////////////////
+    //console.log(tabIndex, " <><><> ", tabURL)
+
     //window.open(_url, "_new")
-    let externalWindow = window.open(tabURL, '', 'width=400,height=650,left=500,top=100');
+    let externalWindow = window.open(tabType === 'twitch' ? tabURL + '&parent=' + videoParent + '&autoplay=true': tabURL, '', 'width=400,height=650,left=500,top=100');
     var timer = setInterval(function() {
       if(externalWindow?.closed) {
           clearInterval(timer);
@@ -2403,35 +3372,74 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 1) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2447,35 +3455,74 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 2) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2491,35 +3538,74 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 3) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2530,40 +3616,80 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (0)
+              //Object(refEntity_1.current?.state).y = (0)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = (0)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = (0)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 4) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2574,40 +3700,80 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (0)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (0)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                //Object(refEntity_2.current?.state).y = (0)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 5) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2618,40 +3784,81 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (0)
+              //Object(refEntity_1.current?.state).y = (0)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (0)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                //Object(refEntity_2.current?.state).y = (0)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x === 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x === 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
+
           } else if(tabIndex === 6) {
             let moveIndex = 0
             if(Object(refEntity_0.current?.state).x === 0) {
@@ -2662,44 +3869,89 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
             }
             if(Object(refEntity_1.current?.state).x === 0) {
               Object(refEntity_1.current?.state).x = 0
-              Object(refEntity_1.current?.state).y = (0)
+              //Object(refEntity_1.current?.state).y = (0)
+              Object(refEntity_1.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
             } else {
               moveIndex = moveIndex + 1
             }
 
-            if(Object(refEntity_2.current?.state).x === 0) {
-              Object(refEntity_2.current?.state).x = 0
-              Object(refEntity_2.current?.state).y = (0)
+            if(mediaItemIndex !== 2) {
+              if(Object(refEntity_2.current?.state).x === 0) {
+                Object(refEntity_2.current?.state).x = 0
+                //Object(refEntity_2.current?.state).y = (0)
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_2.current?.state).x < 0) {
+                Object(refEntity_2.current?.state).x = 0
+                Object(refEntity_2.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
 
-            if(Object(refEntity_3.current?.state).x === 0) {
-              Object(refEntity_3.current?.state).x = 0
-              Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+            if(mediaItemIndex !== 3) {
+              if(Object(refEntity_3.current?.state).x === 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_3.current?.state).x < 0) {
+                Object(refEntity_3.current?.state).x = 0
+                Object(refEntity_3.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_4.current?.state).x === 0) {
-              Object(refEntity_4.current?.state).x = 0
-              Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 4) {
+              if(Object(refEntity_4.current?.state).x === 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_4.current?.state).x < 0) {
+                Object(refEntity_4.current?.state).x = 0
+                Object(refEntity_4.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_5.current?.state).x === 0) {
-              Object(refEntity_5.current?.state).x = 0
-              Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 5) {
+              if(Object(refEntity_5.current?.state).x === 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              } else {
+                moveIndex = moveIndex + 1
+              }
             } else {
-              moveIndex = moveIndex + 1
+              if(Object(refEntity_5.current?.state).x < 0) {
+                Object(refEntity_5.current?.state).x = 0
+                Object(refEntity_5.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
-            if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_5.current?.state).x > 0) {
-              Object(refEntity_6.current?.state).x = 0
-              Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+
+            if(mediaItemIndex !== 6) {
+              if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (moveIndex * -121) : (moveIndex * -51)
+              }
+            } else {
+              if(Object(refEntity_6.current?.state).x < 0  || Object(refEntity_6.current?.state).x > 0) {
+                Object(refEntity_6.current?.state).x = 0
+                Object(refEntity_6.current?.state).y = isSmartphone() ? (0) : (0)
+              }
             }
           }
           //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          _menuPos = -2
+          //if(tabIndex === 9) {
+            //_menuPos = -20
+          //} else {
+            _menuPos = -2
+          //}
           setPosition({x:0, y:0})
+          setPositionMedia({x:0, y:0})
           setMenuType(tabType)
       }
   }, 100);
@@ -2739,7 +3991,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
     return <div ref={refDiv} className={classes.back} style={{backgroundColor: '#0f5c81'/* rgb2Color(roomInfo.backgroundFill) */}}>
         {/* <SplitPane className={classes.fill} split="vertical" resizerClassName={clsSplit.resizerVertical}
           minSize={0} defaultSize="7em"> */}
-          <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' ? '#8b5e3c' : menuType !== 'blank' ? activeBgColor : 'white'
+          <SplitPane pane2Style={able === true ? {display: 'block', backgroundColor: menuType === 'chat' ? '#0f5c81' : menuType === 'content' || menuType === 'twitch' ? '#8b5e3c' : menuType !== 'blank' ? activeBgColor : 'white'
 /* '#5f7ca020' */, boxShadow: menuType !== 'blank' ? '5px 10px 10px 3px black' : '5px 10px 10px 3px white'} : {display: 'none', backgroundColor: '#FFF'}} className={classes.fill} split="vertical" /* resizerClassName={clsSplit.resizerVertical} */
   minSize={0} defaultSize={able === true ? isSmartphone() ? '40%' : (_menuType !== 'chat' && _menuType !== 'content') ? "73%" : '73%'/* "77%" *//* "85%" */ : "100%"}>
           {/* <LeftBar stores={stores}/> */}
@@ -2826,7 +4078,6 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
              {/* /////////////////////////////////CONTENT APP////////////////////////////////// */}
 
              <Draggable /* bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}} */ ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1)} defaultPosition={{x: 0, y: 0}}>
-
             <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (1 * 119) : tabBGTopBGWeb + (1*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (activeTabIndex === 1) ? 19 : (18 - (1+2)), height:'100%'}}>
             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}}
               onClick={(e) => {
@@ -2837,7 +4088,6 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                 onTabMenuClick(e, 'content', '', 1)
               }}
               >
-
                 <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}} draggable={false} alt='' />
                 <img src={tabContentActive} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99}} draggable={false} alt='' />
               </div>
@@ -2882,7 +4132,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
             { cContent.filter(item => item.shareType === "appimg").map((content, index) => (
               <Draggable/*  bounds={{ top: -2500, left: -2500, right: 0, bottom: 2500 }} */ bounds={content.url === '' ? {top: ((index+2) * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + ((index+2) * 51)))} : {}}
 
-              ref={(index+2) === 2 ? refEntity_2 : index === 3 ? refEntity_3 : index === 4 ? refEntity_4 : index === 5 ? refEntity_5 : index === 6 ? refEntity_6 : index === 7 ? refEntity_7 : refEntity_8}
+              ref={(index+2) === 2 ? refEntity_2 : (index+2) === 3 ? refEntity_3 : (index+2) === 4 ? refEntity_4 : (index+2) === 5 ? refEntity_5 : (index+2) === 6 ? refEntity_6 : (index+2) === 7 ? refEntity_7 : refEntity_8}
 
               key={(index+2)} onDrag={(e, data) => trackPos(data, (index+2), content.type)} onStop={(e, data) => setTrack(data, content.url, (index+2))} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
 
@@ -3143,13 +4393,128 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                   {}
                  {/*  {content.type === 'chat' || content.type === 'content' ?
                   <LeftBar stores={stores} type={content.type}/>
-                  :  */}<iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+                  :  */}<iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} ></iframe>
                  {/* } */}
                 </div>
                 </div>
               </Draggable>
 
              ))}
+
+            {/* Add Stream Video section here */}
+            {/* console.log(" TAB TOTAL ", zoneMediaURL, " --- ", inZone, " >>> ", positionMedia.x) */}
+
+            {inZone !== undefined && inZone === "close" && zoneMediaURL !== undefined && zoneMediaURL !== ""
+            ?
+                 <Draggable ref={(mediaItemIndex) === 2 ? refEntity_2 : mediaItemIndex === 3 ? refEntity_3 : mediaItemIndex === 4 ? refEntity_4 : mediaItemIndex === 5 ? refEntity_5 : mediaItemIndex === 6 ? refEntity_6 : mediaItemIndex === 7 ? refEntity_7 : refEntity_8} key={(mediaItemIndex)} onDrag={(e, data) => trackPos(data, (mediaItemIndex), 'twitch')} onStop={(e, data) => setTrack(data, zoneMediaURL, (mediaItemIndex))} defaultPosition={{x: 0, y: 0}} >
+
+              <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + ((mediaIndex) * 119) : tabBGTopBGWeb + ((mediaIndex)*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (activeTabIndex === (mediaIndex)) ? 19 : (18 - ((mediaIndex)+2)), height:'100%'}}>
+                <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - ((mediaIndex)+2))}}
+                 onClick={(e) => {
+                  // handling single & double click
+                  onTabMenuClick(e, 'twitch', zoneMediaURL, (mediaItemIndex))
+                }}
+                onTouchEnd={(e) => {
+                  onTabMenuClick(e, 'twitch', zoneMediaURL, (mediaItemIndex))
+                }}
+                >
+                  <div style={{position:'relative', left:'6px', top:'4px', display:positionMedia.x === 0 && anim === true ? 'block' : 'none', zIndex:999}}>
+                  <img src={twitchActive} style={{position:'absolute', width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50}} draggable={false} alt="" />
+              </div>
+              <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - ((mediaIndex)+2))}} draggable={false} alt='' />
+                  <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 ? 'none' : 'block'}} draggable={false} alt='' />
+                </div>
+
+                <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px', backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px', display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (mediaItemIndex) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (mediaItemIndex) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (mediaItemIndex) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (mediaItemIndex) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (mediaItemIndex) === 6) ? 'block' : 'none', zIndex:-9999}}>
+                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                onClick={() => {
+                  ResetAppsPanel((mediaItemIndex), 'twitch')
+                }}
+                onTouchEnd={() => {
+                  ResetAppsPanel((mediaItemIndex), 'twitch')
+                }}
+              />
+                <iframe src={(Object(refEntity_2.current?.state).x < 0 && Object(refEntity_2.current?.state).x > -99999999) && mediaItemIndex === 2 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_3.current?.state).x < 0 && Object(refEntity_3.current?.state).x > -99999999) && mediaItemIndex === 3 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_4.current?.state).x < 0 && Object(refEntity_4.current?.state).x > -99999999) && mediaItemIndex === 4 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_5.current?.state).x < 0 && Object(refEntity_5.current?.state).x > -99999999) && mediaItemIndex === 5 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_6.current?.state).x < 0 && Object(refEntity_6.current?.state).x > -99999999) && mediaItemIndex === 6 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : ''} title={'Twitch'} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+                  </div>
+                  </div>
+
+                  {/*
+                  <Draggable ref={refEntity_9} key={9} onDrag={(e, data) => trackPos(data, 9, 'twitch')} onStop={(e, data) => setTrack(data, zoneMediaURL, 9)} defaultPosition={{x: 0, y: 0}}>
+
+            <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (9 * 119) : tabBGTopBGWeb + (9*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (activeTabIndex === 0) ? 19 : (18 - (9)), height:'100%'}}>
+            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - (9))}}
+            ////////////////////////////////////////////////////////////////////
+              onClick={(e) => {
+                // handling single & double click
+                onTabMenuClick(e, 'twitch', zoneMediaURL, 9)
+              }}
+              onTouchEnd={(e) => {
+                onTabMenuClick(e, 'twitch', zoneMediaURL, 9)
+              }}
+              >
+              <div style={{position:'relative', left:'0px', top:'10px', display:positionMedia.x === 0 && anim === true ? 'block' : 'none'}}>
+                  <img src={twitchActive} style={{position:'absolute', width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50}} draggable={false} alt="" />
+              </div>
+                <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - (9))}} draggable={false} alt='' />
+                <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 && anim === true ? 'none' : 'block'}} draggable={false} alt='' />
+              </div>
+              <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px', backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px',
+              display:((Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
+              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                onClick={() => {
+                  ResetAppsPanel(9, 'twitch')
+                }}
+                onTouchEnd={() => {
+                  ResetAppsPanel(9, 'twitch')
+                }}
+              />
+                <iframe src={(Object(refEntity_9.current?.state).x < 0 && Object(refEntity_9.current?.state).x > -99999999) ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : ''} title={'Twitch'} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+              </div>
+              </div>
+                   */}
+
+              {/* <Draggable ref={refEntity_9} key={9} onDrag={(e, data) => trackPos(data, 9, 'twitch')} onStop={(e, data) => setTrack(data, zoneMediaURL, 9)} defaultPosition={{x: 0, y: 0}}>
+
+            <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (9 * 119) : tabBGTopBGWeb + (9*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (activeTabIndex === 0) ? 19 : (18 - (9)), height:'100%'}}>
+            <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - (9))}}
+            ////////////////////////////////////////////////////////////////////
+              onClick={(e) => {
+                // handling single & double click
+                onTabMenuClick(e, 'twitch', zoneMediaURL, 9)
+              }}
+              onTouchEnd={(e) => {
+                onTabMenuClick(e, 'twitch', zoneMediaURL, 9)
+              }}
+              >
+              <div style={{position:'relative', left:'0px', top:'10px', display:positionMedia.x === 0 && anim === true ? 'block' : 'none'}}>
+                  <img src={twitchActive} style={{position:'absolute', width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50}} draggable={false} alt="" />
+              </div>
+                <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - (9))}} draggable={false} alt='' />
+                <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 && anim === true ? 'none' : 'block'}} draggable={false} alt='' />
+              </div>
+              <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px', backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px',
+              display:((Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
+              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                onClick={() => {
+                  ResetAppsPanel(9, 'twitch')
+                }}
+                onTouchEnd={() => {
+                  ResetAppsPanel(9, 'twitch')
+                }}
+              />
+                <iframe src={(Object(refEntity_9.current?.state).x < 0 && Object(refEntity_9.current?.state).x > -99999999) ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : ''} title={'Twitch'} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+              </div>
+              </div> */}
+
+
+            </Draggable>
+             : zoneMediaURL === undefined && inZone === undefined ?
+              console.log("")
+             :''}
+
+
+            {/* END stream video section here */}
+
              </>
             <Footer stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
             <ZoneAvatar stores={stores} height={(isSmartphone() && isPortrait()) ? 100 : undefined} />
@@ -3158,9 +4523,13 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
           <div style={{display: (able === true ? "block" : "none"), minWidth:'280px', width:'100%', maxWidth:'280px'}}>
             <LeftBar stores={stores} type={_menuType}/>
           </div>
+
+
+
         </SplitPane>
+
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 2.0.6</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 2.0.8</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
@@ -3194,7 +4563,6 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
             <img style={{display: selectedSpecs !== '' ? 'block' : 'none'}} src={selectedSpecs} width={'130px'} height={'130px'} draggable={false} alt='' />
           </div>
         </div>
-
 
         {/* Showing slideshow for new user */}
         <Dialog open={showHelp} onClose={() => setShowHelp(false)} onExited={() => setShowHelp(false)}
@@ -3258,6 +4626,8 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
   }}</Observer>
 }
 App.displayName = 'App'
+
+
 
 
 

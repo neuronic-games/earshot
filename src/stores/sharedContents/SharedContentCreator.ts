@@ -40,6 +40,9 @@ export const defaultContent: ISharedContent = Object.assign({}, mapObjectDefault
   baseImage: '',
   baseIcon: '',
   baseColor: '',
+
+  // For media stream
+  mediaURL: '',
 })
 
 class SharedContentImp implements ISharedContent {
@@ -70,6 +73,7 @@ class SharedContentImp implements ISharedContent {
   baseImage!: string
   baseIcon!: string
   baseColor!:string
+  mediaURL!:string
   constructor() {
     Object.assign(this, _.cloneDeep(defaultContent))
   }
@@ -273,6 +277,7 @@ export function createContentOfImageUrl(url: string, map: MapData,
       // Assign the desc values of content uploaded to differentiate between the images/room image
       pasted.contentDesc = String(desc?.toString())
       pasted.noFrame = true
+      pasted.showTitle = true
       // For EDIT Mode
       //pasted.pinned = true
       pasted.scaleRotateToggle = true

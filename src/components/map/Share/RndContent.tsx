@@ -1130,7 +1130,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     }
   }
 
-
   //const classes = useStyles({props, pose, size, showTitle, pinned:props.content.pinned, dragging, editing})
   const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)

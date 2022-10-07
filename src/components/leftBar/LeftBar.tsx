@@ -121,6 +121,8 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
 
   const cContent = useObserver(() => props.stores.contents.all)
 
+  const zoneMediaURL = useObserver(() => props.stores.participants.local.zone?.mediaURL)
+  const videoParent = window.location.host.split("https://www.")[0]
 
   const setScale = (scale:number) => {
     Object.assign(textLineStyle, defaultTextLineHeight)
@@ -153,13 +155,11 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
 
   //const _status = useObserver(() => getAbleStatus())
   const _menuSelected = useObserver(() => getSelectedMenuType())
-
-
-
   const _menuSelectedPos = useObserver(() => getSelectedMenuPos())
 
+  //console.log(_menuSelected, " MENU SELECTED ", props.type)
 
-
+  //console.log(props.type, " ==== ", _menuSelected, " ---- ", _menuSelectedPos)
 
   return (
     <div {...bind()}>
@@ -176,6 +176,12 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
           <ContentList {...props}  {...textLineStyle} />
       </SplitPane >
+      : (props.type === 'twitch') ?
+        (_menuSelectedPos <= -2) ?
+      <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
+        paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
+          <iframe src={zoneMediaURL+ "&parent=" + videoParent + "&autoplay=true"} title={props.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </SplitPane > : <></>
       :
       <>
       {cContent.filter(item => item.shareType === "appimg").map(content => (

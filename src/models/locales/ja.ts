@@ -119,6 +119,7 @@ export const jaTranslate = {
   ctDelete: '削除する',
   ctClose: '閉じる',
   ctName: 'タイトル',
+  ctStreamingMedia: 'タイトル',
   ctFrameVisible: 'フレームあり',
   ctFrameInvisible: 'フレームなし',
   ctOpenAudioZone: '会議場所',

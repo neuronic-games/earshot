@@ -18,6 +18,7 @@ import MoreIcon from '@images/whoo-screen_btn-more.png'
 import AvatarGenIcon from '@images/earshot_icon_edit_avatar.png'
 import { useGesture } from 'react-use-gesture'
 import {useTranslation} from '@models/locales'
+/* import { conference } from '@models/conference' */
 
 
 const theme = createTheme({
@@ -549,6 +550,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   const [activeFrontHair, setActiveFrontHair] = useState(-1)
   const [activeBackHair, setActiveBackHair] = useState(-1)
+
+
+  //console.log(conference.dataConnection, " isHost")
 
 
   // For Saving data

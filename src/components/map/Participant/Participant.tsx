@@ -180,6 +180,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
 
   const participant = props.participant
 
+
+
   const rgb = participant.getColorRGB()
   const participantProps = useObserver(() => ({
     position: participant.pose.position,
@@ -200,6 +202,8 @@ const RawParticipant: React.ForwardRefRenderFunction<HTMLDivElement , RawPartici
   const inZone = useObserver(() => props.stores.participants.local.zone?.zone)
   const _icons = useObserver(() => participant.trackStates.emoticon)
   const _connQuality = useObserver(() => participant.quality)
+
+  //const zoneMediaURL = useObserver(() => props.stores.participants.local.zone?.mediaURL)
 
   // For Chat Zone only
   const zoneId = useObserver(() => {

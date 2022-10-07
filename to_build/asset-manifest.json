@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.js": "./static/js/main.7145fbd9.chunk.js",
-    "main.js.map": "./static/js/main.7145fbd9.chunk.js.map",
+    "main.js": "./static/js/main.03fa6bd9.chunk.js",
+    "main.js.map": "./static/js/main.03fa6bd9.chunk.js.map",
     "runtime-main.js": "./static/js/runtime-main.a3e4994c.js",
     "runtime-main.js.map": "./static/js/runtime-main.a3e4994c.js.map",
-    "static/js/2.625e0afa.chunk.js": "./static/js/2.625e0afa.chunk.js",
-    "static/js/2.625e0afa.chunk.js.map": "./static/js/2.625e0afa.chunk.js.map",
+    "static/js/2.35879966.chunk.js": "./static/js/2.35879966.chunk.js",
+    "static/js/2.35879966.chunk.js.map": "./static/js/2.35879966.chunk.js.map",
     "index.html": "./index.html",
-    "static/js/2.625e0afa.chunk.js.LICENSE.txt": "./static/js/2.625e0afa.chunk.js.LICENSE.txt",
+    "static/js/2.35879966.chunk.js.LICENSE.txt": "./static/js/2.35879966.chunk.js.LICENSE.txt",
     "static/media/earshot_icon_avatar_glow.1b7acac1.png": "./static/media/earshot_icon_avatar_glow.1b7acac1.png",
     "static/media/people_login.db1eab64.png": "./static/media/people_login.db1eab64.png",
     "static/media/whoo-screen_chat.52e62a85.png": "./static/media/whoo-screen_chat.52e62a85.png"
   },
   "entrypoints": [
     "static/js/runtime-main.a3e4994c.js",
-    "static/js/2.625e0afa.chunk.js",
-    "static/js/main.7145fbd9.chunk.js"
+    "static/js/2.35879966.chunk.js",
+    "static/js/main.03fa6bd9.chunk.js"
   ]
 }
