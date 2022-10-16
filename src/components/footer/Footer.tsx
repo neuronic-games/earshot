@@ -3,7 +3,7 @@ import {BMProps} from '@components/utils'
 /* import {acceleratorText2El} from '@components/utils/formatter' */
 import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 import {Icon} from '@iconify/react'
-import {Collapse} from '@material-ui/core'
+import {/* Button,  */Collapse/* , Dialog, DialogActions, DialogContent */} from '@material-ui/core'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Popover from '@material-ui/core/Popover'
@@ -180,6 +180,8 @@ export function getVideoButtonStatus():boolean {
   return buttonClickStatus
 }
 
+/* let enterPopup:boolean = true */
+
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  show or not
@@ -189,6 +191,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const [showAdmin, setShowAdmin] = React.useState<boolean>(false)
   /* const [showShare, setShowShareRaw] = React.useState<boolean>(false) */
   const [openSettiong, setOpenSettiong] = React.useState<boolean>(false)
+
+  // Show message
+  /* const [showSettingMessage, setShowSettingMessage] = React.useState(false) */
 
   function openAdmin(){
     map.keyInputUsers.add('adminForm')
@@ -230,6 +235,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
   const {t} = useTranslation()
   const classes = useStyles()
+
+
 
   function showSharePopMenu() {
     //console.log(showPop, " >>> showPop")
@@ -332,8 +339,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       return <div style={{position:'relative', display:'flex', alignItems:'center', marginLeft:'15px'}}> {selected ? <CheckBoxIcon style={{opacity:'1', position:'absolute', marginLeft:'-10px', fontSize:isSmartphone() ? '3em' : '1.5em'}} /> : <CheckBoxIcon style={{opacity:'0', position:'absolute', marginLeft:'-10px', fontSize:isSmartphone() ? '3em' : '1.5em'}} />}
       <MenuItem key={info.deviceId} style={{fontSize:isSmartphone() ? '2.5em' : '1em', marginLeft:isSmartphone() ? '0.5em' : '0em'}}
         onClick={() => { close(info.deviceId) }}
-        > {info.label }
-        </MenuItem></div>  //  \u00A0: NBSP, u2003: EM space.
+        > {info.label}
+      </MenuItem></div>  //  \u00A0: NBSP, u2003: EM space.
   }
 
 
@@ -341,8 +348,11 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   key="settingPreference" text={t('settingPreference')} onClick={openAdmin}
 /></Container></MenuItem>]
 
+
+
   function getMenuItems(kind:'audioinput' | 'audiooutput' | 'videoinput'){
     const rv = []
+    let blankMenu
     let closeMenu
     let bottomItem
     if (kind === 'audioinput'){
@@ -350,17 +360,36 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       bottomItem = <MenuItem  key = {'broadcast'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><BroadcastControl {...props} /></MenuItem>
     }else if (kind === 'audiooutput'){
       closeMenu = closeSpeakerMenu
+      // For None menu
+      blankMenu = <MenuItem  key = {'noneLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em', color:'#CCC', position:'relative', left: '17px'}} >None</MenuItem>
       bottomItem = <MenuItem  key = {'soundLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><StereoSwitchControl {...props} /></MenuItem>
     }else{
       closeMenu = closeVideoMenu
       /* bottomItem = <MenuItem  key = {'faceTrack'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><FaceControl {...props} /></MenuItem> */
       bottomItem = <MenuItem  key = {'broadcastVideo'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><BroadcastVideoControl {...props} /></MenuItem>
     }
+
     for (const info of deviceInfos){
       if (info.kind === kind) {
         rv.push(makeMenuItem(info, closeMenu))
       }
     }
+
+    //////////////////////////////////////////////////////
+    let outputDeviceAvailable = false
+    if(deviceInfos.length >= 0 && show) {
+      for (const info of deviceInfos){
+        if(info.kind === 'audiooutput') {
+          outputDeviceAvailable = true
+          break
+        }
+      }
+      if(outputDeviceAvailable === false) {
+        rv.push(blankMenu, closeMenu)
+      }
+    }
+    //////////////////////////////////////////////////////
+
     if (bottomItem) rv.push(bottomItem)
     return rv
   }
@@ -406,6 +435,26 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   }))
   const fabSize = props.height
   const iconSize = props.height ? props.height * 0.7 : 36
+
+
+  //////////////////////
+  // check deviveInfo for audiooutput availability
+  /* let outputDeviceAvailable = false
+  if(deviceInfos.length >= 0 && show) {
+    for (const info of deviceInfos){
+      if(info.kind === 'audiooutput') {
+        outputDeviceAvailable = true
+        break
+      }
+    }
+    if(outputDeviceAvailable === false && enterPopup === false) {
+      enterPopup = true
+      setShowSettingMessage(true)
+    }
+  } */
+  //////////////////////
+
+
 
   return <div>
   <div className={classes.topContainer}>
@@ -467,6 +516,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         }}
         onClickMore = { (ev) => {
           updateDevices(ev)
+         /*  enterPopup = false */
           setSpeakerMenuEl(ev.currentTarget)
         }}
         >
@@ -490,6 +540,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         onClickMore = { (ev) => {
           updateDevices(ev)
           setMicMenuEl(ev.currentTarget)
+
         } }
         >
         {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> :
@@ -520,7 +571,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         {mute.muteV ? <VideoOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
           : <VideoIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
       </FabWithTooltip>
-      {videoMenuEl ? <Menu anchorEl={videoMenuEl} keepMounted={true} style={{marginTop:-35}}
+      {videoMenuEl ? <Menu anchorEl={videoMenuEl} keepMounted={true} style={{marginTop:-70}}
         open={Boolean(videoMenuEl)} onClose={() => { closeVideoMenu('') }}>
         {getMenuItems('videoinput')}
       </Menu> : undefined}
@@ -585,6 +636,29 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       </div>
     </Collapse>
     </div>
+
+    {/* <Dialog open={showSettingMessage} onClose={() => setShowSettingMessage(false)} onExited={() => setShowSettingMessage(false)}
+        keepMounted
+        style={showSettingMessage ? {zIndex:9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'} : {zIndex:-9999, transform:isSmartphone() ? 'scale(2)' : 'scale(1)'}}
+        BackdropProps={{ invisible: true }}
+        >
+          <DialogContent style={{userSelect: 'none', fontSize:'20px', fontWeight:'normal'}}>
+            {
+            t('speakerSetting')
+            }
+          </DialogContent>
+          <DialogActions>
+            <Button variant="contained"  style={{textTransform:'none', marginTop:'0.4em', backgroundColor:'orange', height:'30px', fontSize:'18px', fontWeight:'bold'}}
+            onClick={(ev) => {
+              outputDeviceAvailable = false
+              //enterPopup = false
+              closeSpeakerMenu('')
+              setShowSettingMessage(false)
+              //_contentDeleteDialogOpen = false
+            }}>{'OK'}</Button>
+          </DialogActions>
+        </Dialog> */}
+
   </div>
 }
 Footer.displayName = 'Footer'

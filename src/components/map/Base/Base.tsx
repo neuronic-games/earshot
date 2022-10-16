@@ -20,8 +20,8 @@ import UploadShare from '@images/whoo-screen_btn-add-63.png'
 import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, /* isContentHandlerOn, */ isOnContentStatus, MouseOrTouch } from '../Share/RndContent'
 import {t} from '@models/locales'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
-import { getAvatarToolStatus, getOnLocalUser, getUserContextMenu } from '../Participant/LocalParticipant'
-import { getOnRemote } from '../Participant/RemoteParticipant'
+import { getAvatarToolStatus, getLocalUserMenuStatus, getOnLocalUser, getUserContextMenu } from '../Participant/LocalParticipant'
+import { getOnRemote, getRemoteMenuStatus } from '../Participant/RemoteParticipant'
 
 //  utility
 function limitScale(currentScale: number, scale: number): number {
@@ -52,8 +52,9 @@ const useStyles = makeStyles({
     top: 0,
     left: 0,
     userDrag: 'none',
-    userSelect: 'none',
+    /* userSelect: 'none', */
     overflow: 'hidden',
+    cursor: 'default',
   },
   center:{
     position: 'absolute',
@@ -88,7 +89,7 @@ const useStyles = makeStyles({
     width: 350,
     height: 250,
     overflow: 'hidden',
-    userSelect: 'none',
+    /* userSelect: 'none', */
     userDrag: 'none',
     top: (props.mem.zoomY) - 125,
     left: isSmartphone() ? (props.mem.zoomX) - 160 : (props.mem.zoomX) - 170,
@@ -115,11 +116,12 @@ const useStyles = makeStyles({
     left: 65,
     background: 'radial-gradient(#ffffff, #ffffff, #ffffff, #9e886c, #9e886c)',
     zIndex: -9999,
+    cursor: 'default',
   }),
 
   uploadZone: (props:StyleProps) => ({
       display: 'block',
-      height: TITLE_HEIGHT,
+      /* height: TITLE_HEIGHT, */
       position:'absolute',
       textAlign: 'center',
       top: 180,
@@ -127,7 +129,29 @@ const useStyles = makeStyles({
       whiteSpace: 'pre',
       cursor: 'default',
       background: '#9e886c',
-      ...buttonStyle
+      zIndex: 9999,
+      /* ...buttonStyle */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
+    }),
+
+    uploadZoneHover: (props:StyleProps) => ({
+      display: 'block',
+      position:'absolute',
+      textAlign: 'center',
+      top: 180,
+      left: 145,
+      whiteSpace: 'pre',
+      cursor: 'default',
+      background: 'black',
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     }),
 
     PingLocation: (props:StyleProps) => ({
@@ -153,7 +177,7 @@ const useStyles = makeStyles({
     }),
 })
 
-const buttonStyle = {
+/* const buttonStyle = {
   '&': {
     margin: '5px',
     borderRadius: '50%',
@@ -163,17 +187,18 @@ const buttonStyle = {
   },
 
   '&:hover': {
-    backgroundColor: 'black', //'rosybrown',
+    background: 'black', //'rosybrown',
     margin: '5px',
     padding: '3px',
     borderRadius: '50%',
   },
+
   '&:active': {
     margin: '5px',
     padding: '3px',
     borderRadius: '50%',
   },
-}
+} */
 
 type MapProps = React.PropsWithChildren<BP>
 
@@ -457,7 +482,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
   const bind = useGesture(
     {
-      onDragStart: ({buttons, xy}) => {
+      onDragStart: ({buttons, xy, event}) => {
+
+        event?.preventDefault()
+
         document.body.focus()
         mem.dragging = true
         mem.mouseDown = true
@@ -565,7 +593,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           //moveParticipantPeriodically(false)  //  inital rotation.
         }
       },
-      onDrag: ({down, delta, xy, buttons}) => {
+
+      onDrag: ({down, delta, xy, buttons, event}) => {
+
         if (delta[0] || delta[1]) { mem.mouseDown = false }
         if (delta[0] || delta[1]) {
           mem.mouseDown = false
@@ -671,6 +701,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         let contentContextMenu = getContextMenuStatus()
         let isUserContentOpen = getUserContextMenu()
         let _contentDeleteDeleteDialogOpen = getContentDeleteDialogStatus()
+
+        let isLocalMenuOpen = getLocalUserMenuStatus()
+        let isRemoteMenuOpen = getRemoteMenuStatus()
+
+
+
+        if(isLocalMenuOpen) {return}
+        if(isRemoteMenuOpen) {return}
+
         if(_contentDeleteDeleteDialogOpen) {return}
         if(isUserContentOpen) {return}
         //console.log('function called', _contentDialogStatus, " --- ", showMenu, " --- ", _avatarToolStatus)
@@ -846,7 +885,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
           setShowUploadOption(true)
           setShowMenu(false)
         }
-      }
+      },
     },
     {
       eventOptions:{passive:false}, //  This prevents default zoom by browser when pinch.
@@ -974,6 +1013,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
     setShowMenu(false)
   }
 
+  function handleMouseEnter() {
+    Object(document.getElementById('uploadDiv')).className = classes.uploadZoneHover
+  }
+
+  function handleMouseLeave() {
+    Object(document.getElementById('uploadDiv')).className = classes.uploadZone
+  }
+
+
   // use State
   const [showMenu, setShowMenu] = useState(false)
   const [showUploadOption, setShowUploadOption] = useState(false)
@@ -989,15 +1037,15 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             {props.children}
         </div>
       </div>
-   {/* Add Context Menu */}
-   <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
-      <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}>
-          <div className={classes.uploadZone} onMouseUp={onClickUploadZone} /* onTouchEnd={onClickUploadZone} */
-            onTouchStart={stop} /* onMouseLeave={() => setTimeout(()=>{setShowMenu(false)},100)} */>
+      {/* Add Context Menu */}
+      <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
+        <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}>
+          <div id='uploadDiv' className={classes.uploadZone} onMouseUp={onClickUploadZone} /* onTouchEnd={onClickUploadZone} */
+            onTouchStart={stop} /* onMouseLeave={() => setTimeout(()=>{setShowMenu(false)},100)} */ onMouseOver={handleMouseEnter} onMouseOut={handleMouseLeave}>
               <img id='menuUpload' src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
           </div>
         </Tooltip>
-      <div className={classes.dashedCircle}></div>
+        <div className={classes.dashedCircle}></div>
       </div>
       {/* <div className={(pingLocation && _pingIcon) ? classes.PingLocation:classes.PingLocationHide}>
         <img src={PingIcon} width={TITLE_HEIGHT} alt=""/>

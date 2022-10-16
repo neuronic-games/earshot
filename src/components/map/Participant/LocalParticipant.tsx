@@ -42,6 +42,10 @@ interface StyleProps {
   position: [number, number],
   size: number,
   mem:LocalMember,
+  // For hover listen
+  moreMouseEnter: boolean
+  generateAvatarMouseEnter: boolean
+
 }
 
 const useStyles = makeStyles({
@@ -103,29 +107,40 @@ const useStyles = makeStyles({
 
   moreIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 180,
     left: 145,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
-    ...buttonStyle
+    background: props.moreMouseEnter ?  'black' : '#9e886c',
+    /* ...buttonStyle */
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   avatarTool: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 25,
-    left: 140,
+    left: 145,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
+   /*  background: '#9e886c', */
     /* opacity: 0.2, */
-    ...buttonStyle
+   /*  ...buttonStyle */
+   background: props.generateAvatarMouseEnter ?  'black' : '#9e886c',
+   margin: '5px',
+   borderRadius: '50%',
+   width: '35px',
+   height: '35px',
+   padding: '3px',
   }),
 
   moreInfo: (props:StyleProps) => ({
@@ -261,6 +276,8 @@ class LocalMember{
   // moveLoc
   cursorX = 0
   cursorY = 0
+
+
 }
 
 interface LocalParticipantMember extends MoreButtonMember{
@@ -276,6 +293,11 @@ export function getOnLocalUser() : boolean {
 let isConteMenuOpen:boolean = false
 export function getUserContextMenu() : boolean {
   return isConteMenuOpen;
+}
+
+let isLocalMenuOpen:boolean = false
+export function getLocalUserMenuStatus():boolean {
+  return isLocalMenuOpen
 }
 
 
@@ -522,10 +544,18 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   },
             [])
 */
+
+ ///////////////////////// FOR HOVER STATE
+ const [isMoreMouseEnter, setIsMoreMouseEnter] = useState(false)
+ const [isGenerateAvatareMouseEnter, setIsGenerateAvatarMouseEnter] = useState(false)
+
+
   const styleProps = useObserver(() => ({
     position: participant.pose.position,
     size: props.size,
     mem: mem,
+    moreMouseEnter: isMoreMouseEnter,
+    generateAvatarMouseEnter: isGenerateAvatareMouseEnter,
   }))
   const [color] = participant ? participant.getColor() : ['white', 'black']
   const classes = useStyles(styleProps)
@@ -550,6 +580,8 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
   const [activeFrontHair, setActiveFrontHair] = useState(-1)
   const [activeBackHair, setActiveBackHair] = useState(-1)
+
+
 
 
   //console.log(conference.dataConnection, " isHost")
@@ -1232,7 +1264,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
   //const MOUSE_RIGHT = 2
   const bind = useGesture(
     {
-      onDragStart: ({buttons, xy}) => {
+      onDragStart: ({buttons, xy, event}) => {
+
+        event?.preventDefault()
 
         document.body.focus()
         mem.dragging = true
@@ -1268,8 +1302,39 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         if (buttons === MOUSE_LEFT || buttons === 0) {
 
           mem.downTime = new Date().getSeconds()
+
+
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
+
+          //console.log(participant.mouse.position[1], " Mouse---- ", xy[1], " ---Pose ", participant.pose.position[1])
+
+          // To calculate the position on menu movement
+          /* if(participant.pose.position[0] <= 0) {
+            console.log(xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0])))
+          } else {
+            console.log(xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0])))
+          } */
+
+          /* if(participant.pose.position[1] <= 0) {
+            console.log(xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1])))
+          } else {
+            console.log(xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1])))
+          } */
+
+          /* if(participant.pose.position[0] < 0) {
+            mem.downXpos = (xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0])))
+          } else {
+            mem.downXpos = (xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0])))
+          }
+
+          if(participant.pose.position[1] < 0) {
+            mem.downYpos = (xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1])))
+          } else {
+            mem.downYpos = (xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1])))
+          } */
+
+          //console.log(mem.downXpos, " ---- ", mem.downYpos)
 
           ////////////////////////////////////////////////
           //const local = participants.local
@@ -1293,13 +1358,98 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
 
             //console.log(diffX, " ---- ", diffY)
 
-            if(mem.mouseDown && diffX === 0 && diffY === 0 /* && showUploadOption === false */) {
+            if(mem.mouseDown && diffX === 0  && diffY === 0  /*&& showUploadOption === false */) {
               //console.log("Open Context Menu")
+
               mem.zoomX = xy[0]
               mem.zoomY = xy[1]
+
+              /* mem.zoomX = mem.downXpos
+              mem.zoomY = mem.downYpos */
+
+              // Resetting the pos
+              /* if(participant.pose.position[0] < 0) {
+                mem.downXpos = (xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0])))
+              } else {
+                mem.downXpos = (xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0])))
+              }
+
+              if(participant.pose.position[1] < 0) {
+                mem.downYpos = (xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1])))
+              } else {
+                mem.downYpos = (xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1])))
+              } */
+
+              /* if(participant.pose.position[0] === 0 || participant.pose.position[1] === 0) {
+                mem.downXpos = xy[0] - (participant.pose.position[0] + participant.mouse.position[0])
+                mem.downYpos = xy[1] - (participant.pose.position[1] + participant.mouse.position[1])
+              } else {
+                if(participant.pose.position[0] < 0) {
+                  mem.downXpos = (xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0])))
+                } else {
+                  mem.downXpos = (xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0])))
+                }
+
+                if(participant.pose.position[1] < 0) {
+                  mem.downYpos = (xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1])))
+                } else {
+                  mem.downYpos = (xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1])))
+                }
+              } */
+
+
+              // Setting X Pos
+              if(participant.pose.position[0] === 0) {
+                mem.downXpos = xy[0] - (participant.pose.position[0] + participant.mouse.position[0])
+              } else {
+                if(participant.pose.position[0] > participant.mouse.position[0]) {
+                  if(participant.mouse.position[0] < 0 || participant.pose.position[0] < 0) {
+                    mem.downXpos = xy[0] + (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0]))
+                  } else {
+                    mem.downXpos = xy[0] + (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0]))
+                  }
+                  console.log(mem.downXpos)
+                } else {
+                  if(participant.mouse.position[0] < 0 || participant.pose.position[0] < 0) {
+                    mem.downXpos = xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0]))
+                  } else {
+                    mem.downXpos = xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0]))
+                  }
+                  //console.log(mem.downXpos)
+                }
+              }
+
+              // Setting Y Pos
+              if(participant.pose.position[1] === 0) {
+                mem.downYpos = xy[1] - (participant.pose.position[1] + participant.mouse.position[1])
+                } else {
+                if(participant.pose.position[1] > participant.mouse.position[1]) {
+                  //console.log("ENTER >")
+                  if(participant.mouse.position[1] < 0 || participant.pose.position[1] < 0) {
+                    console.log("1")
+                    mem.downYpos = xy[1] + (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1]))
+                  } else {
+                    //console.log("2")
+                    if(participant.mouse.position[1] < participant.pose.position[1]) {
+                      mem.downYpos = xy[1] + (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1]))
+                    } else {
+                      mem.downYpos = xy[1] + (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1]))
+                    }
+                  }
+                } else {
+                  //console.log("ENTER <")
+                  if(participant.mouse.position[1] < 0 || participant.pose.position[1] < 0) {
+                    mem.downYpos = xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1]))
+                  } else {
+                    mem.downYpos = xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1]))
+                  }
+                }
+              }
+
               mem.contentX = map.mouseOnMap[0]
               mem.contentY = map.mouseOnMap[1]
               //_menuCanvas = true
+              isLocalMenuOpen = true
               setShowMenu(true)
             }
           }, 500)
@@ -1342,12 +1492,33 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         mem.mouseDown = false
         onLocalUser = false
         setShowMenu(false)
+        const resetTimer = setTimeout(() => {
+          clearInterval(resetTimer)
+          isLocalMenuOpen = false
+        }, 250)
       },
 
       onMove:({xy}) => {
+        /* if(participant.pose.position[0] < 0) {
+          mem.downXpos = (xy[0] - (Math.abs(participant.pose.position[0]) - Math.abs(participant.mouse.position[0])))
+        } else {
+          mem.downXpos = (xy[0] - (Math.abs(participant.mouse.position[0]) - Math.abs(participant.pose.position[0])))
+        }
+        if(participant.pose.position[1] < 0) {
+          mem.downYpos = (xy[1] - (Math.abs(participant.pose.position[1]) - Math.abs(participant.mouse.position[1])))
+        } else {
+          mem.downYpos = (xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1])))
+        } */
+
         mem.zoomX = xy[0]
         mem.zoomY = xy[1]
+        /* mem.zoomX = mem.downXpos
+        mem.zoomY = mem.downYpos */
+
         map.setMouse(xy)
+       /*  map.setMouse([mem.downXpos, mem.downYpos]) */
+
+
         if(showMenu) {return}
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
@@ -1355,19 +1526,19 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       onTouchStart:(ev) => {
         mem.zoomX = ev.touches[0].clientX
         mem.zoomY = ev.touches[0].clientY
+
         onLocalUser = true
+
         map.setMouse([ev.touches[0].clientX, ev.touches[0].clientY])
+
         participants.local.mouse.position = Object.assign({}, map.mouseOnMap)
       },
 
       onTouchEnd:(e) => {
         //console.log(e.changedTouches)
         var changedTouch = e.changedTouches[0];
-
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-
         console.log(elem?.nodeName, " ----- ", elem?.id)
-
         if(elem?.nodeName === "IMG" && elem?.id === "contextMore") {
           //setShowUploadOption(true)
           //setShowMenu(false)
@@ -1382,6 +1553,26 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
       eventOptions:{passive:false}, //  This prevents default zoom by browser when pinch.
     },
   )
+
+  ///////////////////////////////////////////////////////////////////////
+
+  function handleMouseEnter(event:MouseOrTouch) {
+    let menuType = (Object(event.target)).id
+    if(menuType === 'moreDiv' || menuType === 'contextMore') {
+      setIsMoreMouseEnter(true)
+    } else  if(menuType === 'genDiv' || menuType === 'avatarGen') {
+      setIsGenerateAvatarMouseEnter(true)
+    }
+  }
+
+  function handleMouseOut(event:MouseOrTouch) {
+    let menuType = (Object(event.target)).id
+    if(menuType === 'moreDiv' || menuType === 'contextMore') {
+      setIsMoreMouseEnter(false)
+    } else  if(menuType === 'genDiv' || menuType === 'avatarGen') {
+      setIsGenerateAvatarMouseEnter(false)
+    }
+  }
 
   ///////////////////////////////////////////////////////////////////////
 
@@ -1423,15 +1614,15 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
         <Zoom in={showMenu} style={{ transition: showMenu ? '500ms' : '0ms' }}>
           <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
             {/* <Tooltip placement="bottom" title={showMenu ? t('ctUploadZone') : ''}> */}
-                <div className={classes.moreIcon} onMouseUp={openConfig}
+                <div id='moreDiv' className={classes.moreIcon} onMouseUp={openConfig}
                   onTouchStart={stop}>
-                    <img id='contextMore' src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='contextMore' src={MoreIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               {/* </Tooltip> */}
               <Tooltip placement="top" title={showMenu ? t('ctGenerateAvatar') : ''}>
-              <div className={classes.avatarTool} onMouseUp={openAvatarTool}
+              <div id='genDiv' className={classes.avatarTool} onMouseUp={openAvatarTool}
                   onTouchStart={stop}>
-                    <img id='avatarGen' src={AvatarGenIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1)'}} alt=""/>
+                    <img id='avatarGen' src={AvatarGenIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1)'}} alt=""/>
                 </div>
               </Tooltip>
             <div className={classes.dashedCircle}></div>

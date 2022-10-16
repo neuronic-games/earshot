@@ -100,11 +100,11 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
             }}
           >
             <FormControlLabel value="gyazo" control={<Radio />} label="Gyazo" />
-            <FormControlLabel
+            {/* <FormControlLabel
               value="gdrve"
               control={<Radio />}
               label="Google Drive"
-            />
+            /> */}
           </RadioGroup>
         </FormControl>
       </Box>

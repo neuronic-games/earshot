@@ -35,7 +35,7 @@ export const BroadcastControl: React.FC<BMProps> = (props: BMProps) => {
   const {t} = useTranslation()
 
   return <Container>
-    <div style={{width:'130%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
+    <div style={{width:'150%', height:'1.5px', backgroundColor:'#bcbec0', marginLeft:'-40px'}}></div>
     <FormControlLabel style={{position:'relative', top:'5px', left: '-25px', fontSize:isSmartphone() ? '2em' : '1em'}}
       control={audioBroadcastSwitch}
       label={<Typography className={classes.formControlLabel}>{t('broadcastMyVoice')}</Typography>}

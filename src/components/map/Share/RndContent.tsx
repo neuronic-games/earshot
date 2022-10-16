@@ -42,6 +42,8 @@ import proximityOffIcon from '@images/whoo-screen_btn-earshot.png'
 import MoreIcon from '@images/whoo-screen_btn-more.png'
 import CloseIcon from '@images/whoo-screen_btn-delete.png'
 
+
+
 /* import pinIcon from '@images/whoo-screen_btn-lock.png'
 import pinOffIcon from '@images/whoo-screen_btn-lock.png' */
 
@@ -50,10 +52,12 @@ import FlipToFrontIcon from '@images/whoo-screen_btn-front.png'
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
 //import PingIcon from '@images/whoo-screen_pointer.png'
 
-import StopWatchOnIcon from '@material-ui/icons/Timer'
-import StopWatchOffIcon from '@material-ui/icons/Timer'
+/* import StopWatchOnIcon from '@material-ui/icons/Timer'
+import StopWatchOffIcon from '@material-ui/icons/Timer' */
 import RotateRightIcon from '@material-ui/icons/RotateRight'
-import AspectRatioIcon from '@material-ui/icons/AspectRatio';
+/* import AspectRatioIcon from '@material-ui/icons/AspectRatio'; */
+import AspectRatioIcon from '@images/aspectratio.png'
+import StopWatchIcon from '@images/stopwatch.png'
 import { PARTICIPANT_SIZE } from '@models/Participant'
 
 ///////////////////////
@@ -86,6 +90,15 @@ interface StyleProps{
   _title:boolean,
   pingX: number,
   pingY: number,
+  // Other props
+  uploadMouseEnter: boolean,
+  deleteMouseEnter: boolean,
+  frontMouseEnter: boolean,
+  backMouseEnter: boolean,
+  moreMouseEnter: boolean,
+  proxMouseEnter: boolean,
+  scaleRotateMouseEnter: boolean,
+  stopWatchMouseEnter: boolean,
 }
 class RndContentMember{
   buttons = 0
@@ -213,6 +226,16 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   //const [showHandler, setShowHandler] = useState(false)
   const [showOnRotation, setShowOnRotation] = useState(false)
 
+  // Over States
+  const [isUploadMouseEnter, setIsUploadMouseEnter] = useState(false)
+  const [isDeleteMouseEnter, setIsDeleteMouseEnter] = useState(false)
+  const [isFrontMouseEnter, setIsFrontMouseEnter] = useState(false)
+  const [isBackMouseEnter, setIsBackMouseEnter] = useState(false)
+  const [isMoreMouseEnter, setIsMoreMouseEnter] = useState(false)
+  const [isProxMouseEnter, setIsProxMouseEnter] = useState(false)
+  const [isScaleRotateMouseEnter, setIsScaleRotateMouseEnter] = useState(false)
+  const [isStopWatchMouseEnter, setIsStopWatchMouseEnter] = useState(false)
+
   _contentDialogOpen = showUploadOption
   const mDeleteTimer = setTimeout(function() {
     clearTimeout(mDeleteTimer)
@@ -230,6 +253,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   // For Ping Location
   const [pingLocation, setPingLocation] = useState(false)
 
+
+  console.log(props.content.zone, " ZONE CHECK")
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
       props.content.zone = "close"
@@ -237,8 +262,6 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       props.content.zone = undefined
     }
   }
-
-
 
 
   useEffect(  //  update pose
@@ -256,10 +279,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     // Resizing the elments
       ////////////////////////////////////////////////////////////////////////////
         //console.log(props.content.size[0])
-        if(props.content.size[0] < 80 || props.content.size[1] < 80) {
-          setSize([props.content.size[0] + (150-props.content.size[0]), props.content.size[1] + (150 - props.content.size[1])])
+        if(props.content.scaleRotateToggle) {
+          if(props.content.size[0] < 80 || props.content.size[1] < 80) {
+            setSize([props.content.size[0] + (150-props.content.size[0]), props.content.size[1] + (150 - props.content.size[1])])
+          }
+          updateHandler()
         }
-        updateHandler()
         ////////////////////////////////////////////////////////////////////////////
       // Working Code
       if (props.content.showStopWatch && stopWatchToggle === false && stopWatchReset === false) {
@@ -279,8 +304,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         const _mTimer = setTimeout( function() {
           clearTimeout(_mTimer)
           if(showTitle === true) return
-          contextMenuStatus = false
-           setShowTitle(false)
+            contextMenuStatus = false
+            setShowTitle(false)
         }, 2)
       }
       if (!_.isEqual(size, props.content.size)) {
@@ -421,22 +446,27 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     stop(evt)
     member._down = false
     //props.content.zone = !props.content.zone
+
     if(props.content.zone === "open"){
       props.content.zone = "close"
     } else {
-      if(props.content.shareType === "img") {
+      if (props.content.shareType === "img") {
           if(props.content.zone === undefined) {
             props.content.zone = "close"
           } else {
             props.content.zone = undefined
           }
-        } else {
-          props.content.zone = "open"
+      } else {
+        props.content.zone = "open"
       }
     }
+
+
+    //onLeaveIcon()
     props.updateAndSend(props.content)
     onLeaveIcon()
   }
+
   /* function onClickCopy(evt: MouseOrTouch){
     stop(evt)
     copyContentToClipboard(props.content)
@@ -486,6 +516,65 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     showHideTimer(1)
   }
 
+  function handleMouseEnter(event:MouseOrTouch) {
+    //console.log("FIRED ON IN - ", member._down)
+
+    //const upTimer = setTimeout(() => {
+    //  console.log("FIRED ON IN - ", member._down)
+    //  clearTimeout(upTimer)
+    //  if(member._down) {
+        let menuType = (Object(event.target)).id
+        if(menuType === 'uploadDiv' || menuType === 'contextUpload') {
+          setIsUploadMouseEnter(true)
+        } else  if(menuType === 'deleteDiv' || menuType === 'contextDelete') {
+          setIsDeleteMouseEnter(true)
+        } else  if(menuType === 'moreDiv' || menuType === 'contextMore') {
+          setIsMoreMouseEnter(true)
+        } else  if(menuType === 'frontDiv' || menuType === 'contextFlipFront') {
+          setIsFrontMouseEnter(true)
+        } else  if(menuType === 'backDiv' || menuType === 'contextFlipBack') {
+          setIsBackMouseEnter(true)
+        } else  if(menuType === 'proxDiv' || menuType === 'contextProx') {
+          console.log("CALLED ENTER")
+            setIsProxMouseEnter(true)
+        } else if(menuType === 'scaleRotateDiv' || menuType === 'contextScaleRotate') {
+          setIsScaleRotateMouseEnter(true)
+        } else if(menuType === 'stopWatchDiv' || menuType === 'contextStopWatch') {
+          setIsStopWatchMouseEnter(true)
+        }
+     // }
+    //}, 250)
+  }
+
+  function handleMouseOut(event:MouseOrTouch) {
+    //console.log("FIRED ON OUT - ", member._down)
+    //const downTimer = setTimeout(() => {
+    //  console.log("FIRED ON OUT - ", member._down)
+    //  clearTimeout(downTimer)
+    //  if(member._down) {
+        let menuType = (Object(event.target)).id
+        if(menuType === 'uploadDiv' || menuType === 'contextUpload') {
+          setIsUploadMouseEnter(false)
+        } else  if(menuType === 'deleteDiv' || menuType === 'contextDelete') {
+          setIsDeleteMouseEnter(false)
+        } else  if(menuType === 'moreDiv' || menuType === 'contextMore') {
+          setIsMoreMouseEnter(false)
+        } else  if(menuType === 'frontDiv' || menuType === 'contextFlipFront') {
+          setIsFrontMouseEnter(false)
+        } else  if(menuType === 'backDiv' || menuType === 'contextFlipBack') {
+          setIsBackMouseEnter(false)
+        } else  if(menuType === 'proxDiv' || menuType === 'contextProx') {
+          console.log("CALLED OUT")
+            setIsProxMouseEnter(false)
+        } else if(menuType === 'scaleRotateDiv' || menuType === 'contextScaleRotate') {
+          setIsScaleRotateMouseEnter(false)
+        } else if(menuType === 'stopWatchDiv' || menuType === 'contextStopWatch') {
+          setIsStopWatchMouseEnter(false)
+        }
+      //}
+    //}, 250)
+  }
+
   function updateHandler() {
     if (JSON.stringify(pose) !== JSON.stringify(props.content.pose) ||
       JSON.stringify(size) !== JSON.stringify(props.content.size)) {
@@ -527,7 +616,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
   function hindleClickStatus() {
 
-    console.log(member.clickStatus, " STATUS")
+    //console.log(member.clickStatus, " STATUS")
 
     if(member.clickStatus === 'single') {
       if(member.clickEnter) {return}
@@ -635,7 +724,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         setEditing(!editing)
       }
     },
-    onDrag: ({down, delta, event, xy, buttons}) => {
+    onDrag: ({down, delta, event, xy, buttons,}) => {
       //  console.log('onDragTitle:', delta)
       isLocaked = props.content.pinned
       _isOnContent = true
@@ -651,6 +740,9 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
     },
     onDragStart: ({event, currentTarget, delta, buttons, xy}) => {   // to detect click
+
+      event?.preventDefault()
+
       //  console.log(`dragStart delta=${delta}  buttons=${buttons}`)
       if(event?.type === "touchstart") {return}
       _isOnContent = true
@@ -701,7 +793,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
 
 
-      console.log(showTitle, " ---- ", checkContentsInEdit())
+      //console.log(showTitle, " ---- ", checkContentsInEdit())
 
 
       if(showTitle) {return}
@@ -786,6 +878,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
     onPointerUp: (arg) => { if(editing) {arg.stopPropagation()} },
     onPointerDown: (arg) => { if(editing) {arg.stopPropagation()} },
     onTouchMove :(e) => {
+      e.preventDefault()
+
       member.isMoved = true
       member.movePos = Number(map.mouseOnMap[1])
       member.moveXPos = Number(map.mouseOnMap[0])
@@ -965,12 +1059,12 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
           moveContentToTop(props.content)
           props.updateAndSend(props.content)
           onLeaveIcon()
-        } else if(elem?.nodeName === "svg" && elem?.id === "contextScaleRotate") {
+        } else if((elem?.nodeName === "svg" || elem?.nodeName === "IMG") && elem?.id === "contextScaleRotate") {
           props.content.scaleRotateToggle = !props.content.scaleRotateToggle
           props.content.pinned = !props.content.pinned
           props.updateAndSend(props.content)
           onLeaveIcon()
-        } else if((elem?.nodeName === "svg" || elem?.nodeName === "path" || elem?.nodeName === "svg" || elem?.nodeName === "DIV") && elem?.id === "contextStopWatch") {
+        } else if((elem?.nodeName === "svg" || elem?.nodeName === "path" || elem?.nodeName === "svg" || elem?.nodeName === "DIV" || elem?.nodeName === "IMG") && elem?.id === "contextStopWatch") {
           member._down = false
           if(props.content.showStopWatch) {
             props.content.showStopWatch = false
@@ -1047,10 +1141,22 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       clearTimeout(_mTimer)
       contextMenuStatus = false
       setShowTitle(false)
+
+      // Reset All menu init color
+      /* setIsUploadMouseEnter(false)
+      setIsDeleteMouseEnter(false)
+      setIsFrontMouseEnter(false)
+      setIsBackMouseEnter(false)
+      setIsMoreMouseEnter(false)
+      setIsProxMouseEnter(false)
+      setIsProxMouseEnter(false)*/
+
     }, (_delay * 1000))
   }
 
-  const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle)
+
+
+  const handlerForContent:UserHandlersPartial = Object.assign({}, handlerForTitle, {eventOptions:{passive:false}})
   handlerForContent.onDrag = (args: FullGestureState<'drag'>) => {
     //  console.log('onDragBody:', args.delta)
     if (isFixed || map.keyInputUsers.has(props.content.id)) { return }
@@ -1131,7 +1237,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   //const classes = useStyles({props, pose, size, showTitle, pinned:props.content.pinned, dragging, editing})
-  const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY})
+  const classes = useStyles({props, pose, size, showTitle, showBorder, pinned:props.content.pinned, dragging, editing, downPos:member.downPos, downXPos:member.downXPos, _down:member._down, _title:titleDisplay, pingX:member.pingX, pingY:member.pingY, uploadMouseEnter:isUploadMouseEnter, deleteMouseEnter:isDeleteMouseEnter, frontMouseEnter:isFrontMouseEnter, backMouseEnter:isBackMouseEnter, moreMouseEnter:isMoreMouseEnter, proxMouseEnter:isProxMouseEnter, scaleRotateMouseEnter:isScaleRotateMouseEnter, stopWatchMouseEnter:isStopWatchMouseEnter})
   //  console.log('render: TITLE_HEIGHT:', TITLE_HEIGHT)
   const contentRef = React.useRef<HTMLDivElement>(null)
   const formRef = React.useRef<HTMLDivElement>(null)
@@ -1416,49 +1522,51 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
 
 
               <Tooltip placement="top" title={member._down ? t('ctMoveTop') : ''} >
-                <div className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop}
-                  onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                    <img id='contextFlipFront' src={FlipToFrontIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                <div id='frontDiv' className={classes.moveTopButton_dialog} onMouseUp={onClickMoveToTop}
+                  onTouchStart={stop} onMouseLeave={onLeaveIcon} /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */>
+                    <img id='contextFlipFront' src={FlipToFrontIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
                     </div></Tooltip>
               <Tooltip placement="top" title={member._down ? t('ctMoveBottom') : ''} >
-                <div className={classes.moveBottomButton_dialog} onMouseUp={onClickMoveToBottom}
-                  onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                    <img id='contextFlipBack' src={FlipToBackIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                <div id='backDiv' className={classes.moveBottomButton_dialog} onMouseUp={onClickMoveToBottom}
+                  onTouchStart={stop} onMouseLeave={onLeaveIcon} /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */>
+                    <img id='contextFlipBack' src={FlipToBackIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
                   </div></Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.zone === "close" ? t('ctUnProximity') : t('ctProximity')) : ''} >
-            <div className={classes.prox_dialog} onMouseUp={onClickZone} onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-              <img id='contextProx' src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            <div id='proxDiv' className={classes.prox_dialog} onMouseUp={onClickZone} onTouchStart={stop} /* onMouseLeave={onLeaveIcon} */ /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */>
+              <img id='contextProx' src={props.content.zone === "close" ? proximityOffIcon : proximityIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
             </Tooltip>
-            <div className={classes.titleButton_dialog} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} ref={formRef}>
-                <img id='contextMore' src={MoreIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+            <div id='moreDiv' className={classes.titleButton_dialog} onMouseUp={onClickMore} onTouchStart={stop} onMouseLeave={onLeaveIcon} /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */ ref={formRef} >
+                <img id='contextMore' src={MoreIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
             </div>
             {/* <SharedContentForm open={showForm} {...props} close={onCloseForm}
               anchorEl={contentRef.current} anchorOrigin={{vertical:'top', horizontal:'right'}}
             /> */}
-              <div className={classes.close_dialog} onMouseUp={onClickClose} /* onTouchEnd={onClickClose} */ onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                <img id='contextDelete' src={CloseIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+              <div id='deleteDiv' className={classes.close_dialog} onMouseUp={onClickClose} /* onTouchEnd={onClickClose} */ onTouchStart={stop} onMouseLeave={onLeaveIcon} /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */>
+                <img id='contextDelete' src={CloseIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
               </div>
             <Tooltip placement="bottom" title={member._down ? t('ctUploadZone') : ''} >
-              <div className={classes.uploadZone_dialog} onMouseUp={onClickUploadZone}
+              <div id='uploadDiv' className={classes.uploadZone_dialog} onMouseUp={onClickUploadZone} /* onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} */
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  <img id='contextUpload' src={UploadShare} height={TITLE_HEIGHT} width={TITLE_HEIGHT} alt=""/>
+                  <img id='contextUpload' src={UploadShare} height={TITLE_HEIGHT}  onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} width={TITLE_HEIGHT} alt=""/>
               </div>
             </Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.showStopWatch ? t('ctStopWatchOff') : t('ctStopWatchOn')) : ''} >
-              <div className={classes.stopWatch_dialog} onMouseUp={onClickStopWatch}
+              <div id='stopWatchDiv' className={classes.stopWatch_dialog} onMouseUp={onClickStopWatch}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {props.content.showStopWatch ? <StopWatchOffIcon id='contextStopWatch' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  {/* {props.content.showStopWatch ? <StopWatchOffIcon id='contextStopWatch' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
                   <StopWatchOnIcon id='contextStopWatch' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
-                  }
+                  } */}
+                  <img id='contextStopWatch' src={StopWatchIcon} height={TITLE_HEIGHT}  onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} width={TITLE_HEIGHT} alt=""/>
               </div>
             </Tooltip>
             <Tooltip placement="top" title={member._down ? (props.content.scaleRotateToggle ? t('ctUnScaleRotate') : t('ctScaleRotate')) : ''} >
-              <div className={classes.scaleRotate_dialog} onMouseUp={onClickScaleRotate}
+              <div id='scaleRotateDiv' className={classes.scaleRotate_dialog} onMouseUp={onClickScaleRotate}
                 onTouchStart={stop} onMouseLeave={onLeaveIcon}>
-                  {props.content.scaleRotateToggle ? <AspectRatioIcon id='contextScaleRotate' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
-                  <AspectRatioIcon id='contextScaleRotate' style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
-                  }
+                  {/* {props.content.scaleRotateToggle ? <AspectRatioIcon id='contextScaleRotate' onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} /> :
+                  <AspectRatioIcon id='contextScaleRotate' onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} style={{width:TITLE_HEIGHT, height:TITLE_HEIGHT, color:'white'}} />
+                  } */}
+                  <img id='contextScaleRotate' src={AspectRatioIcon} height={TITLE_HEIGHT}  onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} width={TITLE_HEIGHT} alt=""/>
               </div>
             </Tooltip>
 
@@ -1894,6 +2002,7 @@ const useStyles = makeStyles({
     cursor: props.editing ? 'default' : undefined,
     opacity: props.props.content.opacity,
   }),
+  ////////////////////////////////// SAFARI FIX //////////////////////////////////////////////
   note: (props:StyleProps) => (
     props.showTitle ? {
       //visibility: props.props.onShare ? 'visible' : 'hidden',
@@ -1903,10 +2012,17 @@ const useStyles = makeStyles({
       position: 'relative',
       top: 143,
       left: 170,
-      ...buttonStyle,
+      /* ...buttonStyle, */
+      background: '#9e886c',
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {
       visibility: 'hidden',
-    }),
+  }),
+
   pin: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
@@ -1956,14 +2072,20 @@ const useStyles = makeStyles({
   prox_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
-      height: TITLE_HEIGHT,
+      /* height: TITLE_HEIGHT, */
       position:'absolute',
       top: 128, //100, //76,
       left: 38, //34, //37,
       whiteSpace: 'pre',
       cursor: 'default',
-      background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
-      ...props.props.content.zone === "close" ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+      //background: props.props.content.zone === "close" ? '#ef4623' : '#9e886c', // B34700
+      background: props.proxMouseEnter ? (props.props.content.zone === "close" ?  (props._down ? 'black' : '#B34700') : (props._down ? 'black' : '#9e886c')) : props.props.content.zone === "close" ? '#ef4623' : '#9e886c',
+      /* ...props.props.content.zone === "close" ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled), */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
@@ -1987,15 +2109,21 @@ const useStyles = makeStyles({
   titleButton_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
-      height: TITLE_HEIGHT,
+      /* height: TITLE_HEIGHT, */
       textAlign: 'center',
       whiteSpace: 'pre',
       position:'absolute',
       cursor: 'default',
       top: 128, //150, //128,
       left: 205, //195, //205,
-      background: '#9e886c',
-      ...buttonStyle,
+      background: props.moreMouseEnter ? 'black' : '#9e886c',
+     /*  ...buttonStyle, */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
+
     } : {display:'none'}
   ),
 
@@ -2019,15 +2147,20 @@ const useStyles = makeStyles({
   uploadZone_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
-      height: TITLE_HEIGHT,
+     /*  height: TITLE_HEIGHT, */
       position:'absolute',
       textAlign: 'center',
       top: 190,
       left: 125,
       whiteSpace: 'pre',
       cursor: 'default',
-      background: '#9e886c',
-      ...buttonStyle,
+      background: props.uploadMouseEnter ? 'black' : '#9e886c',
+     /*  ...buttonStyle, */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
@@ -2050,30 +2183,47 @@ const useStyles = makeStyles({
   stopWatch_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
-      height: TITLE_HEIGHT,
+      /* height: TITLE_HEIGHT, */
       position:'absolute',
       textAlign: 'center',
       top: 76, //52, //33,
       left: 37, //50, //68,
       whiteSpace: 'pre',
       cursor: 'default',
-      background:  props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
-      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+      /* background:  props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
+      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled), */
+      //background: props.stopWatchMouseEnter ? (props.props.content.showStopWatch ?  (props._down ? '#9e886c' : 'black') : (props._down ? '#9e886c' : '#ef4623')) : props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
+      background: props.stopWatchMouseEnter ? (props.props.content.showStopWatch ?  (props._down ? 'black' : '#B34700') : (props._down ? 'black' : '#9e886c')) : props.props.content.showStopWatch ? '#ef4623' : '#9e886c',
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
   scaleRotate_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: props.props.onShare ? 'none' : 'block',
-      height: TITLE_HEIGHT,
+      /* height: TITLE_HEIGHT, */
       position:'absolute',
       textAlign: 'center',
       top: 33, //20, //33,
       left: 68, //92, //68,
       whiteSpace: 'pre',
       cursor: 'default',
-      background:  props.props.content.scaleRotateToggle ? '#ef4623' : '#9e886c',
-      ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled),
+      //background:  props.props.content.scaleRotateToggle ? '#ef4623' : '#9e886c',
+      /* ...props.props.content.showStopWatch ?  (props._down ? buttonStyle : buttonStyleActive) : (props._down ? buttonStyle : buttonStyleDisabled), */
+
+      /* background: props.scaleRotateMouseEnter ? (props.props.content.scaleRotateToggle ?  (props._down ? 'black' : '#B34700') : (props._down ? 'black' : '#ef4623')) : props.props.content.scaleRotateToggle ? '#ef4623' : '#9e886c', */
+
+      background: props.scaleRotateMouseEnter ? 'black' : '#9e886c',
+
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
@@ -2111,15 +2261,20 @@ const useStyles = makeStyles({
   moveTopButton_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
-      height: TITLE_HEIGHT,
+     /*  height: TITLE_HEIGHT, */
       position:'absolute',
       textAlign: 'center',
       top: 14, //18, //14,
       left: 120, //148, //120,
       whiteSpace: 'pre',
       cursor: 'default',
-      background: '#9e886c',
-      ...buttonStyle,
+      background: props.frontMouseEnter ? 'black' : '#9e886c',
+     /*  ...buttonStyle, */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
@@ -2142,15 +2297,20 @@ const useStyles = makeStyles({
   moveBottomButton_dialog: (props:StyleProps) => (
     props.showTitle ? {
       display: 'block',
-      height: TITLE_HEIGHT,
+      //height: TITLE_HEIGHT,
       position:'absolute',
       textAlign: 'center',
       top: 32, //49, //32,
       left: 174, //192, //174,
       whiteSpace: 'pre',
       cursor: 'default',
-      background: '#9e886c',
-      ...buttonStyle,
+      background: props.backMouseEnter ? 'black' : '#9e886c',
+      /* ...buttonStyle, */
+      margin: '5px',
+      borderRadius: '50%',
+      width: '35px',
+      height: '35px',
+      padding: '3px',
     } : {display:'none'}
   ),
 
@@ -2216,13 +2376,18 @@ const useStyles = makeStyles({
     top: 76, //100, //76,
     left: 205, //209, //205,
     right:0,
-    margin:0,
-    padding:0,
-    height: TITLE_HEIGHT,
-    borderRadius: '0 0.5em 0 0',
+    //margin:0,
+    //padding:0,
+    /* height: TITLE_HEIGHT, */
+    //borderRadius: '0 0.5em 0 0',
     cursor: 'default',
-    background: '#9e886c',
-    ...buttonStyle,
+    background: props.deleteMouseEnter ? 'black' : '#9e886c',
+    /* ...buttonStyle, */
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   nameContainerHolder: (props: StyleProps) => ({

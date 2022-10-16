@@ -184,5 +184,6 @@ export const jaTranslate = {
   stereoswitch: '声を全員に届ける',
   ctTitle: '位置/サイズを固定する',
   ctUnTitle: '位置/サイズを可変にする',
+  speakerSetting: '位置/サイズを可変にする',
 }
 export type JaKeyList = keyof typeof jaTranslate

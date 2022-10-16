@@ -38,7 +38,7 @@ import twitchIcon from '@images/twitch.png';
 import OndemandVideoIcon from '@material-ui/icons/OndemandVideo'; */
 
 /* import {Icon} from '@iconify/react' */
-import twitchActive from '@images/twitchActive.png'
+/* import twitchActive from '@images/twitchActive.png' */
 
 
 
@@ -4418,11 +4418,11 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                   onTabMenuClick(e, 'twitch', zoneMediaURL, (mediaItemIndex))
                 }}
                 >
-                  <div style={{position:'relative', left:'6px', top:'4px', display:positionMedia.x === 0 && anim === true ? 'block' : 'none', zIndex:999}}>
+                {/* <div style={{position:'relative', left:'6px', top:'4px', display:positionMedia.x === 0 && anim === true ? 'block' : 'none', zIndex:999}}>
                   <img src={twitchActive} style={{position:'absolute', width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50}} draggable={false} alt="" />
-              </div>
+                </div> */}
               <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - ((mediaIndex)+2))}} draggable={false} alt='' />
-                  <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 ? 'none' : 'block'}} draggable={false} alt='' />
+                  <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 && anim === true && able === false ? 'none' : 'block'}} draggable={false} alt='' />
                 </div>
 
                 <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px', backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px', display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (mediaItemIndex) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (mediaItemIndex) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (mediaItemIndex) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (mediaItemIndex) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (mediaItemIndex) === 6) ? 'block' : 'none', zIndex:-9999}}>
@@ -4524,12 +4524,10 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
             <LeftBar stores={stores} type={_menuType}/>
           </div>
 
-
-
         </SplitPane>
 
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 2.0.8</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 3.0.0</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

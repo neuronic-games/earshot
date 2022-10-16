@@ -45,6 +45,12 @@ interface RemoteParticipantMember extends MoreButtonMember{
 interface StyleProps {
   position: [number, number],
   size: number,
+  // For hover listen
+  callMouseEnter: boolean
+  yarnMouseEnter: boolean
+  chatMouseEnter: boolean
+  focusMouseEnter: boolean
+  kickMouseEnter: boolean
 }
 const useStyles = makeStyles({
   more: (props: StyleProps) => ({
@@ -106,21 +112,26 @@ const useStyles = makeStyles({
 
   callIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 90,
     left: 64,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
+    background: props.callMouseEnter ? 'black' : '#9e886c',
     opacity: 0.2,
-    ...buttonStyle
+    /* ...buttonStyle */
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   yarnPhoneIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 44,
@@ -128,52 +139,76 @@ const useStyles = makeStyles({
     whiteSpace: 'pre',
     cursor: 'default',
     //background: '#9e886c',
-    background: participants.yarnPhones.size ? '#ef4623' : '#9e886c',
+    //background: participants.yarnPhones.size > 0 ? '#ef4623' : '#9e886c',
+    background: props.yarnMouseEnter ? (participants.yarnPhones.size > 0 ? 'black' : 'black') : participants.yarnPhones.size > 0 ? '#ef4623' : '#9e886c',
     //...buttonStyle
-    ...participants.yarnPhones.size > 0 ? buttonStyleActive : buttonStyle
+    /* ...participants.yarnPhones.size > 0 ? buttonStyleActive : buttonStyle */
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   chatIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 23,
     left: 140,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
-    ...buttonStyle
+    /* background: '#9e886c', */
+   /*  ...buttonStyle */
+   background: props.chatMouseEnter ? 'black' : '#9e886c',
+   margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   focusIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 40, //23, //40,
     left: 190, //140, //190,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
-    ...buttonStyle
+    /* background: '#9e886c', */
+    /* ...buttonStyle */
+    background: props.focusMouseEnter ? 'black' : '#9e886c',
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 
   kickIcon: (props:StyleProps) => ({
     display: 'block',
-    height: TITLE_HEIGHT,
+    /* height: TITLE_HEIGHT, */
     position:'absolute',
     textAlign: 'center',
     top: 85, //40, //85,
     left:217, //190, //217,
     whiteSpace: 'pre',
     cursor: 'default',
-    background: '#9e886c',
-    ...buttonStyle
+    /* background: '#9e886c', */
+    /* ...buttonStyle */
+    background: props.kickMouseEnter ? 'black' : '#9e886c',
+    margin: '5px',
+    borderRadius: '50%',
+    width: '35px',
+    height: '35px',
+    padding: '3px',
   }),
 })
 
-const buttonStyle = {
+/* const buttonStyle = {
   '&': {
     margin: '5px',
     borderRadius: '50%',
@@ -220,7 +255,7 @@ const buttonStyleActive = {
     padding: '3px',
     borderRadius: '50%',
   },
-}
+} */
 
 class RemoteMember{
   prebThirdPersonView = false
@@ -267,6 +302,11 @@ export function getOnRemote():boolean {
   return onRemoteUser
 }
 
+let remoteMenuOpen:boolean = false
+export function getRemoteMenuStatus():boolean {
+  return remoteMenuOpen;
+}
+
 export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   const member = React.useRef<RemoteParticipantMember>({} as RemoteParticipantMember).current
   const [showMore, setShowMore] = React.useState(false)
@@ -288,12 +328,25 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   /* const participant = props.participant */
  //assert(props.participant.id === participant.id)
 
-///////////////////////////////
+  ////////////////////////////////////////////////////////////
+  const [isCallMouseEnter, setIsCallMouseEnter] = React.useState(false)
+  const [isYarnMouseEnter, setIsYarnMouseEnter] = React.useState(false)
+  const [isFocusMouseEnter, setIsFocusMouseEnter] = React.useState(false)
+  const [isChatMouseEnter, setIsChatMouseEnter] = React.useState(false)
+  const [isKickMouseEnter, setIsKickMouseEnter] = React.useState(false)
 
   const styleProps = useObserver(() => ({
     position: props.participant.pose.position,
     size: props.size,
+    callMouseEnter: isCallMouseEnter,
+    yarnMouseEnter: isYarnMouseEnter,
+    chatMouseEnter: isChatMouseEnter,
+    focusMouseEnter: isFocusMouseEnter,
+    kickMouseEnter: isKickMouseEnter,
   }))
+
+
+
   const classes = useStyles(styleProps)
 
   const {t} = useTranslation()
@@ -327,7 +380,9 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
   //const MOUSE_RIGHT = 2
   const bind = useGesture(
     {
-      onDragStart: ({buttons, xy}) => {
+      onDragStart: ({buttons, xy, event}) => {
+
+        event?.preventDefault()
 
         document.body.focus()
         mem.dragging = true
@@ -363,6 +418,8 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
           mem.downXpos = xy[0]
           mem.downYpos = xy[1]
 
+          //console.log(props.participant.mouse.position[0], " Mouse---- ", xy[0], " ---Pose ", props.participant.pose.position[0])
+
           ////////////////////////////////////////////////
           //const local = participants.local
           /* const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
@@ -389,9 +446,25 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
               //console.log("Open Context Menu")
               mem.zoomX = xy[0]
               mem.zoomY = xy[1]
+
+
+              // Resetting the pos
+             /*  if(props.participant.pose.position[0] < 0) {
+                mem.downXpos = (xy[0] - (Math.abs(props.participant.pose.position[0]) - Math.abs(props.participant.mouse.position[0])))
+              } else {
+                mem.downXpos = (xy[0] - (Math.abs(props.participant.mouse.position[0]) - Math.abs(props.participant.pose.position[0])))
+              }
+
+              if(props.participant.pose.position[1] < 0) {
+                mem.downYpos = (xy[1] - (Math.abs(props.participant.pose.position[1]) - Math.abs(props.participant.mouse.position[1])))
+              } else {
+                mem.downYpos = (xy[1] - (Math.abs(props.participant.mouse.position[1]) - Math.abs(props.participant.pose.position[1])))
+              } */
+
               mem.contentX = map.mouseOnMap[0]
               mem.contentY = map.mouseOnMap[1]
               //_menuCanvas = true
+              remoteMenuOpen = true
               setShowMenu(true)
             }
           }, 500)
@@ -439,6 +512,10 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
         mem.mouseDown = false
         onRemoteUser = false
         setShowMenu(false)
+        const resetTimer = setTimeout(() => {
+          clearInterval(resetTimer)
+          remoteMenuOpen = false
+        }, 250)
       },
 
       onMove:({xy}) => {
@@ -460,11 +537,17 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
       onTouchEnd:(e) => {
         //console.log(e.changedTouches)
         var changedTouch = e.changedTouches[0];
-
         var elem = document.elementFromPoint(changedTouch.clientX, changedTouch.clientY);
-        if(elem?.nodeName === "IMG" && elem?.id === "menuUpload") {
-          //setShowUploadOption(true)
-          setShowMenu(false)
+        // Menu Functionality
+        if(elem?.nodeName === "IMG" && elem?.id === "rsCall") {
+        } else if(elem?.nodeName === "IMG" && elem?.id === "yarnPhone") {
+          onConnectYarnPhone(e)
+        } else if(elem?.nodeName === "IMG" && elem?.id === "yarnChat") {
+          onSendChatTo(e)
+        } else if(elem?.nodeName === "IMG" && elem?.id === "focusCenter") {
+          onFocusCenter(e)
+        } else if(elem?.nodeName === "IMG" && elem?.id === "kickUser") {
+          onUserKick(e)
         }
         onRemoteUser = false
       }
@@ -500,7 +583,38 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
     if (!props.participant) { return }
     chat.sendTo = props.participant.id
   }
-  ///////////////////////////////////////
+ ///////////////////////////////////////////////////////////////////////
+ function handleMouseEnter(event:MouseOrTouch) {
+  let menuType = (Object(event.target)).id
+  if(menuType === 'callDiv' || menuType === 'rsCAll') {
+    setIsCallMouseEnter(true)
+  } else  if(menuType === 'yarnDiv' || menuType === 'yarnPhone') {
+    setIsYarnMouseEnter(true)
+  } else  if(menuType === 'chatDiv' || menuType === 'yarnChat') {
+    setIsChatMouseEnter(true)
+  } else  if(menuType === 'focusDiv' || menuType === 'focusCenter') {
+    setIsFocusMouseEnter(true)
+  } else  if(menuType === 'kickDiv' || menuType === 'kickUser') {
+    setIsKickMouseEnter(true)
+  }
+}
+
+function handleMouseOut(event:MouseOrTouch) {
+  let menuType = (Object(event.target)).id
+  if(menuType === 'callDiv' || menuType === 'rsCAll') {
+    setIsCallMouseEnter(false)
+  } else  if(menuType === 'yarnDiv' || menuType === 'yarnPhone') {
+    setIsYarnMouseEnter(false)
+  } else  if(menuType === 'chatDiv' || menuType === 'yarnChat') {
+    setIsChatMouseEnter(false)
+  } else  if(menuType === 'focusDiv' || menuType === 'focusCenter') {
+    setIsFocusMouseEnter(false)
+  } else  if(menuType === 'kickDiv' || menuType === 'kickUser') {
+    setIsKickMouseEnter(false)
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
 
   return (
     <div {...moreControl} {...bind()}
@@ -543,33 +657,33 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
           <Zoom in={showMenu} style={{ transition: showMenu ? '500ms' : '0ms' }}>
             <div className={showMenu ? classes.showMenuContainer : classes.hideMenuContainer}>
             <Tooltip placement="left" title={showMenu ? t('rsCall') : ''}>
-                <div className={classes.callIcon}
+                <div id='callDiv' className={classes.callIcon}
                   onTouchStart={stop}>
-                    <img id='rsCall' src={CallIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='rsCall' src={CallIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               </Tooltip>
               <Tooltip placement="left" title={showMenu ? t('rsConnectYarnPhone') : ''}>
-              <div className={classes.yarnPhoneIcon} onMouseUp={onConnectYarnPhone}
+              <div id='yarnDiv' className={classes.yarnPhoneIcon} onMouseUp={onConnectYarnPhone}
                   onTouchStart={stop}>
-                    <img id='yarnPhone' src={YarnPhoneIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='yarnPhone' src={YarnPhoneIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               </Tooltip>
               <Tooltip placement="top" title={showMenu ? t('rsChatTo') : ''}>
-              <div className={classes.chatIcon} onMouseUp={onSendChatTo}
+              <div id='chatDiv' className={classes.chatIcon} onMouseUp={onSendChatTo}
                   onTouchStart={stop}>
-                    <img id='yarnPhone' src={ChatIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='yarnChat' src={ChatIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               </Tooltip>
               <Tooltip placement="right" title={showMenu ? t('ctFocus') : ''}>
-              <div className={classes.focusIcon} onMouseUp={onFocusCenter}
+              <div id='focusDiv' className={classes.focusIcon} onMouseUp={onFocusCenter}
                   onTouchStart={stop}>
-                    <img id='yarnPhone' src={FocusIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='focusCenter' src={FocusIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               </Tooltip>
               <Tooltip placement="right" title={showMenu ? t('ctKick') : ''}>
-              <div className={classes.kickIcon} onMouseUp={onUserKick}
+              <div id='kickDiv' className={classes.kickIcon} onMouseUp={onUserKick}
                   onTouchStart={stop}>
-                    <img id='yarnPhone' src={KickIcon} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
+                    <img id='kickUser' src={KickIcon} onMouseEnter={handleMouseEnter} onMouseOut={handleMouseOut} height={TITLE_HEIGHT} width={TITLE_HEIGHT} style={{transform:'scale(1.2)'}} alt=""/>
                 </div>
               </Tooltip>
             <div className={classes.dashedCircle}></div>

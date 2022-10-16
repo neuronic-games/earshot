@@ -189,5 +189,6 @@ export const enTranslate = {
   broadcastMyVideo: 'Broadcast my video',
   broadcastMySpeakVideo: 'Speak & Show',
   stereoswitch: 'Stereo sound (via headset)',
+  speakerSetting: 'Change the browser default setting to access the mic and speaker',
 }
 export type EnKeyList = keyof typeof enTranslate
