@@ -420,6 +420,20 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
 
           //console.log(props.participant.mouse.position[0], " Mouse---- ", xy[0], " ---Pose ", props.participant.pose.position[0])
 
+          // Get the target
+         /*  const target = Object(event).currentTarget
+          // Get the bounding rectangle of target
+          const rect = Object(target).getBoundingClientRect()
+          // Mouse position
+          const x = Object(event).clientX - rect.left
+          const y = Object(event).clientY - rect.top;
+          //console.log(x, " ---- ", y, " XY ->", xy) */
+
+          /* console.log(map.toWindow(props.participant.pose.position), " ---- ", xy) */
+
+
+
+
           ////////////////////////////////////////////////
           //const local = participants.local
           /* const remotes = Array.from(participants.remote.keys()).filter(key => key !== participants.localId)
@@ -448,6 +462,10 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
               mem.zoomY = xy[1]
 
 
+              // Center context menu
+             /*  mem.downXpos = xy[0] - x
+              mem.downYpos = xy[1] - y */
+
               // Resetting the pos
              /*  if(props.participant.pose.position[0] < 0) {
                 mem.downXpos = (xy[0] - (Math.abs(props.participant.pose.position[0]) - Math.abs(props.participant.mouse.position[0])))
@@ -460,6 +478,22 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
               } else {
                 mem.downYpos = (xy[1] - (Math.abs(props.participant.mouse.position[1]) - Math.abs(props.participant.pose.position[1])))
               } */
+
+
+
+              //////////////////////////////////////////
+
+              mem.downXpos = xy[0] + (map.toWindow(props.participant.pose.position)[0] - xy[0])
+              mem.downYpos = xy[1] + (map.toWindow(props.participant.pose.position)[1] - xy[1])
+
+
+
+              ///////////////////////////////////////////
+
+
+
+
+
 
               mem.contentX = map.mouseOnMap[0]
               mem.contentY = map.mouseOnMap[1]

@@ -254,7 +254,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   const [pingLocation, setPingLocation] = useState(false)
 
 
-  console.log(props.content.zone, " ZONE CHECK")
+  /* console.log(props.content.zone, " ZONE CHECK") */
   if(props.content.zone === undefined) {
     if(props.content.shareType === "zoneimg") {
       props.content.zone = "close"

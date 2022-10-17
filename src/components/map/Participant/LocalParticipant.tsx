@@ -1398,8 +1398,9 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
               } */
 
 
+
               // Setting X Pos
-              if(participant.pose.position[0] === 0) {
+              /* if(participant.pose.position[0] === 0) {
                 mem.downXpos = xy[0] - (participant.pose.position[0] + participant.mouse.position[0])
               } else {
                 if(participant.pose.position[0] > participant.mouse.position[0]) {
@@ -1444,7 +1445,14 @@ const LocalParticipant: React.FC<LocalParticipantProps> = (props) => {
                     mem.downYpos = xy[1] - (Math.abs(participant.mouse.position[1]) - Math.abs(participant.pose.position[1]))
                   }
                 }
-              }
+              } */
+
+              //////////////////////////////////////////
+
+              mem.downXpos = xy[0] + (map.toWindow(participant.pose.position)[0] - xy[0])
+              mem.downYpos = xy[1] + (map.toWindow(participant.pose.position)[1] - xy[1])
+
+              ///////////////////////////////////////////
 
               mem.contentX = map.mouseOnMap[0]
               mem.contentY = map.mouseOnMap[1]
