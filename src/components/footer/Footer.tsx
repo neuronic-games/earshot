@@ -361,7 +361,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     }else if (kind === 'audiooutput'){
       closeMenu = closeSpeakerMenu
       // For None menu
-      blankMenu = <MenuItem  key = {'noneLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em', color:'#CCC', position:'relative', left: '17px'}} >None</MenuItem>
+      blankMenu = <MenuItem  key = {'noneLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em', color:'#CCC', position:'relative', left: '17px', fontStyle:'italic'}} >None</MenuItem>
       bottomItem = <MenuItem  key = {'soundLoc'} style={{fontSize:isSmartphone() ? '2.5em' : '1em'}} ><StereoSwitchControl {...props} /></MenuItem>
     }else{
       closeMenu = closeVideoMenu
