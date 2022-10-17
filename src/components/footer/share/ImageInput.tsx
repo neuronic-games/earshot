@@ -87,7 +87,7 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
   return (
     <>
       <Box mt={0}>
-        <FormControl component="fieldset">
+        <FormControl component="fieldset" style={{display:'none'}}>
           <FormLabel component="legend">File storage type:</FormLabel>
           <RadioGroup style={{display:"flex", flexDirection:"row"}}
             aria-label="upload-files-to"
@@ -100,11 +100,11 @@ export const ImageInput: React.FC<ImageInputProps> = (props) => {
             }}
           >
             <FormControlLabel value="gyazo" control={<Radio />} label="Gyazo" />
-            {/* <FormControlLabel
+            <FormControlLabel
               value="gdrve"
               control={<Radio />}
               label="Google Drive"
-            /> */}
+            />
           </RadioGroup>
         </FormControl>
       </Box>
