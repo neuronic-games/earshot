@@ -190,5 +190,8 @@ export const enTranslate = {
   broadcastMySpeakVideo: 'Speak & Show',
   stereoswitch: 'Stereo sound (via headset)',
   speakerSetting: 'Change the browser default setting to access the mic and speaker',
+  permissionTitle: 'Please grant earshot chat access to your camera and microphone so that other participants can see and hear you.',
+  welcomePermission: 'Hi! Welcome to earshot chat',
+  reqPermission: 'Request Permission',
 }
 export type EnKeyList = keyof typeof enTranslate

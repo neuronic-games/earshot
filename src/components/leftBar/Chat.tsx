@@ -104,7 +104,7 @@ function sendChatMessage(text: string, sendTo: string, props: BMProps){
       chat.addMessage(new ChatMessage(text, local.id, remote.information.name,
         local.information.avatarSrc, local.getColor(), Date.now(), 'private'))
     }
-  }else{
+  } else {
     chat.addMessage(new ChatMessage(text, local.id, local.information.name,
       local.information.avatarSrc, local.getColor(), Date.now(), 'text'))
   }

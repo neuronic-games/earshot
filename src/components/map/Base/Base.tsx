@@ -490,6 +490,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
         mem.dragging = true
         mem.mouseDown = true
 
+        canvasMoved = false
+
         //console.log('Base StartDrag:')
 
        mem.downTime = new Date().getSeconds()
@@ -791,6 +793,8 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
             props.stores.participants.local.pose.position = addV2(props.stores.participants.local.pose.position, dir) */
           }
 
+          console.log(showMenu, " ---- ", canvasMoved)
+
           mem.clickEnter = true
           const timer = setTimeout(() => {
             clearTimeout(timer);
@@ -798,6 +802,7 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
               mem.clickEnter = false
               if(showMenu === false) {
                 if(canvasMoved === false) {
+
                   hindleClickStatus()
                 }
               }

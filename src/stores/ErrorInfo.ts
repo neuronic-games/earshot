@@ -109,7 +109,9 @@ export class ErrorInfo {
       this.clear()
       participants.local.sendInformation()
     }
+
     this.enumerateDevices()
+
     if (urlParameters.testBot === null)  {
       when(() => this.type === '', () => {
         setTimeout(this.checkConnection.bind(this), 4 * 1000)

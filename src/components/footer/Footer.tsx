@@ -3,7 +3,7 @@ import {BMProps} from '@components/utils'
 /* import {acceleratorText2El} from '@components/utils/formatter' */
 import megaphoneIcon from '@iconify/icons-mdi/megaphone'
 import {Icon} from '@iconify/react'
-import {/* Button,  */Collapse/* , Dialog, DialogActions, DialogContent */} from '@material-ui/core'
+import {/* Button,  */Collapse, /* Dialog, DialogActions,  DialogContent, DialogTitle*/} from '@material-ui/core'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Popover from '@material-ui/core/Popover'
@@ -182,6 +182,9 @@ export function getVideoButtonStatus():boolean {
 
 /* let enterPopup:boolean = true */
 
+//let PermissionShown:boolean = false
+//let permissionRoomName:string = ''
+
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
   //  show or not
@@ -194,6 +197,9 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
   // Show message
   /* const [showSettingMessage, setShowSettingMessage] = React.useState(false) */
+  // request permission
+  //const [showPermission, setShowPermission] = React.useState(false)
+
 
   function openAdmin(){
     map.keyInputUsers.add('adminForm')
@@ -421,6 +427,27 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
   //  Device list update when the user clicks to showFooter the menu
   function updateDevices(ev:React.PointerEvent | React.MouseEvent | React.TouchEvent) {
+    /* navigator.mediaDevices.enumerateDevices()
+          .then(setDeviceInfos)
+          .catch(() => { console.log('Device enumeration error') }) */
+    /* const permissionTimer = setTimeout(() => {
+      clearTimeout(permissionTimer)
+      if(PermissionShown === false) {
+        PermissionShown = true
+        //console.log(deviceInfos.length, " LEN:EN")
+        navigator.mediaDevices.enumerateDevices().then(devices =>
+        devices.forEach(device =>
+            device.label === '' ? setShowPermission(true) : setShowPermission(false)
+        ))
+        if(deviceInfos.length === 0) {
+          setShowPermission(true)
+        } else {
+          navigator.mediaDevices.enumerateDevices()
+          .then(setDeviceInfos)
+          .catch(() => { console.log('Device enumeration error') })
+        }
+      }
+    }, 200) */
     navigator.mediaDevices.enumerateDevices()
     .then(setDeviceInfos)
     .catch(() => { console.log('Device enumeration error') })
@@ -658,6 +685,45 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
             }}>{'OK'}</Button>
           </DialogActions>
         </Dialog> */}
+
+        {/* Showing Request Permission */}
+      {/* <Dialog open={showPermission} onClose={() => setShowPermission(false)} onExited={() => setShowPermission(false)}
+        keepMounted
+        PaperProps={{
+          style: {
+            backgroundColor: 'lightblue',
+            position:'relative',
+            overflow:'hidden',
+            borderRadius: '20px',
+            width: 430,
+            height: isSmartphone() ? 300 : 280,
+            zIndex: 0,
+            left: '0px',
+            transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogTitle disableTypography={true} style={{fontWeight: 'bold', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'center', userSelect:'none'}}>
+        {t('welcomePermission')}
+        </DialogTitle>
+        <DialogContent style={{overflow:'hidden'}}>
+          <div>
+            <div style={{position:'relative', left:'0px', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none'}}>
+              <p>
+              {t('permissionTitle')}
+              </p>
+            </div>
+          </div>
+          <Button variant="contained" color='primary' style={{textTransform:'none', marginTop:'0.4em', height:'40px', fontSize:'20px', fontWeight:'bold', textAlign:'center', width:'90%', userSelect:'none'}}
+            onClick={(ev) => {
+              PermissionShown = false
+              setShowPermission(false)
+              updateDevices(ev)
+              setSpeakerMenuEl(ev.currentTarget)
+            }}>Request Permission</Button>
+        </DialogContent>
+      </Dialog> */}
 
   </div>
 }

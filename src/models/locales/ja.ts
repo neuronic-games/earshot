@@ -185,5 +185,8 @@ export const jaTranslate = {
   ctTitle: '位置/サイズを固定する',
   ctUnTitle: '位置/サイズを可変にする',
   speakerSetting: '位置/サイズを可変にする',
+  permissionTitle: '位置/サイズを可変にする',
+  welcomePermission: '位置/サイズを可変にする',
+  reqPermission: '声を全員に届ける',
 }
 export type JaKeyList = keyof typeof jaTranslate

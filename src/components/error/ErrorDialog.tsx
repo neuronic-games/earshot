@@ -87,20 +87,20 @@ const defaultRoom = {
   room: generateRoomWithoutSeparator()
 }
 
-
-
 export const dialogs = new Map<ErrorType, (props:BMProps)=>JSX.Element>()
 dialogs.set('entrance', (props: BMProps) => <TheEntrance {...props} {...defaultRoom} />)
 dialogs.set('afk', (props: BMProps) => <AfkDialog />)
 
 export const ErrorDialogFrame: React.FC<{onClose:(event:{}, reason:string)=>void}> = (props) => {
-  return <Dialog {...props} open={errorInfo.show()}
+  /* console.log(errorInfo.type, " ------ 11111 ") */
+  return errorInfo.type !== 'micPermission' && errorInfo.type !== 'dataConnection' && errorInfo.type !== 'rtcConnection' ? <Dialog {...props} open={errorInfo.show()}
     onClose={props.onClose} maxWidth="xl" fullWidth={false} fullScreen={true} >
   {errorInfo.title ?
     <DialogTitle id="simple-dialog-title" disableTypography={true} style={{fontSize:isSmartphone() ? '4em' : '1em'}}>{errorInfo.title}</DialogTitle>
     : undefined }
   {props.children}
-</Dialog>
+</Dialog> : <Dialog {...props} open={false}
+    onClose={props.onClose} maxWidth="xl" fullWidth={false} fullScreen={true} />
 }
 
 export const ErrorDialog: React.FC<BMProps> = (props) => {
@@ -115,7 +115,7 @@ export const ErrorDialog: React.FC<BMProps> = (props) => {
       if (errorInfo.type){
         if (dialogs.has(errorInfo.type)) {
           return dialogs.get(errorInfo.type)!(props)
-        }else{
+        } else {
           return <ErrorDialogFrame onClose={() => { close() }}>
             <DialogContent style={{fontSize:isSmartphone() ? '3em' : '1em'}}>{errorInfo.message}</DialogContent>
             {errorInfo.type !== 'retry' ?
@@ -136,7 +136,6 @@ export const ErrorDialog: React.FC<BMProps> = (props) => {
           </ErrorDialogFrame>
         }
       }
-
       return <></>
     }
   }</Observer>

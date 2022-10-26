@@ -486,8 +486,6 @@ export const RemoteParticipant: React.FC<ParticipantProps> = (props) => {
               mem.downXpos = xy[0] + (map.toWindow(props.participant.pose.position)[0] - xy[0])
               mem.downYpos = xy[1] + (map.toWindow(props.participant.pose.position)[1] - xy[1])
 
-
-
               ///////////////////////////////////////////
 
 

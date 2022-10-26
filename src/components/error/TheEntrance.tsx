@@ -141,6 +141,7 @@ import errorInfo from '@stores/ErrorInfo'
 import React, {useState, useEffect} from 'react'
 import {ErrorDialogFrame} from './ErrorDialog'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
+import { Dialog, DialogTitle } from '@material-ui/core'
 
 let nameStr:string = ''
 let loginClick:boolean = false
@@ -161,7 +162,8 @@ export function getUserType(): string {
   return userType
 }
 
-
+let PermissionShown:boolean = false
+let permissionRoomName:string = ''
 export const TheEntrance: React.FC<BMProps> = (props) => {
   const {participants} = props.stores
   const [name, setName] = useState(participants.local.information.name)
@@ -183,6 +185,9 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
   const passedPlaceholder = nameArr[0]
   const [placeholder, setPlaceholder] = useState(passedPlaceholder.slice(0, 0));
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // request permission
+  const [showPermission, setShowPermission] = useState(false)
 
   /**
    *
@@ -283,6 +288,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       }
     }
 
+
+
     // setTimer to clear
     //errorInfo.clear()
     const endScreen = setTimeout(() => {
@@ -308,7 +315,25 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         clearTimeout(_timerUserPlace)
         placeUserAtBlank()
       }, 3000)
-      onClose(true)
+
+      ////////////////////////////////////////////
+      //onClose(true)
+      //////////////////////////////////////////////////////
+      // Checking permission
+      const permissionTimer = setTimeout(() => {
+        //console.log(room, " -------------------- ", nameArr[0])
+        permissionRoomName = nameArr[0]
+        clearTimeout(permissionTimer)
+        if(PermissionShown === false) {
+          PermissionShown = true
+          navigator.mediaDevices.enumerateDevices().then(devices =>
+          devices.forEach(device =>
+              device.label === '' ? setShowPermission(true) : onClose(true)
+          ))
+        }
+      }, 200)
+       //////////////////////////////////////////////////////
+      ////////////////////////////////////////////
     },100)
   }
   function placeUserAtBlank() {
@@ -340,11 +365,8 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     if(found) {
       mapData.setMouse([randX, randY])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
-
       // Place user at the center Location of their own canvas
       mapData.focusOn(participants.local)
-
-
     } else {
       mapData.setMouse([mapData.screenSize[0]/2, mapData.screenSize[1]/2])
       participants.local.pose.position = Object.assign({}, mapData.mouseOnMap)
@@ -360,7 +382,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.2</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.3</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -401,7 +423,52 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         <img style={{width:isSmartphone() ? '9.5em' : '8em', userSelect:'none'}} src={logo_es} draggable={false} alt="" />
       </div>
       </Box>
+
+      <Box mt={7}>
+      <div style={showPermission && PermissionShown ? {position: 'absolute', top: isSmartphone() ? '8.6em' : '5em', width: '97%', height: '50%', textAlign:'center', fontSize:isSmartphone() ? '1.7em' : '1.4em', fontWeight:'bold',  display:'block', color:'white', userSelect:'none'} : {position: 'absolute', top: isSmartphone() ? '-23em' : '-24em', width: '95%', height:'50%', textAlign:'center', display:'none'}}>
+        <p>Welcome to {permissionRoomName}</p>
+      </div>
+      </Box>
+
+
     </DialogContent>
+
+
+      {/* Showing Request Permission */}
+      <Dialog open={showPermission} /* onClose={() => setShowPermission(false)} onExited={() => setShowPermission(false)} */
+        keepMounted
+        PaperProps={{
+          style: {
+            backgroundColor: 'lightblue',
+            position:'relative',
+            overflow:'hidden',
+            borderRadius: '20px',
+            width: 430,
+            height: isSmartphone() ? 300 : 280,
+            zIndex: 0,
+            left: '0px',
+            transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
+          },
+        }}
+        BackdropProps={{ invisible: true }}
+        >
+        <DialogTitle disableTypography={true} style={{fontWeight: 'bold', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'center', userSelect:'none'}}>
+        {t('welcomePermission')}
+        </DialogTitle>
+        <DialogContent style={{overflow:'hidden'}}>
+          <div>
+            <div style={{position:'relative', left:'0px', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none'}}>
+              <p>
+              {t('permissionTitle')}
+              </p>
+            </div>
+          </div>
+          <Button variant="contained" color='primary' style={{textTransform:'none', marginTop:'0.4em', height:'40px', fontSize:'20px', fontWeight:'bold', textAlign:'center', width:'90%', userSelect:'none', marginLeft:'4%'}}
+            onClick={(ev) => {
+              onClose(true)
+            }}>{t('reqPermission')}</Button>
+        </DialogContent>
+      </Dialog>
   </ErrorDialogFrame>
 }
 TheEntrance.displayName = 'TheEntrance'
