@@ -2,7 +2,7 @@ import {ImageAvatar} from '@components/avatar/ImageAvatar'
 import {LocalParticipantForm} from '@components/map/Participant/LocalParticipantForm'
 import {RemoteParticipantForm} from '@components/map/Participant/RemoteParticipantForm'
 import {BMProps} from '@components/utils'
-import {Tooltip} from '@material-ui/core'
+import {/* FormControlLabel, */ Tooltip} from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import {conference} from '@models/conference'
@@ -12,7 +12,7 @@ import {getColorOfParticipant} from '@models/Participant'
 import {ParticipantBase} from '@stores/participants/ParticipantBase'
 import {autorun} from 'mobx'
 import {useObserver} from 'mobx-react-lite'
-import React from 'react'
+import React, { /* useState */ } from 'react'
 import {styleForList} from '../utils/styles'
 import {TextLineStyle} from './LeftBar'
 import {StatusDialog} from './StatusDialog'
@@ -27,6 +27,9 @@ import symClapIcon from '@images/whoo-screen_sym-clap.png'
 import symHandIcon from '@images/whoo-screen_sym-hand.png'
 
 import {makeStyles} from '@material-ui/core/styles'
+
+/* import Switch from '@material-ui/core/Switch' */
+
 
 // config.js
 declare const config:any             //  from ../../config.js included from index.html
@@ -75,6 +78,8 @@ export const ParticipantLine: React.FC<TextLineStyle&BMProps&{participant: Parti
   })
 
   const _connQuality = useObserver(() => props.participant.quality)
+
+
 
 
   //console.log(props)
@@ -220,6 +225,17 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
   const lineProps = {lineHeight, fontSize, ...statusProps}
   //const textColor = useObserver(() => isDarkColor(roomInfo.backgroundFill) ? 'white' : 'black')
 
+  /* const [everyone, setEveryone] = useState(false) */
+
+
+  /* function handleChange(){
+    if(everyone) {
+      setEveryone(false)
+    } else {
+      setEveryone(true)
+    }
+  }; */
+
   remoteIds.sort((a, b) => {
     const pa = participants.remote.get(a)
     const pb = participants.remote.get(b)
@@ -245,6 +261,16 @@ export const RawParticipantList: React.FC<BMProps&TextLineStyle&{localId: string
       <StatusDialog open={showStat}
         close={()=>{setShowStat(false)}} {...statusProps} anchorEl={ref.current}/>
       {localElement}{remoteElements}
+
+      {/* <div style={{position: 'absolute', top: '40px', left: '10px'}}>
+        <FormControlLabel style={{color:'white'}}
+          control={
+            <Switch checked={everyone} onChange={handleChange} size="small" color='default' style={{color:'yellowgreen'}} name='Everyone' />
+          }
+          label="Everyone"
+        />
+      </div> */}
+
     </div>
   )
 }

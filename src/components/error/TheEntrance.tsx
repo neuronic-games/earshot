@@ -232,8 +232,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
           clearTimeout(intr)
             const inner = setTimeout(() => {
               clearTimeout(inner)
-              setPlaceholderIndex(0)
-             setNameArr([generateRoomWithoutSeparator()])
+              if(permissionRoomName === '') {
+                setPlaceholderIndex(0)
+                setNameArr([generateRoomWithoutSeparator()])
+              }
             },4000)
         } else {
             setPlaceholderIndex(placeholderIndex + 1)
@@ -292,8 +294,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         window.history.replaceState({}, "null", ("/" + concatURL + "/?room=" + nameArr[0]))
       }
     }
-
-
 
     // setTimer to clear
     //errorInfo.clear()
@@ -413,7 +413,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.4</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.6</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -484,7 +484,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         BackdropProps={{ invisible: true }}
         >
         <DialogTitle disableTypography={true} style={{fontWeight: 'bold', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none', position:'relative', top:'60px', paddingLeft:'40px'}}>
-          <div style={{position:'relative', width:'325px', height:'116px', backgroundColor:'grey', top:'-40px', /* paddingLeft:'40px', */ userSelect:'none'}}>
+          <div style={{position:'relative', width:'370px', height:'116px', backgroundColor:'grey', top:'-40px', userSelect:'none'}}>
             <img src={browserType === 'safari' ? safariPermission : chromePermission} width='370px' height='116px' style={{ paddingLeft:'-40px'}} alt='' />
           </div>
         {t('welcomePermission')}

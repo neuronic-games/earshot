@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.js": "./static/js/main.69bc8b2b.chunk.js",
-    "main.js.map": "./static/js/main.69bc8b2b.chunk.js.map",
+    "main.js": "./static/js/main.6ded01f1.chunk.js",
+    "main.js.map": "./static/js/main.6ded01f1.chunk.js.map",
     "runtime-main.js": "./static/js/runtime-main.a3e4994c.js",
     "runtime-main.js.map": "./static/js/runtime-main.a3e4994c.js.map",
     "static/js/2.bdf17bbd.chunk.js": "./static/js/2.bdf17bbd.chunk.js",
     "static/js/2.bdf17bbd.chunk.js.map": "./static/js/2.bdf17bbd.chunk.js.map",
     "index.html": "./index.html",
     "static/js/2.bdf17bbd.chunk.js.LICENSE.txt": "./static/js/2.bdf17bbd.chunk.js.LICENSE.txt",
-    "static/media/earshot_allow_audio_chrome.f5b7d486.gif": "./static/media/earshot_allow_audio_chrome.f5b7d486.gif",
-    "static/media/earshot_allow_audio_safari.2722e1c7.gif": "./static/media/earshot_allow_audio_safari.2722e1c7.gif",
+    "static/media/earshot_allow_audio_chrome.ac55eb7d.gif": "./static/media/earshot_allow_audio_chrome.ac55eb7d.gif",
+    "static/media/earshot_allow_audio_safari.b9c6698d.gif": "./static/media/earshot_allow_audio_safari.b9c6698d.gif",
     "static/media/earshot_icon_avatar_glow.1b7acac1.png": "./static/media/earshot_icon_avatar_glow.1b7acac1.png",
     "static/media/people_login.db1eab64.png": "./static/media/people_login.db1eab64.png",
     "static/media/whoo-screen_chat.52e62a85.png": "./static/media/whoo-screen_chat.52e62a85.png"
@@ -17,6 +17,6 @@
   "entrypoints": [
     "static/js/runtime-main.a3e4994c.js",
     "static/js/2.bdf17bbd.chunk.js",
-    "static/js/main.69bc8b2b.chunk.js"
+    "static/js/main.6ded01f1.chunk.js"
   ]
 }
