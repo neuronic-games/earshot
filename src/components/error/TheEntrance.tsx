@@ -143,6 +143,11 @@ import {ErrorDialogFrame} from './ErrorDialog'
 import {generateRoomWithoutSeparator} from '@components/utils/roomNameGenerator'
 import { Dialog, DialogTitle } from '@material-ui/core'
 
+import chromePermission from '@images/earshot_allow_audio_chrome.gif'
+import safariPermission from '@images/earshot_allow_audio_safari.gif'
+
+
+
 let nameStr:string = ''
 let loginClick:boolean = false
 let _roomName:string = ''
@@ -374,6 +379,32 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   }
 
+  // get browser type
+  let browserType:string = ''
+  if((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) !== -1 )
+  {
+      browserType = 'opera'
+  }
+  else if(navigator.userAgent.indexOf("Edg") !== -1 )
+  {
+    browserType = 'edge'
+  }
+  else if(navigator.userAgent.indexOf("Chrome") !== -1 )
+  {
+    browserType = 'chrome'
+  }
+  else if(navigator.userAgent.indexOf("Safari") !== -1)
+  {
+    browserType = 'safari'
+  }
+  else if(navigator.userAgent.indexOf("Firefox") !== -1 )
+  {
+    browserType = 'firefox'
+  }
+
+
+  //console.log(browserAgent, " >>>>> ")
+
   const {t, i18n} = useTranslation()
   const tfIStyle = {fontSize: isSmartphone() ? '2.5em' : '1em',
     height: isSmartphone() ? '2em' : '1.5em', color: 'black', backgroundColor: 'white', padding: '3px', width: isSmartphone() ? '14.5em' : '15em'}
@@ -382,7 +413,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.3</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.4</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])
@@ -425,7 +456,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       </Box>
 
       <Box mt={7}>
-      <div style={showPermission && PermissionShown ? {position: 'absolute', top: isSmartphone() ? '8.6em' : '5em', width: '97%', height: '50%', textAlign:'center', fontSize:isSmartphone() ? '1.7em' : '1.4em', fontWeight:'bold',  display:'block', color:'white', userSelect:'none'} : {position: 'absolute', top: isSmartphone() ? '-23em' : '-24em', width: '95%', height:'50%', textAlign:'center', display:'none'}}>
+      <div style={showPermission && PermissionShown ? {position: 'absolute', top: isSmartphone() ? '8.6em' : '5em', width: '95%', height: '50%', textAlign:'center', fontSize:isSmartphone() ? '1.5em' : '1.4em', fontWeight:'bold',  display:'block', color:'white', userSelect:'none'} : {position: 'absolute', top: isSmartphone() ? '-23em' : '-24em', width: '95%', height:'50%', textAlign:'center', display:'none'}}>
         <p>Welcome to {permissionRoomName}</p>
       </div>
       </Box>
@@ -439,12 +470,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         keepMounted
         PaperProps={{
           style: {
-            backgroundColor: 'lightblue',
+            backgroundColor: 'white',
             position:'relative',
             overflow:'hidden',
             borderRadius: '20px',
-            width: 430,
-            height: isSmartphone() ? 300 : 280,
+            width: 450,
+            height: isSmartphone() ? 507 : 438,
             zIndex: 0,
             left: '0px',
             transform: isSmartphone() ? 'scale(1.5)' : 'scale(1)',
@@ -452,18 +483,21 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
         }}
         BackdropProps={{ invisible: true }}
         >
-        <DialogTitle disableTypography={true} style={{fontWeight: 'bold', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'center', userSelect:'none'}}>
+        <DialogTitle disableTypography={true} style={{fontWeight: 'bold', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none', position:'relative', top:'60px', paddingLeft:'40px'}}>
+          <div style={{position:'relative', width:'325px', height:'116px', backgroundColor:'grey', top:'-40px', /* paddingLeft:'40px', */ userSelect:'none'}}>
+            <img src={browserType === 'safari' ? safariPermission : chromePermission} width='370px' height='116px' style={{ paddingLeft:'-40px'}} alt='' />
+          </div>
         {t('welcomePermission')}
         </DialogTitle>
         <DialogContent style={{overflow:'hidden'}}>
           <div>
-            <div style={{position:'relative', left:'0px', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none'}}>
+            <div style={{position:'relative', left:'0px', fontSize:isSmartphone() ? '1.7em' : '1.4em', textAlign:'left', userSelect:'none'/* , top:'20px' */, padding:'15px', top:'20px'}}>
               <p>
               {t('permissionTitle')}
               </p>
             </div>
           </div>
-          <Button variant="contained" color='primary' style={{textTransform:'none', marginTop:'0.4em', height:'40px', fontSize:'20px', fontWeight:'bold', textAlign:'center', width:'90%', userSelect:'none', marginLeft:'4%'}}
+          <Button variant="contained" color='primary' style={{textTransform:'none', marginTop:'0em', height:'50px', fontSize:isSmartphone() ? '24px' : '20px', fontWeight:'normal', textAlign:'center', width:'90%', userSelect:'none', marginLeft:'4%'}}
             onClick={(ev) => {
               onClose(true)
             }}>{t('reqPermission')}</Button>
