@@ -17,7 +17,7 @@ import ResizeObserver from 'react-resize-observer'
 import {useGesture} from 'react-use-gesture'
 
 import UploadShare from '@images/whoo-screen_btn-add-63.png'
-import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, /* isContentHandlerOn, */ isOnContentStatus, MouseOrTouch } from '../Share/RndContent'
+import { getContentDeleteDialogStatus, getContentDialogStatus, getContentLocked, getContextMenuStatus, /* isContentHandlerOn, */ isOnContentStatus, isOnToggle, MouseOrTouch } from '../Share/RndContent'
 import {t} from '@models/locales'
 import {isDialogOpen} from "@components/footer/share/ShareDialog"
 import { getAvatarToolStatus, getLocalUserMenuStatus, getOnLocalUser, getUserContextMenu } from '../Participant/LocalParticipant'
@@ -428,7 +428,10 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
       setPingLocation(false)
 
       const moveTimer = setTimeout(() => {
+        let onToggle = isOnToggle()
+        //console.log(onToggle, " inonToggle")
         clearTimeout(moveTimer)
+        if(onToggle) {return}
         function moveParticipant(move: boolean) {
           //const local = participants.local
           //const diff = subV2(map.mouseOnMap, local.pose.position)
@@ -706,6 +709,9 @@ export const Base: React.FC<MapProps> = (props: MapProps) => {
 
         let isLocalMenuOpen = getLocalUserMenuStatus()
         let isRemoteMenuOpen = getRemoteMenuStatus()
+
+
+
 
 
 

@@ -202,6 +202,10 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     setName(_name)
     let roomNameIndex = window.location.href.indexOf('&room=')
     if(roomNameIndex !== -1) {
+      let rName = window.location.href.split('&')[1].split("&")[0].split('=')[1]
+      //setRoom(rName)
+      //console.log(rName, " rName")
+      permissionRoomName = rName
       onErrorClose()
     }
   }
@@ -327,7 +331,12 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       // Checking permission
       const permissionTimer = setTimeout(() => {
         //console.log(room, " -------------------- ", nameArr[0])
-        permissionRoomName = nameArr[0]
+        if(room === '') {
+          permissionRoomName = nameArr[0]
+        } else {
+          let rName = window.location.href.split('&')[1].split("&")[0].split('=')[1]
+          permissionRoomName = rName
+        }
         clearTimeout(permissionTimer)
         if(PermissionShown === false) {
           PermissionShown = true
@@ -413,7 +422,7 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
 
   return <ErrorDialogFrame onClose={()=>{errorInfo.clear()}}>
     <DialogContent onClick={() => active ? errorInfo.clear() : ''} style={active ? {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0.3s ease-out'} : {overflowY: 'hidden', overflowX:'hidden', backgroundColor: '#5f7ca0', fontSize: isSmartphone() ? '2em' : '1em', transition: '0s ease-out'}}>
-      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.6</p>
+      <p style={{textAlign:'right', color: 'white', fontSize: isSmartphone() ? '1.2em' : '1em'}}>Version 3.0.7</p>
       <Button style={{position:'absolute', top:30, right:20, display:'none'}} onClick = {() => {
         const idx = (i18nSupportedLngs.findIndex(l => l === i18n.language) + 1) % i18nSupportedLngs.length
         i18n.changeLanguage(i18nSupportedLngs[idx])

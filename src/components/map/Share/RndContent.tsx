@@ -172,6 +172,11 @@ export function isContentHandlerOn() : boolean {
   return _contenHandler
 }
 
+let onToggle = false
+export function isOnToggle() : boolean {
+  return onToggle
+}
+
 // For Double Touch
 let dblTouchTapCount = 0
 
@@ -535,7 +540,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         } else  if(menuType === 'backDiv' || menuType === 'contextFlipBack') {
           setIsBackMouseEnter(true)
         } else  if(menuType === 'proxDiv' || menuType === 'contextProx') {
-          console.log("CALLED ENTER")
+          //console.log("CALLED ENTER")
             setIsProxMouseEnter(true)
         } else if(menuType === 'scaleRotateDiv' || menuType === 'contextScaleRotate') {
           setIsScaleRotateMouseEnter(true)
@@ -564,7 +569,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
         } else  if(menuType === 'backDiv' || menuType === 'contextFlipBack') {
           setIsBackMouseEnter(false)
         } else  if(menuType === 'proxDiv' || menuType === 'contextProx') {
-          console.log("CALLED OUT")
+          //console.log("CALLED OUT")
             setIsProxMouseEnter(false)
         } else if(menuType === 'scaleRotateDiv' || menuType === 'contextScaleRotate') {
           setIsScaleRotateMouseEnter(false)
@@ -615,6 +620,8 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
   }
 
   function hindleClickStatus() {
+
+
 
     //console.log(member.clickStatus, " STATUS")
 
@@ -680,6 +687,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }, 3000)
     } else if(member.clickStatus === 'toggleTimer') {
       //console.log("toggleTimer")
+      onToggle = true
       member.clickStatus = ''
       //if(isPaused) {
       if(props.content.stopWatchToggle) {
@@ -693,6 +701,7 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       }
       props.updateAndSend(props.content)
     } else if(member.clickStatus === "resetTimer") {
+      onToggle = true
       member.clickStatus = ''
       //setIsPaused(true)
       //setTime(0)
@@ -700,6 +709,11 @@ export const RndContent: React.FC<RndContentProps> = (props:RndContentProps) => 
       props.content.stopWatchReset = true
       props.updateAndSend(props.content)
     }
+
+    const removePop = setTimeout(()=> {
+      clearTimeout(removePop)
+      onToggle = false
+    }, 1000)
   }
 
   //const isFixed = (props.autoHideTitle && props.content.pinned)
