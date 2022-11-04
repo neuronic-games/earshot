@@ -203,8 +203,6 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
     let roomNameIndex = window.location.href.indexOf('&room=')
     if(roomNameIndex !== -1) {
       let rName = window.location.href.split('&')[1].split("&")[0].split('=')[1]
-      //setRoom(rName)
-      //console.log(rName, " rName")
       permissionRoomName = rName
       onErrorClose()
     }
@@ -331,11 +329,16 @@ export const TheEntrance: React.FC<BMProps> = (props) => {
       // Checking permission
       const permissionTimer = setTimeout(() => {
         //console.log(room, " -------------------- ", nameArr[0])
-        if(room === '') {
-          permissionRoomName = nameArr[0]
+        if(room !== '') {
+          permissionRoomName = room //nameArr[0]
         } else {
-          let rName = window.location.href.split('&')[1].split("&")[0].split('=')[1]
-          permissionRoomName = rName
+          //console.log(window.location.href.split('&')[0], " ---- ", window.location.href.split('?')[1])
+          if(window.location.href.split('?')[1] !== undefined) {
+            let rName = window.location.href.split('&')[1].split("&")[0].split('=')[1]
+            permissionRoomName = rName
+          } else {
+            permissionRoomName = nameArr[0]
+          }
         }
         clearTimeout(permissionTimer)
         if(PermissionShown === false) {
