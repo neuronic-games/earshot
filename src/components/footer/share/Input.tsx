@@ -124,11 +124,11 @@ export function Input<T>(props: InputProps<T>) {  // tslint: disable-line
   ///////////////////////////////////////////////////////////
   const [data,setData]=useState('');
   const getData=()=>{
-    //fetch('folderlist.php?folder=zones/*/*.png')
-    //  .then((response) => response.text())
-    //  .then((response) => setData(response));
-    let dataStr = "zones/Floors/Bear Rug - Cyan.png,zones/Floors/Bear Rug - Pink.png,zones/Floors/Rectangle - Yellow.png,zones/Floors/Rug - Cyan.png,zones/Floors/Rug - Pink.png,zones/Floors/Rug - Purple.png,zones/Misc/Plant 1.png,zones/Misc/Plant 2.png,zones/Misc/Plant 3.png,zones/Seats/1 Desk Green.png,zones/Seats/2 Chairs Green.png,zones/Seats/2 Couch with Bear Rug Pink.png,zones/Seats/2 Seats Pink.png,zones/Seats/3 Couch with Bear Rug Cyan.png,zones/Seats/3 Couches Green.png,zones/Seats/4 Conference Table Green.png,zones/Seats/4 Couches Orange.png,zones/Seats/5 Couches Orange.png,zones/Seats/6 Conference Table Green.png,zones/Seats/6 Conference Table Pink.png,zones/Seats/8 Conference Table Green.png,"
-    setData(dataStr)
+    fetch('folderlist.php?folder=zones/*/*.png')
+     .then((response) => response.text())
+     .then((response) => setData(response));
+    /* let dataStr = "zones/Floors/Bear Rug - Cyan.png,zones/Floors/Bear Rug - Pink.png,zones/Floors/Rectangle - Yellow.png,zones/Floors/Rug - Cyan.png,zones/Floors/Rug - Pink.png,zones/Floors/Rug - Purple.png,zones/Misc/Plant 1.png,zones/Misc/Plant 2.png,zones/Misc/Plant 3.png,zones/Seats/1 Desk Green.png,zones/Seats/2 Chairs Green.png,zones/Seats/2 Couch with Bear Rug Pink.png,zones/Seats/2 Seats Pink.png,zones/Seats/3 Couch with Bear Rug Cyan.png,zones/Seats/3 Couches Green.png,zones/Seats/4 Conference Table Green.png,zones/Seats/4 Couches Orange.png,zones/Seats/5 Couches Orange.png,zones/Seats/6 Conference Table Green.png,zones/Seats/6 Conference Table Pink.png,zones/Seats/8 Conference Table Green.png,"
+    setData(dataStr) */
   }
   useEffect(()=>{
     getData()

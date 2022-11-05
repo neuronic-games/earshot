@@ -157,18 +157,30 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
   const _menuSelected = useObserver(() => getSelectedMenuType())
   const _menuSelectedPos = useObserver(() => getSelectedMenuPos())
 
-  //console.log(_menuSelected, " MENU SELECTED ", props.type)
+  /* const [eventShown, setEventShown] = useState(false)
+
+  if(_menuSelected === "events" && eventShown === false) {
+    setEventShown(true)
+  } */
+
+  //console.log(_menuSelected, " MENU SELECTED ", props.type, " ---- ", eventShown)
 
   //console.log(props.type, " ==== ", _menuSelected, " ---- ", _menuSelectedPos)
+
+
+  /* console.log(Object(document.getElementById('mIFrame')).src)
+
+  let loaded:boolean = false
+  if(Object(document.getElementById('mIFrame')).src !== undefined && _menuSelected === 'events') {
+    loaded = true
+  } */
 
   return (
     <div {...bind()}>
       {props.type === 'chat' ?
       <SplitPane split="horizontal" defaultSize="50%" resizerClassName = {classes.resizerHorizontal}
         paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
-
           <ParticipantList {...props} {...textLineStyle} />
-
         <ChatInBar {...props}  {...textLineStyle} />
       </SplitPane >
       : (props.type === 'content') ?
@@ -184,16 +196,24 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
       </SplitPane > : <></>
       :
       <>
-      {cContent.filter(item => item.shareType === "appimg").map(content => (
+      {/* {cContent.filter(item => item.shareType === "appimg").map(content => (
         (_menuSelected === content.type && _menuSelectedPos === -2) ?
         <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
-            <iframe src= {content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+            <iframe id='mIFrame' src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
         </SplitPane >
         : <></>
-       ))}
+       ))} */}
       </>
       }
+      {cContent.filter(item => item.shareType === "appimg").map(content => (
+       /*  (_menuSelected === content.type && _menuSelectedPos === -2) ? */
+        <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
+          paneStyle = {{overflowY: 'hidden', overflowX: 'hidden', width:'100%', minWidth:'280px', display: (_menuSelected === content.type && _menuSelectedPos === -2) ? 'block' : 'none'}} >
+            <iframe id='mIFrame' src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
+        </SplitPane >
+       /*  : <></> */
+       ))}
     </div>
   )
 }
