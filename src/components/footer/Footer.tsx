@@ -181,9 +181,7 @@ export function getVideoButtonStatus():boolean {
 }
 
 /* let enterPopup:boolean = true */
-
-//let PermissionShown:boolean = false
-//let permissionRoomName:string = ''
+let deviceFound:boolean = false
 
 export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const {map, participants} = props.stores
@@ -243,6 +241,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const classes = useStyles()
 
 
+  let outputDeviceAvailable = false
 
   function showSharePopMenu() {
     //console.log(showPop, " >>> showPop")
@@ -356,6 +355,7 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
 
 
 
+
   function getMenuItems(kind:'audioinput' | 'audiooutput' | 'videoinput'){
     const rv = []
     let blankMenu
@@ -382,10 +382,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     }
 
     //////////////////////////////////////////////////////
-    let outputDeviceAvailable = false
+    /* let outputDeviceAvailable = false */
     if(deviceInfos.length >= 0 && show) {
-      for (const info of deviceInfos){
-        if(info.kind === 'audiooutput') {
+      for (const info of deviceInfos) {
+        if(info.kind === 'audiooutput' || info.kind === 'audioinput') {
           outputDeviceAvailable = true
           break
         }
@@ -395,6 +395,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
       }
     }
     //////////////////////////////////////////////////////
+
+    //console.log(outputDeviceAvailable, " outputDeviceAvailable")
 
     if (bottomItem) rv.push(bottomItem)
     return rv
@@ -424,30 +426,8 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   function closeSettingsMenu(did:string) {
     setSettingsMenuEl(null)
   }
-
   //  Device list update when the user clicks to showFooter the menu
   function updateDevices(ev:React.PointerEvent | React.MouseEvent | React.TouchEvent) {
-    /* navigator.mediaDevices.enumerateDevices()
-          .then(setDeviceInfos)
-          .catch(() => { console.log('Device enumeration error') }) */
-    /* const permissionTimer = setTimeout(() => {
-      clearTimeout(permissionTimer)
-      if(PermissionShown === false) {
-        PermissionShown = true
-        //console.log(deviceInfos.length, " LEN:EN")
-        navigator.mediaDevices.enumerateDevices().then(devices =>
-        devices.forEach(device =>
-            device.label === '' ? setShowPermission(true) : setShowPermission(false)
-        ))
-        if(deviceInfos.length === 0) {
-          setShowPermission(true)
-        } else {
-          navigator.mediaDevices.enumerateDevices()
-          .then(setDeviceInfos)
-          .catch(() => { console.log('Device enumeration error') })
-        }
-      }
-    }, 200) */
     navigator.mediaDevices.enumerateDevices()
     .then(setDeviceInfos)
     .catch(() => { console.log('Device enumeration error') })
@@ -463,25 +443,51 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
   const fabSize = props.height
   const iconSize = props.height ? props.height * 0.7 : 36
 
-
-  //////////////////////
-  // check deviveInfo for audiooutput availability
-  /* let outputDeviceAvailable = false
-  if(deviceInfos.length >= 0 && show) {
-    for (const info of deviceInfos){
-      if(info.kind === 'audiooutput') {
-        outputDeviceAvailable = true
-        break
-      }
-    }
-    if(outputDeviceAvailable === false && enterPopup === false) {
-      enterPopup = true
-      setShowSettingMessage(true)
-    }
+  navigator.mediaDevices.enumerateDevices().then(devices =>
+    devices.forEach(device =>
+        device.label === '' ? ''  : deviceFound = true
+        /* console.log(device.label, " LABEL") */
+    ))
+  if(deviceInfos.length === 0) {
+    navigator.mediaDevices.enumerateDevices()
+    .then(setDeviceInfos)
+    .catch(() => { console.log('Device enumeration error') })
+  } /* else {
+    //console.log(deviceLabel, ' >> device label << ', deviceInfos.length, deviceInfos)
   } */
-  //////////////////////
 
+  if(deviceInfos.length === 0 || deviceFound === false /* && permissionGranted === false */) {
+      // Speaker
+      participants.local.muteSpeaker = false
+      // Audio
+      participants.local.muteAudio = false
+      if (!participants.local.muteAudio) {
+        participants.local.muteSpeaker = false
+      }
+      participants.local.saveMediaSettingsToStorage()
 
+      // Speaker
+      /* const resetTimer = setTimeout(() => {
+        clearTimeout(resetTimer)
+        participants.local.muteSpeaker = true
+        // Audio
+        participants.local.muteAudio = true
+        if (!participants.local.muteAudio) {
+          participants.local.muteSpeaker = false
+        }
+        participants.local.saveMediaSettingsToStorage()
+      }, 2000) */
+    //}
+  } else {
+    // Speaker
+    participants.local.muteSpeaker = false
+    // Audio
+    participants.local.muteAudio = false
+    if (!participants.local.muteAudio) {
+      participants.local.muteSpeaker = false
+    }
+    participants.local.saveMediaSettingsToStorage()
+  }
 
   return <div>
   <div className={classes.topContainer}>
@@ -511,11 +517,10 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     </Collapse>
   </div>
 
-
   <div ref={containerRef} className={classes.container}>
       <div style={{position:'relative', left:'-50px', top:'0px'}}>
         <FabMain size={fabSize}
-          onClick = { () => {
+          onClick = { (ev) => {
             showMainMenu()
           }}
         >
@@ -533,21 +538,29 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
     <div className={show ? classes.menuActive : classes.menu}>
       <MuiThemeProvider theme={theme}>
       {/* <StereoAudioSwitch size={fabSize} iconSize={iconSize} {...props}/> */}
-      <FabWithTooltip isOpen={show} index={0} size={fabSize} color={mute.muteS ? 'primary' : 'secondary' }
-        aria-label="speaker" onClick={() => {
-          participants.local.muteSpeaker = !mute.muteS
-          if (participants.local.muteSpeaker) {
-            participants.local.muteAudio = true
+      <FabWithTooltip isOpen={show} index={0} size={fabSize} color={mute.muteS || deviceFound === false ? 'primary' : 'secondary' }
+        aria-label="speaker" onClick={(ev) => {
+          if(deviceInfos.length === 3) {
+            updateDevices(ev)
           }
-          participants.local.saveMediaSettingsToStorage()
+            participants.local.muteSpeaker = !mute.muteS
+            if (participants.local.muteSpeaker) {
+              participants.local.muteAudio = true
+            }
+            participants.local.saveMediaSettingsToStorage()
+
         }}
         onClickMore = { (ev) => {
-          updateDevices(ev)
-         /*  enterPopup = false */
-          setSpeakerMenuEl(ev.currentTarget)
+          if(deviceInfos.length === 3) {
+            updateDevices(ev)
+          /*  enterPopup = false */
+          } else {
+            updateDevices(ev)
+            setSpeakerMenuEl(ev.currentTarget)
+          }
         }}
         >
-        {mute.muteS ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
+        {mute.muteS || deviceFound === false ? <SpeakerOffIcon style={{width:iconSize, height:iconSize, color:'white'}} />
           : <SpeakerOnIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
       </FabWithTooltip>
       {speakerMenuEl ? <Menu anchorEl={speakerMenuEl} keepMounted={true} style={{marginTop:-70}}
@@ -555,22 +568,29 @@ export const Footer: React.FC<BMProps&{height?:number}> = (props) => {
         {getMenuItems('audiooutput')}
       </Menu> : undefined}
 
-      <FabWithTooltip isOpen={show} index={1} size={fabSize} color={mute.muteA ? 'primary' : 'secondary' } aria-label="mic"
+      <FabWithTooltip isOpen={show} index={1} size={fabSize} color={mute.muteA || deviceFound === false ? 'primary' : 'secondary' } aria-label="mic"
         /* title = {acceleratorText2El(t('ttMicMute'))} */
-        onClick = { () => {
-          participants.local.muteAudio = !mute.muteA
-          if (!participants.local.muteAudio) {
-            participants.local.muteSpeaker = false
-          }
-          participants.local.saveMediaSettingsToStorage()
+        onClick = { (ev) => {
+          //console.log(deviceInfos.length, " LEN")
+            if(deviceInfos.length === 3) {
+              updateDevices(ev)
+            }
+            participants.local.muteAudio = !mute.muteA
+            if (!participants.local.muteAudio) {
+              participants.local.muteSpeaker = false
+            }
+            participants.local.saveMediaSettingsToStorage()
         }}
         onClickMore = { (ev) => {
-          updateDevices(ev)
-          setMicMenuEl(ev.currentTarget)
-
+          if(deviceInfos.length === 3) {
+            updateDevices(ev)
+          } else {
+            updateDevices(ev)
+            setMicMenuEl(ev.currentTarget)
+          }
         } }
         >
-        {mute.muteA ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> :
+        {mute.muteA || deviceFound === false ? <MicOffIcon style={{width:iconSize, height:iconSize, color:'white'}} /> :
           mute.onStage ?
             <Icon icon={megaphoneIcon} style={{width:iconSize, height:iconSize, color:'white'}} color="white" />
             : <MicIcon style={{width:iconSize, height:iconSize, color:'white'}} /> }
