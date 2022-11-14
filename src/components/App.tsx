@@ -26,22 +26,22 @@ import tabChatActive from '@images/earshot_icon_btn-chat.png'
 import tabContentActive from '@images/earshot_icon_btn-note.png'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
-import CloseTabIcon from '@material-ui/icons/HighlightOff';
+/* import CloseTabIcon from '@material-ui/icons/HighlightOff'; */
 import html2canvas from 'html2canvas'
 import { Dialog, DialogContent} from '@material-ui/core'
 import Draggable from 'react-draggable'
 import { Emoticons } from './footer/Emoticons'
 import { ZoneAvatar } from './footer/ZoneAvatar'
 // Media Share Icons
-import twitchIcon from '@images/twitch.png';
+/* import twitchIcon from '@images/twitch.png' */
 /* import {Icon} from '@iconify/react'
 import OndemandVideoIcon from '@material-ui/icons/OndemandVideo'; */
 
 /* import {Icon} from '@iconify/react' */
 /* import twitchActive from '@images/twitchActive.png' */
 
-
-
+// Common app icon
+import appIcon from '@images/earshot_icon_globe.png';
 
 
 let _able:Boolean = false
@@ -71,6 +71,10 @@ let selectedSpecs = ''
 
 let defaultActive:boolean = false
 
+
+let onDragging:boolean = false
+
+//let clickType:string = ''
 
 
 export const App: React.FC<{}> = () => {
@@ -659,6 +663,8 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
   function trackPos(data:any, _index:number, _menu:string) {
     //console.log(data.x, " XXXX START")
 
+
+
     if(data.x > -100 || data.x === 0) {
       setPosition({ x: 0, y: 0 })
       return
@@ -670,6 +676,9 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
 
     setPosition({ x: data.x, y: data.y })
     _menuPos = position.x
+
+
+    onDragging = true
 
     //_menuType = menu
 
@@ -1794,6 +1803,19 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
 
   //if(data.x === -40 || data.x === 0) {return}
 
+  const resetDrag = setTimeout(() => {
+    clearTimeout(resetDrag)
+    onDragging = false
+  }, 300)
+
+
+
+  /* console.log(data.x, " ---- ", clickType)
+  if(data.x < -500) {
+    Object(refEntity_2.current?.state).x = -99999999
+    return
+  } */
+
 
     //if(data.y < (-135 + (_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
     if(data.y < ((_index * -51)) || data.y > (675 + (_index * -51)) || data.x < (-(stores.map.screenSize[0] - 40)) || data.x > 0) {
@@ -1827,9 +1849,21 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
       //window.open(_url, "_new")
 
       //console.log(_index, " INDEX ", _url)
+      // zonemedia URL (filter out)
+      let mediaType = _url.indexOf('twitch')
+      let scWidth = window.innerWidth
+      let scHeight = window.innerHeight
+      let winWidth = window.innerWidth// - 100
+      let winHeight = window.innerHeight// - 100
+      var winLeft = ( scWidth - winWidth ) / 2
+      var winTop = ( scHeight - winHeight ) / 2
+
+      //window.open(_url, "_new")
+      let externalWindow = window.open(_index === mediaItemIndex ? (mediaType !== -1 ? (_url + '&parent=' + videoParent + '&autoplay=true') : (_url + "?autoplay=true")) : _url, '', 'width='+winWidth+',height='+winHeight+',left='+winLeft+',top='+winTop);
 
 
-      let externalWindow = window.open(_index === mediaItemIndex ? _url + '&parent=' + videoParent + '&autoplay=true' : _url, '', 'width=400,height=650,left=500,top=100');
+
+      //let externalWindow = window.open(_index === mediaItemIndex ? _url + '&parent=' + videoParent + '&autoplay=true' : _url, '', 'width=400,height=650,left=500,top=100');
       var timer = setInterval(function() {
         if(externalWindow?.closed) {
             clearInterval(timer);
@@ -3270,7 +3304,56 @@ let timeout:any;
 // Single & Double Click
 function singleClick(event:any, tabType:string, tabURL:string, tabIndex:number) {
   //alert(tabType);
-  if((position.x < 0 || position.x > 0) && activeTabIndex === tabIndex) {return}
+  //console.log(tabIndex, " ---- ", tabType, " --- ", position.x, " --- ", activeTabIndex)
+  // ResetAppsPanel((mediaItemIndex), 'twitch')
+  //console.log(activeTabIndex, " --- ", tabIndex)
+
+  //console.log(onDragging)
+
+  if((position.x < 0 || position.x > 0) && activeTabIndex === tabIndex) {
+    if(onDragging === false) {
+      ResetAppsPanel((tabIndex), tabType)
+    }
+    return
+  }
+
+  if(tabIndex === 0) {
+    if((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      /* ResetAppsPanel((tabIndex), tabType) */
+      return
+    }
+  } else if(tabIndex === 1) {
+    if((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && activeTabIndex === tabIndex) {
+      /* ResetAppsPanel((tabIndex), tabType) */
+      return
+    }
+  } else if(tabIndex === 2) {
+    if((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      //ResetAppsPanel((tabIndex), tabType)
+      return
+    }
+  } else if(tabIndex === 3) {
+    if((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      //ResetAppsPanel((tabIndex), tabType)
+      return
+    }
+  } else if(tabIndex === 4) {
+    if((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      //ResetAppsPanel((tabIndex), tabType)
+      return
+    }
+  } else if(tabIndex === 5) {
+    if((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      //ResetAppsPanel((tabIndex), tabType)
+      return
+    }
+  } else if(tabIndex === 6) {
+    if((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      //ResetAppsPanel((tabIndex), tabType)
+      return
+    }
+  }
+
     press = true;
     if(able === true) {
       if(menuType === tabType) {
@@ -3327,30 +3410,66 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
       if(Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) {return}
       Object(refEntity_1.current?.state).x = -99999999
     } else if(tabIndex === 2) {
-      if(Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) {return}
+      if(Object(refEntity_2.current?.state).x < -99999998 || Object(refEntity_2.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_2.current?.state).x = -99999999
     } else if(tabIndex === 3) {
-      if(Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) {return}
+      /* if(Object(refEntity_3.current?.state).x > 0 || Object(refEntity_3.current?.state).x > 0) {return} */
+      if(Object(refEntity_3.current?.state).x < -99999998 || Object(refEntity_3.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_3.current?.state).x = -99999999
     } else if(tabIndex === 4) {
-      if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {return}
+      /* if(Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) {return} */
+      if(Object(refEntity_4.current?.state).x < -99999998 || Object(refEntity_4.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_4.current?.state).x = -99999999
     } else if(tabIndex === 5) {
-      if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {return}
+      /* if(Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) {return} */
+      if(Object(refEntity_5.current?.state).x < -99999998 || Object(refEntity_5.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_5.current?.state).x = -99999999
     } else if(tabIndex === 6) {
-      if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return}
+      /* if(Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) {return} */
+      if(Object(refEntity_6.current?.state).x < -99999998 || Object(refEntity_6.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_6.current?.state).x = -99999999
     } else if(tabIndex === 9) {
-      if(Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0) {return}
+      /* if(Object(refEntity_9.current?.state).x < 0 || Object(refEntity_9.current?.state).x > 0) {return} */
+      if(Object(refEntity_9.current?.state).x < -99999998 || Object(refEntity_9.current?.state).x > 0 ) {
+        setPosition({x:0, y:0})
+        return
+      }
       Object(refEntity_9.current?.state).x = -99999999
     }
 
     ///////////////////////////////////////////////////////
     //console.log(tabIndex, " <><><> ", tabURL)
 
+    // zonemedia URL (filter out)
+    let mediaType = tabURL.indexOf('twitch')
+
+    //console.log(window.innerWidth, " ---- ", window.outerWidth)
+    let scWidth = window.innerWidth
+    let scHeight = window.innerHeight
+    let winWidth = window.innerWidth// - 100
+    let winHeight = window.innerHeight// - 100
+    var winLeft = ( scWidth - winWidth ) / 2
+    var winTop = ( scHeight - winHeight ) / 2
+
     //window.open(_url, "_new")
-    let externalWindow = window.open(tabType === 'twitch' ? tabURL + '&parent=' + videoParent + '&autoplay=true': tabURL, '', 'width=400,height=650,left=500,top=100');
+    let externalWindow = window.open(tabType === 'twitch' ? (mediaType !== -1 ? (tabURL + '&parent=' + videoParent + '&autoplay=true') : (tabURL + "?autoplay=true")) : tabURL, '', 'width='+winWidth+',height='+winHeight+',left='+winLeft+',top='+winTop);
+
+
     var timer = setInterval(function() {
       if(externalWindow?.closed) {
           clearInterval(timer);
@@ -3958,6 +4077,7 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
     ///////////////////////////////////////////////////////
     //_menuPos = -2
     //setAble(false)
+
   }
 
   //_menuPos = -(stores.map.screenSize[0]/2)
@@ -3970,18 +4090,26 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
   // Enable When needed
   setAble(false)
+
+
 }
 
 function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
+  //onDragging = false
   event.preventDefault();
   clicks.push(new Date().getTime());
   window.clearTimeout(timeout);
-  timeout = window.setTimeout(() => {
-      if (clicks.length > 1 && clicks[clicks.length - 1] - clicks[clicks.length - 2] < 250) {
-          doubleClick(event.target, _type, _url, _index);
-      } else {
-          singleClick(event.target, _type, _url, _index);
-      }
+  const clickTimeout = window.setTimeout(() => {
+    clearTimeout(clickTimeout)
+    if (clicks.length > 1 && clicks[clicks.length - 1] - clicks[clicks.length - 2] < 250) {
+      //console.log("double click")
+      //clickType = 'double'
+      doubleClick(event.target, _type, _url, _index)
+    } else {
+      //console.log("single click")
+      //clickType = 'single'
+      singleClick(event.target, _type, _url, _index)
+    }
   }, 250);
 }
 
@@ -4062,14 +4190,14 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
               <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:'#0f5c81', borderRadius:'2px', minWidth:'280px', top:'0px',
               display:((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
-              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+              {/* <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                 onClick={() => {
                   ResetAppsPanel(0, 'chat')
                 }}
                 onTouchEnd={() => {
                   ResetAppsPanel(0, 'chat')
                 }}
-              />
+              /> */}
                 <LeftBar stores={stores} type={'chat'}/>
               </div>
               </div>
@@ -4094,14 +4222,14 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
               <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px',
               display:((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0)) ? 'block' : 'none' , zIndex:-9999}}>
-              <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+              {/* <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                 onClick={() => {
                   ResetAppsPanel(1, 'content')
                 }}
                 onTouchEnd={() => {
                   ResetAppsPanel(1, 'content')
                 }}
-              />
+              /> */}
                 <LeftBar stores={stores} type={'content'}/>
               </div>
               </div>
@@ -4209,7 +4337,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                 display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (index+2) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (index+2) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (index+2) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (index+2) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (index+2) === 6) ? 'block' : 'none'
 
                 /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
-                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                {/* <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                   onClick={() => {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
@@ -4219,172 +4347,8 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                     //console.log("Close Tab click")
                     //console.log(Object(refEntity.current?.state).x)
                     ResetAppsPanel((index+2), content.type)
-                    /* if(index === 0) {
-                      let moveIndex = 0
-                      if(Object(refEntity_0.current?.state).x < 0) {
-                        Object(refEntity_0.current?.state).x = 0
-                        Object(refEntity_0.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_1.current?.state).x === 0) {
-                        Object(refEntity_1.current?.state).x = 0
-                        Object(refEntity_1.current?.state).y = (moveIndex * 51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_2.current?.state).x === 0) {
-                        Object(refEntity_2.current?.state).x = 0
-                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_3.current?.state).x === 0) {
-                        Object(refEntity_3.current?.state).x = 0
-                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_4.current?.state).x === 0) {
-                        Object(refEntity_4.current?.state).x = 0
-                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
-                      }
-                    } else if(index === 1) {
-                      let moveIndex = 0
-                      if(Object(refEntity_0.current?.state).x === 0) {
-                        Object(refEntity_0.current?.state).x = 0
-                        Object(refEntity_0.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_1.current?.state).x < 0) {
-                        Object(refEntity_1.current?.state).x = 0
-                        Object(refEntity_1.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_2.current?.state).x === 0) {
-                        Object(refEntity_2.current?.state).x = 0
-                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_3.current?.state).x === 0) {
-                        Object(refEntity_3.current?.state).x = 0
-                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_4.current?.state).x === 0) {
-                        Object(refEntity_4.current?.state).x = 0
-                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
-                      }
-                    } else if(index === 2) {
-                      let moveIndex = 0
-                      if(Object(refEntity_0.current?.state).x === 0) {
-                        Object(refEntity_0.current?.state).x = 0
-                        Object(refEntity_0.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_1.current?.state).x === 0) {
-                        Object(refEntity_1.current?.state).x = 0
-                        Object(refEntity_1.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_2.current?.state).x < 0) {
-                        Object(refEntity_2.current?.state).x = 0
-                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_3.current?.state).x === 0) {
-                        Object(refEntity_3.current?.state).x = 0
-                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_4.current?.state).x === 0) {
-                        Object(refEntity_4.current?.state).x = 0
-                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
-                      }
-                    } else if(index === 3) {
-                      let moveIndex = 0
-                      if(Object(refEntity_0.current?.state).x === 0) {
-                        Object(refEntity_0.current?.state).x = 0
-                        Object(refEntity_0.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_1.current?.state).x === 0) {
-                        Object(refEntity_1.current?.state).x = 0
-                        Object(refEntity_1.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_2.current?.state).x === 0) {
-                        Object(refEntity_2.current?.state).x = 0
-                        Object(refEntity_2.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_3.current?.state).x < 0) {
-                        Object(refEntity_3.current?.state).x = 0
-                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_4.current?.state).x === 0) {
-                        Object(refEntity_4.current?.state).x = 0
-                        Object(refEntity_4.current?.state).y = (0)
-                      }
-                    } else if(index === 4) {
-                      let moveIndex = 0
-                      if(Object(refEntity_0.current?.state).x === 0) {
-                        Object(refEntity_0.current?.state).x = 0
-                        Object(refEntity_0.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_1.current?.state).x === 0) {
-                        Object(refEntity_1.current?.state).x = 0
-                        Object(refEntity_1.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_2.current?.state).x === 0) {
-                        Object(refEntity_2.current?.state).x = 0
-                        Object(refEntity_2.current?.state).y = (0)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-
-                      if(Object(refEntity_3.current?.state).x === 0) {
-                        Object(refEntity_3.current?.state).x = 0
-                        Object(refEntity_3.current?.state).y = (moveIndex * -51)
-                      } else {
-                        moveIndex = moveIndex + 1
-                      }
-                      if(Object(refEntity_4.current?.state).x < 0) {
-                        Object(refEntity_4.current?.state).x = 0
-                        Object(refEntity_4.current?.state).y = (moveIndex * -51)
-                      }
-                    }
-                    _menuPos = -2
-                    setPosition({x:0, y:0}) */
                   }}
-                 />
+                 /> */}
 
                  {/* {(content.type.toLowerCase() !== 'chat' || content.type.toLowerCase() !== 'content') ?
                     <iframe src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
@@ -4422,19 +4386,19 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                   <img src={twitchActive} style={{position:'absolute', width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50}} draggable={false} alt="" />
                 </div> */}
               <img src={tabCollapseContent} style={{width:isSmartphone() ? 120 : 50, height:'auto', position:'relative', top:'0px', left:isSmartphone() ? '1px' : '1px', userSelect:'none', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - ((mediaIndex)+2))}} draggable={false} alt='' />
-                  <img src={twitchIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 && anim === true && able === false ? 'none' : 'block'}} draggable={false} alt='' />
+                  <img src={appIcon} style={{width:isSmartphone() ? 120 : 50, height:isSmartphone() ? 120 : 50, color:'white', position:'absolute', top:'2px', left:isSmartphone() ? '10px' : '5px' , userSelect:'none', zIndex:showIntro ? 0 : 99, display:positionMedia.x === 0 && anim === true && able === false ? 'none' : 'block'}} draggable={false} alt='' />
                 </div>
 
                 <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px', backgroundColor:'#8b5e3c', borderRadius:'2px', minWidth:'280px', top:'0px', display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (mediaItemIndex) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (mediaItemIndex) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (mediaItemIndex) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (mediaItemIndex) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (mediaItemIndex) === 6) ? 'block' : 'none', zIndex:-9999}}>
-                <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
+                {/* <CloseTabIcon style={{width:'40px', height:'50px', position:'absolute', right:'25px', color:'white', padding:isSmartphone() ? '10px' : '1px', transform:isSmartphone() ? 'scale(2)' : 'scale(1)', zIndex:9999}}
                 onClick={() => {
                   ResetAppsPanel((mediaItemIndex), 'twitch')
                 }}
                 onTouchEnd={() => {
                   ResetAppsPanel((mediaItemIndex), 'twitch')
                 }}
-              />
-                <iframe src={(Object(refEntity_2.current?.state).x < 0 && Object(refEntity_2.current?.state).x > -99999999) && mediaItemIndex === 2 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_3.current?.state).x < 0 && Object(refEntity_3.current?.state).x > -99999999) && mediaItemIndex === 3 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_4.current?.state).x < 0 && Object(refEntity_4.current?.state).x > -99999999) && mediaItemIndex === 4 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_5.current?.state).x < 0 && Object(refEntity_5.current?.state).x > -99999999) && mediaItemIndex === 5 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : (Object(refEntity_6.current?.state).x < 0 && Object(refEntity_6.current?.state).x > -99999999) && mediaItemIndex === 6 ? zoneMediaURL + "&parent=" + videoParent + "&autoplay=true" : ''} title={'Twitch'} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+              /> */}
+                <iframe src={(Object(refEntity_2.current?.state).x < 0 && Object(refEntity_2.current?.state).x > -99999999) && mediaItemIndex === 2 ? (zoneMediaURL.indexOf('twitch') !== -1 ? (zoneMediaURL + "&parent=" + videoParent + "&autoplay=true") : (zoneMediaURL + "?autoplay=true")) : (Object(refEntity_3.current?.state).x < 0 && Object(refEntity_3.current?.state).x > -99999999) && mediaItemIndex === 3 ? (zoneMediaURL.indexOf('twitch') !== -1 ? (zoneMediaURL + "&parent=" + videoParent + "&autoplay=true") : (zoneMediaURL + "?autoplay=true")) : (Object(refEntity_4.current?.state).x < 0 && Object(refEntity_4.current?.state).x > -99999999) && mediaItemIndex === 4 ? (zoneMediaURL.indexOf('twitch') !== -1 ? (zoneMediaURL + "&parent=" + videoParent + "&autoplay=true") : (zoneMediaURL + "?autoplay=true")) : (Object(refEntity_5.current?.state).x < 0 && Object(refEntity_5.current?.state).x > -99999999) && mediaItemIndex === 5 ? (zoneMediaURL.indexOf('twitch') !== -1 ? (zoneMediaURL + "&parent=" + videoParent + "&autoplay=true") : (zoneMediaURL + "?autoplay=true")) : (Object(refEntity_6.current?.state).x < 0 && Object(refEntity_6.current?.state).x > -99999999) && mediaItemIndex === 6 ? (zoneMediaURL.indexOf('twitch') !== -1 ? (zoneMediaURL + "&parent=" + videoParent + "&autoplay=true") : (zoneMediaURL + "?autoplay=true")) : ''} title={'Twitch'} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}} allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
                   </div>
                   </div>
 
@@ -4528,7 +4492,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
         </SplitPane>
 
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 3.0.9</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 4.0.0</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>

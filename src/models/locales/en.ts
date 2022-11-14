@@ -123,7 +123,7 @@ export const enTranslate = {
   ctDelete: 'Delete',
   ctClose: 'Close',
   ctName: 'Titile',
-  ctStreamingMedia: 'Streaming Media (Twitch feed)',
+  ctStreamingMedia: 'Content URL',
   ctFocus: 'Show it in the center',
   ctFrameVisible: 'Normal frame',
   ctFrameInvisible: 'Invisible frame',
