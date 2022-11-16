@@ -164,7 +164,9 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
   } */
 
   //console.log(_menuSelected, " MENU SELECTED ", props.type, " ---- ", eventShown)
+
   //console.log(props.type, " ==== ", _menuSelected, " ---- ", _menuSelectedPos)
+
   /* console.log(Object(document.getElementById('mIFrame')).src)
   let loaded:boolean = false
   if(Object(document.getElementById('mIFrame')).src !== undefined && _menuSelected === 'events') {
@@ -195,24 +197,24 @@ export const LeftBar: React.FC<BMProps&{type?:string}> = (props) => {
       </SplitPane > : <></>
       :
       <>
-      {/* {cContent.filter(item => item.shareType === "appimg").map(content => (
+      {cContent.filter(item => item.shareType === "appimg").map(content => (
         (_menuSelected === content.type && _menuSelectedPos === -2) ?
         <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'auto', overflowX: 'hidden', width:'100%', minWidth:'280px'}} >
             <iframe id='mIFrame' src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
         </SplitPane >
         : <></>
-       ))} */}
+       ))}
       </>
       }
-      {cContent.filter(item => item.shareType === "appimg").map(content => (
-       /*  (_menuSelected === content.type && _menuSelectedPos === -2) ? */
+      {/* {cContent.filter(item => item.shareType === "appimg").map(content => (
+        (_menuSelected === content.type && _menuSelectedPos === -2) ?
         <SplitPane split="horizontal" defaultSize="100%" resizerClassName = {classes.resizerHorizontal}
           paneStyle = {{overflowY: 'hidden', overflowX: 'hidden', width:'100%', minWidth:'280px', display: (_menuSelected === content.type && _menuSelectedPos === -2) ? 'block' : 'none'}} >
             <iframe id='mIFrame' src={content.url} title={content.type} allowTransparency={true} frameBorder={0} style={{width:'100%', height:'100%'}}></iframe>
         </SplitPane >
-       /*  : <></> */
-       ))}
+        : <></>
+       ))} */}
     </div>
   )
 }

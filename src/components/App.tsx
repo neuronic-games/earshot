@@ -663,8 +663,6 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
   function trackPos(data:any, _index:number, _menu:string) {
     //console.log(data.x, " XXXX START")
 
-
-
     if(data.x > -100 || data.x === 0) {
       setPosition({ x: 0, y: 0 })
       return
@@ -680,7 +678,8 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
 
     onDragging = true
 
-    //_menuType = menu
+    // TODAY
+    //_menuType = _menu
 
     // Setting Pos
     CheckAndSetPosition(_index)
@@ -1614,7 +1613,7 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
     }
   }
 
-  function setTrack(data:any, _url:string, _index:number) {
+  function setTrack(data:any, _url:string, _index:number, _menu:string) {
     //setMenuType(_type)
 
     /* if(_index === 0) {
@@ -2460,6 +2459,9 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             setPosition({x:0, y:0})
             setPositionMedia({x:0, y:0})
+            // CHECKING MENU
+            //console.log(_menu, " Menu TO be active")
+            setMenuType(_menu)
         }
     }, 100);
       ///////////////////////////////////////////////////////
@@ -2628,9 +2630,9 @@ let mediaItemIndex = AllMenusTypes.length === 0 ? 2 : ((AllMenusTypes.length + 2
 
       ///////////////////////////////////////////////////////
         _menuPos = -2
+        // TODAY
         //setPosition({x:0, y:0})
         setAble(false)
-
         //console.log(_menuPos, " menuPos")
     }
   }
@@ -3291,7 +3293,6 @@ function ResetAppsPanel(index:number, _type:string) {
       }
     }
   }
-
   _menuPos = -2
   setPosition({x:0, y:0})
   setPositionMedia({x:0, y:0})
@@ -3307,8 +3308,8 @@ function singleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
   //console.log(tabIndex, " ---- ", tabType, " --- ", position.x, " --- ", activeTabIndex)
   // ResetAppsPanel((mediaItemIndex), 'twitch')
   //console.log(activeTabIndex, " --- ", tabIndex)
-
   //console.log(onDragging)
+  //console.log('RESET PANEL ', position.x, " ==== ", tabIndex, " <><><> ", activeTabIndex)
 
   if((position.x < 0 || position.x > 0) && activeTabIndex === tabIndex) {
     if(onDragging === false) {
@@ -3318,38 +3319,41 @@ function singleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
   }
 
   if(tabIndex === 0) {
+    //console.log(Object(refEntity_0.current?.state).x, " >>>>>> 0")
     if((Object(refEntity_0.current?.state).x < 0 || Object(refEntity_0.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      /* ResetAppsPanel((tabIndex), tabType) */
+      ResetAppsPanel((tabIndex), tabType)
       return
+
     }
   } else if(tabIndex === 1) {
-    if((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) && activeTabIndex === tabIndex) {
-      /* ResetAppsPanel((tabIndex), tabType) */
+    //console.log(Object(refEntity_1.current?.state).x, " >>>>>> 1")
+    if((Object(refEntity_1.current?.state).x < 0 || Object(refEntity_1.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   } else if(tabIndex === 2) {
     if((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      //ResetAppsPanel((tabIndex), tabType)
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   } else if(tabIndex === 3) {
     if((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      //ResetAppsPanel((tabIndex), tabType)
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   } else if(tabIndex === 4) {
     if((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      //ResetAppsPanel((tabIndex), tabType)
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   } else if(tabIndex === 5) {
     if((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      //ResetAppsPanel((tabIndex), tabType)
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   } else if(tabIndex === 6) {
     if((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) /* && activeTabIndex === tabIndex */) {
-      //ResetAppsPanel((tabIndex), tabType)
+      ResetAppsPanel((tabIndex), tabType)
       return
     }
   }
@@ -4090,8 +4094,6 @@ function doubleClick(event:any, tabType:string, tabURL:string, tabIndex:number) 
 
   // Enable When needed
   setAble(false)
-
-
 }
 
 function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
@@ -4100,8 +4102,8 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
   clicks.push(new Date().getTime());
   window.clearTimeout(timeout);
   const clickTimeout = window.setTimeout(() => {
-    clearTimeout(clickTimeout)
-    if (clicks.length > 1 && clicks[clicks.length - 1] - clicks[clicks.length - 2] < 250) {
+    clearTimeout(clickTimeout) // 250
+    if (clicks.length > 1 && clicks[clicks.length - 1] - clicks[clicks.length - 2] < 300) {
       //console.log("double click")
       //clickType = 'double'
       doubleClick(event.target, _type, _url, _index)
@@ -4170,7 +4172,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
             {/* /////////////////////////////////CHAT APP/////////////////////////////////// */}
 
-            <Draggable /* bounds={{top: (0 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (0 * 51)))}} */ ref={refEntity_0} key={0} onDrag={(e, data) => trackPos(data, 0, 'chat')} onStop={(e, data) => setTrack(data, '', 0)} defaultPosition={{x: 0, y: 0}}>
+            <Draggable /* bounds={{top: (0 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (0 * 51)))}} */ ref={refEntity_0} key={0} onDrag={(e, data) => trackPos(data, 0, 'chat')} onStop={(e, data) => setTrack(data, '', 0, 'chat')} defaultPosition={{x: 0, y: 0}}>
 
             <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (0 * 119) : tabBGTopBGWeb + (0*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (activeTabIndex === 0) ? 19 : (18 - (0+2)), height:'100%'}}>
             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'chat' ? 19 : (18 - (0+2))}}
@@ -4205,7 +4207,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
              {/* /////////////////////////////////CONTENT APP////////////////////////////////// */}
 
-             <Draggable /* bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}} */ ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1)} defaultPosition={{x: 0, y: 0}}>
+             <Draggable /* bounds={{top: (1 * -51), left: -(stores.map.screenSize[0] - 40), right: -40, bottom: (stores.map.screenSize[1] - (50 + (1 * 51)))}} */ ref={refEntity_1} key={1} onDrag={(e, data) => trackPos(data, 1, 'content')} onStop={(e, data) => setTrack(data, '', 1, 'content')} defaultPosition={{x: 0, y: 0}}>
             <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + (1 * 119) : tabBGTopBGWeb + (1*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (activeTabIndex === 1) ? 19 : (18 - (1+2)), height:'100%'}}>
             <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'content' ? 19 : (18 - (1+2))}}
               onClick={(e) => {
@@ -4262,7 +4264,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
               ref={(index+2) === 2 ? refEntity_2 : (index+2) === 3 ? refEntity_3 : (index+2) === 4 ? refEntity_4 : (index+2) === 5 ? refEntity_5 : (index+2) === 6 ? refEntity_6 : (index+2) === 7 ? refEntity_7 : refEntity_8}
 
-              key={(index+2)} onDrag={(e, data) => trackPos(data, (index+2), content.type)} onStop={(e, data) => setTrack(data, content.url, (index+2))} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
+              key={(index+2)} onDrag={(e, data) => trackPos(data, (index+2), content.type)} onStop={(e, data) => setTrack(data, content.url, (index+2), content.type)} /* disabled={able ? true : false} */ defaultPosition={{x: 0, y: 0}}>
 
                 <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + ((index+2) * 119) : tabBGTopBGWeb + ((index+2)*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (activeTabIndex === (index+2)) ? 19 : (18 - ((index+2)+2)), height:'100%'}}>
                 <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === content.type ? 19 : (18 - ((index+2)+2))}}
@@ -4333,7 +4335,6 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
                 </div>
 
                 <div style={{position: 'absolute', width:'405px', height:'70%', left:'0px'/* , top:'0px' */, backgroundColor:content.baseColor, borderRadius:'2px', minWidth:'280px', top:'0px'/* isSmartphone() ? tabBGTopBGMob + (index * 119) : tabBGTopBGWeb + (index*51) */,
-
                 display:((Object(refEntity_2.current?.state).x < 0 || Object(refEntity_2.current?.state).x > 0) && (index+2) === 2) ? 'block' : ((Object(refEntity_3.current?.state).x < 0 || Object(refEntity_3.current?.state).x > 0) && (index+2) === 3) ? 'block' : ((Object(refEntity_4.current?.state).x < 0 || Object(refEntity_4.current?.state).x > 0) && (index+2) === 4) ? 'block' : ((Object(refEntity_5.current?.state).x < 0 || Object(refEntity_5.current?.state).x > 0) && (index+2) === 5) ? 'block' : ((Object(refEntity_6.current?.state).x < 0 || Object(refEntity_6.current?.state).x > 0) && (index+2) === 6) ? 'block' : 'none'
 
                 /* Object(refEntity_5.current?.state).x < 0 ? 'block' : Object(refEntity_6.current?.state).x < ? 'block' : Object(refEntity_7.current?.state).x < 0 ? 'block' : Object(refEntity_8.current?.state).x < 0 ? 'block' : 'none' */, zIndex:-9999}}>
@@ -4370,7 +4371,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
 
             {inZone !== undefined && inZone === "close" && zoneMediaURL !== undefined && zoneMediaURL !== ""
             ?
-                 <Draggable ref={(mediaItemIndex) === 2 ? refEntity_2 : mediaItemIndex === 3 ? refEntity_3 : mediaItemIndex === 4 ? refEntity_4 : mediaItemIndex === 5 ? refEntity_5 : mediaItemIndex === 6 ? refEntity_6 : mediaItemIndex === 7 ? refEntity_7 : refEntity_8} key={(mediaItemIndex)} onDrag={(e, data) => trackPos(data, (mediaItemIndex), 'twitch')} onStop={(e, data) => setTrack(data, zoneMediaURL, (mediaItemIndex))} defaultPosition={{x: 0, y: 0}} >
+                 <Draggable ref={(mediaItemIndex) === 2 ? refEntity_2 : mediaItemIndex === 3 ? refEntity_3 : mediaItemIndex === 4 ? refEntity_4 : mediaItemIndex === 5 ? refEntity_5 : mediaItemIndex === 6 ? refEntity_6 : mediaItemIndex === 7 ? refEntity_7 : refEntity_8} key={(mediaItemIndex)} onDrag={(e, data) => trackPos(data, (mediaItemIndex), 'twitch')} onStop={(e, data) => setTrack(data, zoneMediaURL, (mediaItemIndex), 'twitch')} defaultPosition={{x: 0, y: 0}} >
 
               <div style={{position:'absolute', right:able ? '0%' : '0%', top:isSmartphone() ? tabBGTopBGMob + ((mediaIndex) * 119) : tabBGTopBGWeb + ((mediaIndex)*51), borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (activeTabIndex === (mediaIndex)) ? 19 : (18 - ((mediaIndex)+2)), height:'100%'}}>
                 <div  style={{position:'absolute', right:able ? '0%' : '0%', top:'0px', borderRadius: '5px', display:'flex', zIndex:showIntro ? 0 : menuType === 'twitch' ? 19 : (18 - ((mediaIndex)+2))}}
@@ -4492,7 +4493,7 @@ function onTabMenuClick(event:any, _type:string, _url:string, _index:number) {
         </SplitPane>
 
         <div /* onClick={StartMeeting}  */style={{width:'100%', height:'100%', alignItems:'center', justifyContent:'center', verticalAlign:'center',position:'absolute', backgroundColor: '#5f7ca0', textAlign:'center', display:showIntro ? 'block' : 'none'}}>
-        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 4.0.0</p>
+        <p style={{textAlign:'right', color: 'white', position:'relative', right:'24.5px', top:'20px', fontSize: isSmartphone() ? '2.4rem' : '1rem', fontWeight:'normal'}}>Version 4.0.1</p>
           <div style={{position:'relative', top:roomImgPath === '' ? '20%' : '0%'}}>
           <p style={{textAlign:'center', color: 'white',fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'normal'}}>Welcome To</p>
           <p style={_roomName ? {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '2.8rem' : '1.2rem', fontWeight:'bold', opacity: 1, transition: 'opacity 300ms'} : {textAlign:'center', color: 'white', marginTop:isSmartphone() ? '-2.6rem' : '-0.8rem', fontSize:isSmartphone() ? '3rem' : '1.2rem', fontWeight:'bold', opacity: 0}}>{_roomName}</p>
